@@ -117,6 +117,11 @@ set(MagickaVox_Files
 )
 source_group("Source/Util/MagicaVox" FILES ${MagickaVox_Files})
 
+set(Voxel_Files
+    "Source/Library/Voxel/BinaryVolume.h"
+    "Source/Library/Voxel/BinaryVolume.cpp"
+)
+source_group("Source/Voxel" FILES ${Voxel_Files})
 
 set(ALL_FILES
     ${Source_Files}
@@ -126,6 +131,7 @@ set(ALL_FILES
 	  ${MagickaVox_Files}
 	  ${MagickaVox_Chunk_Files}
 	  ${MagickaVox_IO}
+	  ${Voxel_Files}
 )
 
 ############################################################################
