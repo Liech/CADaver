@@ -18,40 +18,36 @@ set(Source_Files
 source_group("Source" FILES ${Source_Files})
 
 set(CADShapes_Files
-    "Source/Library/CADShape/CADShape.cpp"
-    "Source/Library/CADShape/CADShape.h"
-    "Source/Library/CADShape/CADCompound.cpp"
-    "Source/Library/CADShape/CADCompound.h"
-    "Source/Library/CADShape/CADCompSolid.cpp"
-    "Source/Library/CADShape/CADCompSolid.h"
-    "Source/Library/CADShape/CADEdge.cpp"
-    "Source/Library/CADShape/CADEdge.h"
-    "Source/Library/CADShape/CADFace.cpp"
-    "Source/Library/CADShape/CADFace.h"
-    "Source/Library/CADShape/CADShell.cpp"
-    "Source/Library/CADShape/CADShell.h"
-    "Source/Library/CADShape/CADSolid.cpp"
-    "Source/Library/CADShape/CADSolid.h"
-    "Source/Library/CADShape/CADVertex.cpp"
-    "Source/Library/CADShape/CADVertex.h"
-    "Source/Library/CADShape/CADWire.cpp"
-    "Source/Library/CADShape/CADWire.h"
-    "Source/Library/CADShape/TopAbs2String.cpp"
-    "Source/Library/CADShape/TopAbs2String.h"
-    "Source/Library/CADShape/CADShapeFactory.cpp"
-    "Source/Library/CADShape/CADShapeFactory.h"
+    "Source/Library/CAD/CADShape.cpp"
+    "Source/Library/CAD/CADShape.h"
+    "Source/Library/CAD/CADCompound.cpp"
+    "Source/Library/CAD/CADCompound.h"
+    "Source/Library/CAD/CADCompSolid.cpp"
+    "Source/Library/CAD/CADCompSolid.h"
+    "Source/Library/CAD/CADEdge.cpp"
+    "Source/Library/CAD/CADEdge.h"
+    "Source/Library/CAD/CADFace.cpp"
+    "Source/Library/CAD/CADFace.h"
+    "Source/Library/CAD/CADShell.cpp"
+    "Source/Library/CAD/CADShell.h"
+    "Source/Library/CAD/CADSolid.cpp"
+    "Source/Library/CAD/CADSolid.h"
+    "Source/Library/CAD/CADVertex.cpp"
+    "Source/Library/CAD/CADVertex.h"
+    "Source/Library/CAD/CADWire.cpp"
+    "Source/Library/CAD/CADWire.h"
+    "Source/Library/CAD/TopAbs2String.cpp"
+    "Source/Library/CAD/TopAbs2String.h"
+    "Source/Library/CAD/CADShapeFactory.cpp"
+    "Source/Library/CAD/CADShapeFactory.h"
 )
-source_group("Source/CADShape" FILES ${CADShapes_Files})
+source_group("Source/CAD" FILES ${CADShapes_Files})
 
 set(Util_Files
-    "Source/Library/Util/STLWriter.cpp"
-    "Source/Library/Util/STLWriter.h"
     "Source/Library/Util/SaveFileDialog.cpp"
     "Source/Library/Util/SaveFileDialog.h"
     "Source/Library/Util/LoadFileDialog.cpp"
     "Source/Library/Util/LoadFileDialog.h"
-    "Source/Library/Util/Triangulation.cpp"
-    "Source/Library/Util/Triangulation.h"
 )
 source_group("Source/Util" FILES ${Util_Files})
 
@@ -64,64 +60,74 @@ set(Operation_Files
 source_group("Source/Operation" FILES ${Operation_Files})
 
 set(MagickaVox_Chunk_Files
-    "Source/Library/Util/MagicaVox/Chunk/Chunk.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkFactory.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkLAYR.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkLAYR.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkMAIN.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkMAIN.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkMATL.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkMATL.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunknGRP.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunknGRP.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunknSHP.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunknSHP.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunknTRN.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunknTRN.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkPACK.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkPACK.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkRGBA.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkRGBA.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkrOBJ.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkrOBJ.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkSIZE.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkSIZE.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkXYZI.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkXYZI.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkRCAM.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkRCAM.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkNOTE.h"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkNOTE.cpp"
-	  "Source/Library/Util/MagicaVox/Chunk/Chunk.cpp"
-    "Source/Library/Util/MagicaVox/Chunk/ChunkFactory.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/Chunk.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkFactory.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkLAYR.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkLAYR.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkMAIN.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkMAIN.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkMATL.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkMATL.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunknGRP.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunknGRP.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunknSHP.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunknSHP.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunknTRN.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunknTRN.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkPACK.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkPACK.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkRGBA.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkRGBA.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkrOBJ.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkrOBJ.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkSIZE.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkSIZE.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkXYZI.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkXYZI.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkRCAM.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkRCAM.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkNOTE.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkNOTE.cpp"
+	  "Source/Library/Voxel/MagicaVox/Chunk/Chunk.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/ChunkFactory.cpp"
 )
-source_group("Source/Util/MagicaVox/Chunk/" FILES ${MagickaVox_Chunk_Files})
+source_group("Source/Voxel/MagicaVox/Chunk/" FILES ${MagickaVox_Chunk_Files})
 
 set(MagickaVox_IO
-    "Source/Library/Util/MagicaVox/IO/Reader.h"
-    "Source/Library/Util/MagicaVox/IO/Reader.cpp"
-    "Source/Library/Util/MagicaVox/IO/typeDICT.h"
-    "Source/Library/Util/MagicaVox/IO/typeDICT.cpp"
-    "Source/Library/Util/MagicaVox/IO/typeROTATION.h"
-    "Source/Library/Util/MagicaVox/IO/typeROTATION.cpp"
-    "Source/Library/Util/MagicaVox/IO/Writer.h"
-    "Source/Library/Util/MagicaVox/IO/Writer.cpp"
+    "Source/Library/Voxel/MagicaVox/IO/Reader.h"
+    "Source/Library/Voxel/MagicaVox/IO/Reader.cpp"
+    "Source/Library/Voxel/MagicaVox/IO/typeDICT.h"
+    "Source/Library/Voxel/MagicaVox/IO/typeDICT.cpp"
+    "Source/Library/Voxel/MagicaVox/IO/typeROTATION.h"
+    "Source/Library/Voxel/MagicaVox/IO/typeROTATION.cpp"
+    "Source/Library/Voxel/MagicaVox/IO/Writer.h"
+    "Source/Library/Voxel/MagicaVox/IO/Writer.cpp"
 )
-source_group("Source/Util/MagicaVox/IO" FILES ${MagickaVox_IO})
+source_group("Source/Voxel/MagicaVox/IO" FILES ${MagickaVox_IO})
 
 set(MagickaVox_Files
-    "Source/Library/Util/MagicaVox/VoxFile.h"
-    "Source/Library/Util/MagicaVox/VoxFile.cpp"
-    "Source/Library/Util/MagicaVox/VoxFileRaw.h"
-    "Source/Library/Util/MagicaVox/VoxFileRaw.cpp"
+    "Source/Library/Voxel/MagicaVox/VoxFile.h"
+    "Source/Library/Voxel/MagicaVox/VoxFile.cpp"
+    "Source/Library/Voxel/MagicaVox/VoxFileRaw.h"
+    "Source/Library/Voxel/MagicaVox/VoxFileRaw.cpp"
 )
-source_group("Source/Util/MagicaVox" FILES ${MagickaVox_Files})
+source_group("Source/Voxel/MagicaVox" FILES ${MagickaVox_Files})
 
 set(Voxel_Files
     "Source/Library/Voxel/BinaryVolume.h"
     "Source/Library/Voxel/BinaryVolume.cpp"
+    "Source/Library/Voxel/MarchingCubes.h"
+    "Source/Library/Voxel/MarchingCubes.cpp"
 )
 source_group("Source/Voxel" FILES ${Voxel_Files})
+
+set(Triangle_Files
+    "Source/Library/Triangle/Triangulation.h"
+    "Source/Library/Triangle/Triangulation.cpp"
+    "Source/Library/Triangle/STLWriter.h"
+    "Source/Library/Triangle/STLWriter.cpp"
+)
+source_group("Source/Voxel" FILES ${Triangle_Files})
 
 set(ALL_FILES
     ${Source_Files}
@@ -132,6 +138,7 @@ set(ALL_FILES
 	  ${MagickaVox_Chunk_Files}
 	  ${MagickaVox_IO}
 	  ${Voxel_Files}
+	  ${Triangle_Files}
 )
 
 ############################################################################

@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "Library/CADShape/CADShape.h"
-#include "Library/CADShape/CADShapeFactory.h"
+#include "Library/CAD/CADShape.h"
+#include "Library/CAD/CADShapeFactory.h"
 #include "Library/Operation/TriangulateOperation.h"
 #include "Library/Util/LoadFileDialog.h"
 #include "Library/Util/SaveFileDialog.h"
-#include "Library/Util/Triangulation.h"
+#include "Library/Triangle/Triangulation.h"
 
 
 int main()

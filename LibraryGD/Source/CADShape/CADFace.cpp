@@ -2,9 +2,9 @@
 
 #include <godot_cpp/core/class_db.hpp>
 
-#include "Library/CADShape/CADFace.h"
-#include "Library/CADShape/CADWire.h"
-#include "Library/Util/Triangulation.h"
+#include "Library/CAD/CADFace.h"
+#include "Library/CAD/CADWire.h"
+#include "Library/Triangle/Triangulation.h"
 
 #include "CADWire.h"
 

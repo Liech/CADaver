@@ -1,8 +1,8 @@
 #include "CADShell.h"
 
 #include "CADFace.h"
-#include "Library/CADShape/CADShell.h"
-#include "Library/CADShape/CADFace.h"
+#include "Library/CAD/CADShell.h"
+#include "Library/CAD/CADFace.h"
 #include <godot_cpp/core/class_db.hpp>
 
 namespace godot

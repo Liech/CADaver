@@ -1,7 +1,7 @@
 #include "CADEdge.h"
 #include "CADVertex.h"
-#include "Library/CADShape/CADEdge.h"
-#include "Library/CADShape/CADVertex.h"
+#include "Library/CAD/CADEdge.h"
+#include "Library/CAD/CADVertex.h"
 #include <godot_cpp/core/class_db.hpp>
 
 namespace godot

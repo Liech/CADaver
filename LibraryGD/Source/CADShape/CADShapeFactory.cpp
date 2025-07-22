@@ -8,14 +8,14 @@
 #include "CADSolid.h"
 #include "CADVertex.h"
 #include "CADWire.h"
-#include "Library/CADShape/CADCompSolid.h"
-#include "Library/CADShape/CADCompound.h"
-#include "Library/CADShape/CADEdge.h"
-#include "Library/CADShape/CADFace.h"
-#include "Library/CADShape/CADShell.h"
-#include "Library/CADShape/CADSolid.h"
-#include "Library/CADShape/CADVertex.h"
-#include "Library/CADShape/CADWire.h"
+#include "Library/CAD/CADCompSolid.h"
+#include "Library/CAD/CADCompound.h"
+#include "Library/CAD/CADEdge.h"
+#include "Library/CAD/CADFace.h"
+#include "Library/CAD/CADShell.h"
+#include "Library/CAD/CADSolid.h"
+#include "Library/CAD/CADVertex.h"
+#include "Library/CAD/CADWire.h"
 
 namespace godot
 {

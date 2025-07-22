@@ -1,8 +1,8 @@
 #include "CADWire.h"
 
 #include "CADEdge.h"
-#include "Library/CADShape/CADWire.h"
-#include "Library/CADShape/CADEdge.h"
+#include "Library/CAD/CADWire.h"
+#include "Library/CAD/CADEdge.h"
 #include <godot_cpp/core/class_db.hpp>
 
 namespace godot

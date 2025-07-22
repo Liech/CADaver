@@ -1,7 +1,7 @@
 #include "CADSolid.h"
 #include "CADShell.h"
-#include "Library/CADShape/CADShell.h"
-#include "Library/CADShape/CADSolid.h"
+#include "Library/CAD/CADShell.h"
+#include "Library/CAD/CADSolid.h"
 #include <godot_cpp/core/class_db.hpp>
 
 namespace godot

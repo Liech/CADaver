@@ -2,7 +2,7 @@
 
 #include "CADShape/CADShapeFactory.h"
 #include "Library/Operation/ExtrudeOperation.h"
-#include "Library/CADShape/CADShape.h"
+#include "Library/CAD/CADShape.h"
 
 namespace godot
 {
