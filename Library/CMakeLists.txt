@@ -95,7 +95,7 @@ set(MagickaVox_Chunk_Files
 	  "Source/Library/Util/MagicaVox/Chunk/Chunk.cpp"
     "Source/Library/Util/MagicaVox/Chunk/ChunkFactory.cpp"
 )
-source_group("Source/Library/Util/MagicaVox/Chunk/" FILES ${MagickaVox_Chunk_Files})
+source_group("Source/Util/MagicaVox/Chunk/" FILES ${MagickaVox_Chunk_Files})
 
 set(MagickaVox_IO
     "Source/Library/Util/MagicaVox/IO/Reader.h"
@@ -107,7 +107,7 @@ set(MagickaVox_IO
     "Source/Library/Util/MagicaVox/IO/Writer.h"
     "Source/Library/Util/MagicaVox/IO/Writer.cpp"
 )
-source_group("Source/Library/Tools/MagicaVox/IO" FILES ${MagickaVox_IO})
+source_group("Source/Util/MagicaVox/IO" FILES ${MagickaVox_IO})
 
 set(MagickaVox_Files
     "Source/Library/Util/MagicaVox/VoxFile.h"
@@ -115,7 +115,7 @@ set(MagickaVox_Files
     "Source/Library/Util/MagicaVox/VoxFileRaw.h"
     "Source/Library/Util/MagicaVox/VoxFileRaw.cpp"
 )
-source_group("Source/Library/Util/MagicaVox" FILES ${MagickaVox_Files})
+source_group("Source/Util/MagicaVox" FILES ${MagickaVox_Files})
 
 
 set(ALL_FILES
