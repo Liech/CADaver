@@ -63,11 +63,69 @@ set(Operation_Files
 )
 source_group("Source/Operation" FILES ${Operation_Files})
 
+set(MagickaVox_Chunk_Files
+    "Source/Library/Util/MagicaVox/Chunk/Chunk.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkFactory.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkLAYR.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkLAYR.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkMAIN.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkMAIN.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkMATL.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkMATL.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunknGRP.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunknGRP.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunknSHP.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunknSHP.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunknTRN.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunknTRN.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkPACK.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkPACK.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkRGBA.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkRGBA.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkrOBJ.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkrOBJ.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkSIZE.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkSIZE.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkXYZI.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkXYZI.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkRCAM.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkRCAM.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkNOTE.h"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkNOTE.cpp"
+	  "Source/Library/Util/MagicaVox/Chunk/Chunk.cpp"
+    "Source/Library/Util/MagicaVox/Chunk/ChunkFactory.cpp"
+)
+source_group("Source/Library/Util/MagicaVox/Chunk/" FILES ${MagickaVox_Chunk_Files})
+
+set(MagickaVox_IO
+    "Source/Library/Util/MagicaVox/IO/Reader.h"
+    "Source/Library/Util/MagicaVox/IO/Reader.cpp"
+    "Source/Library/Util/MagicaVox/IO/typeDICT.h"
+    "Source/Library/Util/MagicaVox/IO/typeDICT.cpp"
+    "Source/Library/Util/MagicaVox/IO/typeROTATION.h"
+    "Source/Library/Util/MagicaVox/IO/typeROTATION.cpp"
+    "Source/Library/Util/MagicaVox/IO/Writer.h"
+    "Source/Library/Util/MagicaVox/IO/Writer.cpp"
+)
+source_group("Source/Library/Tools/MagicaVox/IO" FILES ${MagickaVox_IO})
+
+set(MagickaVox_Files
+    "Source/Library/Util/MagicaVox/VoxFile.h"
+    "Source/Library/Util/MagicaVox/VoxFile.cpp"
+    "Source/Library/Util/MagicaVox/VoxFileRaw.h"
+    "Source/Library/Util/MagicaVox/VoxFileRaw.cpp"
+)
+source_group("Source/Library/Util/MagicaVox" FILES ${MagickaVox_Files})
+
+
 set(ALL_FILES
     ${Source_Files}
     ${Util_Files}
     ${Operation_Files}
     ${CADShapes_Files}
+	  ${MagickaVox_Files}
+	  ${MagickaVox_Chunk_Files}
+	  ${MagickaVox_IO}
 )
 
 ############################################################################
