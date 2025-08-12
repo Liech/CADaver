@@ -71,18 +71,19 @@ namespace MagicaVoxImporter {
 
   }
 
-  std::pair<std::unique_ptr<bool[]>, std::array<size_t, 3>> VoxFile::readBinary(const std::string& filename) {
+  std::pair<std::vector<bool>, std::array<size_t, 3>> VoxFile::readBinary(const std::string& filename) {
     VoxFile v(filename);
     assert(v.Models.size() == 1);
     std::array<size_t, 3> dimensions = v.Models[0].second;  
     size_t dataSize = dimensions[0] * dimensions[1] * dimensions[2];
-    std::unique_ptr<bool[]> content = std::make_unique<bool[]>(dataSize);
+    std::vector<bool> content = std::vector<bool>();
+    content.resize(dataSize);
     for (size_t i = 0; i < dataSize; i++)
       content[i] = v.Models[0].first[i] != 0;
     return std::make_pair(std::move(content),dimensions);
   }
 
-  void VoxFile::writeBinary(bool* data, const std::array<size_t, 3>& size, const std::string& filename) {
+  void VoxFile::writeBinary(const std::vector<bool>& data, const std::array<size_t, 3>& size, const std::string& filename) {
     ChunkMAIN mainChunk;
     std::unique_ptr<ChunkSIZE> sizeChunk = std::make_unique<ChunkSIZE>();
     sizeChunk->sizeX = size[0];

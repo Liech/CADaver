@@ -1,14 +1,16 @@
 #include "ChunkMATL.h"
 
-#include "Util/MagicaVox/IO/Reader.h"
+#include "Voxel/MagicaVox/IO/Reader.h"
 #include <map>
 
-namespace MagicaVoxImporter {
+namespace MagicaVoxImporter
+{
 
-  void ChunkMATL::read(Reader own, Reader child) {
-    Chunk::read(own, child);
+    void ChunkMATL::read(Reader own, Reader child)
+    {
+        Chunk::read(own, child);
 
-    MaterialID = own.readInt();
-    Properties = own.readDict();
-  }
+        MaterialID = own.readInt();
+        Properties = own.readDict();
+    }
 }

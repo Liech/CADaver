@@ -3,9 +3,14 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-class BinaryVolume
+namespace Library
 {
-  public:
-    glm::ivec3        dimension;
-    std::vector<bool> data;
-};
+    class BinaryVolume
+    {
+      public:
+        glm::ivec3        dimension;
+        glm::dvec3        origin;
+        glm::dvec3        size;
+        std::vector<bool> data;
+    };
+}

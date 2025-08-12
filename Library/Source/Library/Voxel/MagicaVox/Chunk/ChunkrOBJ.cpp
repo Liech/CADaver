@@ -1,6 +1,6 @@
 #include "ChunkrOBJ.h"
 
-#include "Util/MagicaVox/IO/Reader.h"
+#include "Voxel/MagicaVox/IO/Reader.h"
 
 namespace MagicaVoxImporter {
   void ChunkrOBJ::read(Reader own, Reader child) {

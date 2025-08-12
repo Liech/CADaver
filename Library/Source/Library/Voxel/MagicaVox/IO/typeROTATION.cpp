@@ -1,5 +1,6 @@
 #include "typeROTATION.h"
 
-namespace MagicaVoxImporter {
+namespace MagicaVoxImporter
+{
 
 }

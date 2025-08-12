@@ -56,6 +56,14 @@ set(Operation_Files
     "Source/Library/Operation/ExtrudeOperation.h"
     "Source/Library/Operation/TriangulateOperation.cpp"
     "Source/Library/Operation/TriangulateOperation.h"
+    "Source/Library/Operation/LoadCADOperation.cpp"
+    "Source/Library/Operation/LoadCADOperation.h"
+    "Source/Library/Operation/SaveCADOperation.cpp"
+    "Source/Library/Operation/SaveCADOperation.h"
+    "Source/Library/Operation/LoadVoxelOperation.cpp"
+    "Source/Library/Operation/LoadVoxelOperation.h"
+    "Source/Library/Operation/SaveVoxelOperation.cpp"
+    "Source/Library/Operation/SaveVoxelOperation.h"
 )
 source_group("Source/Operation" FILES ${Operation_Files})
 
@@ -127,7 +135,7 @@ set(Triangle_Files
     "Source/Library/Triangle/STLWriter.h"
     "Source/Library/Triangle/STLWriter.cpp"
 )
-source_group("Source/Voxel" FILES ${Triangle_Files})
+source_group("Source/Triangle" FILES ${Triangle_Files})
 
 set(ALL_FILES
     ${Source_Files}

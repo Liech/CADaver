@@ -3,8 +3,8 @@
 #include <map>
 #include <tuple>
 
-#include "CADShape/CADShape.h"
-#include "Util/Triangulation.h"
+#include "CAD/CADShape.h"
+#include "Triangle/Triangulation.h"
 
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>

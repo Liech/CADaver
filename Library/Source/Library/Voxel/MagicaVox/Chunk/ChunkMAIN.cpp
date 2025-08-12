@@ -1,6 +1,6 @@
 #include "ChunkMAIN.h"
 
-#include "Util/MagicaVox/IO/Writer.h"
+#include "Voxel/MagicaVox/IO/Writer.h"
 
 namespace MagicaVoxImporter {
 

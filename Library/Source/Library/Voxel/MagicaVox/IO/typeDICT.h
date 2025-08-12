@@ -1,5 +1,6 @@
 #pragma once
 
-namespace MagicaVoxImporter {
+namespace MagicaVoxImporter
+{
 
 }

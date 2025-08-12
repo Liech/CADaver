@@ -1,7 +1,7 @@
 #include "ExtrudeOperation.h"
 
-#include "CADShape/CADShapeFactory.h"
-#include "CADShape/CADShape.h"
+#include "CAD/CADShapeFactory.h"
+#include "CAD/CADShape.h"
 
 #include <BRepPrimAPI_MakePrism.hxx>
 #include <BRep_Builder.hxx>

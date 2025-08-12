@@ -1,6 +1,6 @@
 #include "ChunkXYZI.h"
-#include "Util/MagicaVox/IO/Reader.h"
-#include "Util/MagicaVox/IO/Writer.h"
+#include "Voxel/MagicaVox/IO/Reader.h"
+#include "Voxel/MagicaVox/IO/Writer.h"
 
 #include <iostream>
 #include <string>

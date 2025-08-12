@@ -1,5 +1,6 @@
 #include "typeDICT.h"
 
-namespace MagicaVoxImporter {
+namespace MagicaVoxImporter
+{
 
 }

@@ -1,5 +1,5 @@
 #include "ChunknTRN.h"
-#include "Util/MagicaVox/IO/Reader.h"
+#include "Voxel/MagicaVox/IO/Reader.h"
 #include <stdexcept>
 
 namespace MagicaVoxImporter {
