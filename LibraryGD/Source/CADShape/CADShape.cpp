@@ -84,7 +84,6 @@ namespace godot
     godot::AABB CADShape::getAABB() const
     {
         auto    aabb = getData().getBoundingBox();
-        // Convert the glm::dvec3 points to Godot Vector3
         Vector3 position = Vector3(aabb.first.x, aabb.first.y, aabb.first.z);
         Vector3 size     = Vector3(aabb.second.x, aabb.second.y, aabb.second.z);
         return AABB(position, size);

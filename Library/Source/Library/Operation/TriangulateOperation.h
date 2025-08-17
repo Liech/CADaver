@@ -5,11 +5,13 @@
 namespace Library
 {
     class Triangulation;
+    class BinaryVolume;
     class CADShape;
 
     class TriangulateOperation
     {
       public:
         static std::unique_ptr<Triangulation> triangulate(const CADShape&, double precision = 0.1);
+        static std::unique_ptr<Triangulation> triangulate(const BinaryVolume&);
     };
 }

@@ -5,6 +5,8 @@
 
 #include "CAD/CADShape.h"
 #include "Triangle/Triangulation.h"
+#include "Voxel/MarchingCubes.h"
+#include "Voxel/BinaryVolume.h"
 
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>
@@ -71,5 +73,11 @@ namespace Library
         }
 
         return std::move(result);
+    }
+    
+    std::unique_ptr<Triangulation> TriangulateOperation::triangulate(const BinaryVolume& shape)
+    {
+        MarchingCubes::polygonize(shape.data, shape.origin, glm::dvec3(1, 1, 1), shape.dimension);
+        return nullptr;
     }
 }
