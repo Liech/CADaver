@@ -33,7 +33,7 @@ namespace Library
         result->vertices.resize(indexMap.size());
         for (const auto& x : indexMap)
         {
-            result->vertices[x.second] = input.origin + glm::dvec3(x.first.x * voxelLength.x, x.first.y * voxelLength.y, x.first.y * voxelLength.y);
+            result->vertices[x.second] = input.origin + glm::dvec3(x.first.x * voxelLength.x, x.first.y * voxelLength.y, x.first.z * voxelLength.z);
         }
 
         return std::move(result);
@@ -136,11 +136,12 @@ namespace Library
             double vlScanDim = input.size[scanDimension] / (double)input.dimension[scanDimension]; // voxel length
             double vlDimA    = input.size[dimA] / (double)input.dimension[dimA];
             double vlDimB    = input.size[dimB] / (double)input.dimension[dimB];
+            int    reverseOffset = reverse ? 0 : 1;
             for (size_t i = 0; i < squares.size(); i++)
             {
                 const auto& square = squares[i];
                 glm::ivec3  MM{ 0, 0, 0 }; // Minus Minus Square corner
-                MM[scanDimension] = scanPos;
+                MM[scanDimension] = scanPos + reverseOffset;
                 MM[dimA] += square.first[0];
                 MM[dimB] += square.first[1];
                 glm::ivec3 MP = MM; // Minus Plus Square corner
@@ -167,9 +168,18 @@ namespace Library
 #ifdef ISTESTPROJECT
 #include "Library/catch.hpp"
 
-TEST_CASE("Base")
+TEST_CASE("BlockyVoxelTriangulation/One")
 {
-    REQUIRE(true);
+    Library::BinaryVolume vol;
+    vol.dimension = glm::ivec3(1, 1, 1);
+    vol.origin    = glm::dvec3(0, 0, 0);
+    vol.size      = glm::dvec3(1, 1, 1);
+    vol.data      = { true };
+    Library::BlockyVoxelTriangulation algorithm(vol);
+    auto result = algorithm.triangulate();
+    REQUIRE(result->vertices.size() == 8);
+    REQUIRE(result->indices.size() == 36);
+    //result->saveAsSTL("Test.stl");
 }
 
 #endif
