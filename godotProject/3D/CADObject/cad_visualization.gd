@@ -1,10 +1,9 @@
-class_name CADVisualization extends Node3D
+class_name CADVisualization extends visualization_object
 
 @onready var child_pool : Node = $ChildPool
 
 var drawing : Drawing = null;
 var factory : CADSceneFactory = CADSceneFactory.new();
-var bounding_box : AABB;
 
 func set_drawing(d : Drawing)->void:
 	if (drawing != d):

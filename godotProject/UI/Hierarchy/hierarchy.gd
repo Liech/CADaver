@@ -19,9 +19,11 @@ func _ready()->void:
 	child1.set_text(0,"Kartoffel")
 
 func drawing_changed()->void:
-	build_children()
+	reset_children()
+	if (drawing.shape is CADShape):
+		build_CAD_children()
 
-func build(shape :CADShape, t : TreeItem):
+func build_CAD(shape :CADShape, t : TreeItem):
 	var current = tree.create_item(t);
 	var n := shape.get_cad_type()
 	if (shape.get_cad_type()=="TopAbs_SOLID"):
@@ -29,11 +31,10 @@ func build(shape :CADShape, t : TreeItem):
 	current.set_text(0,n)
 	var childs := shape.get_cad_children()	
 	for child in childs:
-		build(child,current)
+		build_CAD(child,current)
 
-func build_children()->void:
-	reset_children()
-	build(drawing.shape,root)
+func build_CAD_children()->void:
+	build_CAD(drawing.shape,root)
 	for x in root.get_children():
 		x.set_collapsed_recursive(true)
 

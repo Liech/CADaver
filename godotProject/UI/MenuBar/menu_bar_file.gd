@@ -46,6 +46,7 @@ func new_drawing() -> void:
 	
 func on_load_drawing() -> void:
 	var dlg = LoadFileDialog.new()
+	dlg.add_filter("All Supported Files", ["vox","stp","step"])
 	dlg.add_filter("Step File", ["stp","step"])
 	dlg.add_filter("Magicka Vox File", ["vox"])
 	dlg.execute()
@@ -59,13 +60,22 @@ func on_load_drawing() -> void:
 			load_cad_file(dlg.get_result_path())
 			
 func load_vox_file(filename : String) -> void:
-	pass
-			
-func load_cad_file(filename : String) -> void:
-	var newOne := Drawing.new()
+	var newOne := DrawingVOX.new()
 	newOne.draw_name =  path_util.get_file_name_without_extension(filename);
 	newOne.save_path = filename;
-	var success : bool = newOne.load_from_step_file();
+	var success : bool = newOne.load_from_file();
+	if (!success):
+		OKPopup.make("Loading failed");
+		return;
+	Hub.file.drawings.append(newOne);	
+	bar.window.scene.drawing = newOne	
+	Hub.file.drawings_changed.emit()
+			
+func load_cad_file(filename : String) -> void:
+	var newOne := DrawingCAD.new()
+	newOne.draw_name =  path_util.get_file_name_without_extension(filename);
+	newOne.save_path = filename;
+	var success : bool = newOne.load_from_file();
 	if (!success):
 		OKPopup.make("Loading failed");
 		return;

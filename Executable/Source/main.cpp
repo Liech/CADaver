@@ -6,18 +6,19 @@
 #include "Library/Util/LoadFileDialog.h"
 #include "Library/Util/SaveFileDialog.h"
 #include "Library/Triangle/Triangulation.h"
+#include "Library/Voxel/MagicaVox/VoxFile.h"
 
 
 int main()
 {
     Library::LoadFileDialog dlg;
-    dlg.addFilter("step files", { "STP", "STEP" });
+    dlg.addFilter("vox files", { "VOX" });
     dlg.execute();
     std::cout << "Cancel: " << dlg.isCancled() << std::endl;
 
     if (!dlg.isCancled())
     {
-        auto shape = Library::CADShape::load(dlg.getResultPath());
+        auto shape = MagicaVoxImporter::VoxFile::readBinary(dlg.getResultPath());
     }
     std::cout << dlg.getResultPath();
 }

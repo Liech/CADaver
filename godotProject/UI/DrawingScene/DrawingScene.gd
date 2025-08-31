@@ -5,7 +5,8 @@ class_name DrawingScene extends Control
 @onready var viewport : Viewport = $SubViewportContainer/Viewport
 @onready var hierarchy : Hierarchy = $Hierarchy
 
-var cad_vis : PackedScene = preload("res://3D/CADObject/CADVisualization.tscn")
+var cad_vis : PackedScene = preload("res://3D/CADObject/CADObject.tscn")
+var vox_vis : PackedScene = preload("res://3D/VOXObject/VOXObject.tscn")
 
 var drawing : Drawing = null;
 
@@ -30,7 +31,11 @@ func _on_tab_bar_drawing_changed(index: Variant) -> void:
 	reset()
 	if (index != -1):
 		var d := Hub.file.drawings[index]
-		var vis := cad_vis.instantiate() as CADVisualization
+		var vis : visualization_object;
+		if (d is DrawingCAD):
+			vis = cad_vis.instantiate() as CADVisualization
+		elif(d is DrawingVOX):
+			vis = vox_vis.instantiate() as VOXVisualization
 		child_pool.add_child(vis)
 		vis.set_drawing(d)		
 		drawing = d;

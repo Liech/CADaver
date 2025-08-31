@@ -101,6 +101,8 @@ set(MagickaVox_Chunk_Files
     "Source/Library/Voxel/MagicaVox/Chunk/ChunkNOTE.h"
     "Source/Library/Voxel/MagicaVox/Chunk/ChunkNOTE.cpp"
 	  "Source/Library/Voxel/MagicaVox/Chunk/Chunk.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/UnkownChunk.h"
+    "Source/Library/Voxel/MagicaVox/Chunk/UnkownChunk.cpp"
     "Source/Library/Voxel/MagicaVox/Chunk/ChunkFactory.cpp"
 )
 source_group("Source/Voxel/MagicaVox/Chunk/" FILES ${MagickaVox_Chunk_Files})

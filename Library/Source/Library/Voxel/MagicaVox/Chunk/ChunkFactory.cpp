@@ -16,6 +16,7 @@
 #include "ChunknSHP.h"
 #include "ChunknTRN.h"
 #include "ChunkrOBJ.h"
+#include "UnkownChunk.h"
 
 namespace MagicaVoxImporter
 {
@@ -48,6 +49,7 @@ namespace MagicaVoxImporter
         else if (id == "NOTE")
             return std::make_unique<ChunkNOTE>();
         else
-            throw std::runtime_error("Unkown ID: " + id);
+            return std::make_unique<UnkownChunk>(); // unkown chunk
+            //throw std::runtime_error("Unkown ID: " + id);
     }
 }

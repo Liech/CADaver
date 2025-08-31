@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bjly4oel227p7" path="res://3D/CADObject/cad_visualization.gd" id="1_h8g26"]
 
-[node name="CADVisualization" type="Node3D"]
+[node name="CADObject" type="Node3D"]
 script = ExtResource("1_h8g26")
 
 [node name="ChildPool" type="Node3D" parent="."]

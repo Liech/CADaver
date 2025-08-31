@@ -12,7 +12,9 @@ namespace MagicaVoxImporter
         // handle children
         while (!child.endOfBufferReached())
         {
-            addChild(child.readChunk());
+            auto chunk = child.readChunk();
+            if (chunk->getID() != "????")
+                addChild(std::move(chunk));
         }
     }
 
