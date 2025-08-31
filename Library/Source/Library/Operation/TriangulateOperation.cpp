@@ -77,7 +77,15 @@ namespace Library
     
     std::unique_ptr<Triangulation> TriangulateOperation::triangulate(const BinaryVolume& shape)
     {
-        MarchingCubes::polygonize(shape.data, shape.origin, glm::dvec3(1, 1, 1), shape.dimension);
-        return nullptr;
+        std::vector<glm::dvec3> rawResult = MarchingCubes::polygonize(shape.data, shape.origin, glm::dvec3(1, 1, 1), shape.dimension);
+        // initially work with soup
+        std::unique_ptr<Triangulation> result = std::make_unique<Triangulation>();
+        std::reverse(rawResult.begin(),rawResult.end());
+        result->indices.resize(rawResult.size());
+        for (size_t i = 0; i < rawResult.size(); i++)
+            result->indices[i] = i;
+        result->vertices = rawResult;
+
+        return std::move(result);
     }
 }
