@@ -4,7 +4,6 @@
   "dependencies": [
     "nlohmann-json",
     "glm",
-    "catch2",
 	"opencascade",
 	"nativefiledialog-extended"
 	]

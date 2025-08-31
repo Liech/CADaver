@@ -163,3 +163,13 @@ namespace Library
         }
     }
 }
+
+#ifdef ISTESTPROJECT
+#include "Library/catch.hpp"
+
+TEST_CASE("Base")
+{
+    REQUIRE(true);
+}
+
+#endif

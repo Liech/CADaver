@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch_session.hpp>
+#include "Library/catch.hpp"
 
 #include <filesystem>
 
