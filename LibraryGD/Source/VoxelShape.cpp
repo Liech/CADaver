@@ -3,8 +3,8 @@
 #include "Library/Operation/LoadVoxelOperation.h"
 #include "Library/Operation/SaveVoxelOperation.h"
 #include "Library/Operation/TriangulateOperation.h"
-#include "Library/Voxel/BinaryVolume.h"
 #include "Library/Triangle/Triangulation.h"
+#include "Library/Voxel/BinaryVolume.h"
 #include <godot_cpp/classes/surface_tool.hpp>
 
 namespace godot
@@ -14,8 +14,12 @@ namespace godot
         ClassDB::bind_method(D_METHOD("save_vox_to_file", "filename"), &VoxelShape::saveVoxToFile);
         ClassDB::bind_static_method("VoxelShape", D_METHOD("load_vox_from_file", "filename"), &VoxelShape::loadVoxFromFile);
         ClassDB::bind_method(D_METHOD("get_vox_aabb"), &VoxelShape::getAABB);
-        ClassDB::bind_method(D_METHOD("get_cad_triangulation"), &VoxelShape::getTriangulation);
-        ClassDB::bind_method(D_METHOD("save_cad_triangulation", "filename"), &VoxelShape::saveTriangulation);
+        ClassDB::bind_method(D_METHOD("get_vox_triangulation"), &VoxelShape::getTriangulation);
+        ClassDB::bind_method(D_METHOD("save_vox_triangulation", "filename"), &VoxelShape::saveTriangulation);
+        ClassDB::bind_method(D_METHOD("get_vox_val", "index"), &VoxelShape::get);
+        ClassDB::bind_method(D_METHOD("set_vox_val", "index", "value"), &VoxelShape::set);
+        ClassDB::bind_method(D_METHOD("get_vox_resolution"), &VoxelShape::getResolution);
+        ClassDB::bind_method(D_METHOD("is_vox_inside", "index"), &VoxelShape::isInside);
     }
 
     VoxelShape::VoxelShape()
@@ -104,5 +108,27 @@ namespace godot
     {
         auto mesh = Library::TriangulateOperation::triangulate(getData());
         mesh->saveAsSTL(std::string(filename.utf8()));
+    }
+
+    godot::Vector3i VoxelShape::getResolution() const
+    {
+        return godot::Vector3i(shape->dimension.x, shape->dimension.y, shape->dimension.z);
+    }
+
+    bool VoxelShape::get(const godot::Vector3i& p) const
+    {
+        if (isInside(p))
+            return shape->data[p.x + p.y * shape->dimension.x + p.z * shape->dimension.x * shape->dimension.y];
+    }
+
+    void VoxelShape::set(const godot::Vector3i& p, bool val)
+    {
+        if (isInside(p))
+            shape->data[p.x + p.y * shape->dimension.x + p.z * shape->dimension.x * shape->dimension.y] = val;
+    }
+
+    bool VoxelShape::isInside(const godot::Vector3i& p) const
+    {
+        return p.x >= 0 && p.y >= 0 && p.z >= 0 && p.x < shape->dimension.x && p.y < shape->dimension.y && p.z < shape->dimension.z;
     }
 }

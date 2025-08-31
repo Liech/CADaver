@@ -1,8 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/array_mesh.hpp>
+#include <godot_cpp/classes/node3d.hpp>
 #include <memory>
 
 namespace Library
@@ -33,6 +33,10 @@ namespace godot
         Library::BinaryVolume& getData();
         Library::BinaryVolume& getData() const;
         godot::AABB            getAABB() const;
+        godot::Vector3i        getResolution() const;
+        bool                   get(const godot::Vector3i&) const;
+        void                   set(const godot::Vector3i&, bool);
+        bool                   isInside(const godot::Vector3i&) const;
         Ref<ArrayMesh>         getTriangulation() const;
         void                   saveTriangulation(const godot::String& filename) const;
 
