@@ -65,6 +65,7 @@ namespace Library
 
         for (size_t scanPos = 0; scanPos < scanDimSize; scanPos++)
         {
+            streakList.clear();
             for (int A = 0; A < dimASize; A++)
             {
                 for (int B = 0; B < dimBSize; B++)
@@ -85,7 +86,7 @@ namespace Library
 
                     bool active = isStreakActive();
                     if (!edge && active)
-                        endStreak;
+                        endStreak();
                     else if (edge && active)
                         currentStreak.second++;
                     else if (edge && !active)
@@ -176,10 +177,69 @@ TEST_CASE("BlockyVoxelTriangulation/One")
     vol.size      = glm::dvec3(1, 1, 1);
     vol.data      = { true };
     Library::BlockyVoxelTriangulation algorithm(vol);
-    auto result = algorithm.triangulate();
+    auto                              result = algorithm.triangulate();
+    //result->saveAsSTL("Test.stl");
     REQUIRE(result->vertices.size() == 8);
     REQUIRE(result->indices.size() == 36);
-    //result->saveAsSTL("Test.stl");
 }
+
+TEST_CASE("BlockyVoxelTriangulation/OneEmpty")
+{
+    Library::BinaryVolume vol;
+    vol.dimension = glm::ivec3(1, 1, 1);
+    vol.origin    = glm::dvec3(0, 0, 0);
+    vol.size      = glm::dvec3(1, 1, 1);
+    vol.data      = { false };
+    Library::BlockyVoxelTriangulation algorithm(vol);
+    auto                              result = algorithm.triangulate();
+    // result->saveAsSTL("Test.stl");
+    REQUIRE(result->vertices.size() == 0);
+    REQUIRE(result->indices.size() == 0);
+}
+TEST_CASE("BlockyVoxelTriangulation/Two")
+{
+    Library::BinaryVolume vol;
+    vol.dimension = glm::ivec3(2, 1, 1);
+    vol.origin    = glm::dvec3(0, 0, 0);
+    vol.size      = glm::dvec3(2, 1, 1);
+    vol.data      = { true, false };
+    Library::BlockyVoxelTriangulation algorithm(vol);
+    auto                              result = algorithm.triangulate();
+    //result->saveAsSTL("Test.stl");
+    REQUIRE(result->vertices.size() == 8);
+    REQUIRE(result->indices.size() == 36);
+}
+
+
+//TEST_CASE("BlockyVoxelTriangulation/ThreeCubedOnlyCenter")
+//{
+//    Library::BinaryVolume vol;
+//    vol.dimension = glm::ivec3(3, 3, 3);
+//    vol.origin    = glm::dvec3(0, 0, 0);
+//    vol.size      = glm::dvec3(3, 3, 3);
+//    vol.data      = { false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+//                      false, false, false, false, false, false, false, false, false, false, false, false, false
+//    };
+//    vol.data[9 + 3 + 1] = true;
+//    Library::BlockyVoxelTriangulation algorithm(vol);
+//    auto                              result = algorithm.triangulate();
+//    result->saveAsSTL("Test.stl");
+//    REQUIRE(result->vertices.size() == 8);
+//    REQUIRE(result->indices.size() == 36);
+//}
+
+//TEST_CASE("BlockyVoxelTriangulation/TwoCubed")
+//{
+//    Library::BinaryVolume vol;
+//    vol.dimension = glm::ivec3(2, 2, 2);
+//    vol.origin    = glm::dvec3(0, 0, 0);
+//    vol.size      = glm::dvec3(2, 2, 2);
+//    vol.data      = { true, false, false, false, false, true, true, true };
+//    Library::BlockyVoxelTriangulation algorithm(vol);
+//    auto                              result = algorithm.triangulate();
+//    result->saveAsSTL("Test.stl");
+//    REQUIRE(result->vertices.size() == 8 * 2);
+//    REQUIRE(result->indices.size() == 36*2);
+//}
 
 #endif
