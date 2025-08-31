@@ -132,6 +132,8 @@ set(Voxel_Files
     "Source/Library/Voxel/BinaryVolume.cpp"
     "Source/Library/Voxel/MarchingCubes.h"
     "Source/Library/Voxel/MarchingCubes.cpp"
+    "Source/Library/Voxel/BlockyVoxelTriangulation.h"
+    "Source/Library/Voxel/BlockyVoxelTriangulation.cpp"
 )
 source_group("Source/Voxel" FILES ${Voxel_Files})
 
