@@ -17,7 +17,7 @@ namespace Library
             tri[i + 1] = vertices[indices[i + 2]];
             tri[i + 2] = vertices[indices[i + 1]];
         }
-
+        std::reverse(tri.begin(), tri.end());
         STLWriter::write(filename, tri);
     }
 }

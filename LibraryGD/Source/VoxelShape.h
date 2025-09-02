@@ -37,7 +37,8 @@ namespace godot
         bool                   get(const godot::Vector3i&) const;
         void                   set(const godot::Vector3i&, bool);
         bool                   isInside(const godot::Vector3i&) const;
-        Ref<ArrayMesh>         getTriangulation() const;
+        Ref<ArrayMesh>         getTriangulationRound() const;
+        Ref<ArrayMesh>         getTriangulationBlocky() const;
         void                   saveTriangulation(const godot::String& filename) const;
 
         std::shared_ptr<Library::BinaryVolume> shape;

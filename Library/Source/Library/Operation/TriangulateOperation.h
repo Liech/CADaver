@@ -12,6 +12,7 @@ namespace Library
     {
       public:
         static std::unique_ptr<Triangulation> triangulate(const CADShape&, double precision = 0.1);
-        static std::unique_ptr<Triangulation> triangulate(const BinaryVolume&);
+        static std::unique_ptr<Triangulation> triangulateRound(const BinaryVolume&);
+        static std::unique_ptr<Triangulation> triangulateBlocky(const BinaryVolume&);
     };
 }

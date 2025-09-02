@@ -5,7 +5,7 @@ class_name vox_triangulation_scene extends Node3D
 var volume : VoxelShape;
 
 func _ready()->void:
-	var m = volume.get_vox_triangulation()
+	var m = volume.get_vox_triangulation_blocky()
 	mesh.mesh = m
 	for x in mesh.get_children():
 		mesh.remove_child(x)

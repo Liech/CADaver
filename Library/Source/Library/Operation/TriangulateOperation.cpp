@@ -6,6 +6,7 @@
 #include "CAD/CADShape.h"
 #include "Triangle/Triangulation.h"
 #include "Voxel/MarchingCubes.h"
+#include "Voxel/BlockyVoxelTriangulation.h"
 #include "Voxel/BinaryVolume.h"
 
 #include <BRepMesh_IncrementalMesh.hxx>
@@ -75,7 +76,7 @@ namespace Library
         return std::move(result);
     }
     
-    std::unique_ptr<Triangulation> TriangulateOperation::triangulate(const BinaryVolume& shape)
+    std::unique_ptr<Triangulation> TriangulateOperation::triangulateRound(const BinaryVolume& shape)
     {
         std::vector<glm::dvec3> rawResult = MarchingCubes::polygonize(shape.data, shape.origin, glm::dvec3(1, 1, 1), shape.dimension);
         // initially work with soup
@@ -87,5 +88,10 @@ namespace Library
         result->vertices = rawResult;
 
         return std::move(result);
+    }
+
+    std::unique_ptr<Triangulation> TriangulateOperation::triangulateBlocky(const BinaryVolume& shape)
+    {
+        return std::move(BlockyVoxelTriangulation(shape).triangulate());
     }
 }

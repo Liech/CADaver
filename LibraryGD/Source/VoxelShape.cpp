@@ -14,7 +14,8 @@ namespace godot
         ClassDB::bind_method(D_METHOD("save_vox_to_file", "filename"), &VoxelShape::saveVoxToFile);
         ClassDB::bind_static_method("VoxelShape", D_METHOD("load_vox_from_file", "filename"), &VoxelShape::loadVoxFromFile);
         ClassDB::bind_method(D_METHOD("get_vox_aabb"), &VoxelShape::getAABB);
-        ClassDB::bind_method(D_METHOD("get_vox_triangulation"), &VoxelShape::getTriangulation);
+        ClassDB::bind_method(D_METHOD("get_vox_triangulation_round"), &VoxelShape::getTriangulationRound);
+        ClassDB::bind_method(D_METHOD("get_vox_triangulation_blocky"), &VoxelShape::getTriangulationBlocky);
         ClassDB::bind_method(D_METHOD("save_vox_triangulation", "filename"), &VoxelShape::saveTriangulation);
         ClassDB::bind_method(D_METHOD("get_vox_val", "index"), &VoxelShape::get);
         ClassDB::bind_method(D_METHOD("set_vox_val", "index", "value"), &VoxelShape::set);
@@ -78,9 +79,35 @@ namespace godot
         return AABB(position, size);
     }
 
-    Ref<ArrayMesh> VoxelShape::getTriangulation() const
+    Ref<ArrayMesh> VoxelShape::getTriangulationRound() const
     {
-        auto mesh = Library::TriangulateOperation::triangulate(getData());
+        auto mesh = Library::TriangulateOperation::triangulateRound(getData());
+        if (!mesh)
+            return nullptr;
+
+        Ref<SurfaceTool> st;
+        st.instantiate();
+        st->begin(Mesh::PRIMITIVE_TRIANGLES);
+
+        for (size_t i = 0; i < mesh->vertices.size(); ++i)
+        {
+            auto v = Vector3((real_t)mesh->vertices[i].x, (real_t)mesh->vertices[i].y, (real_t)mesh->vertices[i].z);
+            st->add_vertex(v);
+        }
+        PackedInt32Array godot_indices;
+        godot_indices.resize(mesh->indices.size());
+        for (size_t i = 0; i < mesh->indices.size(); i++)
+        {
+            st->add_index(mesh->indices[i]);
+        }
+        st->generate_normals();
+        Ref<ArrayMesh> result = st->commit();
+        return result;
+    }
+
+    Ref<ArrayMesh> VoxelShape::getTriangulationBlocky() const
+    {
+        auto mesh = Library::TriangulateOperation::triangulateBlocky(getData());
         if (!mesh)
             return nullptr;
 
@@ -106,7 +133,7 @@ namespace godot
 
     void VoxelShape::saveTriangulation(const godot::String& filename) const
     {
-        auto mesh = Library::TriangulateOperation::triangulate(getData());
+        auto mesh = Library::TriangulateOperation::triangulateRound(getData());
         mesh->saveAsSTL(std::string(filename.utf8()));
     }
 
