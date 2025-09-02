@@ -359,4 +359,75 @@ TEST_CASE("BlockyVoxelTriangulation/Complex")
     REQUIRE(result->indices.size() == 132);
 }
 
+TEST_CASE("BlockyVoxelTriangulation/UnevenX")
+{
+    Library::BinaryVolume vol;
+    vol.dimension = glm::ivec3(3, 2, 2);
+    vol.origin    = glm::dvec3(0, 0, 0);
+    vol.size      = glm::dvec3(3, 2, 2);
+    vol.data      = {
+        // clang-format off
+      true, false,  true,
+      true, false,  true,
+      
+      false, false, false,
+      false, false, false
+        // clang-format on
+    };
+    Library::BlockyVoxelTriangulation algorithm(vol);
+    auto                              result = algorithm.triangulate();
+    //result->saveAsSTL("C:\\Users\\nicol\\Downloads\\Test.stl");
+    REQUIRE(result->vertices.size() == 8 * 2);
+    REQUIRE(result->indices.size() == 36 * 2);
+}
+
+TEST_CASE("BlockyVoxelTriangulation/UnevenY")
+{
+    Library::BinaryVolume vol;
+    vol.dimension = glm::ivec3(2, 3, 2);
+    vol.origin    = glm::dvec3(0, 0, 0);
+    vol.size      = glm::dvec3(2, 3, 2);
+    vol.data      = {
+        // clang-format off
+      true, true,
+      false, false,
+      true, true,
+      
+      false, false, 
+      false, false,
+      false, false
+        // clang-format on
+    };
+    Library::BlockyVoxelTriangulation algorithm(vol);
+    auto                              result = algorithm.triangulate();
+    //result->saveAsSTL("C:\\Users\\nicol\\Downloads\\Test.stl");
+    REQUIRE(result->vertices.size() == 8 * 2);
+    REQUIRE(result->indices.size() == 36 * 2);
+}
+
+TEST_CASE("BlockyVoxelTriangulation/UnevenZ")
+{
+    Library::BinaryVolume vol;
+    vol.dimension = glm::ivec3(2, 2, 3);
+    vol.origin    = glm::dvec3(0, 0, 0);
+    vol.size      = glm::dvec3(2, 2, 3);
+    vol.data      = {
+        // clang-format off
+      true , true,
+      false, false,
+
+      false, false,
+      false, false,
+
+      true, true, 
+      false, false
+        // clang-format on
+    };
+    Library::BlockyVoxelTriangulation algorithm(vol);
+    auto                              result = algorithm.triangulate();
+    //result->saveAsSTL("C:\\Users\\nicol\\Downloads\\Test.stl");
+    REQUIRE(result->vertices.size() == 8 * 2);
+    REQUIRE(result->indices.size() == 36 * 2);
+}
+
 #endif
