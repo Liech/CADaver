@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://bsabpw4agcisv"]
+[gd_scene load_steps=10 format=3 uid="uid://bsabpw4agcisv"]
 
 [ext_resource type="Script" uid="uid://b73jph4qwicpf" path="res://UI/DrawingScene/DrawingScene.gd" id="1_esesk"]
 [ext_resource type="PackedScene" uid="uid://b4y8g54udjjdq" path="res://3D/Camera/main_camera.tscn" id="2_ybpe5"]
 [ext_resource type="PackedScene" uid="uid://c2rokc52ag5sx" path="res://3D/light.tscn" id="3_0bqdw"]
 [ext_resource type="PackedScene" uid="uid://cj2haut1mwxe4" path="res://3D/ViewCube/view_cube_control.tscn" id="4_1biwo"]
 [ext_resource type="PackedScene" uid="uid://ef2wfs2posok" path="res://UI/Hierarchy/Hierarchy.tscn" id="4_2bkgr"]
+[ext_resource type="PackedScene" uid="uid://s387mke3f5q3" path="res://3D/world_environment.tscn" id="4_g75x4"]
 
 [sub_resource type="Environment" id="Environment_w46db"]
 
@@ -49,6 +50,8 @@ child_pool = NodePath("../ChildPool")
 start_rotation = Transform3D(0.71, 0, -0.71, -0.5, 0.71, -0.5, 0.5, 0.71, 0.5, 0, 0, 0)
 
 [node name="Light" parent="SubViewportContainer/Viewport" instance=ExtResource("3_0bqdw")]
+
+[node name="WorldEnvironment" parent="SubViewportContainer/Viewport" instance=ExtResource("4_g75x4")]
 
 [node name="dirtymaker" type="Button" parent="."]
 visible = false

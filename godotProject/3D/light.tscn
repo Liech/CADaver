@@ -4,21 +4,27 @@
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.866026, -0.5, 0, 0.5, 0.866026, 0, 0, 0)
+light_energy = 0.6
 
 [node name="DirectionalLight3D3" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0)
+light_energy = 0.5
 
 [node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.56971, 0.331888, 0.751852, 0.821846, 0.230067, 0.521189, -1.47608e-08, 0.914833, -0.403832, 0, 0, 0)
+light_energy = 0.5
 
 [node name="DirectionalLight3D4" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.211154, -0.394727, -0.894206, -0.977453, 0.0852709, 0.193171, -3.64717e-08, 0.914833, -0.403832, 0, 0, 0)
+visible = false
 light_energy = 0.838
 
 [node name="DirectionalLight3D5" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.984137, -0.0716443, -0.162302, -0.163198, -0.00679467, -0.98657, 0.0695794, 0.997407, -0.0183791, 0, 0, 0)
+visible = false
 light_energy = 0.192
 
 [node name="DirectionalLight3D6" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.954936, -0.0719229, -0.287966, -0.288541, 0.00248556, -0.957464, 0.0695794, 0.997407, -0.0183791, 0, 0, 0)
+visible = false
 light_energy = 0.192

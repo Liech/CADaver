@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://s387mke3f5q3"]
+
+[sub_resource type="Environment" id="Environment_clcim"]
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.2
+
+[node name="WorldEnvironment" type="WorldEnvironment"]
+environment = SubResource("Environment_clcim")
