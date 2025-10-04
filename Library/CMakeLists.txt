@@ -141,6 +141,8 @@ set(Triangle_Files
     "Source/Library/Triangle/Triangulation.cpp"
     "Source/Library/Triangle/STLWriter.h"
     "Source/Library/Triangle/STLWriter.cpp"
+    "Source/Library/Triangle/AssimpAsset.h"
+    "Source/Library/Triangle/AssimpAsset.cpp"
 )
 source_group("Source/Triangle" FILES ${Triangle_Files})
 

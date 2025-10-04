@@ -53,7 +53,7 @@ namespace Library
                         suffixes[i] += ",";
                     }
                 }
-                std::cout << suffixes[i] << std::endl;
+                //std::cout << suffixes[i] << std::endl;
                 nfdFilters[i].spec = suffixes[i].c_str();
             }
         }
