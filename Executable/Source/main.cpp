@@ -7,18 +7,19 @@
 #include "Library/Util/SaveFileDialog.h"
 #include "Library/Triangle/Triangulation.h"
 #include "Library/Voxel/MagicaVox/VoxFile.h"
-
+#include "Library/Voxel/BinaryVolume.h"
+#include "Library/Operation/LoadVoxelOperation.h"
 
 int main()
 {
     Library::LoadFileDialog dlg;
     dlg.addFilter("vox files", { "VOX" });
     dlg.execute();
-    std::cout << "Cancel: " << dlg.isCancled() << std::endl;
-
     if (!dlg.isCancled())
     {
-        auto shape = MagicaVoxImporter::VoxFile::readBinary(dlg.getResultPath());
+        std::shared_ptr<Library::BinaryVolume> result = Library::LoadVoxelOperation::loadMagicaVox(dlg.getResultPath());
+        auto triangulation = Library::TriangulateOperation::triangulateBlocky(*result);
+        triangulation->saveAsSTL(dlg.getResultPath() + ".stl");
     }
     std::cout << dlg.getResultPath();
 }

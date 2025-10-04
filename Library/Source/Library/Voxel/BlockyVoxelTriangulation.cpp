@@ -51,6 +51,8 @@ namespace Library
         size_t dimASize    = input.dimension[dimA];
         size_t dimBSize    = input.dimension[dimB];
 
+        const std::vector<size_t> dimensionMultiplier = { 1, input.dimension[0], input.dimension[0] * input.dimension[1] };
+
         // GATHER STREAKS
 
         std::map<std::pair<size_t, size_t>, bool> streakMap;
@@ -81,8 +83,9 @@ namespace Library
                     pos2[scanDimension] += reverse ? -1 : 1;
 
                     bool val2 = false;
+                    // bordercheck. if not border -> read val
                     if (!((scanPos == 0 && reverse) || (scanPos == scanDimSize - 1 && !reverse)))
-                        val2 = get(pos2);
+                        val2 = get(pos2); 
 
                     bool val  = get(pos);
                     bool edge = (!val2) && val;
@@ -94,7 +97,7 @@ namespace Library
                         currentStreak.second++;
                     else if (edge && !active)
                     {
-                        currentStreak.first  = A + B * dimASize;
+                        currentStreak.first  = A * dimensionMultiplier[dimA] + B * dimensionMultiplier[dimB];
                         currentStreak.second = 1;
                     }
                     // else if (!val && !active) doNothing();
@@ -111,16 +114,17 @@ namespace Library
                 const auto& streak = streakList[i];
                 if (streakMap[streak])
                     continue;
-                std::pair<size_t, size_t> streakBelow     = { streak.first + 1, streak.second };
-                size_t                    streakOfStreaks = 1;
+                std::pair<size_t, size_t> streakBelow     = { streak.first, streak.second };
+                size_t                    streakOfStreaks = 0;
 
                 while (streakMap.contains(streakBelow))
                 {
                     streakOfStreaks++;
                     streakMap[streakBelow] = true;
-                    streakBelow.first += dimBSize;
+                    streakBelow.first += dimensionMultiplier[dimA];
                 }
-                squares.push_back(std::make_pair(glm::ivec2(streak.first % dimBSize, streak.first / dimBSize), glm::ivec2(streakOfStreaks,streak.second)));
+                glm::ivec3 indx = glm::ivec3(streak.first % input.dimension[0], (streak.first / input.dimension[0]) % input.dimension[1], streak.first / (input.dimension[0] * input.dimension[1]));
+                squares.push_back(std::make_pair(glm::ivec2(indx[dimA], indx[dimB]), glm::ivec2(streakOfStreaks, streak.second)));
             }
 
             auto getIndex = [this](const glm::ivec3& pos)
@@ -280,7 +284,7 @@ TEST_CASE("BlockyVoxelTriangulation/TwoHalf")
     };
     Library::BlockyVoxelTriangulation algorithm(vol);
     auto                              result = algorithm.triangulate();
-    result->saveAsSTL("C:\\Users\\nicol\\Downloads\\Test.stl");
+    //result->saveAsSTL("C:\\Users\\nicol\\Downloads\\Test.stl");
     REQUIRE(result->vertices.size() == 8);
     REQUIRE(result->indices.size() == 36);
 }

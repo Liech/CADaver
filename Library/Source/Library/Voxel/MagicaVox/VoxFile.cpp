@@ -35,7 +35,7 @@ namespace MagicaVoxImporter {
       size_t dataSize = (size_t)size.sizeX * (size_t)size.sizeY * (size_t)size.sizeZ;
       content.resize(dataSize);
       for (int j = 0; j < xyzi.numVoxels; j++) {
-        size_t address = xyzi.content[j].Z + xyzi.content[j].Y * size.sizeZ + xyzi.content[j].X * size.sizeZ * size.sizeY;
+        size_t address = xyzi.content[j].X + xyzi.content[j].Y * size.sizeX + xyzi.content[j].Z * size.sizeX * size.sizeY;
         content[address] = xyzi.content[j].value;
       }
       std::array<size_t, 3> dimensions = { size.sizeX,size.sizeY,size.sizeZ };
