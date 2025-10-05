@@ -1,5 +1,7 @@
 #include "AssimpAsset.h"
 
+#include "Triangulation.h"
+
 #include <assimp/Exporter.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/cimport.h>
@@ -94,4 +96,53 @@ namespace Library
         }
     }
 
+    std::vector<std::string> AssimpAsset::getSupportedFormats()
+    {
+        return { "fbx",       "dae", "gltf", "glb",  "blend", "3ds", "ase", "obj", "ifc",     "xgl", "zgl", "ply", "dxf", "lwo", "lws", "lxo",     "stl",
+                 "x",         "ac",  "ms3d", "cob",  "scn",   "bvh", "csm", "xml", "irrmesh", "irr", "mdl", "md2", "md3", "pk3", "mdc", "md5mesh", "md5anim",
+                 "md5camera", "smd", "vta",  "ogex", "3d",    "b3d", "q3d", "q3s", "nff",     "off", "raw", "ter", "hmp", "ndo", "3mf", "q3o",     "q3" };
+    }
+
+    std::unique_ptr<Triangulation> AssimpAsset::toTriangulation() const
+    {
+        std::unique_ptr<Triangulation> result = std::make_unique<Triangulation>();
+
+        if (!p->scene || p->scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !p->scene->mRootNode)
+        {
+            return nullptr;
+        }
+
+        int baseVertexIndex = 0;
+        toTriangulation_recursive(p->scene->mRootNode, p->scene, *result, baseVertexIndex);
+        return std::move(result);
+    }
+
+    void AssimpAsset::toTriangulation_recursive(aiNode* node, const aiScene* scene, Triangulation& data, int& baseVertexIndex) const
+    {
+        for (unsigned int i = 0; i < node->mNumMeshes; i++)
+        {
+            aiMesh* mesh                  = scene->mMeshes[node->mMeshes[i]];
+            int     currentMeshVertexBase = data.vertices.size();
+
+            for (unsigned int j = 0; j < mesh->mNumVertices; j++)
+            {
+                aiVector3D pos = mesh->mVertices[j];
+                data.vertices.push_back(glm::dvec3(pos.x, pos.y, pos.z));
+            }
+
+            for (unsigned int j = 0; j < mesh->mNumFaces; j++)
+            {
+                aiFace face = mesh->mFaces[j];
+                for (unsigned int k = 0; k < face.mNumIndices; k++)
+                {
+                    int globalIndex = currentMeshVertexBase + face.mIndices[k];
+                    data.indices.push_back(globalIndex);
+                }
+            }
+        }
+        for (unsigned int i = 0; i < node->mNumChildren; i++)
+        {
+            toTriangulation_recursive(node->mChildren[i], scene, data, baseVertexIndex);
+        }
+    }
 }
