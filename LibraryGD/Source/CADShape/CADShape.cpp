@@ -6,6 +6,7 @@
 #include <godot_cpp/classes/surface_tool.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/aabb.hpp>
+#include "TriangleShape.h"
 
 namespace godot
 {
@@ -18,7 +19,6 @@ namespace godot
 
         ClassDB::bind_static_method("CADShape", D_METHOD("load_cad_from_file", "filename"), &CADShape::loadCadFromFile);
         ClassDB::bind_method(D_METHOD("get_cad_triangulation", "precision"), &CADShape::getTriangulation);
-        ClassDB::bind_method(D_METHOD("save_cad_triangulation", "filename", "precision"), &CADShape::saveTriangulation);
     }
 
     CADShape::CADShape()
@@ -83,41 +83,20 @@ namespace godot
 
     godot::AABB CADShape::getAABB() const
     {
-        auto    aabb = getData().getBoundingBox();
+        auto    aabb     = getData().getBoundingBox();
         Vector3 position = Vector3(aabb.first.x, aabb.first.y, aabb.first.z);
         Vector3 size     = Vector3(aabb.second.x, aabb.second.y, aabb.second.z);
         return AABB(position, size);
     }
 
-    Ref<ArrayMesh> CADShape::getTriangulation(double precision) const
+    Ref<TriangleShape> CADShape::getTriangulation(double precision) const
     {
         auto mesh = Library::TriangulateOperation::triangulate(getData(), precision);
         if (!mesh)
             return nullptr;
-
-        Ref<SurfaceTool> st;
-        st.instantiate();
-        st->begin(Mesh::PRIMITIVE_TRIANGLES);
-
-        for (size_t i = 0; i < mesh->vertices.size(); ++i)
-        {
-            auto v = Vector3((real_t)mesh->vertices[i].x, (real_t)mesh->vertices[i].y, (real_t)mesh->vertices[i].z);
-            st->add_vertex(v);
-        }
-        PackedInt32Array godot_indices;
-        godot_indices.resize(mesh->indices.size());
-        for (size_t i = 0; i < mesh->indices.size(); i++)
-        {
-            st->add_index(mesh->indices[i]);
-        }
-        st->generate_normals();
-        Ref<ArrayMesh> result = st->commit();
+        Ref<TriangleShape> result;
+        result.instantiate();
+        result->setData(std::move(mesh));
         return result;
-    }
-
-    void CADShape::saveTriangulation(const godot::String& filename, double precision) const
-    {
-        auto mesh = Library::TriangulateOperation::triangulate(getData(), precision);
-        mesh->saveAsSTL(std::string(filename.utf8()));
     }
 }

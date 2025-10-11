@@ -6,6 +6,8 @@ set(Source_Files
     "Source/register_types.cpp"
     "Source/VoxelShape.h"
     "Source/VoxelShape.cpp"
+    "Source/TriangleShape.h"
+    "Source/TriangleShape.cpp"
 )
 source_group("Source" FILES ${Source_Files})
 

@@ -1,7 +1,7 @@
 #include "VoxelShape.h"
 
-#include "Library/Operation/LoadVoxelOperation.h"
-#include "Library/Operation/SaveVoxelOperation.h"
+#include "Library/Operation/IO/LoadVoxelOperation.h"
+#include "Library/Operation/IO/SaveVoxelOperation.h"
 #include "Library/Operation/TriangulateOperation.h"
 #include "Library/Triangle/Triangulation.h"
 #include "Library/Voxel/BinaryVolume.h"
@@ -16,7 +16,6 @@ namespace godot
         ClassDB::bind_method(D_METHOD("get_vox_aabb"), &VoxelShape::getAABB);
         ClassDB::bind_method(D_METHOD("get_vox_triangulation_round"), &VoxelShape::getTriangulationRound);
         ClassDB::bind_method(D_METHOD("get_vox_triangulation_blocky"), &VoxelShape::getTriangulationBlocky);
-        ClassDB::bind_method(D_METHOD("save_vox_triangulation", "filename"), &VoxelShape::saveTriangulation);
         ClassDB::bind_method(D_METHOD("get_vox_val", "index"), &VoxelShape::get);
         ClassDB::bind_method(D_METHOD("set_vox_val", "index", "value"), &VoxelShape::set);
         ClassDB::bind_method(D_METHOD("get_vox_resolution"), &VoxelShape::getResolution);
@@ -79,62 +78,26 @@ namespace godot
         return AABB(position, size);
     }
 
-    Ref<ArrayMesh> VoxelShape::getTriangulationRound() const
+    Ref<TriangleShape> VoxelShape::getTriangulationRound() const
     {
         auto mesh = Library::TriangulateOperation::triangulateRound(getData());
         if (!mesh)
             return nullptr;
-
-        Ref<SurfaceTool> st;
-        st.instantiate();
-        st->begin(Mesh::PRIMITIVE_TRIANGLES);
-
-        for (size_t i = 0; i < mesh->vertices.size(); ++i)
-        {
-            auto v = Vector3((real_t)mesh->vertices[i].x, (real_t)mesh->vertices[i].y, (real_t)mesh->vertices[i].z);
-            st->add_vertex(v);
-        }
-        PackedInt32Array godot_indices;
-        godot_indices.resize(mesh->indices.size());
-        for (size_t i = 0; i < mesh->indices.size(); i++)
-        {
-            st->add_index(mesh->indices[i]);
-        }
-        st->generate_normals();
-        Ref<ArrayMesh> result = st->commit();
-        return result;
+        Ref<TriangleShape> result;
+        result.instantiate();
+        result->setData(std::move(mesh));
+        return            result;
     }
 
-    Ref<ArrayMesh> VoxelShape::getTriangulationBlocky() const
+    Ref<TriangleShape> VoxelShape::getTriangulationBlocky() const
     {
         auto mesh = Library::TriangulateOperation::triangulateBlocky(getData());
         if (!mesh)
             return nullptr;
-
-        Ref<SurfaceTool> st;
-        st.instantiate();
-        st->begin(Mesh::PRIMITIVE_TRIANGLES);
-
-        for (size_t i = 0; i < mesh->vertices.size(); ++i)
-        {
-            auto v = Vector3((real_t)mesh->vertices[i].x, (real_t)mesh->vertices[i].y, (real_t)mesh->vertices[i].z);
-            st->add_vertex(v);
-        }
-        PackedInt32Array godot_indices;
-        godot_indices.resize(mesh->indices.size());
-        for (size_t i = 0; i < mesh->indices.size(); i++)
-        {
-            st->add_index(mesh->indices[i]);
-        }
-        st->generate_normals();
-        Ref<ArrayMesh> result = st->commit();
+        Ref<TriangleShape> result;
+        result.instantiate();
+        result->setData(std::move(mesh));
         return result;
-    }
-
-    void VoxelShape::saveTriangulation(const godot::String& filename) const
-    {
-        auto mesh = Library::TriangulateOperation::triangulateRound(getData());
-        mesh->saveAsSTL(std::string(filename.utf8()));
     }
 
     godot::Vector3i VoxelShape::getResolution() const

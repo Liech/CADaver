@@ -10,10 +10,6 @@ namespace Library
 {
     std::unique_ptr<Triangulation> LoadTriangulationOperation::loadFromFile(const std::string& filename)
     {
-        auto result = std::make_unique<Triangulation>();
-
-        throw std::runtime_error("Not implemented yet!");
-
-        return std::move(result);
+        return Triangulation::fromSTLFile(filename);
     }
 }

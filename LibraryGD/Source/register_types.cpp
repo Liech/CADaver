@@ -10,6 +10,7 @@
 #include "CADShape/CADVertex.h"
 #include "CADShape/CADWire.h"
 #include "VoxelShape.h"
+#include "TriangleShape.h"
 
 #include "Util/SaveFileDialog.h"
 #include "Util/LoadFileDialog.h"
@@ -41,6 +42,7 @@ void initialize_module(ModuleInitializationLevel p_level)
     ClassDB::register_class<LoadFileDialog>();
     ClassDB::register_class<CADOperation>();
     ClassDB::register_class<VoxelShape>();
+    ClassDB::register_class<TriangleShape>();
 }
 
 void uninitialize_module(ModuleInitializationLevel p_level)

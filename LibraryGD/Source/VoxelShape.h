@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TriangleShape.h"
 #include <glm/glm.hpp>
 #include <godot_cpp/classes/array_mesh.hpp>
 #include <godot_cpp/classes/node3d.hpp>
@@ -37,9 +38,8 @@ namespace godot
         bool                   get(const godot::Vector3i&) const;
         void                   set(const godot::Vector3i&, bool);
         bool                   isInside(const godot::Vector3i&) const;
-        Ref<ArrayMesh>         getTriangulationRound() const;
-        Ref<ArrayMesh>         getTriangulationBlocky() const;
-        void                   saveTriangulation(const godot::String& filename) const;
+        Ref<TriangleShape>     getTriangulationRound() const;
+        Ref<TriangleShape>     getTriangulationBlocky() const;
 
         std::shared_ptr<Library::BinaryVolume> shape;
     };

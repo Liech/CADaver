@@ -55,6 +55,10 @@ set(Operation_Files
     "Source/Library/Operation/ExtrudeOperation.h"
     "Source/Library/Operation/TriangulateOperation.cpp"
     "Source/Library/Operation/TriangulateOperation.h"
+)
+source_group("Source/Operation" FILES ${Operation_Files})
+
+set(OperationIO_Files
     "Source/Library/Operation/SaveTriangulationOperation.cpp"
     "Source/Library/Operation/SaveTriangulationOperation.h"
     "Source/Library/Operation/LoadTriangulationOperation.cpp"
@@ -68,7 +72,7 @@ set(Operation_Files
     "Source/Library/Operation/SaveVoxelOperation.cpp"
     "Source/Library/Operation/SaveVoxelOperation.h"
 )
-source_group("Source/Operation" FILES ${Operation_Files})
+source_group("Source/Operation/IO" FILES ${OperationIO_Files})
 
 set(MagickaVox_Chunk_Files
     "Source/Library/Voxel/MagicaVox/Chunk/Chunk.h"
@@ -148,6 +152,7 @@ set(ALL_FILES
     ${Source_Files}
     ${Util_Files}
     ${Operation_Files}
+    ${OperationIO_Files}
     ${CADShapes_Files}
 	  ${MagickaVox_Files}
 	  ${MagickaVox_Chunk_Files}
