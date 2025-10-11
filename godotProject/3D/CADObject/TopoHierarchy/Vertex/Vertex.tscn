@@ -1,12 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://ceh7eskfkaire"]
+[gd_scene load_steps=2 format=3 uid="uid://ceh7eskfkaire"]
 
 [ext_resource type="Script" uid="uid://ditqa8rbp43kn" path="res://3D/CADObject/TopoHierarchy/Vertex/vertex.gd" id="1_u3oyo"]
 
-[sub_resource type="SphereMesh" id="SphereMesh_icqlp"]
-
 [node name="Vertex" type="Node3D"]
 script = ExtResource("1_u3oyo")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
-mesh = SubResource("SphereMesh_icqlp")

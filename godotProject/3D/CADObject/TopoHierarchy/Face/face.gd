@@ -11,7 +11,7 @@ var face : CADFace;
 
 
 func _ready()->void:
-	var cadmesh = face.get_cad_triangulation(0.1)
+	var cadmesh = face.get_cad_triangulation(0.1).get_array_mesh()
 	mesh.mesh = cadmesh
 	for x in mesh.get_children():
 		mesh.remove_child(x)
