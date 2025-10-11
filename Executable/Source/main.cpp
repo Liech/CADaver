@@ -13,6 +13,8 @@ int main()
     if (!dlg.isCancled())
     {
         std::cout << "file: " << dlg.getResultPath() << std::endl;
+        auto stl = Library::Triangulation::fromSTLFile(dlg.getResultPath());
+        stl->saveAsSTL(dlg.getResultPath() + ".STL");
     }
     std::cout << dlg.getResultPath();
 }

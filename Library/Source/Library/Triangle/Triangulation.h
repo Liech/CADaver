@@ -17,5 +17,6 @@ namespace Library
         std::vector<int>        indices;
 
         void saveAsSTL(const std::string& filename) const;
+        static std::unique_ptr<Triangulation> fromSTLFile(const std::string& filename);
     };
 }

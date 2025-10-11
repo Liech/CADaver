@@ -46,6 +46,7 @@ set(Util_Files
     "Source/Library/Util/SaveFileDialog.h"
     "Source/Library/Util/LoadFileDialog.cpp"
     "Source/Library/Util/LoadFileDialog.h"
+    "Source/Library/Util/stl_reader.h"
 )
 source_group("Source/Util" FILES ${Util_Files})
 
