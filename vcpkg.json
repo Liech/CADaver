@@ -5,7 +5,7 @@
     "nlohmann-json",
     "glm",
 	"opencascade",
-	"nativefiledialog-extended",
-	"assimp"
-	]
+	"nativefiledialog-extended"
+	],
+  "builtin-baseline": "b91c3336aee7f32412508f7dd351ae2cabdb8819" 
 }

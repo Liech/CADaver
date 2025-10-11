@@ -7,7 +7,6 @@ find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(nfd CONFIG REQUIRED) 
 find_package(OpenCASCADE)
-find_package(assimp REQUIRED)
 include_directories(SYSTEM ${OpenCASCADE_INCLUDE_DIR})
 
 
@@ -141,8 +140,6 @@ set(Triangle_Files
     "Source/Library/Triangle/Triangulation.cpp"
     "Source/Library/Triangle/STLWriter.h"
     "Source/Library/Triangle/STLWriter.cpp"
-    "Source/Library/Triangle/AssimpAsset.h"
-    "Source/Library/Triangle/AssimpAsset.cpp"
 )
 source_group("Source/Triangle" FILES ${Triangle_Files})
 
@@ -171,13 +168,11 @@ target_link_libraries(LibraryTest PUBLIC
 glm::glm
 nlohmann_json::nlohmann_json
 nfd::nfd
-${ASSIMP_LIBRARIES}
 )
 target_link_libraries(Library PUBLIC 
 glm::glm
 nlohmann_json::nlohmann_json
 nfd::nfd
-${ASSIMP_LIBRARIES}
 )
 
 target_include_directories(Library PUBLIC 
@@ -185,14 +180,12 @@ target_include_directories(Library PUBLIC
 )
 target_include_directories(Library PRIVATE 
 ./Source/Library/
-${ASSIMP_INCLUDE_DIRS}
 )
 target_include_directories(LibraryTest PUBLIC 
 ./Source/
 )
 target_include_directories(LibraryTest PRIVATE 
 ./Source/Library/
-${ASSIMP_INCLUDE_DIRS}
 )
 
 #https://www.youtube.com/watch?v=SfRFG_Pk9pk
