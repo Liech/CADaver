@@ -45,59 +45,22 @@ func new_drawing() -> void:
 	Hub.file.drawings_changed.emit()
 	
 func on_load_drawing() -> void:
-	var dlg = LoadFileDialog.new()
-	dlg.add_filter("All Supported Files", ["stp","step","stl","vox"])
-	dlg.add_filter("Step File", ["stp","step"])
-	dlg.add_filter("Triangle Mesh File", ["stl"])
-	dlg.add_filter("Magicka Vox File", ["vox"])
+	var dlg := shape_io.make_load_file_dialog()
 	dlg.execute()
 	
 	if (!dlg.is_canceled()):
-		var ext := path_util.get_extension(dlg.get_result_path()).to_lower();
-		
-		if (ext == ".vox"):
-			load_vox_file(dlg.get_result_path());
-		elif(ext == ".stl"):
-			load_tri_file(dlg.get_result_path())
-		else:
-			load_cad_file(dlg.get_result_path())
-			
-func load_tri_file(filename : String) -> void:
-	var newOne := DrawingMESH.new()
-	newOne.draw_name =  path_util.get_file_name_without_extension(filename);
-	newOne.save_path = filename;
-	var success : bool = newOne.load_from_file();
-	if (!success):
-		OKPopup.make("Loading failed");
-		return;
-	Hub.file.drawings.append(newOne);	
-	bar.window.scene.drawing = newOne	
-	Hub.file.drawings_changed.emit()
-			
-func load_vox_file(filename : String) -> void:
-	var newOne := DrawingVOX.new()
-	newOne.draw_name =  path_util.get_file_name_without_extension(filename);
-	newOne.save_path = filename;
-	var success : bool = newOne.load_from_file();
-	if (!success):
-		OKPopup.make("Loading failed");
-		return;
-	Hub.file.drawings.append(newOne);	
-	bar.window.scene.drawing = newOne	
-	Hub.file.drawings_changed.emit()
-			
-func load_cad_file(filename : String) -> void:
-	var newOne := DrawingCAD.new()
-	newOne.draw_name =  path_util.get_file_name_without_extension(filename);
-	newOne.save_path = filename;
-	var success : bool = newOne.load_from_file();
-	if (!success):
-		OKPopup.make("Loading failed");
-		return;
-	Hub.file.drawings.append(newOne);	
-	bar.window.scene.drawing = newOne	
-	Hub.file.drawings_changed.emit()
-		
+		var io = shape_io.make_shape_io(dlg.get_result_path())
+		if (io == null):
+			OKPopup.make("Unkown extension");
+			return
+		var dr = io.load_drawing()
+		if (!dr):
+			OKPopup.make("Loading failed");
+			return;		
+		Hub.file.drawings.append(dr);	
+		bar.window.scene.drawing = dr	
+		Hub.file.drawings_changed.emit()
+
 func invokeSaveFileDialog(drawing : Drawing):
 	var dlg = SaveFileDialog.new()
 	dlg.add_filter("Step File", ["stp","step"])
