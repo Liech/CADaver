@@ -18,21 +18,11 @@ layout_mode = 2
 auto_translate_mode = 1
 title = "File"
 size = Vector2i(100, 116)
-item_count = 5
-item_0/text = "New"
-item_0/id = 0
-item_0/disabled = true
-item_1/text = "Load..."
-item_1/id = 1
-item_2/text = "Convert..."
-item_2/id = 4
-item_2/disabled = true
-item_3/text = "Save"
-item_3/id = 2
-item_4/text = "Quit"
-item_4/id = 3
 script = ExtResource("1_0dwda")
 bar = NodePath("../..")
+
+[node name="ConvertMenu" type="PopupMenu" parent="MenuBar/File"]
+title = "kjhbkh"
 
 [node name="View" type="PopupMenu" parent="MenuBar" node_paths=PackedStringArray("bar")]
 item_count = 4
@@ -51,4 +41,5 @@ script = ExtResource("2_h18jj")
 bar = NodePath("../..")
 
 [connection signal="index_pressed" from="MenuBar/File" to="MenuBar/File" method="_on_index_pressed"]
+[connection signal="about_to_popup" from="MenuBar/File/ConvertMenu" to="MenuBar/File" method="_on_convert_menu_about_to_popup"]
 [connection signal="index_pressed" from="MenuBar/View" to="MenuBar/View" method="_on_index_pressed"]

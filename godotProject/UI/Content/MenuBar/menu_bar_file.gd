@@ -11,6 +11,12 @@ var index_quit    = 4;
 var continue_closing := false
 
 func _ready() -> void:
+	add_item("New",index_new);
+	add_item("Load",index_load);
+	add_submenu_node_item("Convert",$ConvertMenu,index_convert)
+	add_item("Save",index_save);
+	add_item("Quit",index_quit);
+	
 	Hub.file.drawings_changed.connect(on_drawings_changed);
 	on_drawings_changed()
 
@@ -24,8 +30,6 @@ func _on_index_pressed(index: int) -> void:
 			new_pressed();
 		index_load:
 			load_pressed();
-		index_convert:
-			convert_pressed();
 		index_save:
 			save_pressed();
 		index_quit:
@@ -39,9 +43,6 @@ func load_pressed():
 	
 func save_pressed():
 	invokeSaveFileDialog(bar.window.scene.drawing)
-
-func convert_pressed():
-	pass
 
 func new_drawing() -> void:
 	var newOne := Drawing.new()
@@ -123,4 +124,10 @@ func save_confirmation(drawing : Drawing) -> void:
 	dlg.queue_free()
 	ExtraWindow.enable_all()
 
-	
+func _on_convert_menu_about_to_popup() -> void:
+	var menu : PopupMenu = $ConvertMenu
+	var drawing := bar.window.scene.drawing
+	menu.clear()
+	var converter = shape_io.make_from_drawing(drawing).get_converter()
+	for c in converter:
+		menu.add_item(c.get_converter_name())

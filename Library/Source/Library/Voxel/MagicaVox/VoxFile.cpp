@@ -96,9 +96,9 @@ namespace MagicaVoxImporter {
     contentChunk->content.resize(dataSize);
     for (size_t i = 0; i < dataSize; i++) {
       auto& vox = contentChunk->content[i];
-      vox.X = i / (size[1] * size[2]);
-      vox.Y = (i / size[2]) % size[1];
-      vox.Z = i % size[2];
+        vox.X     = i % size[0];
+      vox.Y = (i / size[0]) % size[1];
+      vox.Z     = i / (size[0] * size[1]) ;
       vox.value = data[i]?'U':0;
     }
 

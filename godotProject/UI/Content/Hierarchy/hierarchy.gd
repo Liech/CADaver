@@ -20,6 +20,8 @@ func _ready()->void:
 
 func drawing_changed()->void:
 	reset_children()
+	if (!drawing):
+		return
 	if (drawing.shape is CADShape):
 		build_CAD_children()
 

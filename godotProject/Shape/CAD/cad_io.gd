@@ -33,3 +33,6 @@ func save_drawing() -> bool:
 		message = "Unkown extension"
 		return false
 	return true
+
+func get_converter() -> Array[converter]:
+	return [mesh_converter.new()]
