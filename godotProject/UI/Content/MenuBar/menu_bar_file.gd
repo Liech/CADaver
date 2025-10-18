@@ -49,35 +49,32 @@ func on_load_drawing() -> void:
 	dlg.execute()
 	
 	if (!dlg.is_canceled()):
-		var io = shape_io.make_shape_io(dlg.get_result_path())
+		var io = shape_io.make_from_filename(dlg.get_result_path())
 		if (io == null):
 			OKPopup.make("Unkown extension");
 			return
 		var dr = io.load_drawing()
 		if (!dr):
-			OKPopup.make("Loading failed");
+			OKPopup.make(io.message);
 			return;		
 		Hub.file.drawings.append(dr);	
 		bar.window.scene.drawing = dr	
 		Hub.file.drawings_changed.emit()
 
 func invokeSaveFileDialog(drawing : Drawing):
-	var dlg = SaveFileDialog.new()
-	dlg.add_filter("Step File", ["stp","step"])
-	dlg.add_filter("STL File", ["stl"])
-	dlg.set_save_file_name(drawing.draw_name + ".step");
-	dlg.set_path(path_util.get_path_without_filename(drawing.save_path));
+	var io = shape_io.make_from_drawing(drawing)
+	var dlg = io.make_save_file_dialog()
+	if (!dlg):
+		OKPopup.make(io.message);
+		return;		
 	dlg.execute();
 	
 	if (!dlg.is_canceled()):
-		var extension := path_util.get_extension(dlg.get_result_path())
-		if (extension == ".stl"):
-			drawing.shape.save_cad_triangulation(dlg.get_result_path(),0.1)
-		else:
-			drawing.shape.save_cad_to_file(dlg.get_result_path())
-			drawing.dirty = false
-			drawing.name = path_util.get_file_name_without_extension(dlg.get_result_path());
-			Hub.file.dirty_changed.emit()
+		io.filename = dlg.get_result_path()
+		var success = io.save_drawing()
+		if (!success):
+			OKPopup.make(io.message)
+		Hub.file.dirty_changed.emit()
 
 func quit_pressed():
 	if (continue_closing):

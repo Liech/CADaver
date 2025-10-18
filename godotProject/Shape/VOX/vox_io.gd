@@ -8,5 +8,6 @@ func load_drawing() -> Drawing:
 	result.save_path = filename;
 	var success : bool = result.load_from_file();
 	if (!success):
+		message = "Loading failed"
 		return null;
 	return result;
