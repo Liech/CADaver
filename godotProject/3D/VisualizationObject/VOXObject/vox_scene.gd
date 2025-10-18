@@ -1,9 +1,9 @@
-class_name VOXVisualization extends visualization_object
+class_name VOXScene extends visualization_object
 
 var voxel_triangulation = preload("res://3D/VisualizationObject/VOXObject/VOXTriangulation.tscn")
 
 var drawing : DrawingVOX = null;
-var vox_vis : vox_triangulation_scene = null
+var vox_vis : vox_triangulation = null
 
 func set_drawing(d : Drawing)->void:
 	if (drawing != d):
@@ -18,7 +18,7 @@ func reset_drawing()-> void:
 		vox_vis.queue_free()
 
 func build_children()->void:
-	vox_vis = voxel_triangulation.instantiate() as vox_triangulation_scene
+	vox_vis = voxel_triangulation.instantiate() as vox_triangulation
 	vox_vis.volume = drawing.shape
 	add_child(vox_vis)
 	bounding_box = drawing.shape.get_vox_aabb()

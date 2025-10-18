@@ -1,4 +1,4 @@
-class_name CADVisualization extends visualization_object
+class_name CADScene extends visualization_object
 
 @onready var child_pool : Node = $ChildPool
 

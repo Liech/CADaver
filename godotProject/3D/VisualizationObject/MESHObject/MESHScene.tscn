@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dxi3ayufvglr7"]
+
+[ext_resource type="Script" uid="uid://yxrdgpdstqwa" path="res://3D/VisualizationObject/MESHObject/mesh_scene.gd" id="1_sp802"]
+
+[node name="MeshObject" type="Node3D"]
+script = ExtResource("1_sp802")

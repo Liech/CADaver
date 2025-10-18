@@ -46,8 +46,9 @@ func new_drawing() -> void:
 	
 func on_load_drawing() -> void:
 	var dlg = LoadFileDialog.new()
-	dlg.add_filter("All Supported Files", ["vox","stp","step"])
+	dlg.add_filter("All Supported Files", ["stp","step","stl","vox"])
 	dlg.add_filter("Step File", ["stp","step"])
+	dlg.add_filter("Triangle Mesh File", ["stl"])
 	dlg.add_filter("Magicka Vox File", ["vox"])
 	dlg.execute()
 	
@@ -56,8 +57,22 @@ func on_load_drawing() -> void:
 		
 		if (ext == ".vox"):
 			load_vox_file(dlg.get_result_path());
+		elif(ext == ".stl"):
+			load_tri_file(dlg.get_result_path())
 		else:
 			load_cad_file(dlg.get_result_path())
+			
+func load_tri_file(filename : String) -> void:
+	var newOne := DrawingMESH.new()
+	newOne.draw_name =  path_util.get_file_name_without_extension(filename);
+	newOne.save_path = filename;
+	var success : bool = newOne.load_from_file();
+	if (!success):
+		OKPopup.make("Loading failed");
+		return;
+	Hub.file.drawings.append(newOne);	
+	bar.window.scene.drawing = newOne	
+	Hub.file.drawings_changed.emit()
 			
 func load_vox_file(filename : String) -> void:
 	var newOne := DrawingVOX.new()

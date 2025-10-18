@@ -10,6 +10,7 @@ namespace godot
         ClassDB::bind_method(D_METHOD("save_tri_to_file", "filename"), &TriangleShape::saveTriToFile);
         ClassDB::bind_static_method("TriangleShape", D_METHOD("load_tri_from_file", "filename"), &TriangleShape::loadTriFromFile);
         ClassDB::bind_method(D_METHOD("get_array_mesh"), &TriangleShape::getMesh);
+        ClassDB::bind_method(D_METHOD("get_tri_aabb"), &TriangleShape::getAABB);
     }
 
     TriangleShape::TriangleShape()
@@ -86,4 +87,26 @@ namespace godot
         Ref<ArrayMesh> result = st->commit();
         return result;
     }
+
+    godot::AABB TriangleShape::getAABB() const
+    {
+        auto       inf = std::numeric_limits<double>::infinity();
+        glm::dvec3 min = glm::dvec3(inf, inf, inf);
+        glm::dvec3 max = glm::dvec3(-inf, -inf, -inf);
+
+        for (const auto& x : shape->vertices)
+        {
+            min.x = std::min(x.x, min.x);
+            min.y = std::min(x.y, min.y);
+            min.z = std::min(x.z, min.z);
+            max.x = std::max(x.x, max.x);
+            max.y = std::max(x.y, max.y);
+            max.z = std::max(x.z, max.z);
+        }
+
+        Vector3 position = Vector3(min.x, min.y, min.z);
+        Vector3 size     = Vector3(max.x - min.x, max.y - min.y, max.z - min.z);
+        return AABB(position, size);
+    }
+
 }

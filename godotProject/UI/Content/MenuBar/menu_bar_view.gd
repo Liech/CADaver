@@ -2,7 +2,7 @@ class_name ViewMenu extends PopupMenu
 
 @export var bar : ApplicationMenuBar;
 
-var extra_window_scene : PackedScene = load("res://UI/ExtraWindow/extra_window.tscn")
+var extra_window_scene : PackedScene = load("res://UI/Windows/ExtraWindow/extra_window.tscn")
 
 var index_fullscreen     = 0;
 var index_show_tabs      = 1;

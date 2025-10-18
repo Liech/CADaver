@@ -34,6 +34,7 @@ namespace godot
 
       private:
         Ref<ArrayMesh> getMesh() const;
+        godot::AABB    getAABB() const;
 
         std::shared_ptr<Library::Triangulation> shape;
     };

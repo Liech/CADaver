@@ -18,7 +18,7 @@ config/icon="res://Beissi.png"
 
 [autoload]
 
-Hub="*res://Config/Hub.gd"
+Hub="*res://Logic/Hub.gd"
 
 [debug]
 
