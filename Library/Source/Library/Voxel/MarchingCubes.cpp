@@ -375,20 +375,20 @@ namespace Library
         subResult.resize(resolution.x);
 
 #pragma omp parallel for
-        for (long long x = 0; x < resolution.x - 1; x++)
+        for (long long z = 0; z < resolution.z - 1; z++)
         {
             for (size_t y = 0; y < resolution.y - 1; y++)
             {
-                for (size_t z = 0; z < resolution.z - 1; z++)
+                for (size_t x = 0; x < resolution.x - 1; x++)
                 {
-                    std::array<double, 8> values = { data[resolution.z * resolution.y * (x) + resolution.z * (y) + (z)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x + 1) + resolution.z * (y) + (z)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x + 1) + resolution.z * (y + 1) + (z)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x) + resolution.z * (y + 1) + (z)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x) + resolution.z * (y) + (z + 1)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x + 1) + resolution.z * (y) + (z + 1)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x + 1) + resolution.z * (y + 1) + (z + 1)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x) + resolution.z * (y + 1) + (z + 1)] ? 1.0 : 0.0 };
+                    std::array<double, 8> values = { data[(x)      + resolution.x * (y)     + resolution.x * resolution.y * (z)    ] ? 1.0 : 0.0,
+                                                     data[(x  + 1) + resolution.x * (y)     + resolution.x * resolution.y * (z)    ] ? 1.0 : 0.0,
+                                                     data[(x  + 1) + resolution.x * (y + 1) + resolution.x * resolution.y * (z)    ] ? 1.0 : 0.0,
+                                                     data[(x)      + resolution.x * (y + 1) + resolution.x * resolution.y * (z)    ] ? 1.0 : 0.0,
+                                                     data[(x)      + resolution.x * (y)     + resolution.x * resolution.y * (z + 1)] ? 1.0 : 0.0,
+                                                     data[(x  + 1) + resolution.x * (y)     + resolution.x * resolution.y * (z + 1)] ? 1.0 : 0.0,
+                                                     data[(x  + 1) + resolution.x * (y + 1) + resolution.x * resolution.y * (z + 1)] ? 1.0 : 0.0,
+                                                     data[(x)      + resolution.x * (y + 1) + resolution.x * resolution.y * (z + 1)] ? 1.0 : 0.0 };
                     glm::dvec3                o         = origin + glm::dvec3(x * voxelSize.x, y * voxelSize.y, z * voxelSize.z + voxelSize.z);
                     std::array<glm::dvec3, 8> positions = { o,
                                                             o + glm::dvec3(voxelSize.x, 0.0, 0.0),
@@ -424,14 +424,14 @@ namespace Library
             {
                 for (size_t z = 0; z < resolution.z - 1; z++)
                 {
-                    std::array<double, 8> values = { data[resolution.z * resolution.y * (x) + resolution.z * (y) + (z)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x + 1) + resolution.z * (y) + (z)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x + 1) + resolution.z * (y + 1) + (z)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x) + resolution.z * (y + 1) + (z)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x) + resolution.z * (y) + (z + 1)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x + 1) + resolution.z * (y) + (z + 1)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x + 1) + resolution.z * (y + 1) + (z + 1)] ? 1.0 : 0.0,
-                                                     data[resolution.z * resolution.y * (x) + resolution.z * (y + 1) + (z + 1)] ? 1.0 : 0.0 };
+                    std::array<double, 8> values = { data[(x) + resolution.x * (y) + resolution.x * resolution.y * (z)] ? 1.0 : 0.0,
+                                                     data[(x + 1) + resolution.x * (y) + resolution.x * resolution.y * (z)] ? 1.0 : 0.0,
+                                                     data[(x + 1) + resolution.x * (y + 1) + resolution.x * resolution.y * (z)] ? 1.0 : 0.0,
+                                                     data[(x) + resolution.x * (y + 1) + resolution.x * resolution.y * (z)] ? 1.0 : 0.0,
+                                                     data[(x) + resolution.x * (y) + resolution.x * resolution.y * (z + 1)] ? 1.0 : 0.0,
+                                                     data[(x + 1) + resolution.x * (y) + resolution.x * resolution.y * (z + 1)] ? 1.0 : 0.0,
+                                                     data[(x + 1) + resolution.x * (y + 1) + resolution.x * resolution.y * (z + 1)] ? 1.0 : 0.0,
+                                                     data[(x) + resolution.x * (y + 1) + resolution.x * resolution.y * (z + 1)] ? 1.0 : 0.0 };
                     glm::dvec3                o         = origin + glm::dvec3(x * voxelSize.x, y * voxelSize.y, z * voxelSize.z + voxelSize.z);
                     std::array<glm::dvec3, 8> positions = { o,
                                                             o + glm::dvec3(voxelSize.x, 0, 0),
@@ -466,15 +466,15 @@ namespace Library
             for (size_t y = 0; y < resolution.y - 1; y++)
             {
                 for (size_t z = 0; z < resolution.z - 1; z++)
-                {
-                    std::array<double, 8>     values    = { data[resolution.z * resolution.y * (x) + resolution.z * (y) + (z)],
-                                                            data[resolution.z * resolution.y * (x + 1) + resolution.z * (y) + (z)],
-                                                            data[resolution.z * resolution.y * (x + 1) + resolution.z * (y + 1) + (z)],
-                                                            data[resolution.z * resolution.y * (x) + resolution.z * (y + 1) + (z)],
-                                                            data[resolution.z * resolution.y * (x) + resolution.z * (y) + (z + 1)],
-                                                            data[resolution.z * resolution.y * (x + 1) + resolution.z * (y) + (z + 1)],
-                                                            data[resolution.z * resolution.y * (x + 1) + resolution.z * (y + 1) + (z + 1)],
-                                                            data[resolution.z * resolution.y * (x) + resolution.z * (y + 1) + (z + 1)] };
+                {                                                                                                                         
+                    std::array<double, 8>     values    = { data[(x)     + resolution.y * (y)      + resolution.x * resolution.y * (z)    ],
+                                                            data[(x + 1) + resolution.y * (y)      + resolution.x * resolution.y * (z)    ],
+                                                            data[(x + 1) + resolution.y * (y  + 1) + resolution.x * resolution.y * (z)    ],
+                                                            data[(x)     + resolution.y * (y  + 1) + resolution.x * resolution.y * (z)    ],
+                                                            data[(x)     + resolution.y * (y)      + resolution.x * resolution.y * (z + 1)],
+                                                            data[(x + 1) + resolution.y * (y)      + resolution.x * resolution.y * (z + 1)],
+                                                            data[(x + 1) + resolution.y * (y + 1)  + resolution.x * resolution.y * (z + 1)],
+                                                            data[(x)     + resolution.y * (y + 1)  + resolution.x * resolution.y * (z + 1)] };
                     glm::dvec3                o         = origin + glm::dvec3(x * voxelSize.x, y * voxelSize.y, z * voxelSize.z);
                     std::array<glm::dvec3, 8> positions = { o,
                                                             o + glm::dvec3(voxelSize.x, 0, 0),
@@ -506,7 +506,7 @@ namespace Library
         // #pragma omp parallel for
         for (long long i = 0; i < result.size(); i++)
         {
-            glm::u64vec3 coord  = glm::u64vec3(i / (resultResolution.y * resultResolution.z), (i / resultResolution.z) % resultResolution.y, i % resultResolution.z);
+            glm::u64vec3 coord  = glm::u64vec3(i % resultResolution.x, (i / resultResolution.x) % resultResolution.y, i / (resultResolution.y * resultResolution.x));
             size_t       val    = 0;
             size_t       offset = oneVoxelSize.z * coord.z + coord.y * oneVoxelSize.y * resolution.z + coord.x * oneVoxelSize.y * resolution.z * resolution.y;
             for (size_t x = 0; x < oneVoxelSize.x; x++)
@@ -534,7 +534,7 @@ namespace Library
         // #pragma omp parallel for
         for (long long i = 0; i < result.size(); i++)
         {
-            glm::u64vec3 coord  = glm::u64vec3(i / (resultResolution.y * resultResolution.z), (i / resultResolution.z) % resultResolution.y, i % resultResolution.z);
+            glm::u64vec3 coord  = glm::u64vec3(i % resultResolution.x, (i / resultResolution.x) % resultResolution.y, i / (resultResolution.y * resultResolution.x));
             size_t       val    = 0;
             size_t       offset = oneVoxelSize.z * coord.z + coord.y * oneVoxelSize.y * resolution.z + coord.x * oneVoxelSize.y * resolution.z * resolution.y;
             for (size_t x = 0; x < oneVoxelSize.x; x++)
