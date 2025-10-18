@@ -4,8 +4,8 @@ var filename : String;
 var drawing : Drawing;
 var message : String
 
-static func make_from_filename(filename : String) -> shape_io:
-	var ext := path_util.get_extension(filename).to_lower();
+static func make_from_filename(inputFilename : String) -> shape_io:
+	var ext := path_util.get_extension(inputFilename).to_lower();
 	var result : shape_io;
 	if (ext == ".stl"):
 		result = mesh_io.new();
@@ -15,7 +15,7 @@ static func make_from_filename(filename : String) -> shape_io:
 		result = cad_io.new();
 	else:
 		return null
-	result.filename = filename;
+	result.filename = inputFilename;
 	return result;
 
 static func make_from_drawing(input : Drawing) ->shape_io:
