@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://wq5hdhqq1wts"]
+
+[ext_resource type="Script" uid="uid://dmy2nx0xii6k8" path="res://UI/Windows/ExtraWindow/extra_window.gd" id="1_6gsuf"]
+[ext_resource type="PackedScene" uid="uid://b8ifiy4c8cgpb" path="res://UI/Windows/WindowContent/window_content.tscn" id="1_60qra"]
+
+[node name="ExtraWindow" type="Window"]
+position = Vector2i(100, 100)
+size = Vector2i(500, 500)
+script = ExtResource("1_6gsuf")
+
+[node name="WindowContent" parent="." instance=ExtResource("1_60qra")]
+
+[connection signal="fullscreen_mode_set" from="." to="WindowContent" method="_on_editor_fullscreen_mode_changed"]
+[connection signal="tree_entered" from="." to="." method="_on_tree_entered"]
+[connection signal="tree_exited" from="." to="." method="_on_tree_exited"]
+[connection signal="toggle_fullscreen" from="WindowContent" to="." method="_on_window_content_toggle_fullscreen"]

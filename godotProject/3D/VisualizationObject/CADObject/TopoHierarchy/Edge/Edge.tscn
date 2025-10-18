@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://qvpboun4x7o1"]
+
+[ext_resource type="Script" uid="uid://ps5ao73mv0xw" path="res://3D/VisualizationObject/CADObject/TopoHierarchy/Edge/edge.gd" id="1_g0qee"]
+
+[node name="Edge" type="Node3D"]
+script = ExtResource("1_g0qee")

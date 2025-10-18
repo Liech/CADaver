@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://d4mpp3lt0mtvp"]
-
-[ext_resource type="Script" uid="uid://b83fdk6hrfd3u" path="res://3D/CADObject/TopoHierarchy/CompSolid/comp_solid.gd" id="1_okspl"]
-
-[node name="CompSolid" type="Node3D"]
-script = ExtResource("1_okspl")

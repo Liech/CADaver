@@ -1,0 +1,34 @@
+[gd_scene load_steps=5 format=3 uid="uid://b8ifiy4c8cgpb"]
+
+[ext_resource type="Script" uid="uid://1i75gltswrmp" path="res://UI/Windows/WindowContent/window_container.gd" id="1_71gi3"]
+[ext_resource type="PackedScene" uid="uid://dfrsgfh3rcwt5" path="res://UI/Content/MenuBar/menu_bar.tscn" id="1_bxkkv"]
+[ext_resource type="PackedScene" uid="uid://7depx8duyh2a" path="res://UI/Content/Tabs/tab_bar.tscn" id="2_hcalt"]
+[ext_resource type="PackedScene" uid="uid://bsabpw4agcisv" path="res://UI/Content/DrawingScene/DrawingScene.tscn" id="3_8ty7u"]
+
+[node name="WindowContent" type="VBoxContainer" node_paths=PackedStringArray("menu", "tabs", "scene")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_71gi3")
+menu = NodePath("MenuBar")
+tabs = NodePath("TabBar")
+scene = NodePath("DrawingScene")
+
+[node name="MenuBar" parent="." node_paths=PackedStringArray("window") instance=ExtResource("1_bxkkv")]
+layout_mode = 2
+window = NodePath("..")
+
+[node name="TabBar" parent="." node_paths=PackedStringArray("window") instance=ExtResource("2_hcalt")]
+layout_mode = 2
+window = NodePath("..")
+
+[node name="DrawingScene" parent="." instance=ExtResource("3_8ty7u")]
+layout_mode = 2
+
+[connection signal="fullscreen_mode_set" from="." to="MenuBar" method="_on_window_content_fullscreen_mode_set"]
+[connection signal="tree_entered" from="." to="." method="_on_tree_entered"]
+[connection signal="drawing_changed" from="TabBar" to="DrawingScene" method="_on_tab_bar_drawing_changed"]

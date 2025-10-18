@@ -1,0 +1,11 @@
+[gd_scene load_steps=4 format=3 uid="uid://c8e2q1tgpalk7"]
+
+[ext_resource type="Script" uid="uid://bxsroo4uc8b6d" path="res://3D/Util/PreviewMesh/preview_mesh.gd" id="1_5ng06"]
+[ext_resource type="Material" uid="uid://de7fk1k7wbc3m" path="res://3D/Util/PreviewMesh/preview_mesh_material.tres" id="1_lh75q"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_hwah1"]
+
+[node name="PreviewMesh" type="MeshInstance3D"]
+mesh = SubResource("BoxMesh_hwah1")
+surface_material_override/0 = ExtResource("1_lh75q")
+script = ExtResource("1_5ng06")

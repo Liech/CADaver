@@ -12,7 +12,7 @@ config_version=5
 
 config/name="CADaver"
 config/description="STEP Viewer. Maybe more one day"
-run/main_scene="res://UI/MainWindow/MainWindow.tscn"
+run/main_scene="res://UI/Windows/MainWindow/MainWindow.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://Beissi.png"
 

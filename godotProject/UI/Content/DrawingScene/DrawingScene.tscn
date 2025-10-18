@@ -1,0 +1,89 @@
+[gd_scene load_steps=10 format=3 uid="uid://bsabpw4agcisv"]
+
+[ext_resource type="Script" uid="uid://b73jph4qwicpf" path="res://UI/Content/DrawingScene/DrawingScene.gd" id="1_esesk"]
+[ext_resource type="PackedScene" uid="uid://b4y8g54udjjdq" path="res://3D/Util/Camera/main_camera.tscn" id="2_ybpe5"]
+[ext_resource type="PackedScene" uid="uid://c2rokc52ag5sx" path="res://3D/Util/light.tscn" id="3_0bqdw"]
+[ext_resource type="PackedScene" uid="uid://cj2haut1mwxe4" path="res://3D/Util/ViewCube/view_cube_control.tscn" id="4_1biwo"]
+[ext_resource type="PackedScene" uid="uid://ef2wfs2posok" path="res://UI/Content/Hierarchy/Hierarchy.tscn" id="4_2bkgr"]
+[ext_resource type="PackedScene" uid="uid://s387mke3f5q3" path="res://3D/Util/world_environment.tscn" id="4_g75x4"]
+
+[sub_resource type="Environment" id="Environment_w46db"]
+
+[sub_resource type="Environment" id="Environment_h8pws"]
+
+[sub_resource type="World3D" id="World3D_4yx81"]
+environment = SubResource("Environment_w46db")
+fallback_environment = SubResource("Environment_h8pws")
+
+[node name="DrawingScene" type="Control"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_esesk")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="Viewport" type="SubViewport" parent="SubViewportContainer"]
+own_world_3d = true
+world_3d = SubResource("World3D_4yx81")
+handle_input_locally = false
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="ChildPool" type="Node3D" parent="SubViewportContainer/Viewport"]
+
+[node name="MainCamera" parent="SubViewportContainer/Viewport" node_paths=PackedStringArray("child_pool") instance=ExtResource("2_ybpe5")]
+child_pool = NodePath("../ChildPool")
+start_rotation = Transform3D(0.71, 0, -0.71, -0.5, 0.71, -0.5, 0.5, 0.71, 0.5, 0, 0, 0)
+
+[node name="Light" parent="SubViewportContainer/Viewport" instance=ExtResource("3_0bqdw")]
+
+[node name="WorldEnvironment" parent="SubViewportContainer/Viewport" instance=ExtResource("4_g75x4")]
+
+[node name="dirtymaker" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -141.0
+offset_top = -134.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Hierarchy" parent="." instance=ExtResource("4_2bkgr")]
+layout_mode = 0
+anchors_preset = 0
+anchor_top = 0.0
+anchor_bottom = 0.0
+offset_right = 233.0
+offset_bottom = 489.0
+grow_vertical = 1
+
+[node name="ViewCube" parent="." node_paths=PackedStringArray("cam") instance=ExtResource("4_1biwo")]
+layout_mode = 1
+offset_left = -40.0
+scale = Vector2(0.999215, 1)
+cam = NodePath("../SubViewportContainer/Viewport/MainCamera")
+
+[connection signal="item_rect_changed" from="SubViewportContainer" to="SubViewportContainer" method="_on_item_rect_changed"]
+[connection signal="resized" from="SubViewportContainer" to="SubViewportContainer" method="_on_resized"]
+[connection signal="rotation_changed" from="SubViewportContainer/Viewport/MainCamera" to="ViewCube" method="_on_camera_rotation_changed"]
+[connection signal="pressed" from="dirtymaker" to="." method="_on_dirtymaker_pressed"]
+[connection signal="reset_view" from="ViewCube" to="SubViewportContainer/Viewport/MainCamera" method="_on_view_cube_reset_view"]
+[connection signal="transform_changed" from="ViewCube" to="SubViewportContainer/Viewport/MainCamera" method="_on_view_cube_transform_changed"]

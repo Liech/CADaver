@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://thqwk06i713u"]
+
+[ext_resource type="Script" uid="uid://dlevm4wkiw6h3" path="res://UI/Windows/MainWindow/main_window.gd" id="1_n1gnb"]
+[ext_resource type="PackedScene" uid="uid://b8ifiy4c8cgpb" path="res://UI/Windows/WindowContent/window_content.tscn" id="4_jxac5"]
+
+[node name="MainWindow" type="Node"]
+script = ExtResource("1_n1gnb")
+
+[node name="Window Content" parent="." instance=ExtResource("4_jxac5")]
+
+[connection signal="fullscreen_mode_changed" from="." to="Window Content" method="_on_editor_fullscreen_mode_changed"]
+[connection signal="quit_requested" from="." to="Window Content" method="_on_main_window_quit_requested"]
+[connection signal="toggle_fullscreen" from="Window Content" to="." method="_on_window_content_toggle_fullscreen"]

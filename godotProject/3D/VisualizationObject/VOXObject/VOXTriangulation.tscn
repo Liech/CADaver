@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://iovogorms0nx"]
+
+[ext_resource type="Script" uid="uid://dacwr26q3il6l" path="res://3D/VisualizationObject/VOXObject/vox_triangulation_scene.gd" id="1_p50t5"]
+
+[node name="VoxTriangulation" type="Node3D"]
+script = ExtResource("1_p50t5")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]

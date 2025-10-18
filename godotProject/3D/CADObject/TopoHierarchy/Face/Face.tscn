@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://blc42bxbgnpax"]
-
-[ext_resource type="Script" uid="uid://jr73u78u71il" path="res://3D/CADObject/TopoHierarchy/Face/face.gd" id="1_twgu3"]
-
-[node name="Face" type="Node3D"]
-script = ExtResource("1_twgu3")
-
-[node name="Mesh" type="MeshInstance3D" parent="."]

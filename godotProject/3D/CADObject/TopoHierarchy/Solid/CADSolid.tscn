@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://d104mlnjohkw6"]
-
-[ext_resource type="Script" uid="uid://du1rdxtcg3ke6" path="res://3D/CADObject/TopoHierarchy/Solid/cad_solid.gd" id="1_36svu"]
-
-[node name="CadSolid" type="Node3D"]
-script = ExtResource("1_36svu")

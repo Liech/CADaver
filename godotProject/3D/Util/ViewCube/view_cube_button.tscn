@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://b6a7ghrkoyfgt"]
+
+[ext_resource type="Script" uid="uid://b5gxvmo2l1xp0" path="res://3D/Util/ViewCube/view_cube_button.gd" id="1_ualv3"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dl8k3"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_eshh0"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gh4yq"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.4)
+
+[node name="ViewCubeButton" type="StaticBody3D"]
+script = ExtResource("1_ualv3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+shape = SubResource("BoxShape3D_dl8k3")
+
+[node name="HoverMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+visible = false
+mesh = SubResource("BoxMesh_eshh0")
+surface_material_override/0 = SubResource("StandardMaterial3D_gh4yq")

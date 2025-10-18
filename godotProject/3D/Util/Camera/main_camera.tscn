@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://b4y8g54udjjdq"]
+
+[ext_resource type="Script" uid="uid://cbjcy6ttp1bxh" path="res://3D/Util/Camera/main_camera.gd" id="1_4liwp"]
+[ext_resource type="PackedScene" uid="uid://c8thha3mle3dr" path="res://3D/Util/Camera/Selection/selection.tscn" id="2_oemhu"]
+[ext_resource type="PackedScene" uid="uid://csihbtb4vio5v" path="res://UI/Content/ContextMenu/context_menu.tscn" id="3_fced0"]
+
+[node name="MainCamera" type="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.71266)
+script = ExtResource("1_4liwp")
+
+[node name="Selection" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_oemhu")]
+camera = NodePath("..")
+
+[node name="ContextMenu" parent="." instance=ExtResource("3_fced0")]
+visible = false
+unfocusable = false

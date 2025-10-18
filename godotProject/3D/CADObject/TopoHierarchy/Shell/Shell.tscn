@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://chlyit6gsortf"]
-
-[ext_resource type="Script" uid="uid://bv30waalbctxi" path="res://3D/CADObject/TopoHierarchy/Shell/shell.gd" id="1_2nmg4"]
-
-[node name="Shell" type="Node3D"]
-script = ExtResource("1_2nmg4")

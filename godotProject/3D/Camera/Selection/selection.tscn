@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8thha3mle3dr"]
-
-[ext_resource type="Script" uid="uid://b71rap6wwrmns" path="res://3D/Camera/Selection/object_selection.gd" id="1_csj2n"]
-
-[node name="Selection" type="Node3D"]
-script = ExtResource("1_csj2n")

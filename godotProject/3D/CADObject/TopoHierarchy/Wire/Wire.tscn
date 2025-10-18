@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://n5h6x28ysptj"]
-
-[ext_resource type="Script" uid="uid://8jtluf3nbvpq" path="res://3D/CADObject/TopoHierarchy/Wire/wire.gd" id="1_fficv"]
-
-[node name="Wire" type="Node3D"]
-script = ExtResource("1_fficv")

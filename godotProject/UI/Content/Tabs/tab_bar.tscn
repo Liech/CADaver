@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://7depx8duyh2a"]
+
+[ext_resource type="Script" uid="uid://b5dt7ttn7ddhr" path="res://UI/Content/Tabs/tab_bar.gd" id="1_1djrk"]
+
+[node name="TabBar" type="TabBar"]
+current_tab = 0
+tab_close_display_policy = 2
+tab_count = 2
+tab_0/title = "Hallo"
+tab_1/title = "Welt"
+script = ExtResource("1_1djrk")
+
+[connection signal="tab_changed" from="." to="." method="_on_tab_changed"]
+[connection signal="tab_close_pressed" from="." to="." method="_on_tab_close_pressed"]

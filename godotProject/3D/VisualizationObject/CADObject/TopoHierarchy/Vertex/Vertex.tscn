@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ceh7eskfkaire"]
+
+[ext_resource type="Script" uid="uid://ditqa8rbp43kn" path="res://3D/VisualizationObject/CADObject/TopoHierarchy/Vertex/vertex.gd" id="1_u3oyo"]
+
+[node name="Vertex" type="Node3D"]
+script = ExtResource("1_u3oyo")

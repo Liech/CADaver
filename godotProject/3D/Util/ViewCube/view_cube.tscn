@@ -1,0 +1,280 @@
+[gd_scene load_steps=8 format=3 uid="uid://b6rn8yhapkhfm"]
+
+[ext_resource type="Script" uid="uid://bu5p2vond7j27" path="res://3D/Util/ViewCube/view_cube.gd" id="1_4qvvf"]
+[ext_resource type="Material" uid="uid://c2qx01sya8jo7" path="res://3D/Util/ViewCube/view_cube_edge_material.tres" id="1_gdys1"]
+[ext_resource type="PackedScene" uid="uid://dnnlnvx6epsq5" path="res://3D/Util/ViewCube/view_cube_button_text.tscn" id="2_812jq"]
+[ext_resource type="PackedScene" uid="uid://b6a7ghrkoyfgt" path="res://3D/Util/ViewCube/view_cube_button.tscn" id="2_w5ryy"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_q15ff"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_r3bb0"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_xt78w"]
+
+[node name="ViewCube" type="MeshInstance3D"]
+mesh = SubResource("BoxMesh_q15ff")
+skeleton = NodePath("../../..")
+script = ExtResource("1_4qvvf")
+
+[node name="Text" type="Node3D" parent="."]
+
+[node name="Front" type="Label3D" parent="Text"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.55)
+pixel_size = 0.008
+modulate = Color(0, 0, 1, 1)
+text = "Front
+Z+"
+
+[node name="ViewCubeButtonText" parent="Text/Front" instance=ExtResource("2_812jq")]
+
+[node name="Top" type="Label3D" parent="Text"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.55, 0)
+pixel_size = 0.008
+modulate = Color(0, 100, 0, 1)
+text = "Top
+Y+"
+
+[node name="ViewCubeButtonText" parent="Text/Top" instance=ExtResource("2_812jq")]
+trans = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+
+[node name="Bot" type="Label3D" parent="Text"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -0.55, 0)
+pixel_size = 0.008
+modulate = Color(0, 100, 0, 1)
+text = "Bot
+Y-"
+
+[node name="ViewCubeButtonText" parent="Text/Bot" instance=ExtResource("2_812jq")]
+trans = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+
+[node name="Back" type="Label3D" parent="Text"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -0.55)
+pixel_size = 0.008
+modulate = Color(0, 0, 1, 1)
+text = "Back
+Z-"
+
+[node name="ViewCubeButtonText" parent="Text/Back" instance=ExtResource("2_812jq")]
+trans = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
+
+[node name="Right" type="Label3D" parent="Text"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.55, 0, 0)
+pixel_size = 0.008
+modulate = Color(1, 0.08, 0.08, 1)
+text = "Right
+X+"
+
+[node name="ViewCubeButtonText" parent="Text/Right" instance=ExtResource("2_812jq")]
+trans = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
+
+[node name="Left" type="Label3D" parent="Text"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.515, 0, 0)
+pixel_size = 0.008
+modulate = Color(1, 0.08, 0.08, 1)
+text = "Left
+X-"
+
+[node name="ViewCubeButtonText" parent="Text/Left" instance=ExtResource("2_812jq")]
+trans = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0, 0)
+
+[node name="Edges" type="Node3D" parent="."]
+
+[node name="EdgeZPXP" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(0.1, 0, 0, 0, 0.7, 0, 0, 0, 0.1, 0.504016, 0.00247025, 0.498433)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeZPXP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0.707, 0, -0.707, 0, 1, 0, 0.707, 0, 0.707, 0, 0, 0)
+
+[node name="EdgeZPXM" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(0.1, 0, 0, 0, 0.7, 0, 0, 0, 0.1, -0.49604, 0.00199976, 0.498068)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeZPXM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0.707, 0, 0.707, 0, 1, 0, -0.707, 0, 0.707, 0, 0, 0)
+
+[node name="EdgeZMXM" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(0.1, 0, 0, 0, 0.7, 0, 0, 0, 0.1, -0.49604, 0.00199976, -0.499932)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeZMXM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(-0.707, 0, 0.707, 0, 1, 0, -0.707, 0, -0.707, 0, 0, 0)
+
+[node name="EdgeZMXP" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(0.1, 0, 0, 0, 0.7, 0, 0, 0, 0.1, 0.50396, 0.00199976, -0.499932)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeZMXP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(-0.707, 0, -0.707, 0, 1, 0, 0.707, 0, -0.707, 0, 0, 0)
+
+[node name="EdgeXPYP" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(0.1, 0, 0, 0, -3.0598e-08, -0.1, 0, 0.7, -4.37114e-09, 0.50396, 0.5, -0.000932217)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeXPYP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0, 0, -1, -0.707, 0.707, 0, 0.707, 0.772, 0, 0, 0, 0)
+
+[node name="EdgeXPYM" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(0.1, 0, 0, 0, -3.0598e-08, -0.1, 0, 0.7, -4.37114e-09, 0.50396, -0.5, -0.000932217)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeXPYM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0, 0, -1, 0.707, 0.707, 0, 0.707, -0.772, 0, 0, 0, 0)
+
+[node name="EdgeXMYM" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(0.1, 0, 0, 0, -3.0598e-08, -0.1, 0, 0.7, -4.37114e-09, -0.49604, -0.5, -0.000932217)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeXMYM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0, 0, 1, -0.707, 0.707, 0, -0.707, -0.707, 0, 0, 0, 0)
+
+[node name="EdgeXMYP" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(0.1, 0, 0, 0, -3.0598e-08, -0.1, 0, 0.7, -4.37114e-09, -0.49604, 0.5, -0.000932217)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeXMYP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0, 0, 1, 0.707, 0.707, 0, -0.707, 0.707, 0, 0, 0, 0)
+
+[node name="EdgeZPYP" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(-4.37114e-09, 0.7, -4.37114e-09, 0, -3.0598e-08, -0.1, -0.1, -3.0598e-08, 1.91069e-16, 0.00396013, 0.5, 0.499068)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeZPYP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(1, 0, 0, 0, 0.707, -0.707, 0, 0.707, 0.707, 0, 0, 0)
+
+[node name="EdgeZPYM" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(-4.37114e-09, 0.7, -4.37114e-09, 0, -3.0598e-08, -0.1, -0.1, -3.0598e-08, 1.91069e-16, 0.00396013, -0.5, 0.499068)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeZPYM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(1, 0, 0, 0, 0.707, 0.707, 0, -0.707, 0.707, 0, 0, 0)
+
+[node name="EdgeZMYP" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(-4.37114e-09, 0.7, -4.37114e-09, 0, -3.0598e-08, -0.1, -0.1, -3.0598e-08, 1.91069e-16, 0.00396013, 0.5, -0.500932)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeZMYP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(1, 0, 0, 0, -0.707, -0.707, 0, 0.707, -0.707, 0, 0, 0)
+
+[node name="EdgeZMYM" type="MeshInstance3D" parent="Edges"]
+transform = Transform3D(-4.37114e-09, 0.7, -4.37114e-09, 0, -3.0598e-08, -0.1, -0.1, -3.0598e-08, 1.91069e-16, -0.0229096, -0.503766, -0.491695)
+mesh = SubResource("BoxMesh_r3bb0")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_gdys1")
+
+[node name="ViewCubeButton" parent="Edges/EdgeZMYM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(1, 0, 0, 0, -0.707, 0.707, 0, -0.707, -0.707, 0, 0, 0)
+
+[node name="Corners" type="Node3D" parent="."]
+
+[node name="CornerPPP" type="MeshInstance3D" parent="Corners"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.5, 0.5, 0.5)
+material_override = ExtResource("1_gdys1")
+mesh = SubResource("BoxMesh_xt78w")
+
+[node name="ViewCubeButton" parent="Corners/CornerPPP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0.71, 0, -0.71, -0.5, 0.71, -0.5, 0.5, 0.71, 0.5, 0, 0, 0)
+
+[node name="CornerPPM" type="MeshInstance3D" parent="Corners"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.5, 0.5, -0.5)
+material_override = ExtResource("1_gdys1")
+mesh = SubResource("BoxMesh_xt78w")
+
+[node name="ViewCubeButton" parent="Corners/CornerPPM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(-0.71, 0, -0.71, -0.5, 0.71, 0.5, 0.5, 0.5, -0.5, 0, 0, 0)
+
+[node name="CornerPMM" type="MeshInstance3D" parent="Corners"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.5, -0.5, -0.5)
+material_override = ExtResource("1_gdys1")
+mesh = SubResource("BoxMesh_xt78w")
+
+[node name="ViewCubeButton" parent="Corners/CornerPMM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(-0.707, 0, -0.707, 0.5, 0.707, -0.5, 0.5, -0.707, -0.5, 0, 0, 0)
+
+[node name="CornerPMP" type="MeshInstance3D" parent="Corners"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.5, -0.5, 0.5)
+material_override = ExtResource("1_gdys1")
+mesh = SubResource("BoxMesh_xt78w")
+
+[node name="ViewCubeButton" parent="Corners/CornerPMP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0.71, 0, -0.71, 0.5, 0.71, 0.5, 0.5, -0.71, 0.5, 0, 0, 0)
+
+[node name="CornerMPP" type="MeshInstance3D" parent="Corners"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -0.5, 0.5, 0.5)
+material_override = ExtResource("1_gdys1")
+mesh = SubResource("BoxMesh_xt78w")
+
+[node name="ViewCubeButton" parent="Corners/CornerMPP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0.71, 0, 0.71, 0.5, 0.71, -0.5, -0.5, 0.5, 0.5, 0, 0, 0)
+
+[node name="CornerMPM" type="MeshInstance3D" parent="Corners"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -0.5, 0.5, -0.5)
+material_override = ExtResource("1_gdys1")
+mesh = SubResource("BoxMesh_xt78w")
+
+[node name="ViewCubeButton" parent="Corners/CornerMPM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(-0.707, 0, 0.707, 0.5, 0.707, 0.5, -0.5, 0.5, -0.5, 0, 0, 0)
+
+[node name="CornerMMP" type="MeshInstance3D" parent="Corners"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -0.5, -0.5, 0.5)
+material_override = ExtResource("1_gdys1")
+mesh = SubResource("BoxMesh_xt78w")
+
+[node name="ViewCubeButton" parent="Corners/CornerMMP" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(0.71, 0, 0.71, -0.5, 0.71, 0.5, -0.5, 0, 0.5, 0, 0, 0)
+
+[node name="CornerMMM" type="MeshInstance3D" parent="Corners"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -0.5, -0.5, -0.5)
+material_override = ExtResource("1_gdys1")
+mesh = SubResource("BoxMesh_xt78w")
+
+[node name="ViewCubeButton" parent="Corners/CornerMMM" instance=ExtResource("2_w5ryy")]
+trans = Transform3D(-0.707, 0, 0.707, -0.5, 0.707, -0.5, -0.5, -0.707, -0.5, 0, 0, 0)
+
+[node name="Light" type="Node3D" parent="."]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Light"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.23267)
+light_energy = 0.3
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="Light"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.233)
+light_energy = 0.3
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="Light"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.233, 0)
+light_energy = 0.3
+
+[node name="OmniLight3D4" type="OmniLight3D" parent="Light"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.233, 0)
+light_energy = 0.3
+
+[node name="OmniLight3D5" type="OmniLight3D" parent="Light"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.233, 0, 0)
+light_energy = 0.3
+
+[node name="OmniLight3D6" type="OmniLight3D" parent="Light"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.233, 0, 0)
+light_energy = 0.3

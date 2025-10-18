@@ -1,0 +1,64 @@
+[gd_scene load_steps=2 format=3 uid="uid://bq0eb8dp1wa0r"]
+
+[ext_resource type="Script" uid="uid://blxdvlaalgkpw" path="res://UI/Util/ColorPickerPopup/color_picker_popup.gd" id="1_wax3y"]
+
+[node name="ColorPickerPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wax3y")
+
+[node name="Panel2" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0.6)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer2" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -87.0
+offset_top = -64.0
+offset_right = 87.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="PanelContainer2"]
+self_modulate = Color(1, 1, 1, 0.6)
+layout_mode = 2
+
+[node name="PanelContainer" type="VBoxContainer" parent="PanelContainer2"]
+layout_mode = 2
+
+[node name="ColorPicker" type="ColorPicker" parent="PanelContainer2/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="PanelContainer2/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer2/PanelContainer/MarginContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Yes" type="Button" parent="PanelContainer2/PanelContainer/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Ok"
+
+[connection signal="pressed" from="PanelContainer2/PanelContainer/MarginContainer2/HBoxContainer/Yes" to="." method="_on_yes_pressed"]
