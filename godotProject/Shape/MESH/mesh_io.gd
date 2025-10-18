@@ -1,5 +1,8 @@
 class_name mesh_io extends shape_io
 
+func get_shape_name() -> String:
+	return "Triangular Mesh"
+
 
 func load_drawing() -> Drawing:
 	var result := DrawingMESH.new()
@@ -26,3 +29,6 @@ func save_drawing() -> bool:
 		message = "Unkown extension"
 		return false
 	return true
+
+func get_converter() -> Array[converter]:
+	return [vox_converter.new()]

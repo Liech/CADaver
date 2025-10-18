@@ -4,6 +4,9 @@ var filename : String;
 var drawing : Drawing;
 var message : String
 
+func get_shape_name() -> String:
+	return "SHAPE"
+
 static func make_from_filename(inputFilename : String) -> shape_io:
 	var ext := path_util.get_extension(inputFilename).to_lower();
 	var result : shape_io;
@@ -50,3 +53,6 @@ func save_drawing() -> bool:
 func load_drawing() -> Drawing:
 	message = "Not implemented!"
 	return null
+
+func get_converter() -> Array[converter]:
+	return []

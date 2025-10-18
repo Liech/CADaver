@@ -8,3 +8,6 @@ func load_from_file()->bool: # return success
 		return false;
 	dirty = false;
 	return true
+
+func get_converter() -> Array[converter]:
+	return [mesh_converter.new(), vox_converter.new()]

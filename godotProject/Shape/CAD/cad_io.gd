@@ -1,5 +1,8 @@
 class_name cad_io extends mesh_io
 
+func get_shape_name() -> String:
+	return "CAD BREP"
+
 func load_drawing() -> Drawing:
 	var result := DrawingCAD.new()
 	result.draw_name =  path_util.get_file_name_without_extension(filename);

@@ -1,6 +1,9 @@
 class_name vox_io extends mesh_io
 
 
+func get_shape_name() -> String:
+	return "Voxel"
+
 
 func load_drawing() -> Drawing:
 	var result := DrawingVOX.new()
@@ -37,3 +40,6 @@ func save_drawing() -> bool:
 		message = "Unkown extension"
 		return false
 	return true
+
+func get_converter() -> Array[converter]:
+	return [mesh_converter.new()]
