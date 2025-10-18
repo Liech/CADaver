@@ -59,18 +59,18 @@ set(Operation_Files
 source_group("Source/Operation" FILES ${Operation_Files})
 
 set(OperationIO_Files
-    "Source/Library/Operation/SaveTriangulationOperation.cpp"
-    "Source/Library/Operation/SaveTriangulationOperation.h"
-    "Source/Library/Operation/LoadTriangulationOperation.cpp"
-    "Source/Library/Operation/LoadTriangulationOperation.h"
-    "Source/Library/Operation/LoadCADOperation.cpp"
-    "Source/Library/Operation/LoadCADOperation.h"
-    "Source/Library/Operation/SaveCADOperation.cpp"
-    "Source/Library/Operation/SaveCADOperation.h"
-    "Source/Library/Operation/LoadVoxelOperation.cpp"
-    "Source/Library/Operation/LoadVoxelOperation.h"
-    "Source/Library/Operation/SaveVoxelOperation.cpp"
-    "Source/Library/Operation/SaveVoxelOperation.h"
+    "Source/Library/Operation/IO/SaveTriangulationOperation.cpp"
+    "Source/Library/Operation/IO/SaveTriangulationOperation.h"
+    "Source/Library/Operation/IO/LoadTriangulationOperation.cpp"
+    "Source/Library/Operation/IO/LoadTriangulationOperation.h"
+    "Source/Library/Operation/IO/LoadCADOperation.cpp"
+    "Source/Library/Operation/IO/LoadCADOperation.h"
+    "Source/Library/Operation/IO/SaveCADOperation.cpp"
+    "Source/Library/Operation/IO/SaveCADOperation.h"
+    "Source/Library/Operation/IO/LoadVoxelOperation.cpp"
+    "Source/Library/Operation/IO/LoadVoxelOperation.h"
+    "Source/Library/Operation/IO/SaveVoxelOperation.cpp"
+    "Source/Library/Operation/IO/SaveVoxelOperation.h"
 )
 source_group("Source/Operation/IO" FILES ${OperationIO_Files})
 
