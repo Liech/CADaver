@@ -14,9 +14,11 @@ namespace Library
         virtual ~Triangulation();
 
         std::vector<glm::dvec3> vertices;
-        std::vector<int>        indices;
+        std::vector<size_t>     indices;
 
-        void saveAsSTL(const std::string& filename) const;
+        std::pair<glm::dvec3, glm::dvec3> getAABB() const;
+
+        void                                  saveAsSTL(const std::string& filename) const;
         static std::unique_ptr<Triangulation> fromSTLFile(const std::string& filename);
     };
 }

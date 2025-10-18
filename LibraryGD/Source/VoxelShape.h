@@ -29,9 +29,10 @@ namespace godot
         static Ref<VoxelShape> loadVoxFromFile(const godot::String&);
         bool                   saveVoxToFile(const godot::String&);
 
-      private:
         void                   setData(std::shared_ptr<Library::BinaryVolume>);
         Library::BinaryVolume& getData();
+
+      private:
         Library::BinaryVolume& getData() const;
         godot::AABB            getAABB() const;
         godot::Vector3i        getResolution() const;

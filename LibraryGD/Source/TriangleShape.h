@@ -12,6 +12,8 @@ namespace Library
 
 namespace godot
 {
+    class VoxelShape;
+
     class TriangleShape : public RefCounted
     {
         GDCLASS(TriangleShape, RefCounted)
@@ -33,8 +35,9 @@ namespace godot
         Library::Triangulation& getData() const;
 
       private:
-        Ref<ArrayMesh> getMesh() const;
-        godot::AABB    getAABB() const;
+        Ref<VoxelShape> toVoxel(const Vector3i& resolution) const;
+        Ref<ArrayMesh>  getMesh() const;
+        godot::AABB     getAABB() const;
 
         std::shared_ptr<Library::Triangulation> shape;
     };

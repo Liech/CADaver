@@ -66,4 +66,24 @@ namespace Library
 
         return std::move(result);
     }
+
+    std::pair<glm::dvec3, glm::dvec3> Triangulation::getAABB() const
+    {
+        auto       inf = std::numeric_limits<double>::infinity();
+        glm::dvec3 min = glm::dvec3(inf, inf, inf);
+        glm::dvec3 max = glm::dvec3(-inf, -inf, -inf);
+
+        for (const auto& x : vertices)
+        {
+            min.x = std::min(x.x, min.x);
+            min.y = std::min(x.y, min.y);
+            min.z = std::min(x.z, min.z);
+            max.x = std::max(x.x, max.x);
+            max.y = std::max(x.y, max.y);
+            max.z = std::max(x.z, max.z);
+        }
+        glm::dvec3 position = glm::dvec3(min.x, min.y, min.z);
+        glm::dvec3 size     = glm::dvec3(max.x - min.x, max.y - min.y, max.z - min.z);
+        return std::make_pair(position, size);
+    }
 }

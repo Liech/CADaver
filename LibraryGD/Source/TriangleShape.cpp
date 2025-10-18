@@ -1,6 +1,9 @@
 #include "TriangleShape.h"
 
 #include "Library/Triangle/Triangulation.h"
+#include "Library/Operation/IO/LoadVoxelOperation.h"
+#include "Library/Voxel/BinaryVolume.h"
+#include "VoxelShape.h"
 #include <godot_cpp/classes/surface_tool.hpp>
 
 namespace godot
@@ -11,6 +14,7 @@ namespace godot
         ClassDB::bind_static_method("TriangleShape", D_METHOD("load_tri_from_file", "filename"), &TriangleShape::loadTriFromFile);
         ClassDB::bind_method(D_METHOD("get_array_mesh"), &TriangleShape::getMesh);
         ClassDB::bind_method(D_METHOD("get_tri_aabb"), &TriangleShape::getAABB);
+        ClassDB::bind_method(D_METHOD("to_vox", "resolution"), &TriangleShape::toVoxel);
     }
 
     TriangleShape::TriangleShape()
@@ -90,23 +94,16 @@ namespace godot
 
     godot::AABB TriangleShape::getAABB() const
     {
-        auto       inf = std::numeric_limits<double>::infinity();
-        glm::dvec3 min = glm::dvec3(inf, inf, inf);
-        glm::dvec3 max = glm::dvec3(-inf, -inf, -inf);
-
-        for (const auto& x : shape->vertices)
-        {
-            min.x = std::min(x.x, min.x);
-            min.y = std::min(x.y, min.y);
-            min.z = std::min(x.z, min.z);
-            max.x = std::max(x.x, max.x);
-            max.y = std::max(x.y, max.y);
-            max.z = std::max(x.z, max.z);
-        }
-
-        Vector3 position = Vector3(min.x, min.y, min.z);
-        Vector3 size     = Vector3(max.x - min.x, max.y - min.y, max.z - min.z);
-        return AABB(position, size);
+        auto aabb = shape->getAABB();
+        return AABB(Vector3(aabb.first.x, aabb.first.y, aabb.first.z), Vector3(aabb.second.x,aabb.second.y,aabb.second.z));
     }
 
+    Ref<VoxelShape> TriangleShape::toVoxel(const Vector3i& resolution) const
+    {
+        std::shared_ptr<Library::BinaryVolume> resultShape = Library::LoadVoxelOperation::voxelize(*shape, glm::ivec3(resolution.x, resolution.y, resolution.z));
+        Ref<VoxelShape> result;
+        result.instantiate();
+        result->setData(resultShape);
+        return result;
+    }
 }
