@@ -128,6 +128,6 @@ func _on_convert_menu_about_to_popup() -> void:
 	var menu : PopupMenu = $ConvertMenu
 	var drawing := bar.window.scene.drawing
 	menu.clear()
-	var converter = shape_io.make_from_drawing(drawing).get_converter()
-	for c in converter:
+	var conerter_list = shape_io.make_from_drawing(drawing).get_converter()
+	for c in converter_list:
 		menu.add_item(c.get_converter_name())

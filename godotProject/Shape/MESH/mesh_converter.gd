@@ -22,7 +22,6 @@ func convert_drawing(input : Drawing) -> Drawing:
 		return result
 	else:
 		return null
-	return null
 
 func execute_dialog() -> void:
 	pass
