@@ -26,11 +26,11 @@ func save_drawing() -> bool:
 	if (extension.to_lower() == ".vox"):
 		drawing.shape.save_vox_to_file(filename)
 	elif (extension ==".STL"):	
-		drawing.shape.get_vox_triangulation_round().save_tri_to_file(filename)
+		drawing.shape.get_vox_triangulation_blocky().save_tri_to_file(filename)
 		drawing.dirty = false
 		drawing.name = path_util.get_file_name_without_extension(filename);
 	elif (extension ==".stl"):	
-		drawing.shape.get_vox_triangulation_blocky().save_tri_to_file(filename)
+		drawing.shape.get_vox_triangulation_round().save_tri_to_file(filename)
 		drawing.dirty = false
 		drawing.name = path_util.get_file_name_without_extension(filename);
 	else:
