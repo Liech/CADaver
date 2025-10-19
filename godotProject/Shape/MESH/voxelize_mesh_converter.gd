@@ -14,7 +14,7 @@ func convert_drawing(input : Drawing) -> Drawing:
 	result.shape = newShape;
 	return result
 
-func execute_dialog(input : Drawing) -> export_dialog.result_state:
+func execute_dialog(_input : Drawing) -> export_dialog.result_state:
 	var success :export_dialog.result_state= await export_dialog.make(self)
 	if (resolution.x<= 0 or resolution.y<=0 or resolution.z <= 0):
 		OKPopup.make("Conversion Failed\nNon Positive Resolution");

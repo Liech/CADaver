@@ -14,7 +14,7 @@ func convert_drawing(input : Drawing) -> Drawing:
 	result.shape = newShape;
 	return result
 
-func execute_dialog(input : Drawing) -> export_dialog.result_state:
+func execute_dialog(_input : Drawing) -> export_dialog.result_state:
 	var success :export_dialog.result_state= await export_dialog.make(self)
 	if (Precision < 0.00001):
 		OKPopup.make("Conversion Failed\nPrecision to small");

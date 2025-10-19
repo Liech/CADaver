@@ -137,6 +137,7 @@ func _on_convert_menu_index_pressed(index: int) -> void:
 	var converter_list = shape_io.make_from_drawing(drawing).get_converter()
 	var conv : converter = converter_list[index] 
 	ExtraWindow.disable_all()
+	@warning_ignore("redundant_await")
 	var success : export_dialog.result_state = await conv.execute_dialog(drawing)
 	ExtraWindow.enable_all()
 	if (success == export_dialog.result_state.Success):

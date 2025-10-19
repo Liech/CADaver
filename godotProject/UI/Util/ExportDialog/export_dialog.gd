@@ -46,10 +46,9 @@ func _ready()->void:
 		return;
 	var exports = target.get_property_list()
 	for export in exports:
-		var name : String = export["name"];
-		if (base_properties.has(name) or name.ends_with(".gd")):
+		var export_name : String = export["name"];
+		if (base_properties.has(export_name) or name.ends_with(".gd")):
 			continue
-		var type = export["type"];
 		var elm = export_uielement_factory.make(export, target)
 		if (elm):
 			elements.add_child(elm)

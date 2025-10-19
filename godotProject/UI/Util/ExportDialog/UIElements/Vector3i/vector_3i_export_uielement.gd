@@ -9,11 +9,11 @@ class_name vector3i_export_uielement extends Control
 @onready var Y : SpinBox = $Y
 @onready var Z : SpinBox = $Z
 
-static func make(v : Dictionary, target : Node) -> Control:
+static func make(v : Dictionary, input_target : Node) -> Control:
 	var result = preload("res://UI/Util/ExportDialog/UIElements/Vector3i/vector3i_export_uielement.tscn").instantiate() as vector3i_export_uielement
 	result.title = v.name
-	result.content = target.get(v.name)
-	result.target = target;
+	result.content = input_target.get(v.name)
+	result.target = input_target;
 	return result
 
 func _ready() -> void:
@@ -26,13 +26,16 @@ func update_target()->void:
 	target.set(title,content);
 	
 func _on_x_value_changed(value: float) -> void:
+	@warning_ignore("narrowing_conversion")
 	content.x = value
 	update_target()
 
 func _on_y_value_changed(value: float) -> void:
+	@warning_ignore("narrowing_conversion")
 	content.y = value
 	update_target()
 
 func _on_z_value_changed(value: float) -> void:
+	@warning_ignore("narrowing_conversion")
 	content.z = value
 	update_target()
