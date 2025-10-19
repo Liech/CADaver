@@ -10,7 +10,7 @@ func convert_drawing(input : Drawing) -> Drawing:
 	var newShape = s.shape.get_cad_triangulation(Precision)
 	var result = DrawingMESH.new()
 	result.save_path = s.save_path
-	result.name = s.name
+	result.draw_name = s.draw_name
 	result.shape = newShape;
 	return result
 
