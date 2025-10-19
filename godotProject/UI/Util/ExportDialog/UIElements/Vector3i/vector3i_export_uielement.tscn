@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://b36on0sl781ka"]
+
+[ext_resource type="Script" uid="uid://bfaf8xa7pggxu" path="res://UI/Util/ExportDialog/UIElements/Vector3i/vector_3i_export_uielement.gd" id="1_nakkn"]
+
+[node name="Vector3iExportUielement" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_nakkn")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+
+[node name="XTitle" type="Label" parent="."]
+layout_mode = 2
+text = "X"
+
+[node name="X" type="SpinBox" parent="."]
+layout_mode = 2
+min_value = -100000.0
+max_value = 100000.0
+
+[node name="YTitle" type="Label" parent="."]
+layout_mode = 2
+text = "Y"
+
+[node name="Y" type="SpinBox" parent="."]
+layout_mode = 2
+min_value = -100000.0
+max_value = 100000.0
+
+[node name="ZTitle" type="Label" parent="."]
+layout_mode = 2
+text = "Z"
+
+[node name="Z" type="SpinBox" parent="."]
+layout_mode = 2
+min_value = -100000.0
+max_value = 100000.0
+
+[connection signal="value_changed" from="X" to="." method="_on_x_value_changed"]
+[connection signal="value_changed" from="Y" to="." method="_on_y_value_changed"]
+[connection signal="value_changed" from="Z" to="." method="_on_z_value_changed"]

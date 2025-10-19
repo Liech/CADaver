@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://h273tp0108co"]
+
+[ext_resource type="Script" uid="uid://dhf3l6um2iq7h" path="res://UI/Util/ExportDialog/export_dialog.gd" id="1_qrw2q"]
+
+[node name="ExportDialog" type="PanelContainer"]
+offset_right = 81.0
+offset_bottom = 23.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_qrw2q")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 2
+color = Color(0.41598, 0.41598, 0.41598, 1)
+
+[node name="margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="V" type="VBoxContainer" parent="margin"]
+layout_mode = 2
+
+[node name="Elements" type="VBoxContainer" parent="margin/V"]
+layout_mode = 2
+
+[node name="control" type="HBoxContainer" parent="margin/V"]
+layout_mode = 2
+alignment = 2
+
+[node name="Cancel" type="Button" parent="margin/V/control"]
+layout_mode = 2
+text = "Cancel"
+
+[node name="OK" type="Button" parent="margin/V/control"]
+layout_mode = 2
+text = "Proceed"
+
+[connection signal="pressed" from="margin/V/control/Cancel" to="." method="_on_cancel_pressed"]
+[connection signal="pressed" from="margin/V/control/OK" to="." method="_on_ok_pressed"]

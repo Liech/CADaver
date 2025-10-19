@@ -136,9 +136,12 @@ func _on_convert_menu_index_pressed(index: int) -> void:
 	var drawing := bar.window.scene.drawing
 	var converter_list = shape_io.make_from_drawing(drawing).get_converter()
 	var conv : converter = converter_list[index] 
-	conv.execute_dialog()
-	var newDrawing := conv.convert_drawing(drawing)
-	bar.window.scene.drawing = newDrawing	
-	Hub.file.drawings.append(newDrawing);
-	Hub.file.drawings_changed.emit()
+	ExtraWindow.disable_all()
+	var success : export_dialog.result_state = await conv.execute_dialog(drawing)
+	ExtraWindow.enable_all()
+	if (success == export_dialog.result_state.Success):
+		var newDrawing := conv.convert_drawing(drawing)
+		bar.window.scene.drawing = newDrawing	
+		Hub.file.drawings.append(newDrawing);
+		Hub.file.drawings_changed.emit()
 	

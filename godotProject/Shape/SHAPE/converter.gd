@@ -6,5 +6,5 @@ func get_converter_name()->String:
 func convert_drawing(_input : Drawing) -> Drawing:
 	return null
 
-func execute_dialog() -> void:
-	pass
+func execute_dialog(_input : Drawing) -> export_dialog.result_state: 
+	return export_dialog.result_state.Success # continue?

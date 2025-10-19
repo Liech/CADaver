@@ -13,6 +13,3 @@ func convert_drawing(input : Drawing) -> Drawing:
 	result.name = s.name
 	result.shape = newShape;
 	return result
-
-func execute_dialog() -> void:
-	pass
