@@ -35,4 +35,4 @@ func save_drawing() -> bool:
 	return true
 
 func get_converter() -> Array[converter]:
-	return [mesh_converter.new()]
+	return [triangulate_cad_converter.new()]

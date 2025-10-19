@@ -42,4 +42,5 @@ bar = NodePath("../..")
 
 [connection signal="index_pressed" from="MenuBar/File" to="MenuBar/File" method="_on_index_pressed"]
 [connection signal="about_to_popup" from="MenuBar/File/ConvertMenu" to="MenuBar/File" method="_on_convert_menu_about_to_popup"]
+[connection signal="index_pressed" from="MenuBar/File/ConvertMenu" to="MenuBar/File" method="_on_convert_menu_index_pressed"]
 [connection signal="index_pressed" from="MenuBar/View" to="MenuBar/View" method="_on_index_pressed"]

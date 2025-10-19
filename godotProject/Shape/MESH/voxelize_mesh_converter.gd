@@ -1,0 +1,18 @@
+class_name voxelize_mesh_converter extends converter
+
+@export var resolution : Vector3i = Vector3i(100,100,100);
+
+func get_converter_name()->String:
+	return "Voxelize"
+
+func convert_drawing(input : Drawing) -> Drawing:
+	var s = input as DrawingMESH
+	var newShape = s.shape.to_vox(resolution)
+	var result = DrawingVOX.new()
+	result.save_path = s.save_path
+	result.name = s.name
+	result.shape = newShape;
+	return result
+
+func execute_dialog() -> void:
+	pass

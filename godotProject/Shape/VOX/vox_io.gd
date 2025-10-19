@@ -42,4 +42,4 @@ func save_drawing() -> bool:
 	return true
 
 func get_converter() -> Array[converter]:
-	return [mesh_converter.new()]
+	return [marching_cubes_vox_converter.new(), blocky_vox_converter.new()]

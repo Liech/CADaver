@@ -131,3 +131,14 @@ func _on_convert_menu_about_to_popup() -> void:
 	var converter_list = shape_io.make_from_drawing(drawing).get_converter()
 	for c in converter_list:
 		menu.add_item(c.get_converter_name())
+
+func _on_convert_menu_index_pressed(index: int) -> void:
+	var drawing := bar.window.scene.drawing
+	var converter_list = shape_io.make_from_drawing(drawing).get_converter()
+	var conv : converter = converter_list[index] 
+	conv.execute_dialog()
+	var newDrawing := conv.convert_drawing(drawing)
+	bar.window.scene.drawing = newDrawing	
+	Hub.file.drawings.append(newDrawing);
+	Hub.file.drawings_changed.emit()
+	
