@@ -108,8 +108,9 @@ namespace Library
 
                 for (auto& zIntersection : intersections)
                 {
-                    long long zPos = std::floor(((zIntersection - start.z) / span.z) * (long long)resolution.z);
-                    zPos           = std::max((long long)0, zPos);
+                    double    normalizedZ = (zIntersection - start.z) / span.z;
+                    long long zPos        = std::floor((normalizedZ + 1e-6) * (long long)resolution.z);
+                    zPos                  = std::max((long long)0, zPos);
 
                     size_t memoryAddress = zPos + resultOffset;
                     size_t max           = resultOffset + resolution.z;
@@ -145,8 +146,8 @@ namespace Library
 
             size_t xStart = (size_t)std::max(0.0, std::floor(((out_start.x - start.x) / span.x) * resolution.x - 1e-6));
             size_t yStart = (size_t)std::max(0.0, std::floor(((out_start.y - start.y) / span.y) * resolution.y - 1e-6));
-            size_t xEnd = (size_t)std::min((double)resolution.x - 1, std::ceil(((out_end.x - start.x) / span.x) * resolution.x + 1e-6) - 1);
-            size_t yEnd = (size_t)std::min((double)resolution.y - 1, std::ceil(((out_end.y - start.y) / span.y) * resolution.y + 1e-6) - 1);
+            size_t xEnd   = (size_t)std::min((double)resolution.x - 1, std::ceil(((out_end.x - start.x) / span.x) * resolution.x + 1e-6) - 1);
+            size_t yEnd   = (size_t)std::min((double)resolution.y - 1, std::ceil(((out_end.y - start.y) / span.y) * resolution.y + 1e-6) - 1);
 
             if (xEnd >= resolution.x)
                 xEnd = resolution.x - 1;
