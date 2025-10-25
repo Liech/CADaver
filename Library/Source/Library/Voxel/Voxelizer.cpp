@@ -187,13 +187,13 @@ namespace Library
         s = rayOrigin - vertex0;
         u = f * glm::dot(s, h);
 
-        if (u < 0.0 || u > 1.0)
+        if (u < -EPSILON || u > 1.0 + EPSILON)
             return false;
 
         q = glm::cross(s, edge1);
         v = f * glm::dot(rayVector, q);
 
-        if (v < 0.0 || u + v > 1.0)
+        if (v < -EPSILON || u + v > 1.0 + EPSILON)
             return false;
 
         // At this stage we can compute t to find out where the intersection point is on the line.
