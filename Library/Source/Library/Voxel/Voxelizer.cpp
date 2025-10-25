@@ -142,10 +142,12 @@ namespace Library
             glm::dvec2 out_start;
             glm::dvec2 out_end;
             box(vertecies[indices[address + 0]], vertecies[indices[address + 1]], vertecies[indices[address + 2]], out_start, out_end);
-            size_t xStart = std::floor(((out_start.x - start.x) / span.x) * resolution.x);
-            size_t yStart = std::ceil(((out_start.y - start.y) / span.y) * resolution.y);
-            size_t xEnd   = std::floor(((out_end.x - start.x) / span.x) * resolution.x);
-            size_t yEnd   = std::ceil(((out_end.y - start.y) / span.y) * resolution.y);
+
+            size_t xStart = (size_t)std::max(0.0, std::floor(((out_start.x - start.x) / span.x) * resolution.x - 1e-6));
+            size_t yStart = (size_t)std::max(0.0, std::floor(((out_start.y - start.y) / span.y) * resolution.y - 1e-6));
+            size_t xEnd = (size_t)std::min((double)resolution.x - 1, std::ceil(((out_end.x - start.x) / span.x) * resolution.x + 1e-6) - 1);
+            size_t yEnd = (size_t)std::min((double)resolution.y - 1, std::ceil(((out_end.y - start.y) / span.y) * resolution.y + 1e-6) - 1);
+
             if (xEnd >= resolution.x)
                 xEnd = resolution.x - 1;
             if (yEnd >= resolution.y)
