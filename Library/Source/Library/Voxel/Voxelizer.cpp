@@ -142,22 +142,28 @@ namespace Library
 
             glm::dvec2 out_start;
             glm::dvec2 out_end;
-            box(vertecies[indices[address + 0]], vertecies[indices[address + 1]], vertecies[indices[address + 2]], out_start, out_end);
-            size_t xStart = std::floor(((out_start.x - start.x) / span.x) * resolution.x);
-            size_t yStart = std::floor(((out_start.y - start.y) / span.y) * resolution.y);
-            size_t xEnd   = std::ceil(((out_end.x - start.x) / span.x) * resolution.x);
-            size_t yEnd   = std::ceil(((out_end.y - start.y) / span.y) * resolution.y);
-            if (xEnd >= resolution.x)
-                xEnd = resolution.x - 1;
-            if (yEnd >= resolution.y)
-                yEnd = resolution.y - 1;
-            if (out_start.x < start.x)
-                xStart = 0;
-            if (out_start.y < start.y)
-                yStart = 0;
+            box(a,b,c, out_start, out_end);
 
-            for (size_t x = xStart; x <= xEnd; x++)
-                for (size_t y = yStart; y <= yEnd; y++)
+            long long xStartLL = std::floor(((out_start.x - start.x) / span.x) * (double)resolution.x);
+            long long yStartLL = std::floor(((out_start.y - start.y) / span.y) * (double)resolution.y);
+
+            xStartLL = std::max(0LL, xStartLL); 
+            yStartLL = std::max(0LL, yStartLL); 
+
+            size_t xStart = (size_t)xStartLL;
+            size_t yStart = (size_t)yStartLL;
+
+            long long xEndLL = std::ceil(((out_end.x - start.x) / span.x) * (double)resolution.x);
+            long long yEndLL = std::ceil(((out_end.y - start.y) / span.y) * (double)resolution.y);
+
+            xEndLL = std::min((long long)resolution.x, xEndLL);
+            yEndLL = std::min((long long)resolution.y, yEndLL); 
+
+            size_t xEnd = (size_t)xEndLL;
+            size_t yEnd = (size_t)yEndLL;
+
+            for (size_t x = xStart; x < xEnd; x++)
+                for (size_t y = yStart; y < yEnd; y++)
                 {
                     triangleStack[y * resolution.x + x].push_back(address);
                 }

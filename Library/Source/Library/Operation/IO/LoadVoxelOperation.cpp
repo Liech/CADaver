@@ -34,7 +34,7 @@ namespace Library
         result->origin    = aabb.first - voxelLength * 2.0;
         result->size      = aabb.second + voxelLength * 4.0;
 
-        Voxelizer().voxelize(result->data, triangulation.vertices, triangulation.indices, aabb.first, aabb.first + aabb.second, res);
+        Voxelizer().voxelize(result->data, triangulation.vertices, triangulation.indices, result->origin, result->size, res);
         return std::move(result);
     }
 }
