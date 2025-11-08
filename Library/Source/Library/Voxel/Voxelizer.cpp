@@ -112,6 +112,7 @@ namespace Library
                 {
                     long long zPos = std::floor(((zIntersection - start.z) / span.z) * (long long)resolution.z);
                     zPos           = std::max((long long)0, zPos);
+                    zPos           = std::min((long long)resolution.z - 1, zPos);
 
                     size_t memoryAddress = zPos + resultOffset;
                     size_t max           = resultOffset + resolution.z;
@@ -134,10 +135,10 @@ namespace Library
 
         for (size_t i = 0; i < amountTriangles; i++)
         {
-            size_t            address   = i * 3;
-            const glm::dvec3& a         = vertecies[indices[address]];
-            const glm::dvec3& b         = vertecies[indices[address + 1]];
-            const glm::dvec3& c         = vertecies[indices[address + 2]];
+            size_t            address = i * 3;
+            const glm::dvec3& a       = vertecies[indices[address]];
+            const glm::dvec3& b       = vertecies[indices[address + 1]];
+            const glm::dvec3& c       = vertecies[indices[address + 2]];
 
             glm::dvec2 out_start;
             glm::dvec2 out_end;
