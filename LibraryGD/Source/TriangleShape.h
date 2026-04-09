@@ -13,6 +13,7 @@ namespace Library
 namespace godot
 {
     class VoxelShape;
+    class CADShape;
 
     class TriangleShape : public RefCounted
     {
@@ -36,6 +37,7 @@ namespace godot
 
       private:
         Ref<VoxelShape> toVoxel(const Vector3i& resolution) const;
+        Ref<CADShape>   toCad_dumb() const;
         Ref<ArrayMesh>  getMesh() const;
         godot::AABB     getAABB() const;
 

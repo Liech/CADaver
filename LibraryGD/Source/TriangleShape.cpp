@@ -1,7 +1,11 @@
 #include "TriangleShape.h"
 
-#include "Library/Triangle/Triangulation.h"
+#include "CADShape/CADShape.h"
+#include "CADShape/CADShapeFactory.h"
+#include "Library/CAD/CADShape.h"
+#include "Library/Operation/IO/LoadCADOperation.h"
 #include "Library/Operation/IO/LoadVoxelOperation.h"
+#include "Library/Triangle/Triangulation.h"
 #include "Library/Voxel/BinaryVolume.h"
 #include "VoxelShape.h"
 #include <godot_cpp/classes/surface_tool.hpp>
@@ -15,6 +19,7 @@ namespace godot
         ClassDB::bind_method(D_METHOD("get_array_mesh"), &TriangleShape::getMesh);
         ClassDB::bind_method(D_METHOD("get_tri_aabb"), &TriangleShape::getAABB);
         ClassDB::bind_method(D_METHOD("to_vox", "resolution"), &TriangleShape::toVoxel);
+        ClassDB::bind_method(D_METHOD("to_cad_dumb"), &TriangleShape::toCad_dumb);
     }
 
     TriangleShape::TriangleShape()
@@ -95,15 +100,21 @@ namespace godot
     godot::AABB TriangleShape::getAABB() const
     {
         auto aabb = shape->getAABB();
-        return AABB(Vector3(aabb.first.x, aabb.first.y, aabb.first.z), Vector3(aabb.second.x,aabb.second.y,aabb.second.z));
+        return AABB(Vector3(aabb.first.x, aabb.first.y, aabb.first.z), Vector3(aabb.second.x, aabb.second.y, aabb.second.z));
     }
 
     Ref<VoxelShape> TriangleShape::toVoxel(const Vector3i& resolution) const
     {
         std::shared_ptr<Library::BinaryVolume> resultShape = Library::LoadVoxelOperation::voxelize(*shape, glm::ivec3(resolution.x, resolution.y, resolution.z));
-        Ref<VoxelShape> result;
+        Ref<VoxelShape>                        result;
         result.instantiate();
         result->setData(resultShape);
         return result;
+    }
+
+    Ref<CADShape> TriangleShape::toCad_dumb() const
+    {
+        std::shared_ptr<Library::CADShape> resultShape = Library::LoadCADOperation::cadify_dumb(*shape);
+        return CADShapeFactory::make(resultShape);
     }
 }

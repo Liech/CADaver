@@ -22,6 +22,7 @@ namespace Library
 
         static std::vector<std::unique_ptr<CADShape>> generateChildren(CADShape& shape);
 
+        static void recurseFillChildShapes(CADShape&);
       private:
         static void recurseFillChildShapes(CADShape&, XSControl_WorkSession&);
         static void fillSolidName(CADSolid&, XSControl_WorkSession&);

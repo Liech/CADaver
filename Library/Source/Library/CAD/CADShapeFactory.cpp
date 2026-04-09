@@ -65,6 +65,15 @@ namespace Library
         }
     }
 
+    void CADShapeFactory::recurseFillChildShapes(CADShape& shape)
+    {
+        for (auto& x : generateChildren(shape))
+        {
+            recurseFillChildShapes(*x);            
+            shape.addChild(std::move(x));
+        }
+    }
+
     std::unique_ptr<CADShape> CADShapeFactory::make(const std::string& filename)
     {
         STEPControl_Reader    reader;
