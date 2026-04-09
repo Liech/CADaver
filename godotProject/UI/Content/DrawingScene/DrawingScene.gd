@@ -8,6 +8,7 @@ class_name DrawingScene extends Control
 var cad_vis : PackedScene = preload("res://3D/VisualizationObject/CADObject/CADScene.tscn")
 var vox_vis : PackedScene = preload("res://3D/VisualizationObject/VOXObject/VOXScene.tscn")
 var mesh_vis : PackedScene = preload("res://3D/VisualizationObject/MESHObject/MESHScene.tscn")
+var vis : visualization_object;
 
 var drawing : Drawing = null;
 
@@ -32,7 +33,7 @@ func _on_tab_bar_drawing_changed(index: Variant) -> void:
 	reset()
 	if (index != -1):
 		var d := Hub.file.drawings[index]
-		var vis : visualization_object;
+		vis = null
 		if (d is DrawingCAD):
 			vis = cad_vis.instantiate() as CADScene
 		elif(d is DrawingVOX):

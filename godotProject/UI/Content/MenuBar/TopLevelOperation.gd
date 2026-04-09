@@ -6,5 +6,5 @@ func getName():
 func doShow(_d : Drawing):
 	return false;
 	
-func execute():
+func execute(_drawing : DrawingScene):
 	pass
