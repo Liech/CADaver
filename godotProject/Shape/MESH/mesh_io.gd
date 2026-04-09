@@ -31,4 +31,4 @@ func save_drawing() -> bool:
 	return true
 
 func get_converter() -> Array[converter]:
-	return [voxelize_mesh_converter.new(), cadify_dumb_mesh_converter.new()]
+	return [voxelize_mesh_converter.new(), dumb_mesh_to_cad_converter.new()]

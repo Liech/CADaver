@@ -23,8 +23,9 @@ func drawing_changed()->void:
 	reset_children()
 	if (!drawing):
 		return
-	if (drawing.shape is CADShape):
-		build_CAD_children()
+	if (drawing is DrawingCAD):
+		if (drawing.shape is CADShape):
+			build_CAD_children()
 
 func build_CAD(shape :CADShape, t : TreeItem):
 	var current = tree.create_item(t);

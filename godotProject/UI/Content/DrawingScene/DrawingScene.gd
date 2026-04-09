@@ -39,6 +39,8 @@ func _on_tab_bar_drawing_changed(index: Variant) -> void:
 			vis = vox_vis.instantiate() as VOXScene
 		elif(d is DrawingMESH):
 			vis = mesh_vis.instantiate() as MeshScene
+		else:
+			return;
 		child_pool.add_child(vis)
 		vis.set_drawing(d)		
 		drawing = d;

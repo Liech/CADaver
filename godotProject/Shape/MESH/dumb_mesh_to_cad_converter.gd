@@ -1,7 +1,7 @@
-class_name cadify_dumb_mesh_converter extends converter
+class_name dumb_mesh_to_cad_converter extends converter
 
 func get_converter_name()->String:
-	return "Cadify (dumb)"
+	return "To CAD (dumb)"
 
 func convert_drawing(input : Drawing) -> Drawing:
 	var s = input as DrawingMESH
