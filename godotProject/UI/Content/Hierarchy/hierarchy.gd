@@ -17,6 +17,7 @@ func _ready()->void:
 	root = tree.create_item()
 	var child1 = tree.create_item(root)
 	child1.set_text(0,"Kartoffel")
+	visible = false
 
 func drawing_changed()->void:
 	reset_children()

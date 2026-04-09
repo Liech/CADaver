@@ -7,7 +7,7 @@ include(FetchContent)
 FetchContent_Declare(
         GDExtension
         GIT_REPOSITORY https://github.com/godotengine/godot-cpp.git
-        GIT_TAG godot-4.4.1-stable # <- to change the compatible godot version just change this tag
+        GIT_TAG godot-4.5-stable # <- to change the compatible godot version just change this tag
 )
 
 FetchContent_MakeAvailable(GDExtension)

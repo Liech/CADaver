@@ -59,9 +59,11 @@ namespace Library
         }
 
         result->indices.reserve(tris.size());
-        for (unsigned int index : tris)
+        for (size_t i = 0; i < tris.size(); i += 3)
         {
-            result->indices.push_back(static_cast<int>(index));
+            result->indices.push_back(static_cast<int>(tris[i + 0]));
+            result->indices.push_back(static_cast<int>(tris[i + 2]));
+            result->indices.push_back(static_cast<int>(tris[i + 1]));
         }
 
         return std::move(result);

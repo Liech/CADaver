@@ -87,7 +87,7 @@ namespace godot
         {
             st->add_index(mesh.indices[i]);
         }
-        st->generate_normals();
+        st->generate_normals(true);
         Ref<ArrayMesh> result = st->commit();
         return result;
     }
