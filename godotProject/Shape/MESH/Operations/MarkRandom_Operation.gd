@@ -1,12 +1,19 @@
 class_name MarkRandom_Operation extends TopLevelOperation
 
 func getName():
-	return "Mark Triangles Random";
+	return "Mark Random";
 	
 func doShow(d : Drawing):
 	if (d is DrawingMESH):
 		return true;
 	return false;
+	
+func deindex_mesh(original_mesh: Mesh) -> ArrayMesh:
+	var st = SurfaceTool.new()
+	st.create_from(original_mesh, 0)
+	st.deindex()
+	st.generate_normals()
+	return st.commit()
 	
 func modify_mesh_faces(mi: MeshInstance3D):
 	var mdt = MeshDataTool.new()
@@ -29,4 +36,5 @@ func modify_mesh_faces(mi: MeshInstance3D):
 	
 func execute(scene : DrawingScene):
 	var m = scene.vis as MeshScene
+	m.tri_vis.mesh.mesh = deindex_mesh(m.tri_vis.mesh.mesh)
 	modify_mesh_faces(m.tri_vis.mesh)
