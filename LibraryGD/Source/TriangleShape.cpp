@@ -5,6 +5,7 @@
 #include "Library/CAD/CADShape.h"
 #include "Library/Operation/IO/LoadCADOperation.h"
 #include "Library/Operation/IO/LoadVoxelOperation.h"
+#include "Library/Triangle/RegionGrow.h"
 #include "Library/Triangle/Triangulation.h"
 #include "Library/Voxel/BinaryVolume.h"
 #include "VoxelShape.h"
@@ -20,6 +21,7 @@ namespace godot
         ClassDB::bind_method(D_METHOD("get_tri_aabb"), &TriangleShape::getAABB);
         ClassDB::bind_method(D_METHOD("to_vox", "resolution"), &TriangleShape::toVoxel);
         ClassDB::bind_method(D_METHOD("to_cad_dumb"), &TriangleShape::toCad_dumb);
+        ClassDB::bind_method(D_METHOD("region_grow", "grow_func"), &TriangleShape::region_grow);
     }
 
     TriangleShape::TriangleShape()
@@ -116,5 +118,33 @@ namespace godot
     {
         std::shared_ptr<Library::CADShape> resultShape = Library::LoadCADOperation::cadify_dumb(*shape);
         return CADShapeFactory::make(resultShape);
+    }
+
+    godot::Array TriangleShape::region_grow(godot::Callable grow_func)
+    {
+        auto wrapper = [&grow_func, this](size_t current, size_t candidate, const Library::Triangulation& t) -> bool
+        {
+            auto           normCurrent   = t.getFaceNormal(current);
+            auto           normCandidate = t.getFaceNormal(candidate);
+            godot::Variant result        = grow_func.call(Vector3(normCurrent.x, normCurrent.y, normCurrent.z), Vector3(normCandidate.x, normCandidate.y, normCandidate.z));
+            return (bool)result;
+        };
+        std::vector<std::vector<size_t>> internal_result = Library::RegionGrow::grow(*shape, wrapper);
+ 
+        godot::Array                     final_array;
+        for (const auto& patch : internal_result)
+        {
+            godot::PackedInt64Array godot_patch;
+            godot_patch.resize(patch.size());
+
+            for (size_t i = 0; i < patch.size(); ++i)
+            {
+                godot_patch[i] = static_cast<int64_t>(patch[i]);
+            }
+
+            final_array.append(godot_patch);
+        }
+
+        return final_array;
     }
 }

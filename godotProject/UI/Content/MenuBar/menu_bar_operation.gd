@@ -41,7 +41,7 @@ func _on_index_pressed(index: int) -> void:
 	var scene = bar.window.scene
 	if index < _active_instances.size():
 		var op = _active_instances[index]
-		op.execute(scene)
+		await op.execute(scene)
 		
 	# Clean up instances after execution
 	for inst in _active_instances:
