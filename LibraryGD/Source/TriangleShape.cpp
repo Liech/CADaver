@@ -1,7 +1,12 @@
 #include "TriangleShape.h"
 
-#include "Library/Triangle/Triangulation.h"
+#include "CADShape/CADShape.h"
+#include "CADShape/CADShapeFactory.h"
+#include "Library/CAD/CADShape.h"
+#include "Library/Operation/IO/LoadCADOperation.h"
 #include "Library/Operation/IO/LoadVoxelOperation.h"
+#include "Library/Triangle/RegionGrow.h"
+#include "Library/Triangle/Triangulation.h"
 #include "Library/Voxel/BinaryVolume.h"
 #include "VoxelShape.h"
 #include <godot_cpp/classes/surface_tool.hpp>
@@ -15,6 +20,8 @@ namespace godot
         ClassDB::bind_method(D_METHOD("get_array_mesh"), &TriangleShape::getMesh);
         ClassDB::bind_method(D_METHOD("get_tri_aabb"), &TriangleShape::getAABB);
         ClassDB::bind_method(D_METHOD("to_vox", "resolution"), &TriangleShape::toVoxel);
+        ClassDB::bind_method(D_METHOD("to_cad_dumb"), &TriangleShape::toCad_dumb);
+        ClassDB::bind_method(D_METHOD("region_grow", "grow_func"), &TriangleShape::region_grow);
     }
 
     TriangleShape::TriangleShape()
@@ -87,7 +94,7 @@ namespace godot
         {
             st->add_index(mesh.indices[i]);
         }
-        st->generate_normals();
+        st->generate_normals(true);
         Ref<ArrayMesh> result = st->commit();
         return result;
     }
@@ -95,15 +102,49 @@ namespace godot
     godot::AABB TriangleShape::getAABB() const
     {
         auto aabb = shape->getAABB();
-        return AABB(Vector3(aabb.first.x, aabb.first.y, aabb.first.z), Vector3(aabb.second.x,aabb.second.y,aabb.second.z));
+        return AABB(Vector3(aabb.first.x, aabb.first.y, aabb.first.z), Vector3(aabb.second.x, aabb.second.y, aabb.second.z));
     }
 
     Ref<VoxelShape> TriangleShape::toVoxel(const Vector3i& resolution) const
     {
         std::shared_ptr<Library::BinaryVolume> resultShape = Library::LoadVoxelOperation::voxelize(*shape, glm::ivec3(resolution.x, resolution.y, resolution.z));
-        Ref<VoxelShape> result;
+        Ref<VoxelShape>                        result;
         result.instantiate();
         result->setData(resultShape);
         return result;
+    }
+
+    Ref<CADShape> TriangleShape::toCad_dumb() const
+    {
+        std::shared_ptr<Library::CADShape> resultShape = Library::LoadCADOperation::cadify_dumb(*shape);
+        return CADShapeFactory::make(resultShape);
+    }
+
+    godot::Array TriangleShape::region_grow(godot::Callable grow_func)
+    {
+        auto wrapper = [&grow_func, this](size_t current, size_t candidate, const Library::Triangulation& t) -> bool
+        {
+            auto           normCurrent   = t.getFaceNormal(current);
+            auto           normCandidate = t.getFaceNormal(candidate);
+            godot::Variant result        = grow_func.call(Vector3(normCurrent.x, normCurrent.y, normCurrent.z), Vector3(normCandidate.x, normCandidate.y, normCandidate.z));
+            return (bool)result;
+        };
+        std::vector<std::vector<size_t>> internal_result = Library::RegionGrow::grow(*shape, wrapper);
+ 
+        godot::Array                     final_array;
+        for (const auto& patch : internal_result)
+        {
+            godot::PackedInt64Array godot_patch;
+            godot_patch.resize(patch.size());
+
+            for (size_t i = 0; i < patch.size(); ++i)
+            {
+                godot_patch[i] = static_cast<int64_t>(patch[i]);
+            }
+
+            final_array.append(godot_patch);
+        }
+
+        return final_array;
     }
 }

@@ -147,6 +147,10 @@ set(Triangle_Files
     "Source/Library/Triangle/Triangulation.cpp"
     "Source/Library/Triangle/STLWriter.h"
     "Source/Library/Triangle/STLWriter.cpp"
+    "Source/Library/Triangle/mesh2cad_dumb.h"
+    "Source/Library/Triangle/mesh2cad_dumb.cpp"
+    "Source/Library/Triangle/RegionGrow.h"
+    "Source/Library/Triangle/RegionGrow.cpp"
 )
 source_group("Source/Triangle" FILES ${Triangle_Files})
 

@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://dfrsgfh3rcwt5"]
+[gd_scene load_steps=5 format=3 uid="uid://dfrsgfh3rcwt5"]
 
 [ext_resource type="Script" uid="uid://s2cv0qqmml6x" path="res://UI/Content/MenuBar/menu_bar_file.gd" id="1_0dwda"]
 [ext_resource type="Script" uid="uid://r1qo1ksskoye" path="res://UI/Content/MenuBar/menu_bar.gd" id="1_7rkid"]
 [ext_resource type="Script" uid="uid://bklcdhk1bblmg" path="res://UI/Content/MenuBar/menu_bar_view.gd" id="2_h18jj"]
+[ext_resource type="Script" uid="uid://i0xxxxei71q" path="res://UI/Content/MenuBar/menu_bar_operation.gd" id="4_54132"]
 
 [node name="MenuBar" type="PanelContainer"]
 anchors_preset = 10
@@ -39,6 +40,11 @@ item_3/text = "Add Window"
 item_3/id = 2
 script = ExtResource("2_h18jj")
 bar = NodePath("../..")
+
+[node name="Operation" type="PopupMenu" parent="MenuBar" node_paths=PackedStringArray("bar")]
+script = ExtResource("4_54132")
+bar = NodePath("../..")
+metadata/_custom_type_script = "uid://i0xxxxei71q"
 
 [connection signal="index_pressed" from="MenuBar/File" to="MenuBar/File" method="_on_index_pressed"]
 [connection signal="about_to_popup" from="MenuBar/File/ConvertMenu" to="MenuBar/File" method="_on_convert_menu_about_to_popup"]

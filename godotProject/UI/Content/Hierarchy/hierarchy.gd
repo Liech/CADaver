@@ -17,13 +17,15 @@ func _ready()->void:
 	root = tree.create_item()
 	var child1 = tree.create_item(root)
 	child1.set_text(0,"Kartoffel")
+	visible = false
 
 func drawing_changed()->void:
 	reset_children()
 	if (!drawing):
 		return
-	if (drawing.shape is CADShape):
-		build_CAD_children()
+	if (drawing is DrawingCAD):
+		if (drawing.shape is CADShape):
+			build_CAD_children()
 
 func build_CAD(shape :CADShape, t : TreeItem):
 	var current = tree.create_item(t);

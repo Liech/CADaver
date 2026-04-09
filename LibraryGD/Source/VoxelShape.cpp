@@ -109,6 +109,7 @@ namespace godot
     {
         if (isInside(p))
             return shape->data[p.x + p.y * shape->dimension.x + p.z * shape->dimension.x * shape->dimension.y];
+        return false;
     }
 
     void VoxelShape::set(const godot::Vector3i& p, bool val)
