@@ -86,11 +86,13 @@ namespace Library
                 double zMin = std::numeric_limits<double>::max();
                 for (const auto& x : stack)
                 {
+                    zMin = std::min(zMin, vertecies[indices[x + 0]].z);
+                    zMin = std::min(zMin, vertecies[indices[x + 1]].z);
                     zMin = std::min(zMin, vertecies[indices[x + 2]].z);
                 }
 
-                glm::dvec3 rayStart = start + glm::dvec3(span.x * ((double)x / (double)resolution.x), span.y * ((double)y / (double)resolution.y), 0) - rayDirection * 10.0;
-                rayStart.z          = zMin - rayDirection.z;
+                glm::dvec3 rayStart = start + glm::dvec3(span.x * ((double)x / (double)resolution.x), span.y * ((double)y / (double)resolution.y), zMin) - rayDirection * 10.0;
+
                 std::vector<double> intersections;
                 for (auto& tri : stack)
                 {
@@ -108,9 +110,9 @@ namespace Library
 
                 for (auto& zIntersection : intersections)
                 {
-                    double    normalizedZ = (zIntersection - start.z) / span.z;
-                    long long zPos        = std::floor((normalizedZ + 1e-6) * (long long)resolution.z);
-                    zPos                  = std::max((long long)0, zPos);
+                    long long zPos = std::floor(((zIntersection - start.z) / span.z) * (long long)resolution.z);
+                    zPos           = std::max((long long)0, zPos);
+                    zPos           = std::min((long long)resolution.z - 1, zPos);
 
                     size_t memoryAddress = zPos + resultOffset;
                     size_t max           = resultOffset + resolution.z;
@@ -133,26 +135,26 @@ namespace Library
 
         for (size_t i = 0; i < amountTriangles; i++)
         {
-            size_t            address   = i * 3;
-            const glm::dvec3& a         = vertecies[indices[address]];
-            const glm::dvec3& b         = vertecies[indices[address + 1]];
-            const glm::dvec3& c         = vertecies[indices[address + 2]];
-            double            planarity = glm::cross(glm::normalize(a - b), glm::normalize(c - b)).z;
-            if (std::abs(planarity) < 1e-6)
-                continue;
+            size_t            address = i * 3;
+            const glm::dvec3& a       = vertecies[indices[address]];
+            const glm::dvec3& b       = vertecies[indices[address + 1]];
+            const glm::dvec3& c       = vertecies[indices[address + 2]];
+
             glm::dvec2 out_start;
             glm::dvec2 out_end;
             box(vertecies[indices[address + 0]], vertecies[indices[address + 1]], vertecies[indices[address + 2]], out_start, out_end);
-
-            size_t xStart = (size_t)std::max(0.0, std::floor(((out_start.x - start.x) / span.x) * resolution.x - 1e-6));
-            size_t yStart = (size_t)std::max(0.0, std::floor(((out_start.y - start.y) / span.y) * resolution.y - 1e-6));
-            size_t xEnd   = (size_t)std::min((double)resolution.x - 1, std::ceil(((out_end.x - start.x) / span.x) * resolution.x + 1e-6) - 1);
-            size_t yEnd   = (size_t)std::min((double)resolution.y - 1, std::ceil(((out_end.y - start.y) / span.y) * resolution.y + 1e-6) - 1);
-
+            size_t xStart = std::floor(((out_start.x - start.x) / span.x) * resolution.x);
+            size_t yStart = std::floor(((out_start.y - start.y) / span.y) * resolution.y);
+            size_t xEnd   = std::ceil(((out_end.x - start.x) / span.x) * resolution.x);
+            size_t yEnd   = std::ceil(((out_end.y - start.y) / span.y) * resolution.y);
             if (xEnd >= resolution.x)
                 xEnd = resolution.x - 1;
             if (yEnd >= resolution.y)
                 yEnd = resolution.y - 1;
+            if (out_start.x < start.x)
+                xStart = 0;
+            if (out_start.y < start.y)
+                yStart = 0;
 
             for (size_t x = xStart; x <= xEnd; x++)
                 for (size_t y = yStart; y <= yEnd; y++)
@@ -175,7 +177,7 @@ namespace Library
     bool Voxelizer::intersectRayTriangle(const glm::dvec3& rayOrigin, const glm::dvec3& rayVector, const glm::dvec3& vertex0, const glm::dvec3& vertex1, const glm::dvec3& vertex2, glm::dvec3& out)
     {
         // https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
-        const double EPSILON = 1e-16;
+        const double EPSILON = 1e-5;
         glm::dvec3   edge1, edge2, h, s, q;
         double       a, f, u, v;
         edge1 = vertex1 - vertex0;
@@ -196,7 +198,7 @@ namespace Library
         q = glm::cross(s, edge1);
         v = f * glm::dot(rayVector, q);
 
-        if (v < -EPSILON || u + v > 1.0 + EPSILON)
+        if (v < 0 || u + v > 1.0)
             return false;
 
         // At this stage we can compute t to find out where the intersection point is on the line.

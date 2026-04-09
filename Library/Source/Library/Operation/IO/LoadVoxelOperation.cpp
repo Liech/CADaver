@@ -29,9 +29,10 @@ namespace Library
         res.z            = res.z + (8 - (res.z % 8));
 
         auto aabb         = triangulation.getAABB();
+        auto voxelLength  = glm::dvec3(aabb.second.x / res.x, aabb.second.y / res.y, aabb.second.z / res.z);
         result->dimension = res;
-        result->origin    = aabb.first;
-        result->size      = aabb.second;
+        result->origin    = aabb.first - voxelLength * 2.0;
+        result->size      = aabb.second + voxelLength * 4.0;
 
         Voxelizer().voxelize(result->data, triangulation.vertices, triangulation.indices, aabb.first, aabb.first + aabb.second, res);
         return std::move(result);
