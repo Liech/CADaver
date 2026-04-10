@@ -1,12 +1,11 @@
 #pragma once
 
 #include <memory>
+#include "HalfEdge.h"
+#include "Triangle/Triangulation.h"
 
 namespace Library
 {
-    class Triangulation;
-    struct HalfEdgeMesh;
-
     class mesh2halfedge
     {
       public:

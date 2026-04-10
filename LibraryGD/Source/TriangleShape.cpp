@@ -21,7 +21,7 @@ namespace godot
         ClassDB::bind_method(D_METHOD("get_tri_aabb"), &TriangleShape::getAABB);
         ClassDB::bind_method(D_METHOD("to_vox", "resolution"), &TriangleShape::toVoxel);
         ClassDB::bind_method(D_METHOD("to_cad_dumb"), &TriangleShape::toCad_dumb);
-        ClassDB::bind_method(D_METHOD("normal_cluster", "grow_func"), &TriangleShape::normal_cluster);
+        ClassDB::bind_method(D_METHOD("normal_cluster", "grow_func", "allowholes"), &TriangleShape::normal_cluster);
     }
 
     TriangleShape::TriangleShape()
@@ -120,7 +120,7 @@ namespace godot
         return CADShapeFactory::make(resultShape);
     }
 
-    godot::Array TriangleShape::normal_cluster(godot::Callable grow_func)
+    godot::Array TriangleShape::normal_cluster(godot::Callable grow_func, bool holes)
     {
         auto wrapper = [&grow_func, this](size_t current, size_t candidate, const Library::Triangulation& t) -> bool
         {
@@ -129,9 +129,14 @@ namespace godot
             godot::Variant result        = grow_func.call(Vector3(normCurrent.x, normCurrent.y, normCurrent.z), Vector3(normCandidate.x, normCandidate.y, normCandidate.z));
             return (bool)result;
         };
-        std::vector<std::vector<size_t>> internal_result = Library::Clustering::cluster(*shape, wrapper);
- 
-        godot::Array                     final_array;
+        std::vector<std::vector<size_t>> internal_result;
+        if (holes)
+            internal_result = Library::Clustering::cluster(*shape, wrapper);
+        else
+            internal_result = Library::Clustering::cluster_withoutHoles(*shape, wrapper);
+
+
+        godot::Array final_array;
         for (const auto& patch : internal_result)
         {
             godot::PackedInt64Array godot_patch;

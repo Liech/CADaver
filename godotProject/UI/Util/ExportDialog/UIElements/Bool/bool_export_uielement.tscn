@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://djfy6t17q5bad"]
+
+[ext_resource type="Script" uid="uid://dbwr2abujtvfk" path="res://UI/Util/ExportDialog/UIElements/Bool/bool_export_uielement.gd" id="1_45knd"]
+
+[node name="BoolExportUielement" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_45knd")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+
+[node name="Val" type="CheckBox" parent="."]
+layout_mode = 2
+
+[connection signal="toggled" from="Val" to="." method="_on_val_toggled"]

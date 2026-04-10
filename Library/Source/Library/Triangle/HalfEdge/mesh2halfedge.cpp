@@ -1,7 +1,5 @@
 #include "mesh2halfedge.h"
 
-#include "HalfEdge.h"
-#include "Triangle/Triangulation.h"
 
 namespace Library
 {

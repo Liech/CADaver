@@ -1,6 +1,7 @@
 class_name MarkRegion_Operation extends TopLevelOperation
 
 @export var threshold : float = 0.90;
+@export var allowHoles : bool = true;
 
 func getName():
 	return "Mark Region";
@@ -55,6 +56,6 @@ func execute(scene : DrawingScene):
 		var shape = (scene.drawing as DrawingMESH).shape
 		var patches = shape.normal_cluster(func(curr, cand):
 			return curr.dot(cand) > threshold
-		)
+		, allowHoles)
 		m.tri_vis.mesh.mesh = deindex_mesh(m.tri_vis.mesh.mesh)
 		color_mesh(m.tri_vis.mesh, patches)

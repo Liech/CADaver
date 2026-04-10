@@ -8,4 +8,6 @@ static func make(v : Dictionary, target : Node)->Control:
 			return vector3i_export_uielement.make(v, target);
 		Variant.Type.TYPE_FLOAT:
 			return float_export_uielement.make(v, target);
+		Variant.Type.TYPE_BOOL:
+			return bool_export_uielement.make(v, target);
 	return null
