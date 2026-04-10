@@ -1,5 +1,6 @@
 #include "Clustering.h"
 
+#include "HalfEdge/HalfEdge.h"
 #include "Triangulation.h"
 #include <queue>
 #include <unordered_set>
@@ -69,120 +70,81 @@ namespace Library
         return result;
     }
 
-    //void Clustering::removeHolesByDivision(const Triangulation& tri, std::vector<std::vector<size_t>>& clusters)
-    //{
-    //    for (size_t clusterId = 0; clusterId < clusters.size(); clusterId++)
-    //    {
-    //        auto& cluster = clusters[clusterId];
-    //        //while (true)
-    //        //{
-    //        //    auto loops = findLoops(tri, cluster);
-    //        //    if (loops.size() == 1)
-    //        //        break;
-    //        //
-    //        //    auto loopDirs = getLoopDirections(tri, loops, cluster);
-    //        //    for (size_t i = 0; i < loopDirs.size(); i++)
-    //        //    {
-    //        //      if (!loopDirs[i]) // Hole!
-    //        //      {
-    //        //        size_t seedA = 
-    //        //        }
-    //        //    }
-    //        //}
-    //    }
-    //}
-
-    std::vector<std::vector<size_t>> Clustering::findLoops(const Triangulation& tri, const std::vector<size_t>& trianglesInCluster)
+    bool isHole(const HalfEdgeMesh& mesh, const std::vector<int64_t>& loopEdges, const std::unordered_set<int64_t>& clusterFaces)
     {
-        std::vector<std::vector<size_t>> result;
-        auto                             adjacency = tri.getAdjacency();
-        if (trianglesInCluster.empty())
-            return result;
+        if (loopEdges.empty())
+            return false;
 
-        const std::vector<size_t>&         indices = tri.indices;
-        std::unordered_set<size_t>         clusterSet(trianglesInCluster.begin(), trianglesInCluster.end());
-        std::unordered_map<size_t, size_t> nextVertex;
-
-        for (size_t triIdx : trianglesInCluster)
+        int64_t e = loopEdges[0];
+        int64_t t = mesh.half_edges[e].twin;
+        if (clusterFaces.count(mesh.half_edges[e].face))
         {
-            for (int i = 0; i < 3; ++i)
+            return false;
+        }
+        return true;
+    }
+
+    std::vector<std::vector<size_t>> Clustering::findBorders(const HalfEdgeMesh& mesh, const std::vector<size_t>& trianglesInCluster) {
+        std::unordered_set<int64_t> clusterFaces(trianglesInCluster.begin(), trianglesInCluster.end());
+        std::unordered_set<int64_t> boundaryEdges;
+
+        // 1. Collect all half-edges that sit on the perimeter of the cluster
+        for (size_t fIdx : trianglesInCluster)
+        {
+            int64_t startEdge = mesh.faces[fIdx].half_edge;
+            int64_t curr      = startEdge;
+            do
             {
-                size_t v1 = indices[triIdx * 3 + i];
-                size_t v2 = indices[triIdx * 3 + (i + 1) % 3];
+                int64_t twinEdge = mesh.half_edges[curr].twin;
+                int64_t twinFace = (twinEdge != SafeNull) ? mesh.half_edges[twinEdge].face : SafeNull;
 
-                auto        edgeKey   = (v1 < v2) ? std::make_pair(v1, v2) : std::make_pair(v2, v1);
-                const auto& neighbors = adjacency.at(edgeKey);
-
-                bool isBoundary = true;
-                for (size_t n : neighbors)
+                // If the twin is outside the cluster (or doesn't exist), this is a boundary
+                if (clusterFaces.find(twinFace) == clusterFaces.end())
                 {
-                    if (n != triIdx && clusterSet.count(n))
-                    {
-                        isBoundary = false; // It's an internal edge within the cluster
-                        break;
-                    }
+                    boundaryEdges.insert(curr);
                 }
-
-                if (isBoundary)
-                {
-                    nextVertex[v1] = v2;
-                }
-            }
+                curr = mesh.half_edges[curr].next;
+            } while (curr != startEdge);
         }
 
-        // 2. Trace loops
-        std::unordered_set<size_t>       visited;
         std::vector<std::vector<size_t>> allLoops;
+        std::unordered_set<int64_t>      visited;
 
-        for (auto const& [startNode, _] : nextVertex)
+        // 2. Trace loops
+        for (int64_t edge : boundaryEdges)
         {
-            if (visited.count(startNode))
+            if (visited.count(edge))
                 continue;
 
-            std::vector<size_t> loop;
-            size_t              curr = startNode;
-            while (nextVertex.count(curr) && !visited.count(curr))
+            std::vector<size_t> currentLoop;
+            int64_t             curr = edge;
+
+            while (visited.find(curr) == visited.end())
             {
                 visited.insert(curr);
-                loop.push_back(curr);
-                curr = nextVertex[curr];
+                // Add the source vertex of the boundary half-edge to the loop
+                currentLoop.push_back(static_cast<size_t>(mesh.source(curr)));
+
+                // Find the next boundary edge in the loop.
+                // We look at the target of curr, and check outgoing edges
+                // until we find one that is also a boundary edge.
+                int64_t nextPotential = mesh.half_edges[curr].next;
+
+                // If the next edge in the face is already a boundary, easy.
+                // Otherwise, we must pivot around the vertex (target_vertex)
+                // to find the next boundary edge connected to this vertex.
+                while (boundaryEdges.find(nextPotential) == boundaryEdges.end())
+                {
+                    nextPotential = mesh.half_edges[mesh.half_edges[nextPotential].twin].next;
+                }
+
+                curr = nextPotential;
+                if (curr == edge)
+                    break;
             }
-            if (loop.size() >= 3)
-                allLoops.push_back(loop);
+            allLoops.push_back(currentLoop);
         }
 
         return allLoops;
-    }
-
-    std::vector<bool> Clustering::getLoopDirections(const Triangulation& tri, const std::vector<std::vector<size_t>>& allLoops, const std::vector<size_t>& trianglesInCluster)
-    {
-        const std::vector<glm::dvec3>&                           vertices  = tri.vertices;
-        const std::vector<size_t>&                               indices   = tri.indices;
-        std::map<std::pair<size_t, size_t>, std::vector<size_t>> adjacency = tri.getAdjacency();
-
-        std::vector<bool> result;
-        result.resize(allLoops.size());
-        for (size_t i = 0; i < allLoops.size(); i++)
-        {
-            result[i]        = false;
-            const auto& loop = allLoops[i];
-            size_t      x1   = loop[0];
-            size_t      x2   = loop[0];
-
-            for (const auto& current : trianglesInCluster)
-            {
-                size_t a = tri.indices[current * 3 + 0];
-                size_t b = tri.indices[current * 3 + 1];
-                size_t c = tri.indices[current * 3 + 2];
-
-                bool outerloop = (x1 == a && x2 == b) || (x1 == b && x2 == c) || (x1 == c && x2 == a);
-                if (outerloop)
-                {
-                    result[i] = true;
-                    break;
-                }
-            }
-        }
-        return result;
     }
 }

@@ -154,6 +154,17 @@ set(Triangle_Files
 )
 source_group("Source/Triangle" FILES ${Triangle_Files})
 
+set(HalfEdge_Files
+    "Source/Library/Triangle/HalfEdge/mesh2halfedge.h"
+    "Source/Library/Triangle/HalfEdge/mesh2halfedge.cpp"
+    "Source/Library/Triangle/HalfEdge/HalfEdge.h"
+    "Source/Library/Triangle/HalfEdge/HalfEdge.cpp"
+)
+source_group("Source/Triangle/HalfEdge" FILES ${HalfEdge_Files})
+
+
+
+
 set(ALL_FILES
     ${Source_Files}
     ${Util_Files}
@@ -165,6 +176,7 @@ set(ALL_FILES
 	  ${MagickaVox_IO}
 	  ${Voxel_Files}
 	  ${Triangle_Files}
+	  ${HalfEdge_Files}
 )
 
 ############################################################################
