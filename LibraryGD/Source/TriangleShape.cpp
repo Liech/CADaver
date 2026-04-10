@@ -26,6 +26,8 @@ namespace godot
         ClassDB::bind_method(D_METHOD("to_cad_dumb"), &TriangleShape::toCad_dumb);
         ClassDB::bind_method(D_METHOD("normal_cluster", "grow_func", "allowholes"), &TriangleShape::normal_cluster);
         ClassDB::bind_method(D_METHOD("cluster_border", "cluster"), &TriangleShape::cluster_border);
+        ClassDB::bind_method(D_METHOD("get_halfedge_string"), &TriangleShape::toHalfEdgeString);
+        ClassDB::bind_method(D_METHOD("get_halfedge_report"), &TriangleShape::getHalfEdgeReport);
     }
 
     TriangleShape::TriangleShape()
@@ -188,4 +190,21 @@ namespace godot
 
         return final_array;
     }
+
+    godot::String TriangleShape::toHalfEdgeString() const
+    {
+        std::string result;
+        auto        halfedge = Library::mesh2halfedge::convert(*shape);
+        result = Library::mesh2halfedge::toString(*halfedge);
+        return result.c_str();
+    }
+
+    godot::String TriangleShape::getHalfEdgeReport() const
+    {
+        std::string result;
+        auto        halfedge = Library::mesh2halfedge::convert(*shape);
+        result               = Library::mesh2halfedge::createReport(*halfedge);
+        return result.c_str();
+    }
+
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory>
 #include "HalfEdge.h"
 #include "Library/Triangle/Triangulation.h"
+#include <memory>
 
 namespace Library
 {
@@ -12,5 +12,6 @@ namespace Library
         static std::unique_ptr<HalfEdgeMesh>  convert(const Triangulation&);
         static std::unique_ptr<Triangulation> convert(const HalfEdgeMesh&);
         static std::string                    toString(const HalfEdgeMesh&);
+        static std::string                    createReport(const HalfEdgeMesh& mesh);
     };
 }
