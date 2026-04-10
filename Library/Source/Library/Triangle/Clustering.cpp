@@ -84,12 +84,14 @@ namespace Library
         if (clusterFaces.find(leftFace) == clusterFaces.end())
         {
             // debug sanity check
+#ifndef NDEBUG
             auto twin = mesh.twin(e);
             if (twin != SafeNull)
             {
                 auto twinFace = mesh.half_edges[twin].face;
                 assert(clusterFaces.contains(twinFace));
             }
+#endif
 
             return true;
         }

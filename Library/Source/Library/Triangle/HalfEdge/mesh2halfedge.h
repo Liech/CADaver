@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "HalfEdge.h"
-#include "Triangle/Triangulation.h"
+#include "Library/Triangle/Triangulation.h"
 
 namespace Library
 {
@@ -11,5 +11,6 @@ namespace Library
       public:
         static std::unique_ptr<HalfEdgeMesh>  convert(const Triangulation&);
         static std::unique_ptr<Triangulation> convert(const HalfEdgeMesh&);
+        static std::string                    toString(const HalfEdgeMesh&);
     };
 }

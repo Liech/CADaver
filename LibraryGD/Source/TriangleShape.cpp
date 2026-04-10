@@ -6,6 +6,8 @@
 #include "Library/Operation/IO/LoadCADOperation.h"
 #include "Library/Operation/IO/LoadVoxelOperation.h"
 #include "Library/Triangle/Clustering.h"
+#include "Library/Triangle/HalfEdge/HalfEdge.h"
+#include "Library/Triangle/HalfEdge/mesh2halfedge.h"
 #include "Library/Triangle/Triangulation.h"
 #include "Library/Voxel/BinaryVolume.h"
 #include "VoxelShape.h"
@@ -19,9 +21,11 @@ namespace godot
         ClassDB::bind_static_method("TriangleShape", D_METHOD("load_tri_from_file", "filename"), &TriangleShape::loadTriFromFile);
         ClassDB::bind_method(D_METHOD("get_array_mesh"), &TriangleShape::getMesh);
         ClassDB::bind_method(D_METHOD("get_tri_aabb"), &TriangleShape::getAABB);
+        ClassDB::bind_method(D_METHOD("get_vertex", "index"), &TriangleShape::getVertex);
         ClassDB::bind_method(D_METHOD("to_vox", "resolution"), &TriangleShape::toVoxel);
         ClassDB::bind_method(D_METHOD("to_cad_dumb"), &TriangleShape::toCad_dumb);
         ClassDB::bind_method(D_METHOD("normal_cluster", "grow_func", "allowholes"), &TriangleShape::normal_cluster);
+        ClassDB::bind_method(D_METHOD("cluster_border", "cluster"), &TriangleShape::cluster_border);
     }
 
     TriangleShape::TriangleShape()
@@ -120,6 +124,39 @@ namespace godot
         return CADShapeFactory::make(resultShape);
     }
 
+    Vector3 TriangleShape::getVertex(uint64_t index)
+    {
+        auto result = shape->vertices[index];
+        return Vector3(result.x, result.y, result.z);
+    }
+
+    godot::Array TriangleShape::cluster_border(godot::Array input)
+    {
+        std::vector<size_t> translatedInput;
+        translatedInput.reserve(input.size());
+        for (int i = 0; i < input.size(); i++)
+        {
+            translatedInput.push_back(static_cast<size_t>(input[i]));
+        }
+
+        auto                             halfedge = Library::mesh2halfedge::convert(*shape);
+        std::vector<std::vector<size_t>> preResult;
+        preResult = Library::Clustering::findBorders(*halfedge, translatedInput);
+
+        godot::Array result;
+        for (const auto& vec : preResult)
+        {
+            godot::Array sub_array;
+            sub_array.resize(vec.size());
+            for (size_t i = 0; i < vec.size(); i++)
+            {
+                sub_array[i] = static_cast<int64_t>(vec[i]);
+            }
+            result.append(sub_array);
+        }
+        return result;
+    }
+
     godot::Array TriangleShape::normal_cluster(godot::Callable grow_func, bool holes)
     {
         auto wrapper = [&grow_func, this](size_t current, size_t candidate, const Library::Triangulation& t) -> bool
@@ -134,7 +171,6 @@ namespace godot
             internal_result = Library::Clustering::cluster(*shape, wrapper);
         else
             internal_result = Library::Clustering::cluster_withoutHoles(*shape, wrapper);
-
 
         godot::Array final_array;
         for (const auto& patch : internal_result)

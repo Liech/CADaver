@@ -10,4 +10,6 @@ static func make(v : Dictionary, target : Node)->Control:
 			return float_export_uielement.make(v, target);
 		Variant.Type.TYPE_BOOL:
 			return bool_export_uielement.make(v, target);
+		Variant.Type.TYPE_INT:
+			return int_export_uielement.make(v, target);
 	return null

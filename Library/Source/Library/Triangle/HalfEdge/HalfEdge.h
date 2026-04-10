@@ -35,15 +35,29 @@ namespace Library
 
         int64_t source(int64_t e) const
         {
-            return half_edges[half_edges[e].twin].target_vertex;
+#ifndef NDEBUG
+            assert(e >= 0 && e < half_edges.size());
+#endif
+            int64_t tw = half_edges[e].twin;
+
+#ifndef NDEBUG
+            assert(tw >= 0 && tw < half_edges.size());
+#endif
+            return half_edges[tw].target_vertex;
         }
 
         int64_t next(int64_t e) const
         {
+#ifndef NDEBUG
+            assert(e >= 0 && e < half_edges.size());
+#endif
             return half_edges[e].next;
         }
         int64_t twin(int64_t e) const
         {
+#ifndef NDEBUG
+            assert(e >= 0 && e < half_edges.size());
+#endif
             return half_edges[e].twin;
         }
     };

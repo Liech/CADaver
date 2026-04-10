@@ -1,5 +1,7 @@
 #include "mesh2halfedge.h"
 
+#include <sstream>
+#include <iomanip>
 
 namespace Library
 {
@@ -121,4 +123,54 @@ namespace Library
 
         return tri;
     }
+
+    std::string mesh2halfedge::toString(const HalfEdgeMesh& target)
+    {
+        std::stringstream ss;
+        ss << "=== HalfEdgeMesh Dump ===\n";
+
+        // 1. Dump Vertices
+        ss << "Vertices [" << target.vertices.size() << "]:\n";
+        for (size_t i = 0; i < target.vertices.size(); ++i)
+        {
+            ss << std::setw(4) << i << ": pos(" << target.vertices[i].position.x << ", " << target.vertices[i].position.y << ", " << target.vertices[i].position.z
+               << ") | out_edge: " << target.vertices[i].half_edge
+               << "\n";
+        }
+
+        // 2. Dump Half-Edges (The most important part)
+        ss << "\nHalf-Edges [" << target.half_edges.size() << "]:\n";
+        ss << "  ID | Target | Next | Twin | Face | Source (via Twin)\n";
+        ss << "------------------------------------------------------\n";
+        for (size_t i = 0; i < target.half_edges.size(); ++i)
+        {
+            const auto& e = target.half_edges[i];
+
+            // Safety check for source calculation to avoid crashes during dump
+            std::string src_str = (e.twin != SafeNull) ? std::to_string(target.source(i)) : "Boundary";
+
+            ss << std::setw(4) << i << " | " << std::setw(6) << e.target_vertex << " | " << std::setw(4) << e.next << " | " << std::setw(4) << e.twin << " | " << std::setw(4) << e.face << " | "
+               << src_str << "\n";
+        }
+
+        // 3. Dump Faces
+        ss << "\nFaces [" << target.faces.size() << "]:\n";
+        for (size_t i = 0; i < target.faces.size(); ++i)
+        {
+            ss << std::setw(4) << i << ": start_edge: " << target.faces[i].half_edge << "\n";
+        }
+
+        ss << "========================\n";
+        return ss.str();
+    }
 }
+
+#ifdef ISTESTPROJECT
+#include "Library/catch.hpp"
+
+TEST_CASE("mesh2halfedge/Base")
+{
+    REQUIRE(true);
+}
+
+#endif

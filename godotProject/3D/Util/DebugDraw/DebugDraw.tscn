@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bwnqbttjl2y03"]
+
+[ext_resource type="Script" uid="uid://ci7a84b04bhgg" path="res://3D/Util/DebugDraw/DebugDraw.gd" id="1_dtjnx"]
+
+[node name="DebugDraw" type="MeshInstance3D"]
+script = ExtResource("1_dtjnx")
