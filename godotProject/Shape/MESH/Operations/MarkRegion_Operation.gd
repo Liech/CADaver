@@ -53,7 +53,7 @@ func execute(scene : DrawingScene):
 	if (success == export_dialog.result_state.Success):
 		var m = scene.vis as MeshScene
 		var shape = (scene.drawing as DrawingMESH).shape
-		var patches = shape.region_grow(func(curr, cand):
+		var patches = shape.normal_cluster(func(curr, cand):
 			return curr.dot(cand) > threshold
 		)
 		m.tri_vis.mesh.mesh = deindex_mesh(m.tri_vis.mesh.mesh)

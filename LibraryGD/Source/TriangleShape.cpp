@@ -5,7 +5,7 @@
 #include "Library/CAD/CADShape.h"
 #include "Library/Operation/IO/LoadCADOperation.h"
 #include "Library/Operation/IO/LoadVoxelOperation.h"
-#include "Library/Triangle/RegionGrow.h"
+#include "Library/Triangle/Clustering.h"
 #include "Library/Triangle/Triangulation.h"
 #include "Library/Voxel/BinaryVolume.h"
 #include "VoxelShape.h"
@@ -21,7 +21,7 @@ namespace godot
         ClassDB::bind_method(D_METHOD("get_tri_aabb"), &TriangleShape::getAABB);
         ClassDB::bind_method(D_METHOD("to_vox", "resolution"), &TriangleShape::toVoxel);
         ClassDB::bind_method(D_METHOD("to_cad_dumb"), &TriangleShape::toCad_dumb);
-        ClassDB::bind_method(D_METHOD("region_grow", "grow_func"), &TriangleShape::region_grow);
+        ClassDB::bind_method(D_METHOD("normal_cluster", "grow_func"), &TriangleShape::normal_cluster);
     }
 
     TriangleShape::TriangleShape()
@@ -120,7 +120,7 @@ namespace godot
         return CADShapeFactory::make(resultShape);
     }
 
-    godot::Array TriangleShape::region_grow(godot::Callable grow_func)
+    godot::Array TriangleShape::normal_cluster(godot::Callable grow_func)
     {
         auto wrapper = [&grow_func, this](size_t current, size_t candidate, const Library::Triangulation& t) -> bool
         {
@@ -129,7 +129,7 @@ namespace godot
             godot::Variant result        = grow_func.call(Vector3(normCurrent.x, normCurrent.y, normCurrent.z), Vector3(normCandidate.x, normCandidate.y, normCandidate.z));
             return (bool)result;
         };
-        std::vector<std::vector<size_t>> internal_result = Library::RegionGrow::grow(*shape, wrapper);
+        std::vector<std::vector<size_t>> internal_result = Library::Clustering::cluster(*shape, wrapper);
  
         godot::Array                     final_array;
         for (const auto& patch : internal_result)

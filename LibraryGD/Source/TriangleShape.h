@@ -36,7 +36,7 @@ namespace godot
         Library::Triangulation& getData() const;
 
       private:
-        godot::Array    region_grow(godot::Callable grow_func);
+        godot::Array    normal_cluster(godot::Callable grow_func);
         Ref<VoxelShape> toVoxel(const Vector3i& resolution) const;
         Ref<CADShape>   toCad_dumb() const;
         Ref<ArrayMesh>  getMesh() const;
