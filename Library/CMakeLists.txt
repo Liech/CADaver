@@ -149,6 +149,8 @@ set(Triangle_Files
     "Source/Library/Triangle/STLWriter.cpp"
     "Source/Library/Triangle/mesh2cad_dumb.h"
     "Source/Library/Triangle/mesh2cad_dumb.cpp"
+    "Source/Library/Triangle/mesh2cad_cluster.h"
+    "Source/Library/Triangle/mesh2cad_cluster.cpp"
     "Source/Library/Triangle/Clustering.h"
     "Source/Library/Triangle/Clustering.cpp"
 )

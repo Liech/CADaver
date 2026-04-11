@@ -25,3 +25,13 @@ namespace Library
         static std::unique_ptr<Triangulation> fromSTLFile(const std::string& filename);
     };
 }
+
+/*
+
+    class Triangulation
+    {
+      public:
+        std::vector<glm::dvec3> vertices;
+        std::vector<size_t>     indices;
+    };
+*/
