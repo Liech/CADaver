@@ -74,28 +74,52 @@ namespace Library
         return result;
     }
 
-    bool Clustering::isHole(const HalfEdgeMesh& mesh, const std::vector<size_t>& loopEdges, const std::unordered_set<size_t>& clusterFaces)
+    bool Clustering::isHole(const HalfEdgeMesh& mesh, const std::vector<size_t>& vertexLoop, const std::unordered_set<size_t>& clusterFaces)
     {
-        if (loopEdges.size() < 3)
+        if (vertexLoop.size() < 3)
             return false;
-        int64_t e        = loopEdges[0];
-        int64_t leftFace = mesh.half_edges[e].face;
 
-        if (clusterFaces.find(leftFace) == clusterFaces.end())
+        // 1. Find the half-edge connecting vertexLoop[0] -> vertexLoop[1]
+        int64_t vStart     = vertexLoop[0];
+        int64_t vNext      = vertexLoop[1];
+        int64_t borderEdge = SafeNull;
+
+        // Start at the vertex and rotate through outgoing edges
+        int64_t curr  = mesh.vertices[vStart].half_edge;
+        int64_t start = curr;
+        if (curr != SafeNull)
         {
-            // debug sanity check
-#ifndef NDEBUG
-            auto twin = mesh.twin(e);
-            if (twin != SafeNull)
+            do
             {
-                auto twinFace = mesh.half_edges[twin].face;
-                assert(clusterFaces.contains(twinFace));
-            }
-#endif
+                if (mesh.half_edges[curr].target_vertex == vNext)
+                {
+                    // We found the edge. Now check if this edge is a cluster boundary.
+                    int64_t twin   = mesh.half_edges[curr].twin;
+                    bool    faceIn = clusterFaces.contains(mesh.half_edges[curr].face);
+                    bool    twinIn = (twin != SafeNull) ? clusterFaces.contains(mesh.half_edges[twin].face) : false;
 
-            return true;
+                    if (faceIn != twinIn)
+                    {
+                        borderEdge = curr;
+                        break;
+                    }
+                }
+                // Pivot to next outgoing edge around vStart
+                int64_t twin = mesh.half_edges[curr].twin;
+                if (twin == SafeNull)
+                    break;
+                curr = mesh.half_edges[mesh.half_edges[twin].next].next; // Pivot logic
+            } while (curr != start && curr != SafeNull);
         }
-        return false;
+
+        if (borderEdge == SafeNull)
+            return false;
+
+        // 2. Logic: If the face of the edge going v0->v1 is NOT in the cluster,
+        // it means the cluster is to the "right" of the path, signifying a hole.
+        bool leftFaceInCluster = clusterFaces.contains(mesh.half_edges[borderEdge].face);
+
+        return !leftFaceInCluster;
     }
 
     std::vector<std::vector<size_t>> Clustering::findBorders(const HalfEdgeMesh& mesh, const std::vector<size_t>& trianglesInCluster)
@@ -259,7 +283,8 @@ namespace Library
                 result.push_back(cluster);
             else
             {
-                auto clusterSet = std::unordered_set<size_t>(cluster.begin(), cluster.end());
+                bool pushedToTodo = false;
+                auto clusterSet   = std::unordered_set<size_t>(cluster.begin(), cluster.end());
                 for (const auto& border : borders)
                 {
                     if (isHole(*halfedge, border, clusterSet))
@@ -269,8 +294,13 @@ namespace Library
                         auto   newClusters = splitCluster(tri, cluster, { seedA, seedB });
                         for (const auto& x : newClusters)
                             todo.push(x);
+                        pushedToTodo = true;
                         break;
                     }
+                }
+                if (!pushedToTodo) // a surface of an hole e.g. could have multiple borders and no hole
+                {
+                    result.push_back(cluster);
                 }
             }
         }
@@ -278,3 +308,98 @@ namespace Library
         return result;
     }
 }
+
+
+#ifdef ISTESTPROJECT
+#include "Library/catch.hpp"
+using namespace Library;
+
+Triangulation CreateHoledSquare()
+{
+    Triangulation tri;
+    // Create a 4x4 vertex grid (3x3 quads)
+    for (int y = 0; y < 4; ++y)
+    {
+        for (int x = 0; x < 4; ++x)
+        {
+            tri.vertices.push_back(glm::dvec3(x, y, 0));
+        }
+    }
+
+    // Helper to get index at (x, y)
+    auto idx = [](int x, int y) { return y * 4 + x; };
+
+    for (int y = 0; y < 3; ++y)
+    {
+        for (int x = 0; x < 3; ++x)
+        {
+            // Skip the center quad (x=1, y=1) to create a hole
+            if (x == 1 && y == 1)
+                continue;
+
+            // Triangle 1
+            tri.indices.push_back(idx(x, y));
+            tri.indices.push_back(idx(x + 1, y));
+            tri.indices.push_back(idx(x + 1, y + 1));
+            // Triangle 2
+            tri.indices.push_back(idx(x, y));
+            tri.indices.push_back(idx(x + 1, y + 1));
+            tri.indices.push_back(idx(x, y + 1));
+        }
+    }
+    return tri;
+}
+
+TEST_CASE("Clustering::findBorders with Holed Surface", "[clustering][topology]")
+{
+    using namespace Library;
+
+    // 1. Setup
+    Triangulation tri  = CreateHoledSquare();
+    auto          mesh = mesh2halfedge::convert(tri);
+
+    // The cluster is the entire mesh (all faces)
+    std::vector<size_t> cluster;
+    for (size_t i = 0; i < tri.indices.size() / 3; ++i)
+    {
+        cluster.push_back(i);
+    }
+
+    // 2. Execute
+    Clustering                       clustering;
+    std::vector<std::vector<size_t>> borders = clustering.findBorders(*mesh, cluster);
+
+    // 3. Assertions
+    SECTION("Correct number of loops detected")
+    {
+        // A square with a hole has 2 boundaries
+        REQUIRE(borders.size() == 2);
+    }
+
+    SECTION("Loops contain correct vertex counts")
+    {
+        // Sort by size so we know which is which
+        std::sort(borders.begin(), borders.end(), [](const auto& a, const auto& b) { return a.size() > b.size(); });
+
+        // Outer boundary: 4 edges * 3 = 12 vertices (perimeter of 4x4 grid)
+        CHECK(borders[0].size() == 12);
+
+        // Inner hole: 4 vertices (perimeter of the deleted center quad)
+        CHECK(borders[1].size() == 4);
+    }
+
+    SECTION("Hole detection logic")
+    {
+        std::unordered_set<size_t> clusterSet(cluster.begin(), cluster.end());
+
+        // Sort borders so index 1 is the smaller loop (the hole)
+        std::sort(borders.begin(), borders.end(), [](const auto& a, const auto& b) { return a.size() > b.size(); });
+
+        // isHole should be false for the outer boundary
+        CHECK(clustering.isHole(*mesh, borders[0], clusterSet) == false);
+
+        // isHole should be true for the inner boundary
+        CHECK(clustering.isHole(*mesh, borders[1], clusterSet) == true);
+    }
+}
+#endif

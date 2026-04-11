@@ -211,6 +211,43 @@ namespace Library
                     critical_logs.push_back("E" + std::to_string(i) + ": Does not form a 3-edge loop (Triangle check failed).");
                 }
             }
+            // 1. TWIN SYMMETRY (Critical for your isHole assert)
+            if (he.twin != SafeNull)
+            {
+                if (he.twin < 0 || he.twin >= (int64_t)mesh.half_edges.size())
+                {
+                    critical_logs.push_back("E" + std::to_string(i) + ": Twin index OOB (" + std::to_string(he.twin) + ")");
+                }
+                else if (mesh.half_edges[he.twin].twin != i)
+                {
+                    // This is the most likely reason your cluster assert fails
+                    critical_logs.push_back("E" + std::to_string(i) + ": Twin mismatch. Twin's twin is " + std::to_string(mesh.half_edges[he.twin].twin));
+                }
+            }
+
+            // 2. VERTEX CONTINUITY (Ensures loopEdges are actually a path)
+            if (he.next != SafeNull && he.next < (int64_t)mesh.half_edges.size())
+            {
+                int64_t my_target   = he.target_vertex;
+                int64_t next_source = mesh.source(he.next);
+                if (my_target != next_source)
+                {
+                    critical_logs.push_back("E" + std::to_string(i) + ": Continuity break. Target V" + std::to_string(my_target) + " != Next Source V" + std::to_string(next_source));
+                }
+            }
+
+            // 3. FACE BACK-LINK (Validates the face index used in clustering)
+            if (he.face != SafeNull)
+            {
+                if (he.face < 0 || he.face >= (int64_t)mesh.faces.size())
+                {
+                    critical_logs.push_back("E" + std::to_string(i) + ": Invalid Face index " + std::to_string(he.face));
+                }
+                else if (mesh.faces[he.face].half_edge == SafeNull)
+                {
+                    critical_logs.push_back("E" + std::to_string(i) + ": Belongs to Face " + std::to_string(he.face) + " but Face has no root edge.");
+                }
+            }
         }
 
         // 2. Audit Vertices
