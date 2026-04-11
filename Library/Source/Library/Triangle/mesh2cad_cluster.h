@@ -29,6 +29,6 @@ namespace Library
                                                       const std::vector<std::vector<size_t>>&          borders,
                                                       const Triangulation&                             mesh,
                                                       std::map<size_t, gp_Pnt>&                        vcache,
-                                                      std::map<std::pair<size_t, size_t>, TopoDS_Edge> ecache);
+                                                      std::map<std::pair<size_t, size_t>, TopoDS_Edge>& ecache);
     };
 }

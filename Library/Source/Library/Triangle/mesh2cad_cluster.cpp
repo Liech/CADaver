@@ -11,6 +11,7 @@
 #include <BRepBuilderAPI_MakeSolid.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepBuilderAPI_Sewing.hxx>
+#include <BRepLib.hxx>
 #include <BRepOffsetAPI_MakeFilling.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_TFace.hxx>
@@ -28,7 +29,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <BRepLib.hxx>
 
 namespace Library
 {
@@ -48,7 +48,7 @@ namespace Library
         // 1. Convert Mesh Clusters to B-Rep Faces
         std::map<size_t, gp_Pnt>                         vcache;
         std::map<std::pair<size_t, size_t>, TopoDS_Edge> ecache;
-        auto                                             breps = Clusters2BREP(cluster, borders,mesh, vcache, ecache);
+        auto                                             breps = Clusters2BREP(cluster, borders, mesh, vcache, ecache);
 
         //
         //   BRepOffsetAPI_MakeFilling
@@ -58,11 +58,11 @@ namespace Library
         return nullptr;
     }
 
-    std::vector<TopoDS_Face> mesh2cad_cluster::Clusters2BREP(const std::vector<std::vector<size_t>>&          clusters,
-                                                             const std::vector<std::vector<size_t>>&          borders,
-                                                             const Triangulation&                             mesh,
-                                                             std::map<size_t, gp_Pnt>&                        vcache,
-                                                             std::map<std::pair<size_t, size_t>, TopoDS_Edge> ecache)
+    std::vector<TopoDS_Face> mesh2cad_cluster::Clusters2BREP(const std::vector<std::vector<size_t>>&           clusters,
+                                                             const std::vector<std::vector<size_t>>&           borders,
+                                                             const Triangulation&                              mesh,
+                                                             std::map<size_t, gp_Pnt>&                         vcache,
+                                                             std::map<std::pair<size_t, size_t>, TopoDS_Edge>& ecache)
     {
         std::vector<TopoDS_Face> resultFaces;
 
@@ -89,7 +89,6 @@ namespace Library
             {
                 size_t idx1 = boundaryLoop[i];
                 size_t idx2 = boundaryLoop[(i + 1) % boundaryLoop.size()];
-
                 // Create a sorted key for the cache to find the undirected edge
                 auto edgeKey = std::make_pair(std::min(idx1, idx2), std::max(idx1, idx2));
 
@@ -106,7 +105,9 @@ namespace Library
                             vcache[vIdx]  = gp_Pnt(v.x, v.y, v.z);
                         }
                     }
-                    currentEdge     = BRepBuilderAPI_MakeEdge(vcache[idx1], vcache[idx2]);
+                    size_t s        = std::min(idx1, idx2);
+                    size_t e        = std::max(idx1, idx2);
+                    currentEdge     = BRepBuilderAPI_MakeEdge(vcache[s], vcache[e]);
                     ecache[edgeKey] = currentEdge;
                 }
                 else
@@ -183,11 +184,11 @@ namespace Library
 #ifdef ISTESTPROJECT
 #include "Library/catch.hpp"
 #include <BRepCheck_Analyzer.hxx>
+#include <BRepGProp.hxx>
 #include <BRep_Tool.hxx>
+#include <GProp_GProps.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
-#include <GProp_GProps.hxx>
-#include <BRepGProp.hxx>
 
 using namespace Library;
 
@@ -198,7 +199,7 @@ TEST_CASE("Clusters2BREP - Single Quad Test", "[mesh2cad]")
     // 0: (0,0,0), 1: (1,0,0), 2: (1,1,0), 3: (0,1,0)
     Triangulation mesh;
     mesh.vertices = {
-        { 0, 0, 0 },  
+        { 0, 0, 0 },
         { 1, 0, 0 },
         { 1, 1, 0 },
         { 0, 1, 0 }
@@ -305,7 +306,7 @@ TEST_CASE("Clusters2BREP - Shared Edge Caching", "[mesh2cad]")
         {
             for (auto& e2 : edges2)
             {
-                if (e1.IsSame(e2))
+                if (e1.IsPartner(e2))
                     foundShared = true;
             }
         }
