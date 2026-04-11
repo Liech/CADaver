@@ -1,0 +1,345 @@
+#include "HalfEdgeHealth.h"
+
+#include <iomanip>
+#include <sstream>
+
+namespace Library
+{
+    std::string HalfEdgeHealth::toString(const HalfEdgeMesh& target)
+    {
+        std::stringstream ss;
+        ss << "=== HalfEdgeMesh Dump ===\n";
+
+        // 1. Dump Vertices
+        ss << "Vertices [" << target.vertices.size() << "]:\n";
+        for (size_t i = 0; i < target.vertices.size(); ++i)
+        {
+            ss << std::setw(4) << i << ": pos(" << target.vertices[i].position.x << ", " << target.vertices[i].position.y << ", " << target.vertices[i].position.z
+               << ") | out_edge: " << target.vertices[i].half_edge << "\n";
+        }
+
+        // 2. Dump Half-Edges (The most important part)
+        ss << "\nHalf-Edges [" << target.half_edges.size() << "]:\n";
+        ss << "  ID | Target | Next | Twin | Face | Source (via Twin)\n";
+        ss << "------------------------------------------------------\n";
+        for (size_t i = 0; i < target.half_edges.size(); ++i)
+        {
+            const auto& e = target.half_edges[i];
+
+            // Safety check for source calculation to avoid crashes during dump
+            std::string src_str = (e.twin != SafeNull) ? std::to_string(target.source(i)) : "Boundary";
+
+            ss << std::setw(4) << i << " | " << std::setw(6) << e.target_vertex << " | " << std::setw(4) << e.next << " | " << std::setw(4) << e.twin << " | " << std::setw(4) << e.face << " | "
+               << src_str << "\n";
+        }
+
+        // 3. Dump Faces
+        ss << "\nFaces [" << target.faces.size() << "]:\n";
+        for (size_t i = 0; i < target.faces.size(); ++i)
+        {
+            ss << std::setw(4) << i << ": start_edge: " << target.faces[i].half_edge << "\n";
+        }
+
+        ss << "========================\n";
+        return ss.str();
+    }
+
+    std::string HalfEdgeHealth::createReport(const HalfEdgeMesh& mesh)
+    {
+        std::stringstream        ss;
+        size_t                   open_edges         = 0;
+        size_t                   twin_mismatches    = 0;
+        size_t                   invalid_next_loops = 0;
+        size_t                   null_faces         = 0;
+        size_t                   isolated_verts     = 0;
+        std::vector<std::string> critical_logs;
+
+        // 1. Audit Half-Edges
+        for (size_t i = 0; i < mesh.half_edges.size(); ++i)
+        {
+            const auto& he = mesh.half_edges[i];
+
+            // Check Twins
+            if (he.twin == SafeNull)
+            {
+                open_edges++;
+            }
+            else if (he.twin < 0 || he.twin >= (int64_t)mesh.half_edges.size())
+            {
+                critical_logs.push_back("E" + std::to_string(i) + ": Twin index out of bounds (" + std::to_string(he.twin) + ")");
+            }
+            else if (mesh.half_edges[he.twin].twin != (int64_t)i)
+            {
+                twin_mismatches++;
+                critical_logs.push_back("E" + std::to_string(i) + ": Twin mismatch. Twin's twin is " + std::to_string(mesh.half_edges[he.twin].twin));
+            }
+
+            // Check Face Loops (Topology)
+            if (he.next == SafeNull)
+            {
+                critical_logs.push_back("E" + std::to_string(i) + ": Next pointer is SafeNull.");
+            }
+            else
+            {
+                // In a triangulation, following 'next' 3 times must return to start
+                int64_t n1 = he.next;
+                int64_t n2 = (n1 >= 0 && n1 < mesh.half_edges.size()) ? mesh.half_edges[n1].next : SafeNull;
+                int64_t n3 = (n2 >= 0 && n2 < mesh.half_edges.size()) ? mesh.half_edges[n2].next : SafeNull;
+
+                if (n3 != (int64_t)i)
+                {
+                    invalid_next_loops++;
+                    critical_logs.push_back("E" + std::to_string(i) + ": Does not form a 3-edge loop (Triangle check failed).");
+                }
+            }
+            // 1. TWIN SYMMETRY (Critical for your isHole assert)
+            if (he.twin != SafeNull)
+            {
+                if (he.twin < 0 || he.twin >= (int64_t)mesh.half_edges.size())
+                {
+                    critical_logs.push_back("E" + std::to_string(i) + ": Twin index OOB (" + std::to_string(he.twin) + ")");
+                }
+                else if (mesh.half_edges[he.twin].twin != i)
+                {
+                    // This is the most likely reason your cluster assert fails
+                    critical_logs.push_back("E" + std::to_string(i) + ": Twin mismatch. Twin's twin is " + std::to_string(mesh.half_edges[he.twin].twin));
+                }
+            }
+
+            // 2. VERTEX CONTINUITY (Ensures loopEdges are actually a path)
+            if (he.next != SafeNull && he.next < (int64_t)mesh.half_edges.size())
+            {
+                int64_t my_target   = he.target_vertex;
+                int64_t next_source = mesh.source(he.next);
+                if (my_target != next_source)
+                {
+                    critical_logs.push_back("E" + std::to_string(i) + ": Continuity break. Target V" + std::to_string(my_target) + " != Next Source V" + std::to_string(next_source));
+                }
+            }
+
+            // 3. FACE BACK-LINK (Validates the face index used in clustering)
+            if (he.face != SafeNull)
+            {
+                if (he.face < 0 || he.face >= (int64_t)mesh.faces.size())
+                {
+                    critical_logs.push_back("E" + std::to_string(i) + ": Invalid Face index " + std::to_string(he.face));
+                }
+                else if (mesh.faces[he.face].half_edge == SafeNull)
+                {
+                    critical_logs.push_back("E" + std::to_string(i) + ": Belongs to Face " + std::to_string(he.face) + " but Face has no root edge.");
+                }
+            }
+        }
+
+        // 2. Audit Vertices
+        for (size_t i = 0; i < mesh.vertices.size(); ++i)
+        {
+            if (mesh.vertices[i].half_edge == SafeNull)
+            {
+                isolated_verts++;
+            }
+        }
+
+        // 3. Audit Faces
+        for (size_t i = 0; i < mesh.faces.size(); ++i)
+        {
+            if (mesh.faces[i].half_edge == SafeNull)
+            {
+                null_faces++;
+            }
+        }
+
+        // 4. Formatting the Output
+        ss << "=== Half-Edge Mesh Debug Report ===\n";
+        ss << "General Stats:\n";
+        ss << "  - Vertices:   " << mesh.vertices.size() << " (" << isolated_verts << " isolated)\n";
+        ss << "  - Faces:      " << mesh.faces.size() << " (" << null_faces << " empty)\n";
+        ss << "  - Half-Edges: " << mesh.half_edges.size() << "\n\n";
+
+        ss << "Topological Integrity:\n";
+        ss << "  - Boundary (Open) Edges: " << open_edges << "\n";
+        ss << "  - Twin Mismatches:       " << twin_mismatches << "\n";
+        ss << "  - Invalid Face Loops:    " << invalid_next_loops << "\n";
+        ss << "  - Manifold Property:     " << ((open_edges == 0 && twin_mismatches == 0) ? "YES" : "NO") << "\n\n";
+
+        if (!critical_logs.empty())
+        {
+            ss << "Critical Error Log (First 10):\n";
+            for (size_t i = 0; i < critical_logs.size() && i < 10; ++i)
+            {
+                ss << "  [!] " << critical_logs[i] << "\n";
+            }
+            if (critical_logs.size() > 10)
+                ss << "  ... and " << (critical_logs.size() - 10) << " more errors.\n";
+        }
+        else
+        {
+            ss << "Status: All connectivity checks passed.\n";
+        }
+
+        return ss.str();
+    }
+
+    bool HalfEdgeHealth::isHealthy(const HalfEdgeMesh& mesh)
+    {
+        // 1. Verify Half-Edge Pointers and Twins
+        for (int64_t i = 0; i < (int64_t)mesh.half_edges.size(); ++i)
+        {
+            const auto& he = mesh.half_edges[i];
+
+            // Bound Check: Twin
+            if (he.twin < 0 || he.twin >= (int64_t)mesh.half_edges.size())
+            {
+                return false;
+            }
+
+            // Symmetry Check: Twin's twin must be self
+            if (mesh.half_edges[he.twin].twin != i)
+            {
+                return false;
+            }
+
+            // Continuity Check: For internal edges (belonging to a face)
+            if (he.face != SafeNull)
+            {
+                // Bound Check: Next
+                if (he.next < 0 || he.next >= (int64_t)mesh.half_edges.size())
+                {
+                    return false;
+                }
+
+                // Logic Check: mesh.source(next) must be mesh.target(current)
+                // In half-edge terms: mesh.half_edges[he.twin].target_vertex == source
+                int64_t target_v      = he.target_vertex;
+                int64_t next_source_v = mesh.half_edges[mesh.half_edges[he.next].twin].target_vertex;
+
+                if (target_v != next_source_v)
+                {
+                    return false;
+                }
+
+                // Loop Check: Ensure we don't have immediate self-loops (or simple triangles)
+                // The test "Broken Next Loop" explicitly checks if next == self
+                if (he.next == i)
+                {
+                    return false;
+                }
+            }
+        }
+
+        // 2. Verify Face Integrity
+        for (int64_t i = 0; i < (int64_t)mesh.faces.size(); ++i)
+        {
+            if (mesh.faces[i].half_edge == SafeNull)
+            {
+                return false;
+            }
+
+            // Optional: Ensure the face's root edge actually points back to this face
+            if (mesh.half_edges[mesh.faces[i].half_edge].face != i)
+            {
+                return false;
+            }
+        }
+
+        // 3. Verify Vertex Integrity
+        for (int64_t i = 0; i < (int64_t)mesh.vertices.size(); ++i)
+        {
+            if (mesh.vertices[i].half_edge == SafeNull)
+            {
+                // Boundary vertices might technically have no outgoing internal edge,
+                // but usually, a mesh is only healthy if every vertex is used.
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+#ifdef ISTESTPROJECT
+#include "Library/catch.hpp"
+
+// Assuming these are within your Library namespace
+using namespace Library;
+
+void setupValidTriangle(HalfEdgeMesh& mesh)
+{
+    mesh.vertices.clear();
+    mesh.half_edges.clear();
+    mesh.faces.clear();
+
+    mesh.vertices.resize(3);
+    mesh.half_edges.resize(6);
+    mesh.faces.resize(1);
+
+    for (int64_t i = 0; i < 3; ++i)
+    {
+        int64_t next_i = (i + 1) % 3;
+
+        // Internal (Part of Face 0)
+        mesh.half_edges[i].next          = next_i;
+        mesh.half_edges[i].target_vertex = next_i;
+        mesh.half_edges[i].face          = 0;
+        mesh.half_edges[i].twin          = i + 3;
+
+        // External (Boundary - No Face)
+        mesh.half_edges[i + 3].twin          = i;
+        mesh.half_edges[i + 3].target_vertex = i;
+        mesh.half_edges[i + 3].face          = SafeNull;
+        mesh.half_edges[i + 3].next          = SafeNull; // This caused the fail; now ignored
+
+        mesh.vertices[i].half_edge = i;
+    }
+    mesh.faces[0].half_edge = 0;
+}
+
+TEST_CASE("Health: Valid Triangle", "[mesh]")
+{
+    HalfEdgeMesh mesh;
+    setupValidTriangle(mesh);
+    REQUIRE(HalfEdgeHealth::isHealthy(mesh) == true);
+}
+
+TEST_CASE("Health: Broken Next Loop", "[mesh]")
+{
+    HalfEdgeMesh mesh;
+    setupValidTriangle(mesh);
+    mesh.half_edges[0].next = 0; // Self-loop
+    REQUIRE(HalfEdgeHealth::isHealthy(mesh) == false);
+}
+
+TEST_CASE("Health: Twin Asymmetry", "[mesh]")
+{
+    HalfEdgeMesh mesh;
+    setupValidTriangle(mesh);
+    mesh.half_edges[3].twin = 99; // Break the return link
+    REQUIRE(HalfEdgeHealth::isHealthy(mesh) == false);
+}
+
+TEST_CASE("Health: Twin Out of Bounds", "[mesh]")
+{
+    HalfEdgeMesh mesh;
+    setupValidTriangle(mesh);
+    mesh.half_edges[0].twin = 5000;
+    REQUIRE(HalfEdgeHealth::isHealthy(mesh) == false);
+}
+
+TEST_CASE("Health: Face Missing Root Edge", "[mesh]")
+{
+    HalfEdgeMesh mesh;
+    setupValidTriangle(mesh);
+    mesh.faces[0].half_edge = SafeNull;
+    REQUIRE(HalfEdgeHealth::isHealthy(mesh) == false);
+}
+
+TEST_CASE("Health: Vertex Continuity Break", "[mesh]")
+{
+    HalfEdgeMesh mesh;
+    setupValidTriangle(mesh);
+    // Edge 0 targets V1, but we'll lie and say it targets V2.
+    // This breaks the path to Edge 1.
+    mesh.half_edges[0].target_vertex = 2;
+    REQUIRE(HalfEdgeHealth::isHealthy(mesh) == false);
+}
+#endif

@@ -39,6 +39,8 @@ namespace Library
             assert(e >= 0 && e < half_edges.size());
 #endif
             int64_t tw = half_edges[e].twin;
+            if (tw == SafeNull)
+                return SafeNull;
 
 #ifndef NDEBUG
             assert(tw >= 0 && tw < half_edges.size());

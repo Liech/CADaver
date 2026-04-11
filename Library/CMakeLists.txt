@@ -159,6 +159,8 @@ set(HalfEdge_Files
     "Source/Library/Triangle/HalfEdge/mesh2halfedge.cpp"
     "Source/Library/Triangle/HalfEdge/HalfEdge.h"
     "Source/Library/Triangle/HalfEdge/HalfEdge.cpp"
+    "Source/Library/Triangle/HalfEdge/HalfEdgeHealth.h"
+    "Source/Library/Triangle/HalfEdge/HalfEdgeHealth.cpp"    
 )
 source_group("Source/Triangle/HalfEdge" FILES ${HalfEdge_Files})
 

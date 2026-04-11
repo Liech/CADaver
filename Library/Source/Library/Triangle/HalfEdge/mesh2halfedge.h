@@ -11,7 +11,5 @@ namespace Library
       public:
         static std::unique_ptr<HalfEdgeMesh>  convert(const Triangulation&);
         static std::unique_ptr<Triangulation> convert(const HalfEdgeMesh&);
-        static std::string                    toString(const HalfEdgeMesh&);
-        static std::string                    createReport(const HalfEdgeMesh& mesh);
     };
 }
