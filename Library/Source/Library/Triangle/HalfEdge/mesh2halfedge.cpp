@@ -1,5 +1,8 @@
 #include "mesh2halfedge.h"
 
+#include <set>
+
+
 namespace Library
 {
     static std::pair<int64_t, int64_t> makeEdgeKey(int64_t v1, int64_t v2)
@@ -113,9 +116,31 @@ namespace Library
             mesh->vertices[v[2]].half_edge = c_index;
         }
 
-        // Optional Post Processing Todo:
-        // Fix all .next==SafeNull by replacing with .twin.next.twin
+        std::map<int64_t, std::vector<int64_t>> vertex2edges;
 
+        std::set<int64_t> someonePointsAt;
+
+        for (size_t i = 0; i < mesh->half_edges.size(); i++)
+        {
+            auto& edge = mesh->half_edges[i];
+            auto& twin = mesh->half_edges[edge.twin];
+            vertex2edges[twin.target_vertex].push_back(i);
+            someonePointsAt.insert(edge.next);
+        }
+
+        for (size_t i = 0; i < mesh->half_edges.size(); i++)
+        {
+            auto& edge = mesh->half_edges[i];
+            if (edge.next == SafeNull)
+            {
+                const auto& list = vertex2edges[edge.target_vertex];
+                for (const auto& x : list)
+                {
+                    if (!someonePointsAt.contains(x))
+                        edge.next = x;
+                }
+            }
+        }
 
         return mesh;
     }
@@ -278,7 +303,6 @@ TEST_CASE("mesh2halfedge: Pyramid Health Diagnostic")
         1, 2, 3, // Side 2
         2, 0, 3  // Side 3
     };
-
 
     auto heMesh = mesh2halfedge::convert(tri);
     REQUIRE(heMesh != nullptr);

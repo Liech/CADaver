@@ -42,6 +42,7 @@ namespace godot
 
         godot::String toHalfEdgeString() const;
         godot::String getHalfEdgeReport() const;
+        godot::String getMeshReport() const;
 
         Ref<VoxelShape> toVoxel(const Vector3i& resolution) const;
         Ref<CADShape>   toCad_dumb() const;

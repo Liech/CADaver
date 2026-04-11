@@ -5,6 +5,7 @@
 #include "Triangulation.h"
 #include <queue>
 #include <unordered_set>
+#include <algorithm>
 
 namespace Library
 {
@@ -74,53 +75,6 @@ namespace Library
         return result;
     }
 
-    bool Clustering::isHole(const HalfEdgeMesh& mesh, const std::vector<size_t>& vertexLoop, const std::unordered_set<size_t>& clusterFaces)
-    {
-        if (vertexLoop.size() < 3)
-            return false;
-
-        // 1. Find the half-edge connecting vertexLoop[0] -> vertexLoop[1]
-        int64_t vStart     = vertexLoop[0];
-        int64_t vNext      = vertexLoop[1];
-        int64_t borderEdge = SafeNull;
-
-        // Start at the vertex and rotate through outgoing edges
-        int64_t curr  = mesh.vertices[vStart].half_edge;
-        int64_t start = curr;
-        if (curr != SafeNull)
-        {
-            do
-            {
-                if (mesh.half_edges[curr].target_vertex == vNext)
-                {
-                    // We found the edge. Now check if this edge is a cluster boundary.
-                    int64_t twin   = mesh.half_edges[curr].twin;
-                    bool    faceIn = clusterFaces.contains(mesh.half_edges[curr].face);
-                    bool    twinIn = (twin != SafeNull) ? clusterFaces.contains(mesh.half_edges[twin].face) : false;
-
-                    if (faceIn != twinIn)
-                    {
-                        borderEdge = curr;
-                        break;
-                    }
-                }
-                // Pivot to next outgoing edge around vStart
-                int64_t twin = mesh.half_edges[curr].twin;
-                if (twin == SafeNull)
-                    break;
-                curr = mesh.half_edges[mesh.half_edges[twin].next].next; // Pivot logic
-            } while (curr != start && curr != SafeNull);
-        }
-
-        if (borderEdge == SafeNull)
-            return false;
-
-        // 2. Logic: If the face of the edge going v0->v1 is NOT in the cluster,
-        // it means the cluster is to the "right" of the path, signifying a hole.
-        bool leftFaceInCluster = clusterFaces.contains(mesh.half_edges[borderEdge].face);
-
-        return !leftFaceInCluster;
-    }
     std::vector<std::vector<size_t>> Clustering::findBorders(const HalfEdgeMesh& mesh, const std::vector<size_t>& trianglesInCluster)
     {
         std::unordered_set<int64_t> clusterFaces(trianglesInCluster.begin(), trianglesInCluster.end());
@@ -193,80 +147,100 @@ namespace Library
         return allLoops;
     }
 
-    std::vector<std::vector<size_t>> Clustering::splitCluster(const Triangulation& tri, const std::vector<size_t>& cluster, std::vector<size_t> seeds)
+    std::vector<std::vector<size_t>> Clustering::splitCluster(const Triangulation& tri, const std::vector<size_t>& cluster, const std::vector<size_t>& looptoBreak)
     {
-        if (seeds.empty())
+        if (looptoBreak.empty())
             return { cluster };
 
-        // 1. Map: Vertex ID -> List of Face Indices (only for faces in this cluster)
-        std::unordered_map<size_t, std::vector<size_t>> vertexToFaces;
-        std::unordered_set<size_t>                      clusterSet(cluster.begin(), cluster.end());
+        std::unordered_set<size_t> clusterSet(cluster.begin(), cluster.end());
+        std::set<size_t>           startSeedCandidates;
+        std::unordered_set<size_t> loopVertices(looptoBreak.begin(), looptoBreak.end());
 
-        for (size_t faceIdx : cluster)
+        for (size_t face : cluster)
         {
             for (int i = 0; i < 3; ++i)
             {
-                size_t vIdx = tri.indices[faceIdx * 3 + i];
-                vertexToFaces[vIdx].push_back(faceIdx);
+                size_t id = tri.indices[face * 3 + i];
+                if (loopVertices.contains(id))
+                {
+                    startSeedCandidates.insert(face);
+                }
             }
         }
 
-        // 2. Setup BFS
-        // assignments: FaceIndex -> SeedGroupIndex
-        std::unordered_map<size_t, size_t> assignments;
-        std::queue<size_t>                 traversalQueue;
+        if (startSeedCandidates.size() < 2)
+            return { cluster };
 
-        for (size_t i = 0; i < seeds.size(); ++i)
+        auto                it     = startSeedCandidates.begin();
+        size_t              first  = *it;
+        size_t              second = *(++it);
+        std::vector<size_t> seeds  = { first, second };
+
+        std::map<std::pair<size_t, size_t>, std::vector<size_t>> adjacency = tri.getAdjacency();
+
+        // Track which seed owns which triangle: {TriangleIndex -> SeedIndex}
+        std::unordered_map<size_t, size_t> ownership;
+        std::queue<size_t>                 q;
+
+        // Initialize
+        for (size_t s : seeds)
         {
-            size_t seedVtx = seeds[i];
-            if (vertexToFaces.count(seedVtx))
+            ownership[s] = s;
+            q.push(s);
+        }
+
+        // 2. Growth Loop
+        while (!q.empty())
+        {
+            size_t currentTri = q.front();
+            q.pop();
+            size_t currentOwner = ownership[currentTri];
+
+            // Find neighbors of currentTri.
+            // In a mesh, currentTri has 3 edges. We check the map for each.
+            size_t baseIdx     = currentTri * 3;
+            size_t triVerts[3] = { tri.indices[baseIdx], tri.indices[baseIdx + 1], tri.indices[baseIdx + 2] };
+
+            for (int i = 0; i < 3; ++i)
             {
-                for (size_t faceIdx : vertexToFaces[seedVtx])
+                size_t v1 = triVerts[i];
+                size_t v2 = triVerts[(i + 1) % 3];
+                if (v1 > v2)
+                    std::swap(v1, v2);
+
+                // Get triangles sharing this edge
+                const auto& neighbors = adjacency.at({ v1, v2 });
+                for (size_t neighborTri : neighbors)
                 {
-                    if (assignments.find(faceIdx) == assignments.end())
+                    // Growth Rules:
+                    // - Must be part of the original cluster
+                    // - Must not be the current triangle itself
+                    // - Must not be claimed by another seed yet
+                    if (neighborTri != currentTri && clusterSet.count(neighborTri) && ownership.find(neighborTri) == ownership.end())
                     {
-                        assignments[faceIdx] = i;
-                        traversalQueue.push(faceIdx);
+
+                        ownership[neighborTri] = currentOwner;
+                        q.push(neighborTri);
                     }
                 }
             }
         }
 
-        // 3. Expand via Edge Adjacency
-        while (!traversalQueue.empty())
+        // 3. Collect Results
+        std::vector<size_t> clusterA, clusterB;
+        for (auto const& [triIdx, owner] : ownership)
         {
-            size_t currentFace = traversalQueue.front();
-            traversalQueue.pop();
-            size_t currentSeedId = assignments[currentFace];
-
-            // For each of the 3 vertices in the current face
-            for (int i = 0; i < 3; ++i)
-            {
-                size_t vIdx = tri.indices[currentFace * 3 + i];
-
-                // Check all faces connected to this vertex (Neighbor candidates)
-                for (size_t neighborFace : vertexToFaces[vIdx])
-                {
-                    if (assignments.find(neighborFace) == assignments.end())
-                    {
-                        // To be a strict "neighbor", they should share an edge (2 vertices).
-                        // However, in a BFS growth, sharing a vertex is often sufficient
-                        // and faster. For manifold meshes, vertex-sharing expansion works well.
-                        assignments[neighborFace] = currentSeedId;
-                        traversalQueue.push(neighborFace);
-                    }
-                }
-            }
+            if (owner == seeds[0])
+                clusterA.push_back(triIdx);
+            else
+                clusterB.push_back(triIdx);
         }
 
-        // 4. Pack results
-        std::vector<std::vector<size_t>> result(seeds.size());
-        for (const auto& [faceIdx, seedId] : assignments)
-        {
-            result[seedId].push_back(faceIdx);
-        }
+        std::set<size_t> clusterASet(clusterA.begin(),clusterA.end());
+        for (const auto& x : clusterB)
+            assert(!clusterASet.contains(x));
 
-        return result;
+        return { clusterA, clusterB };
     }
 
     std::vector<std::vector<size_t>> Clustering::cluster_withoutHoles(const Triangulation& tri, std::function<bool(size_t currentIndex, size_t candidateIndex, const Triangulation&)> growFunction)
@@ -283,31 +257,19 @@ namespace Library
             auto cluster = todo.front();
             todo.pop();
 
-            auto borders = findBorders(*halfedge, cluster);
+            std::vector<std::vector<size_t>> borders = findBorders(*halfedge, cluster);
 
             if (borders.size() <= 1)
                 result.push_back(cluster);
             else
             {
-                bool pushedToTodo = false;
-                auto clusterSet   = std::unordered_set<size_t>(cluster.begin(), cluster.end());
-                for (const auto& border : borders)
-                {
-                    if (isHole(*halfedge, border, clusterSet))
-                    {
-                        size_t seedA       = border[0];
-                        size_t seedB       = border[(border.size() - 1) / 2];
-                        auto   newClusters = splitCluster(tri, cluster, { seedA, seedB });
-                        for (const auto& x : newClusters)
-                            todo.push(x);
-                        pushedToTodo = true;
-                        break;
-                    }
-                }
-                if (!pushedToTodo) // a surface of an hole e.g. could have multiple borders and no hole
-                {
-                    result.push_back(cluster);
-                }
+                std::sort(borders.begin(), borders.end(), [](const std::vector<size_t>& a, const std::vector<size_t>& b) { return a.size() < b.size(); });
+                const auto& border      = borders[0];
+                size_t      seedA       = border[0];
+                size_t      seedB       = border[(border.size() - 1) / 2];
+                auto        newClusters = splitCluster(tri, cluster, border);
+                for (const auto& x : newClusters)
+                    todo.push(x);
             }
         }
 
@@ -315,100 +277,86 @@ namespace Library
     }
 }
 
-
 #ifdef ISTESTPROJECT
 #include "Library/catch.hpp"
 using namespace Library;
 
-//Triangulation CreateHoledSquare()
-//{
-//    Triangulation tri;
-//    // Create a 4x4 vertex grid (3x3 quads)
-//    for (int y = 0; y < 4; ++y)
-//    {
-//        for (int x = 0; x < 4; ++x)
-//        {
-//            tri.vertices.push_back(glm::dvec3(x, y, 0));
-//        }
-//    }
-//
-//    // Helper to get index at (x, y)
-//    auto idx = [](int x, int y) { return y * 4 + x; };
-//
-//    for (int y = 0; y < 3; ++y)
-//    {
-//        for (int x = 0; x < 3; ++x)
-//        {
-//            // Skip the center quad (x=1, y=1) to create a hole
-//            if (x == 1 && y == 1)
-//                continue;
-//
-//            // Triangle 1
-//            tri.indices.push_back(idx(x, y));
-//            tri.indices.push_back(idx(x + 1, y));
-//            tri.indices.push_back(idx(x + 1, y + 1));
-//            // Triangle 2
-//            tri.indices.push_back(idx(x, y));
-//            tri.indices.push_back(idx(x + 1, y + 1));
-//            tri.indices.push_back(idx(x, y + 1));
-//        }
-//    }
-//    return tri;
-//}
-//
-//TEST_CASE("Clustering::findBorders with Holed Surface", "[clustering][topology]")
-//{
-//    using namespace Library;
-//
-//    // 1. Setup
-//    Triangulation tri  = CreateHoledSquare();
-//    auto          mesh = mesh2halfedge::convert(tri);
-//
-//    std::string dbg = mesh2halfedge::createReport(*mesh);
-//    std::string mtxt = mesh2halfedge::toString(*mesh);
-//
-//    // The cluster is the entire mesh (all faces)
-//    std::vector<size_t> cluster;
-//    for (size_t i = 0; i < tri.indices.size() / 3; ++i)
-//    {
-//        cluster.push_back(i);
-//    }
-//
-//    // 2. Execute
-//    Clustering                       clustering;
-//    std::vector<std::vector<size_t>> borders = clustering.findBorders(*mesh, cluster);
-//
-//    // 3. Assertions
-//    SECTION("Correct number of loops detected")
-//    {
-//        // A square with a hole has 2 boundaries
-//        REQUIRE(borders.size() == 2);
-//    }
-//
-//    SECTION("Loops contain correct vertex counts")
-//    {
-//        // Sort by size so we know which is which
-//        std::sort(borders.begin(), borders.end(), [](const auto& a, const auto& b) { return a.size() > b.size(); });
-//
-//        // Outer boundary: 4 edges * 3 = 12 vertices (perimeter of 4x4 grid)
-//        CHECK(borders[0].size() == 12);
-//
-//        // Inner hole: 4 vertices (perimeter of the deleted center quad)
-//        CHECK(borders[1].size() == 4);
-//    }
-//
-//    SECTION("Hole detection logic")
-//    {
-//        std::unordered_set<size_t> clusterSet(cluster.begin(), cluster.end());
-//
-//        // Sort borders so index 1 is the smaller loop (the hole)
-//        std::sort(borders.begin(), borders.end(), [](const auto& a, const auto& b) { return a.size() > b.size(); });
-//
-//        // isHole should be false for the outer boundary
-//        CHECK(clustering.isHole(*mesh, borders[0], clusterSet) == false);
-//
-//        // isHole should be true for the inner boundary
-//        CHECK(clustering.isHole(*mesh, borders[1], clusterSet) == true);
-//    }
-//}
+Triangulation CreateHoledSquare()
+{
+    Triangulation tri;
+    // Create a 4x4 vertex grid (3x3 quads)
+    for (int y = 0; y < 4; ++y)
+    {
+        for (int x = 0; x < 4; ++x)
+        {
+            tri.vertices.push_back(glm::dvec3(x, y, 0));
+        }
+    }
+
+    // Helper to get index at (x, y)
+    auto idx = [](int x, int y) { return y * 4 + x; };
+
+    for (int y = 0; y < 3; ++y)
+    {
+        for (int x = 0; x < 3; ++x)
+        {
+            // Skip the center quad (x=1, y=1) to create a hole
+            if (x == 1 && y == 1)
+                continue;
+
+            // Triangle 1
+            tri.indices.push_back(idx(x, y));
+            tri.indices.push_back(idx(x + 1, y));
+            tri.indices.push_back(idx(x + 1, y + 1));
+            // Triangle 2
+            tri.indices.push_back(idx(x, y));
+            tri.indices.push_back(idx(x + 1, y + 1));
+            tri.indices.push_back(idx(x, y + 1));
+        }
+    }
+    return tri;
+}
+
+#include "HalfEdge/HalfEdgeHealth.h"
+TEST_CASE("Clustering::findBorders with Holed Surface", "[clustering][topology]")
+{
+    using namespace Library;
+
+    // 1. Setup
+    Triangulation tri       = CreateHoledSquare();
+    auto          mesh      = mesh2halfedge::convert(tri);
+    auto          report    = HalfEdgeHealth::createReport(*mesh);
+    auto          trireport = HalfEdgeHealth::createReport(tri);
+    auto          content   = HalfEdgeHealth::toString(*mesh);
+
+    // The cluster is the entire mesh (all faces)
+    std::vector<size_t> cluster;
+    for (size_t i = 0; i < tri.indices.size() / 3; ++i)
+    {
+        cluster.push_back(i);
+    }
+
+    // 2. Execute
+    Clustering                       clustering;
+    std::vector<std::vector<size_t>> borders = clustering.findBorders(*mesh, cluster);
+
+    // 3. Assertions
+    SECTION("Correct number of loops detected")
+    {
+        // A square with a hole has 2 boundaries
+        REQUIRE(borders.size() == 2);
+    }
+
+    SECTION("Loops contain correct vertex counts")
+    {
+        // Sort by size so we know which is which
+        std::sort(borders.begin(), borders.end(), [](const auto& a, const auto& b) { return a.size() > b.size(); });
+
+        // Outer boundary: 4 edges * 3 = 12 vertices (perimeter of 4x4 grid)
+        CHECK(borders[0].size() == 12);
+
+        // Inner hole: 4 vertices (perimeter of the deleted center quad)
+        CHECK(borders[1].size() == 4);
+    }
+}
 #endif

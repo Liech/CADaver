@@ -7,6 +7,7 @@
 #include "Library/Operation/IO/LoadVoxelOperation.h"
 #include "Library/Triangle/Clustering.h"
 #include "Library/Triangle/HalfEdge/HalfEdge.h"
+#include "Library/Triangle/HalfEdge/HalfEdgeHealth.h"
 #include "Library/Triangle/HalfEdge/mesh2halfedge.h"
 #include "Library/Triangle/Triangulation.h"
 #include "Library/Voxel/BinaryVolume.h"
@@ -28,6 +29,7 @@ namespace godot
         ClassDB::bind_method(D_METHOD("cluster_border", "cluster"), &TriangleShape::cluster_border);
         ClassDB::bind_method(D_METHOD("get_halfedge_string"), &TriangleShape::toHalfEdgeString);
         ClassDB::bind_method(D_METHOD("get_halfedge_report"), &TriangleShape::getHalfEdgeReport);
+        ClassDB::bind_method(D_METHOD("get_mesh_report"), &TriangleShape::getMeshReport);
     }
 
     TriangleShape::TriangleShape()
@@ -195,7 +197,7 @@ namespace godot
     {
         std::string result;
         auto        halfedge = Library::mesh2halfedge::convert(*shape);
-        result = Library::mesh2halfedge::toString(*halfedge);
+        result               = Library::HalfEdgeHealth::toString(*halfedge);
         return result.c_str();
     }
 
@@ -203,8 +205,13 @@ namespace godot
     {
         std::string result;
         auto        halfedge = Library::mesh2halfedge::convert(*shape);
-        result               = Library::mesh2halfedge::createReport(*halfedge);
+        result               = Library::HalfEdgeHealth::createReport(*halfedge);
         return result.c_str();
     }
-
+    godot::String TriangleShape::getMeshReport() const
+    {
+        std::string result;
+        result = Library::HalfEdgeHealth::createReport(*shape);
+        return result.c_str();
+    }
 }

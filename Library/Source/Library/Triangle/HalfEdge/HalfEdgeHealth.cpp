@@ -2,6 +2,9 @@
 
 #include <iomanip>
 #include <sstream>
+#include <map>
+#include <set>
+#include "Library/Triangle/Triangulation.h"
 
 namespace Library
 {
@@ -254,6 +257,91 @@ namespace Library
         }
 
         return true;
+    }
+
+    std::string HalfEdgeHealth::createReport(const Triangulation& mesh)
+    {
+        size_t oob_count          = 0;
+        size_t degenerate_count   = 0;
+        size_t duplicate_verts    = 0;
+        size_t open_edges         = 0;
+        size_t non_manifold_edges = 0;
+
+        // Key: sorted pair of vertex indices, Value: appearance count
+        std::map<std::pair<size_t, size_t>, int> edge_counts;
+
+        // 1. Process Triangles
+        for (size_t i = 0; i + 2 < mesh.indices.size(); i += 3)
+        {
+            size_t i0 = mesh.indices[i];
+            size_t i1 = mesh.indices[i + 1];
+            size_t i2 = mesh.indices[i + 2];
+
+            // Out of Bounds Check
+            if (i0 >= mesh.vertices.size() || i1 >= mesh.vertices.size() || i2 >= mesh.vertices.size())
+            {
+                oob_count++;
+                continue;
+            }
+
+            const glm::dvec3& v0 = mesh.vertices[i0];
+            const glm::dvec3& v1 = mesh.vertices[i1];
+            const glm::dvec3& v2 = mesh.vertices[i2];
+
+            // Degenerate Check (Duplicate indices or zero area via cross product)
+            if (i0 == i1 || i1 == i2 || i2 == i0)
+            {
+                degenerate_count++;
+            }
+            else if (glm::length(glm::cross(v1 - v0, v2 - v0)) < 1e-11)
+            {
+                degenerate_count++;
+            }
+
+            // Edge Tracking (Watertightness)
+            auto track_edge = [&](size_t a, size_t b)
+            {
+                std::pair<size_t, size_t> edge = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
+                edge_counts[edge]++;
+            };
+            track_edge(i0, i1);
+            track_edge(i1, i2);
+            track_edge(i2, i0);
+        }
+
+        // 2. Analyze Edges
+        for (auto const& [edge, count] : edge_counts)
+        {
+            if (count == 1)
+            {
+                open_edges++;
+            }
+            else if (count > 2)
+            {
+                non_manifold_edges++;
+            }
+        }
+
+        // 3. Duplicate Vertex Check (Spatial)
+        std::set<std::vector<double>> unique_positions;
+        for (const auto& v : mesh.vertices)
+        {
+            unique_positions.insert({ v.x, v.y, v.z });
+        }
+        duplicate_verts = mesh.vertices.size() - unique_positions.size();
+
+        // 4. Final Report Output
+        std::stringstream ss;
+        ss << "--- Mesh Health Report ---" << "\n";
+        ss << "Vertices:           " << mesh.vertices.size() << "\n";
+        ss << "Indices:            " << mesh.indices.size() << " (" << mesh.indices.size() / 3 << " tris)\n";
+        ss << "Out of Bounds:      " << oob_count << (oob_count > 0 ? " [CRITICAL]" : " [OK]") << "\n";
+        ss << "Degenerate Tris:    " << degenerate_count << "\n";
+        ss << "Duplicate Verts:    " << duplicate_verts << "\n";
+        ss << "Watertight:         " << (open_edges == 0 ? "Yes" : "No (" + std::to_string(open_edges) + " holes)") << "\n";
+        ss << "Manifold:           " << (non_manifold_edges == 0 ? "Yes" : "No (" + std::to_string(non_manifold_edges) + " complex edges)") << "\n";
+        ss << "--------------------------" << std::endl;
+        return ss.str();
     }
 }
 

@@ -28,7 +28,7 @@ func color_mesh(mi: MeshInstance3D, patches: Array):
 	for patch_idx in range(patches.size()):
 		var patch = patches[patch_idx]
 		# Generate a unique color for this specific patch
-		var patch_color = Color.from_hsv(float(patch_idx) / patches.size(), 0.8, 0.9)
+		var patch_color = Color(randf(), randf(), randf())
 		
 		for face_idx in patch:
 			# Safety check: Ensure the index is within bounds

@@ -22,7 +22,6 @@ namespace Library
 
       public:
         static std::vector<std::vector<size_t>> findBorders(const HalfEdgeMesh&, const std::vector<size_t>& trianglesInCluster);
-        static bool                             isHole(const HalfEdgeMesh& mesh, const std::vector<size_t>& loopEdges, const std::unordered_set<size_t>& clusterFaces); // is the found border a hole?
-        static std::vector<std::vector<size_t>> splitCluster(const Triangulation&, const std::vector<size_t>& TriangleCluster, std::vector<size_t> VertexSeeds);
+        static std::vector<std::vector<size_t>> splitCluster(const Triangulation&, const std::vector<size_t>& TriangleCluster, const std::vector<size_t>& loopToBreak);
     };
 }
