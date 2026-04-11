@@ -1,10 +1,10 @@
 #include "HalfEdgeHealth.h"
 
+#include "Library/Triangle/Triangulation.h"
 #include <iomanip>
-#include <sstream>
 #include <map>
 #include <set>
-#include "Library/Triangle/Triangulation.h"
+#include <sstream>
 
 namespace Library
 {
@@ -261,14 +261,19 @@ namespace Library
 
     std::string HalfEdgeHealth::createReport(const Triangulation& mesh)
     {
-        size_t oob_count          = 0;
-        size_t degenerate_count   = 0;
-        size_t duplicate_verts    = 0;
-        size_t open_edges         = 0;
-        size_t non_manifold_edges = 0;
+        size_t oob_count           = 0;
+        size_t degenerate_count    = 0;
+        size_t duplicate_verts     = 0;
+        size_t open_edges          = 0;
+        size_t non_manifold_edges  = 0;
+        size_t inconsistent_orient = 0; // New counter
 
         // Key: sorted pair of vertex indices, Value: appearance count
         std::map<std::pair<size_t, size_t>, int> edge_counts;
+
+        // New: Track directed edges to check orientation
+        // Key: {start, end}, Value: count
+        std::map<std::pair<size_t, size_t>, int> directed_edge_counts;
 
         // 1. Process Triangles
         for (size_t i = 0; i + 2 < mesh.indices.size(); i += 3)
@@ -277,7 +282,6 @@ namespace Library
             size_t i1 = mesh.indices[i + 1];
             size_t i2 = mesh.indices[i + 2];
 
-            // Out of Bounds Check
             if (i0 >= mesh.vertices.size() || i1 >= mesh.vertices.size() || i2 >= mesh.vertices.size())
             {
                 oob_count++;
@@ -288,7 +292,6 @@ namespace Library
             const glm::dvec3& v1 = mesh.vertices[i1];
             const glm::dvec3& v2 = mesh.vertices[i2];
 
-            // Degenerate Check (Duplicate indices or zero area via cross product)
             if (i0 == i1 || i1 == i2 || i2 == i0)
             {
                 degenerate_count++;
@@ -298,11 +301,15 @@ namespace Library
                 degenerate_count++;
             }
 
-            // Edge Tracking (Watertightness)
+            // Updated Edge Tracking
             auto track_edge = [&](size_t a, size_t b)
             {
-                std::pair<size_t, size_t> edge = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
-                edge_counts[edge]++;
+                // For manifold/watertight check (undirected)
+                std::pair<size_t, size_t> sorted_edge = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
+                edge_counts[sorted_edge]++;
+
+                // For orientation check (directed)
+                directed_edge_counts[{ a, b }]++;
             };
             track_edge(i0, i1);
             track_edge(i1, i2);
@@ -319,6 +326,17 @@ namespace Library
             else if (count > 2)
             {
                 non_manifold_edges++;
+            }
+            else if (count == 2)
+            {
+                // Check orientation: one must be (u, v) and the other (v, u)
+                size_t u = edge.first;
+                size_t v = edge.second;
+                // If both triangles used the same direction, it's inconsistent
+                if (directed_edge_counts[{ u, v }] != 1 || directed_edge_counts[{ v, u }] != 1)
+                {
+                    inconsistent_orient++;
+                }
             }
         }
 
@@ -340,8 +358,62 @@ namespace Library
         ss << "Duplicate Verts:    " << duplicate_verts << "\n";
         ss << "Watertight:         " << (open_edges == 0 ? "Yes" : "No (" + std::to_string(open_edges) + " holes)") << "\n";
         ss << "Manifold:           " << (non_manifold_edges == 0 ? "Yes" : "No (" + std::to_string(non_manifold_edges) + " complex edges)") << "\n";
+        ss << "Consistent Orient:  " << (inconsistent_orient == 0 ? "Yes" : "No (" + std::to_string(inconsistent_orient) + " flipped edges)") << "\n";
         ss << "--------------------------" << std::endl;
         return ss.str();
+    }
+
+    bool HalfEdgeHealth::isHealthy(const Triangulation& mesh)
+    {
+        std::map<std::pair<size_t, size_t>, int> edge_counts;
+        std::map<std::pair<size_t, size_t>, int> directed_edge_counts;
+
+        for (size_t i = 0; i + 2 < mesh.indices.size(); i += 3)
+        {
+            size_t i0 = mesh.indices[i];
+            size_t i1 = mesh.indices[i + 1];
+            size_t i2 = mesh.indices[i + 2];
+
+            // 1. Bounds Check
+            if (i0 >= mesh.vertices.size() || i1 >= mesh.vertices.size() || i2 >= mesh.vertices.size())
+                return false;
+
+            const glm::dvec3& v0 = mesh.vertices[i0];
+            const glm::dvec3& v1 = mesh.vertices[i1];
+            const glm::dvec3& v2 = mesh.vertices[i2];
+
+            // 2. Degenerate Check
+            if (i0 == i1 || i1 == i2 || i2 == i0)
+                return false;
+            if (glm::length(glm::cross(v1 - v0, v2 - v0)) < 1e-11)
+                return false;
+
+            auto track_edge = [&](size_t a, size_t b)
+            {
+                std::pair<size_t, size_t> sorted_edge = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
+                edge_counts[sorted_edge]++;
+                directed_edge_counts[{ a, b }]++;
+            };
+            track_edge(i0, i1);
+            track_edge(i1, i2);
+            track_edge(i2, i0);
+        }
+
+        // 3. Analyze Edges for Watertightness, Manifold, and Orientation
+        for (auto const& [edge, count] : edge_counts)
+        {
+            // Must have exactly 2 faces per edge for a closed manifold
+            if (count != 2)
+                return false;
+
+            // Orientation check: one must be (u,v), other must be (v,u)
+            if (directed_edge_counts[{ edge.first, edge.second }] != 1 || directed_edge_counts[{ edge.second, edge.first }] != 1)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 

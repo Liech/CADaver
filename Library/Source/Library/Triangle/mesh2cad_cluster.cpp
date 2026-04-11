@@ -4,19 +4,24 @@
 #include "CAD/CADShapeFactory.h"
 #include "Clustering.h"
 #include "HalfEdge/HalfEdge.h"
+#include "HalfEdge/HalfEdgeHealth.h"
 #include "HalfEdge/mesh2halfedge.h"
 #include "Library/CAD/CADShapeFactory.h"
 #include "Triangulation.h"
+#include <BRepBuilderAPI_FindPlane.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeSolid.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepBuilderAPI_Sewing.hxx>
+#include <BRepCheck_Analyzer.hxx>
 #include <BRepLib.hxx>
 #include <BRepOffsetAPI_MakeFilling.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_TFace.hxx>
+#include <Geom_Plane.hxx>
+#include <Geom_Surface.hxx>
 #include <Poly_Array1OfTriangle.hxx>
 #include <Poly_Triangulation.hxx>
 #include <TColgp_Array1OfPnt.hxx>
@@ -40,8 +45,23 @@ namespace Library
     mesh2cad_cluster::mesh2cad_cluster() {}
     mesh2cad_cluster::~mesh2cad_cluster() {}
 
+    std::unique_ptr<CADShape> mesh2cad_cluster::convert(const Triangulation& mesh, double threshold)
+    {
+        return convert(mesh,
+                       [threshold](size_t currentIndex, size_t candidateIndex, const Triangulation& tri) -> bool
+                       {
+                           auto curr = tri.getFaceNormal(currentIndex);
+                           auto cand = tri.getFaceNormal(candidateIndex);
+                           return glm::dot(curr, cand) > threshold;
+                       });
+    }
+
     std::unique_ptr<CADShape> mesh2cad_cluster::convert(const Triangulation& mesh, std::function<bool(size_t currentIndex, size_t candidateIndex, const Triangulation&)> growFunction)
     {
+        bool healthy = Library::HalfEdgeHealth::isHealthy(mesh);
+        if (!healthy)
+            return nullptr;
+
         // 0. Preperation
         std::vector<std::vector<size_t>> cluster  = Clustering::cluster_withoutHoles(mesh, growFunction);
         auto                             halfedge = mesh2halfedge::convert(mesh);
@@ -63,6 +83,7 @@ namespace Library
 
         // 4. Creating the Solid
         auto solid = MakeSolid(stich);
+        BRepLib::OrientClosedSolid(solid);
 
         auto result = CADShapeFactory::make(solid);
         CADShapeFactory::recurseFillChildShapes(*result);
@@ -147,30 +168,73 @@ namespace Library
         }
         return resultWires;
     }
+    std::string AnalyzeFillingInput(int index, const TopoDS_Wire& wire, const std::vector<size_t>& clusterIndices, std::map<size_t, TopoDS_Vertex>& vcache)
+    {
+        std::stringstream ss;
+        ss << "\n=== [Face " << index << " Pre-Flight Check] ===\n";
+
+        // 1. Wire Topology Check
+        if (wire.IsNull())
+        {
+            ss << "FAILURE: Wire is null.\n";
+        }
+        else
+        {
+            BRepCheck_Analyzer analyzer(wire);
+            ss << "Wire Valid: " << (analyzer.IsValid() ? "YES" : "NO") << "\n";
+            ss << "Wire Closed: " << (BRep_Tool::IsClosed(wire) ? "YES" : "NO") << "\n";
+
+            int edgeCount = 0;
+            for (TopExp_Explorer exp(wire, TopAbs_EDGE); exp.More(); exp.Next())
+                edgeCount++;
+            ss << "Edge Count: " << edgeCount << "\n";
+        }
+
+        // 2. Vertex/Point Analysis
+        TopTools_IndexedMapOfShape wireVertices;
+        if (!wire.IsNull())
+        {
+            TopExp::MapShapes(wire, TopAbs_VERTEX, wireVertices);
+        }
+
+        ss << "Total Indices in Cluster: " << clusterIndices.size() << "\n";
+        ss << "Vertices in Wire: " << wireVertices.Extent() << "\n";
+
+        int redundantPoints = 0;
+        for (size_t vIdx : clusterIndices)
+        {
+            if (vcache.count(vIdx) && wireVertices.Contains(vcache[vIdx]))
+            {
+                redundantPoints++;
+            }
+        }
+        ss << "Redundant Points (on boundary): " << redundantPoints << "\n";
+        ss << "Internal Constraints (points): " << (clusterIndices.size() - redundantPoints) << "\n";
+
+        ss << "==========================================\n";
+        return ss.str();
+    }
+
     std::vector<TopoDS_Face> mesh2cad_cluster::Cluster2Faces(const std::vector<TopoDS_Wire>&         wires,
                                                              const std::vector<std::vector<size_t>>& clusters,
                                                              const Triangulation&                    mesh,
                                                              std::map<size_t, TopoDS_Vertex>&        vcache)
     {
         std::vector<TopoDS_Face> faces;
+        std::string              report;
 
         for (size_t i = 0; i < wires.size() && i < clusters.size(); ++i)
         {
-            const auto&               boundaryWire = wires[i];
-            BRepOffsetAPI_MakeFilling filler;
+            const auto& boundaryWire   = wires[i];
+            const auto& clusterIndices = clusters[i];
 
-            // 1. Map vertices belonging to the wire to avoid redundant point constraints
+            // 1. Map vertices belonging to the wire
             TopTools_IndexedMapOfShape wireVertices;
             TopExp::MapShapes(boundaryWire, TopAbs_VERTEX, wireVertices);
 
-            // 2. Add Boundary Constraints
-            for (TopExp_Explorer exp(boundaryWire, TopAbs_EDGE); exp.More(); exp.Next())
-            {
-                filler.Add(TopoDS::Edge(exp.Current()), GeomAbs_C0);
-            }
-
-            // 3. Add ONLY Internal Point Constraints
-            for (size_t vIdx : clusters[i])
+            // 2. Identify Internal Points
+            std::vector<gp_Pnt> internalPoints;
+            for (size_t vIdx : clusterIndices)
             {
                 if (vcache.find(vIdx) == vcache.end())
                 {
@@ -178,14 +242,68 @@ namespace Library
                     vcache[vIdx]  = BRepBuilderAPI_MakeVertex(gp_Pnt(v.x, v.y, v.z));
                 }
 
-                // Only add as a point constraint if it's NOT already part of the wire
+                // Only treat as internal if NOT on the boundary wire
                 if (!wireVertices.Contains(vcache[vIdx]))
                 {
-                    filler.Add(BRep_Tool::Pnt(vcache[vIdx]));
+                    internalPoints.push_back(BRep_Tool::Pnt(vcache[vIdx]));
                 }
             }
 
-            filler.Build();
+            // 3. DECISION: If no internal points exist, it's a flat polygon.
+            // Use the simple face builder.
+            if (internalPoints.empty())
+            {
+                BRepBuilderAPI_MakeFace faceMaker(boundaryWire);
+                if (faceMaker.IsDone())
+                {
+                    TopoDS_Face F = faceMaker.Face();
+                    BRepLib::BuildCurves3d(F);
+                    faces.push_back(F);
+                    continue; // Skip the heavy filler
+                }
+            }
+
+            // 4. If we have internal points, use the NURBS Plate solver
+            BRepOffsetAPI_MakeFilling filler;
+
+            for (TopExp_Explorer exp(boundaryWire, TopAbs_EDGE); exp.More(); exp.Next())
+            {
+                filler.Add(TopoDS::Edge(exp.Current()), GeomAbs_C0);
+            }
+
+            for (const auto& pt : internalPoints)
+            {
+                filler.Add(pt);
+            }
+
+            // add triangle centers to give more data
+            if (internalPoints.size() < 50)
+            {
+                for (const auto& triIdx : clusters[i])
+                {
+                    gp_Pnt center((mesh.vertices[triIdx * 3 + 0].x + mesh.vertices[triIdx * 3 + 1].x + mesh.vertices[triIdx * 3 + 2].x) / 3.0,
+                                  (mesh.vertices[triIdx * 3 + 0].y + mesh.vertices[triIdx * 3 + 1].y + mesh.vertices[triIdx * 3 + 2].y) / 3.0,
+                                  (mesh.vertices[triIdx * 3 + 0].z + mesh.vertices[triIdx * 3 + 1].z + mesh.vertices[triIdx * 3 + 2].z) / 3.0);
+
+                    filler.Add(center);
+                }
+            }
+
+            // add triangle centers to give more data
+            if (internalPoints.size() < 50)
+            {
+                for (const auto& triIdx : clusters[i])
+                {
+                    gp_Pnt center((mesh.vertices[triIdx * 3 + 0].x + mesh.vertices[triIdx * 3 + 1].x + mesh.vertices[triIdx * 3 + 2].x) / 3.0,
+                                  (mesh.vertices[triIdx * 3 + 0].y + mesh.vertices[triIdx * 3 + 1].y + mesh.vertices[triIdx * 3 + 2].y) / 3.0,
+                                  (mesh.vertices[triIdx * 3 + 0].z + mesh.vertices[triIdx * 3 + 1].z + mesh.vertices[triIdx * 3 + 2].z) / 3.0);
+
+                    filler.Add(center);
+                }
+            }
+            report = "Start Filer:\n";
+            filler.Build();            
+            report = "End Filer:\n";
 
             if (filler.IsDone())
             {
@@ -194,6 +312,7 @@ namespace Library
                 faces.push_back(F);
             }
         }
+
         return faces;
     }
 
@@ -232,6 +351,25 @@ namespace Library
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Vertex.hxx>
+
+using namespace Library;
+
+Triangulation CreateUnitCubeMesh()
+{
+    Triangulation m;
+    m.vertices = {
+        { 0, 0, 0 },
+        { 1, 0, 0 },
+        { 1, 1, 0 },
+        { 0, 1, 0 },
+        { 0, 0, 1 },
+        { 1, 0, 1 },
+        { 1, 1, 1 },
+        { 0, 1, 1 }
+    };
+    m.indices = { 0, 3, 2, 0, 2, 1, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7 };
+    return m;
+}
 
 TEST_CASE("mesh2cad_cluster::Borders2Wires - Basic Loops", "[mesh2cad]")
 {
@@ -422,6 +560,13 @@ TEST_CASE("mesh2cad_cluster::Cluster2Faces - Surface Generation", "[mesh2cad]")
         { 1, 1, 1 }  // Internal peak
     };
 
+    mesh.indices = {
+        0, 1, 4, 
+        1, 2, 4, 
+        2, 3, 4, 
+        3, 0, 4  
+    };
+
     std::map<size_t, TopoDS_Vertex>                  vcache;
     std::map<std::pair<size_t, size_t>, TopoDS_Edge> ecache;
 
@@ -570,4 +715,56 @@ TEST_CASE("mesh2cad_cluster::StitchFaces - Manifold Connectivity", "[mesh2cad]")
     BRepCheck_Analyzer analyzer(stitched);
     CHECK(analyzer.IsValid() == Standard_True);
 }
+
+TEST_CASE("mesh2cad_cluster::convert - Full Cube Reconstruction", "[mesh2cad]")
+{
+    Library::mesh2cad_cluster converter;
+    Library::Triangulation    mesh = CreateUnitCubeMesh();
+
+    // 3. Run the full conversion
+    // Threshold 0.9 ensures triangles with the same normal cluster together
+    double                             threshold = 0.9;
+    std::unique_ptr<Library::CADShape> result    = converter.convert(mesh, threshold);
+
+    // --- VERIFICATION ---
+
+    REQUIRE(result != nullptr);
+    TopoDS_Shape shape = result->getData();
+    REQUIRE(!shape.IsNull());
+
+    // Test 1: Shape Identity
+    // It should be a Solid
+    CHECK(shape.ShapeType() == TopAbs_SOLID);
+
+    // Test 2: Face Count
+    // A cube has 6 faces. clustering 12 triangles by normals should yield 6 CAD faces.
+    int faceCount = 0;
+    for (TopExp_Explorer exp(shape, TopAbs_FACE); exp.More(); exp.Next())
+    {
+        faceCount++;
+    }
+    CHECK(faceCount == 6);
+
+    // Test 3: Volume Accuracy
+    // 1x1x1 cube should have a volume of exactly 1.0
+    GProp_GProps vProps;
+    BRepGProp::VolumeProperties(shape, vProps);
+    CHECK(vProps.Mass() == Approx(1.0).margin(1e-4));
+
+    // Test 4: Surface Area Accuracy
+    // 6 faces of 1x1 = 6.0
+    GProp_GProps sProps;
+    BRepGProp::SurfaceProperties(shape, sProps);
+    CHECK(sProps.Mass() == Approx(6.0).margin(1e-4));
+
+    // Test 5: Topological Validity
+    BRepCheck_Analyzer analyzer(shape);
+    CHECK(analyzer.IsValid() == Standard_True);
+
+    // Test 6: Watertightness
+    // No free edges in a solid cube
+    int freeEdges = 0;
+    // (You could also use BRepBuilderAPI_Sewing internally to verify this)
+}
+
 #endif

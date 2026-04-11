@@ -281,6 +281,35 @@ namespace Library
 #include "Library/catch.hpp"
 using namespace Library;
 
+
+Triangulation CreateUnitCubeMeshCluster() {
+    Triangulation m;
+    // 8 Corners of a unit cube
+    // Vertex 4 is at {0, 0, 1}
+    m.vertices = {
+        {0,0,0}, {1,0,0}, {1,1,0}, {0,1,0}, // Bottom: 0,1,2,3
+        {0,0,1}, {1,0,1}, {1,1,1}, {0,1,1}  // Top:    4,5,6,7
+    };
+
+    // 12 Triangles (2 per face)
+    // All wound Counter-Clockwise (CCW) when viewed from the OUTSIDE
+    m.indices = {
+        // Bottom (Normal: 0, 0, -1)
+        0, 3, 2,  0, 2, 1,
+        // Top (Normal: 0, 0, 1) - Contains Vertex 4
+        4, 5, 6,  4, 6, 7,
+        // Front (Normal: 0, -1, 0) - Contains Vertex 4
+        0, 1, 5,  0, 5, 4,
+        // Right (Normal: 1, 0, 0)
+        1, 2, 6,  1, 6, 5,
+        // Back (Normal: 0, 1, 0)
+        2, 3, 7,  2, 7, 6,
+        // Left (Normal: -1, 0, 0) - Contains Vertex 4
+        3, 0, 4,  3, 4, 7
+    };
+    return m;
+}
+
 Triangulation CreateHoledSquare()
 {
     Triangulation tri;
@@ -358,5 +387,47 @@ TEST_CASE("Clustering::findBorders with Holed Surface", "[clustering][topology]"
         // Inner hole: 4 vertices (perimeter of the deleted center quad)
         CHECK(borders[1].size() == 4);
     }
+}
+
+TEST_CASE("Diagnostic A2: Cluster Coverage for Vertex 4", "[logic]")
+{
+    Triangulation mesh      = CreateUnitCubeMeshCluster();
+    REQUIRE(Library::HalfEdgeHealth::isHealthy(mesh));
+    double        threshold = 0.9;
+
+    auto growFunction = [threshold](size_t currentIndex, size_t candidateIndex, const Triangulation& tri) -> bool
+    {
+        auto curr = tri.getFaceNormal(currentIndex);
+        auto cand = tri.getFaceNormal(candidateIndex);
+        return glm::dot(curr, cand) > threshold;
+    };
+
+    std::vector<std::vector<size_t>> clusters = Clustering::cluster_withoutHoles(mesh, growFunction);
+
+    // Identify which triangles in our cube use Vertex 4
+    // Based on the indices {4,5,6}, {4,6,7}, {0,5,4}, {3,0,4}, {3,7,4}
+    std::vector<size_t> trianglesWithVertex4;
+    for (size_t i = 0; i < mesh.indices.size() / 3; ++i)
+    {
+        if (mesh.indices[i * 3 + 0] == 4 || mesh.indices[i * 3 + 1] == 4 || mesh.indices[i * 3 + 2] == 4)
+        {
+            trianglesWithVertex4.push_back(i);
+        }
+    }
+
+    bool vertex4IsAccountedFor = false;
+    for (const auto& cluster : clusters)
+    {
+        for (size_t triIdx : cluster)
+        {
+            if (mesh.indices[triIdx * 3 + 0] == 4 || mesh.indices[triIdx * 3 + 1] == 4 || mesh.indices[triIdx * 3 + 2] == 4)
+            {
+                vertex4IsAccountedFor = true;
+            }
+        }
+    }
+
+    INFO("If this fails, cluster_withoutHoles is not grouping the triangles that touch Vertex 4.");
+    REQUIRE(vertex4IsAccountedFor == true);
 }
 #endif
