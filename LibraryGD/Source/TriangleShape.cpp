@@ -10,6 +10,7 @@
 #include "Library/Triangle/HalfEdge/HalfEdgeHealth.h"
 #include "Library/Triangle/HalfEdge/mesh2halfedge.h"
 #include "Library/Triangle/Triangulation.h"
+#include "Library/Triangle/mesh2cad_cluster.h"
 #include "Library/Voxel/BinaryVolume.h"
 #include "VoxelShape.h"
 #include <godot_cpp/classes/surface_tool.hpp>
@@ -25,6 +26,7 @@ namespace godot
         ClassDB::bind_method(D_METHOD("get_vertex", "index"), &TriangleShape::getVertex);
         ClassDB::bind_method(D_METHOD("to_vox", "resolution"), &TriangleShape::toVoxel);
         ClassDB::bind_method(D_METHOD("to_cad_dumb"), &TriangleShape::toCad_dumb);
+        ClassDB::bind_method(D_METHOD("to_cad_cluster", "grow_func"), &TriangleShape::toCad_cluster);
         ClassDB::bind_method(D_METHOD("normal_cluster", "grow_func", "allowholes"), &TriangleShape::normal_cluster);
         ClassDB::bind_method(D_METHOD("cluster_border", "cluster"), &TriangleShape::cluster_border);
         ClassDB::bind_method(D_METHOD("get_halfedge_string"), &TriangleShape::toHalfEdgeString);
@@ -126,6 +128,20 @@ namespace godot
     {
         std::shared_ptr<Library::CADShape> resultShape = Library::LoadCADOperation::cadify_dumb(*shape);
         return CADShapeFactory::make(resultShape);
+    }
+
+    Ref<CADShape> TriangleShape::toCad_cluster(godot::Callable grow_func) const
+    {
+        auto wrapper = [&grow_func, this](size_t current, size_t candidate, const Library::Triangulation& t) -> bool
+        {
+            auto           normCurrent   = t.getFaceNormal(current);
+            auto           normCandidate = t.getFaceNormal(candidate);
+            godot::Variant result        = grow_func.call(Vector3(normCurrent.x, normCurrent.y, normCurrent.z), Vector3(normCandidate.x, normCandidate.y, normCandidate.z));
+            return (bool)result;
+        };
+
+        std::shared_ptr<Library::CADShape> result = Library::mesh2cad_cluster::convert(*shape, wrapper);
+        return CADShapeFactory::make(result);
     }
 
     Vector3 TriangleShape::getVertex(uint64_t index)

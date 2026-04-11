@@ -46,6 +46,7 @@ namespace godot
 
         Ref<VoxelShape> toVoxel(const Vector3i& resolution) const;
         Ref<CADShape>   toCad_dumb() const;
+        Ref<CADShape>   toCad_cluster(godot::Callable grow_func) const;
         Ref<ArrayMesh>  getMesh() const;
         godot::AABB     getAABB() const;
 
