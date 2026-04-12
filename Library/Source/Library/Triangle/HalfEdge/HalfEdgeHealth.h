@@ -12,6 +12,7 @@ namespace Library
     {
       public:
         static std::string toString(const HalfEdgeMesh&);
+        static std::string toString(const Triangulation&);
         static std::string createReport(const HalfEdgeMesh& mesh);
         static std::string createReport(const Triangulation& mesh);
 

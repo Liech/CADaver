@@ -40,6 +40,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <format>
 
 namespace Library
 {
@@ -57,29 +58,118 @@ namespace Library
                        });
     }
 
+    Triangulation extractTriangles(const Triangulation& source, const std::vector<size_t>& triangleIndicesToKeep)
+    {
+        Triangulation result;
+
+        // Maps old vertex index -> new vertex index
+        std::unordered_map<size_t, size_t> indexMap;
+
+        for (size_t triIdx : triangleIndicesToKeep)
+        {
+            // Each triangle has 3 indices starting at triIdx * 3
+            size_t startOffset = triIdx * 3;
+
+            for (size_t i = 0; i < 3; ++i)
+            {
+                size_t oldVertexIdx = source.indices[startOffset + i];
+
+                // Check if we've already copied this vertex
+                auto it = indexMap.find(oldVertexIdx);
+                if (it == indexMap.end())
+                {
+                    // New vertex found: add to result.vertices
+                    size_t newIdx = result.vertices.size();
+                    result.vertices.push_back(source.vertices[oldVertexIdx]);
+
+                    // Map the old index to the new position
+                    indexMap[oldVertexIdx] = newIdx;
+                    result.indices.push_back(newIdx);
+                }
+                else
+                {
+                    // Vertex already exists: just use the mapped index
+                    result.indices.push_back(it->second);
+                }
+            }
+        }
+
+        return result;
+    }
+
     std::unique_ptr<CADShape> mesh2cad_cluster::convert(const Triangulation& mesh, std::function<bool(size_t currentIndex, size_t candidateIndex, const Triangulation&)> growFunction)
     {
+        report       = "";
         bool healthy = Library::HalfEdgeHealth::isHealthy(mesh);
         if (!healthy)
+        {
+            report += "Unhealthy\n";
             return nullptr;
+        }
+
+        report += "MESH\n";
+        report += HalfEdgeHealth::toString(mesh);
+        report += "MESHEND\n";
 
         // 0. Preperation
-        std::vector<std::vector<size_t>> cluster  = Clustering::cluster_withoutHoles(mesh, growFunction);
+        report += "Clustering\n";
+        std::vector<std::vector<size_t>> cluster = Clustering::cluster_withoutHoles(mesh, growFunction);
+
+        size_t counter = 0;
+        for (const auto& c : cluster)
+        {
+            report += "  Cluster " + std::to_string(counter) + "\n ";
+
+            for (const auto& x : c)
+            {
+                report += "    ";
+                report += std::to_string(x);
+                report += "\n";
+            }
+
+            auto triCluster = extractTriangles(mesh, c);
+            report += triCluster.toBase64() + "\n";
+
+            counter++;
+        }
+
+        report += "HalfEdge\n";
         auto                             halfedge = mesh2halfedge::convert(mesh);
         std::vector<std::vector<size_t>> borders;
 
+        report += "Borders\n";
+        counter = 0;
         for (const auto& c : cluster)
-            borders.push_back(Clustering::findBorders(*halfedge, c)[0]); // withoutHoles ensures .size()==1
+        {
+            report += "  Border " + std::to_string(counter) + "\n";
+            auto b = Clustering::findBorders(*halfedge, c)[0];
+            borders.push_back(b); // withoutHoles ensures .size()==1
+            for (size_t x : b)
+            {
+                report += "    ";
+                report += std::to_string(x);
+                report += "\n";
+            }
+            counter++;
+        }
 
         // 1. Convert Borders of the Clusters to Wires
         std::map<size_t, TopoDS_Vertex>                  vcache;
         std::map<std::pair<size_t, size_t>, TopoDS_Edge> ecache;
-        std::vector<TopoDS_Wire>                         wires = Borders2Wires(borders, mesh, vcache, ecache);
+
+        report += "Border2Wire\n";
+        std::vector<TopoDS_Wire> wires = Borders2Wires(borders, mesh, vcache, ecache);
 
         // 2. Convert Mesh Clusters to B-Rep Faces
+        report += "Cluster2Faces\n";
         std::vector<TopoDS_Face> faces = Cluster2Faces(wires, cluster, mesh, vcache);
         if (faces.size() == 0)
+        {
+            std::ofstream out("C:\\Users\\nicol\\Downloads\\crashlog.txt");
+            out << report;
+            out.close();
             return nullptr;
+        }
 
         // 3. Stitching Faces into a Shell
         TopoDS_Shape stich = StitchFaces(faces);
@@ -221,13 +311,15 @@ namespace Library
     std::vector<TopoDS_Face> mesh2cad_cluster::Cluster2Faces(const std::vector<TopoDS_Wire>&         wires,
                                                              const std::vector<std::vector<size_t>>& clusters,
                                                              const Triangulation&                    mesh,
-                                                             std::map<size_t, TopoDS_Vertex>&        vcache   )
+                                                             std::map<size_t, TopoDS_Vertex>&        vcache)
     {
         std::vector<TopoDS_Face> result_faces;
         size_t                   count = std::min(wires.size(), clusters.size());
 
         for (size_t i = 0; i < count; ++i)
         {
+            report += "Cluster2Faces::Cluster: " + std::to_string(i) + "\n";
+
             const TopoDS_Wire& current_wire = wires[i];
             if (current_wire.IsNull())
                 continue;
@@ -247,9 +339,9 @@ namespace Library
                 }
 
                 // fill in some sample points
-                const auto& tri_indices = clusters[i];
-                size_t sample_count = 15;
-                size_t stride       = std::max((size_t)1, tri_indices.size() / sample_count);
+                const auto& tri_indices  = clusters[i];
+                size_t      sample_count = 15;
+                size_t      stride       = std::max((size_t)1, tri_indices.size() / sample_count);
                 for (size_t j = 0; j < tri_indices.size(); j += stride)
                 {
                     size_t tri_idx = tri_indices[j];

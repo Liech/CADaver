@@ -47,6 +47,8 @@ set(Util_Files
     "Source/Library/Util/LoadFileDialog.cpp"
     "Source/Library/Util/LoadFileDialog.h"
     "Source/Library/Util/stl_reader.h"
+    "Source/Library/Util/base64.cpp"
+    "Source/Library/Util/base64.h"
 )
 source_group("Source/Util" FILES ${Util_Files})
 
@@ -153,6 +155,8 @@ set(Triangle_Files
     "Source/Library/Triangle/mesh2cad_cluster.cpp"
     "Source/Library/Triangle/Clustering.h"
     "Source/Library/Triangle/Clustering.cpp"
+    "Source/Library/Triangle/BaseShapeGenerator.h"
+    "Source/Library/Triangle/BaseShapeGenerator.cpp"
 )
 source_group("Source/Triangle" FILES ${Triangle_Files})
 

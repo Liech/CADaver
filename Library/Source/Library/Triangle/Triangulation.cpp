@@ -2,6 +2,7 @@
 
 #include "STLWriter.h"
 #include "Util/stl_reader.h"
+#include "Util/base64.h"
 
 namespace Library
 {
@@ -140,5 +141,58 @@ namespace Library
 
         // Return a zero vector if the triangle is degenerate
         return glm::dvec3(0.0, 0.0, 0.0);
+    }
+
+    std::string Triangulation::toBase64() const
+    {
+        std::vector<unsigned char> buffer;
+
+        // 1. Pack Sizes
+        size_t vSize = vertices.size();
+        size_t iSize = indices.size();
+
+        auto append = [&](const auto& data)
+        {
+            const unsigned char* ptr = reinterpret_cast<const unsigned char*>(&data);
+            buffer.insert(buffer.end(), ptr, ptr + sizeof(data));
+        };
+
+        append(vSize);
+        append(iSize);
+
+        // 2. Pack Vertex Data
+        const unsigned char* vPtr = reinterpret_cast<const unsigned char*>(vertices.data());
+        buffer.insert(buffer.end(), vPtr, vPtr + (vSize * sizeof(glm::dvec3)));
+
+        // 3. Pack Index Data
+        const unsigned char* iPtr = reinterpret_cast<const unsigned char*>(indices.data());
+        buffer.insert(buffer.end(), iPtr, iPtr + (iSize * sizeof(size_t)));
+
+        return base64::base64_encode(buffer.data(), buffer.size());
+    }
+
+    Triangulation Triangulation::fromBase64(const std::string& base64Str)
+    {
+        auto                 buffer = base64::base64_decode(base64Str);
+        const unsigned char* ptr    = buffer.data();
+
+        Triangulation tri;
+
+        // 1. Read Sizes
+        size_t vSize = *reinterpret_cast<const size_t*>(ptr);
+        ptr += sizeof(size_t);
+        size_t iSize = *reinterpret_cast<const size_t*>(ptr);
+        ptr += sizeof(size_t);
+
+        // 2. Read Vertices
+        tri.vertices.resize(vSize);
+        std::copy(ptr, ptr + (vSize * sizeof(glm::dvec3)), reinterpret_cast<unsigned char*>(tri.vertices.data()));
+        ptr += (vSize * sizeof(glm::dvec3));
+
+        // 3. Read Indices
+        tri.indices.resize(iSize);
+        std::copy(ptr, ptr + (iSize * sizeof(size_t)), reinterpret_cast<unsigned char*>(tri.indices.data()));
+
+        return tri;
     }
 }

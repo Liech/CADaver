@@ -47,6 +47,43 @@ namespace Library
         return ss.str();
     }
 
+    std::string HalfEdgeHealth::toString(const Triangulation& target)
+    {
+        std::stringstream ss;
+        ss << "=== Triangulation Dump ===\n";
+
+        // 1. Dump Vertices
+        ss << "Vertices [" << target.vertices.size() << "]:\n";
+        ss << "  ID |        X        |        Y        |        Z        \n";
+        ss << "----------------------------------------------------------\n";
+        for (size_t i = 0; i < target.vertices.size(); ++i)
+        {
+            const auto& v = target.vertices[i];
+            ss << std::setw(4) << i << " | " << std::fixed << std::setprecision(4) << std::setw(15) << v.x << " | " << std::setw(15) << v.y << " | " << std::setw(15) << v.z << "\n";
+        }
+
+        // 2. Dump Triangles (Indices)
+        // We assume every 3 indices represent a face
+        size_t triangleCount = target.indices.size() / 3;
+        ss << "\nTriangles [" << triangleCount << "]:\n";
+        ss << "  ID | v0  | v1  | v2  \n";
+        ss << "-----------------------\n";
+        for (size_t i = 0; i < triangleCount; ++i)
+        {
+            size_t base = i * 3;
+            ss << std::setw(4) << i << " | " << std::setw(3) << target.indices[base] << " | " << std::setw(3) << target.indices[base + 1] << " | " << std::setw(3) << target.indices[base + 2] << "\n";
+        }
+
+        // 3. Simple Integrity Check
+        if (target.indices.size() % 3 != 0)
+        {
+            ss << "\n[WARNING]: Index count is not a multiple of 3! (Trailing indices: " << (target.indices.size() % 3) << ")\n";
+        }
+
+        ss << "==========================\n";
+        return ss.str();
+    }
+
     std::string HalfEdgeHealth::createReport(const HalfEdgeMesh& mesh)
     {
         std::stringstream        ss;

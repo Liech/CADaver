@@ -23,6 +23,8 @@ namespace Library
 
         void                                  saveAsSTL(const std::string& filename) const;
         static std::unique_ptr<Triangulation> fromSTLFile(const std::string& filename);
+        std::string                           toBase64() const;
+        Triangulation                         fromBase64(const std::string& base64Str);
     };
 }
 
