@@ -15,11 +15,12 @@ namespace Library
 
       private:
         static std::vector<std::vector<glm::dvec3>> cutWire(const std::vector<glm::dvec3>& wire);
-        static glm::ivec2                          getGridSize(const std::vector<std::vector<glm::dvec3>>& quarters);
+        static glm::ivec2                           getGridSize(const std::vector<std::vector<glm::dvec3>>& quarters);
         static std::vector<std::vector<glm::dvec3>> fixSections(std::vector<std::vector<glm::dvec3>> sections, glm::ivec2 resolution);
         static std::vector<std::vector<glm::dvec3>> calculateCoon(std::vector<std::vector<glm::dvec3>> sections, glm::ivec2 resolution);
-        static TopoDS_Face                         toFace(std::vector<std::vector<glm::dvec3>> grid);
-        static std::string                         grid2string(const std::vector<std::vector<glm::dvec3>>& grid);
-        static TopoDS_Face                         fallback(const std::vector<glm::dvec3>&);
+        static TopoDS_Face                          toFace(std::vector<std::vector<glm::dvec3>> grid);
+        static std::string                          grid2string(const std::vector<std::vector<glm::dvec3>>& grid);
+        static TopoDS_Face                          fallback(const std::vector<glm::dvec3>&);
+        static std::vector<std::vector<glm::dvec3>> calculateLaplace(std::vector<glm::dvec3> loop);
     };
 }

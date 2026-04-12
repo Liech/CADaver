@@ -1,6 +1,7 @@
 #include "cocoon.h"
 
 #include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakePolygon.hxx>
 #include <BRepLib.hxx>
 #include <BRepTools_WireExplorer.hxx>
 #include <BRep_Tool.hxx>
@@ -16,7 +17,6 @@
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>
 #include <gp_Pnt.hxx>
-#include <BRepBuilderAPI_MakePolygon.hxx>
 
 namespace Library
 {
@@ -49,7 +49,6 @@ namespace Library
         auto gridSize     = getGridSize(sections);
         auto gridSections = fixSections(sections, gridSize);
 
-        
         for (const auto& sec : gridSections)
         {
             dbg += "SECTION:\n";
@@ -57,8 +56,9 @@ namespace Library
                 dbg += std::to_string(x.x) + " ; " + std::to_string(x.y) + " ; " + std::to_string(x.z) + "\n";
         }
 
-        auto coonGrid     = calculateCoon(gridSections, gridSize);
-        return toFace(coonGrid);
+        auto coonGrid = calculateCoon(gridSections, gridSize);
+        auto laplaceGrid = calculateLaplace(wire);
+        return toFace(laplaceGrid);
     }
 
     TopoDS_Face cocoon::fallback(const std::vector<glm::dvec3>& points)
@@ -131,7 +131,7 @@ namespace Library
         // 3. Eine BSpline-Fläche durch die Punkte interpolieren
         // Wir nutzen GeomAPI_PointsToBSplineSurface für eine glatte Approximation
         // Parameter: (Punkte, MinDegree, MaxDegree, Continuity, Tolerance)
-        GeomAPI_PointsToBSplineSurface interpolator(pointArray, 3, 8, GeomAbs_C2, 1.0e-3);
+        GeomAPI_PointsToBSplineSurface interpolator(pointArray, 3, 3, GeomAbs_C1, 1.0e-3);
 
         if (!interpolator.IsDone())
         {
@@ -161,11 +161,85 @@ namespace Library
         return fixer.Face();
     }
 
+    std::vector<std::vector<glm::dvec3>> cocoon::calculateLaplace(std::vector<glm::dvec3> loop)
+    {
+        // 1. Divide the loop into 4 logical sides (using your existing cutWire logic)
+        auto sections = cutWire(loop);
+        if (sections.size() != 4)
+            return {};
+
+        auto gridSize = getGridSize(sections);
+        // Ensure sides match the expected grid dimensions (using your fixSections)
+        auto gridSections = fixSections(sections, gridSize);
+
+        int numU = gridSize.x;
+        int numV = gridSize.y;
+
+        // 2. Initialize the grid and fill the boundaries
+        std::vector<std::vector<glm::dvec3>> grid(numU, std::vector<glm::dvec3>(numV));
+
+        // Map boundaries to the grid edges
+        for (int i = 0; i < numU; ++i)
+        {
+            grid[i][0]        = gridSections[0][i]; // Bottom
+            grid[i][numV - 1] = gridSections[2][i]; // Top
+        }
+        for (int j = 0; j < numV; ++j)
+        {
+            grid[numU - 1][j] = gridSections[1][j]; // Right
+            grid[0][j]        = gridSections[3][j]; // Left
+        }
+
+        // 3. Initial Guess for Interior (Bilinear Average)
+        // We need a non-zero starting point so the mesh isn't collapsed
+        for (int i = 1; i < numU - 1; ++i)
+        {
+            double u = (double)i / (numU - 1);
+            for (int j = 1; j < numV - 1; ++j)
+            {
+                double v = (double)j / (numV - 1);
+
+                glm::dvec3 horizontal = glm::mix(grid[0][j], grid[numU - 1][j], u);
+                glm::dvec3 vertical   = glm::mix(grid[i][0], grid[i][numV - 1], v);
+                grid[i][j]            = (horizontal + vertical) * 0.5;
+            }
+        }
+
+        // 4. Laplacian Smoothing Iterations
+        // This "untwists" the grid regardless of the initial guess quality.
+        // 50-100 iterations is usually enough for small CAD patches.
+        const int iterations = 100;
+        for (int iter = 0; iter < iterations; ++iter)
+        {
+            // We only move the interior points (1 to n-1)
+            for (int i = 1; i < numU - 1; ++i)
+            {
+                for (int j = 1; j < numV - 1; ++j)
+                {
+                    // Standard 4-point Laplacian operator
+                    grid[i][j] = (grid[i - 1][j] + grid[i + 1][j] + grid[i][j - 1] + grid[i][j + 1]) * 0.25;
+                }
+            }
+        }
+
+        return grid;
+    }
+
     std::vector<std::vector<glm::dvec3>> cocoon::calculateCoon(std::vector<std::vector<glm::dvec3>> sections, glm::ivec2 resolution)
     {
         assert(sections.size() == 4);
-        std::reverse(sections[0].begin(), sections[0].end());
-        std::reverse(sections[1].begin(), sections[1].end());
+        std::reverse(sections[2].begin(), sections[2].end());
+        std::reverse(sections[3].begin(), sections[3].end());
+
+        std::string dbg = "Sides:";
+
+        for (const auto& sec : sections)
+        {
+            dbg += "  SIDE:\n";
+            for (const auto& x : sec)
+                dbg += "    " + std::to_string(x.x) + " ; " + std::to_string(x.y) + " ; " + std::to_string(x.z) + "\n";
+        }
+
         // Initialisiere das Grid: [U][V]
         std::vector<std::vector<glm::dvec3>> grid(resolution.x, std::vector<glm::dvec3>(resolution.y));
 
@@ -207,7 +281,17 @@ namespace Library
                 grid[i][j] = L_u + L_v - B_uv;
             }
         }
-
+        // Post-processing Smoothing
+        for (int iter = 0; iter < 15; ++iter)
+        {
+            for (int i = 1; i < resolution.x - 1; ++i)
+            {
+                for (int j = 1; j < resolution.y - 1; ++j)
+                {
+                    grid[i][j] = (grid[i - 1][j] + grid[i + 1][j] + grid[i][j - 1] + grid[i][j + 1]) * 0.25;
+                }
+            }
+        }
         return grid;
     }
 
@@ -267,7 +351,7 @@ namespace Library
 
     std::vector<std::vector<glm::dvec3>> cocoon::cutWire(const std::vector<glm::dvec3>& allVertices)
     {
-        size_t                              n = allVertices.size();
+        size_t                               n = allVertices.size();
         std::vector<std::vector<glm::dvec3>> sections;
 
         if (n < 4)
@@ -385,7 +469,9 @@ TEST_CASE("cocoon::convert - Public Halfpipe Test", "[cocoon][opencascade]")
     const double            length        = 1.0;
     std::vector<glm::dvec3> boundaryLoop;
 
-    // Side A: Semi-circle at Y = 0 (from +X to -X)
+    // --- SIDE A: Semi-circle at Y = 0 (Lower Arch) ---
+    // We go from 0 to PI.
+    // This includes the start point (1, 0, 0) and the end point (-1, 0, 0)
     for (int i = 0; i < arcResolution; ++i)
     {
         double t     = (double)i / (arcResolution - 1);
@@ -393,21 +479,31 @@ TEST_CASE("cocoon::convert - Public Halfpipe Test", "[cocoon][opencascade]")
         boundaryLoop.push_back(glm::dvec3(radius * std::cos(angle), 0.0, radius * std::sin(angle)));
     }
 
-    // Side B: Straight line from (-1, 0, 0) to (-1, 1, 0)
+    // --- SIDE B: Straight line at X = -radius ---
+    // The point (-radius, 0, 0) is already added by the loop above.
+    // We only add the intermediate points and the final corner.
+    // If your resolution is low, just adding the next corner is enough.
     boundaryLoop.push_back(glm::dvec3(-radius, length, 0.0));
 
-    // Side C: Semi-circle at Y = 1 (from -X back to +X)
-    // We reverse the angle to keep the loop continuous
+    // --- SIDE C: Semi-circle at Y = length (Upper Arch) ---
+    // We are currently at (-radius, length, 0).
+    // The next arc needs to start here and move toward (+radius, length, 0).
+    // That means moving from angle PI back to 0.
+    // We skip i=0 because (-radius, length, 0) was just added.
     for (int i = 1; i < arcResolution; ++i)
     {
         double t     = (double)i / (arcResolution - 1);
-        double angle = M_PI - (t * M_PI);
+        double angle = M_PI - (t * M_PI); // Starts at PI, ends at 0
         boundaryLoop.push_back(glm::dvec3(radius * std::cos(angle), length, radius * std::sin(angle)));
     }
 
-    // Side D: Straight line from (1, 1, 0) back to (1, 0, 0)
-    // (The start point of the loop will close it)
-    boundaryLoop.push_back(glm::dvec3(radius, length, 0.0));
+    // --- SIDE D: Straight line at X = +radius ---
+    // We are currently at (radius, length, 0).
+    // The loop needs to close back at (radius, 0, 0).
+    // (radius, 0, 0) is already the VERY FIRST point in the vector,
+    // so we don't add it again. We just let the loop "end" here.
+    // If you want a point in the middle of this straight edge:
+    // boundaryLoop.push_back(glm::dvec3(radius, length * 0.5, 0.0));
 
     // --- 2. Execute: Call the public conversion ---
     // This internally triggers cutWire -> fixSections -> calculateCoon -> toFace
