@@ -225,7 +225,7 @@ TEST_CASE("BaseShapeGenerator/cylinder")
 }
 TEST_CASE("BaseShapeGenerator/cubeWithHole")
 {
-    auto        tri    = Library::BaseShapeGenerator::cubeWithHole(100);
+    auto        tri    = Library::BaseShapeGenerator::cubeWithHole(5);
     std::string report = Library::HalfEdgeHealth::createReport(tri);
     REQUIRE(Library::HalfEdgeHealth::isHealthy(tri));
     //tri.saveAsSTL("C:\\Users\\nicol\\Downloads\\cubeWithHole100.stl");

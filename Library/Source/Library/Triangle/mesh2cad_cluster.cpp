@@ -36,11 +36,11 @@
 #include <TopoDS_Shell.hxx>
 #include <TopoDS_Solid.hxx>
 #include <algorithm>
+#include <format>
 #include <gp_Pnt.hxx>
 #include <map>
 #include <set>
 #include <vector>
-#include <format>
 
 namespace Library
 {
@@ -417,6 +417,7 @@ namespace Library
 }
 
 #ifdef ISTESTPROJECT
+#include "BaseShapeGenerator.h"
 #include "Library/catch.hpp"
 #include <BRepCheck_Analyzer.hxx>
 #include <BRepGProp.hxx>
@@ -668,6 +669,73 @@ TEST_CASE("mesh2cad_cluster::convert - Full Cube Reconstruction", "[mesh2cad]")
     // No free edges in a solid cube
     int freeEdges = 0;
     // (You could also use BRepBuilderAPI_Sewing internally to verify this)
+}
+
+#include <BRepTools.hxx>
+#include <BRepLProp_SLProps.hxx>
+#include <BRepAdaptor_Surface.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopoDS.hxx>
+TEST_CASE("mesh2cad_cluster::convert - Full Cube With Hole Reconstruction", "[mesh2cad]")
+{
+    Library::mesh2cad_cluster converter;
+    auto                      mesh = Library::BaseShapeGenerator::cubeWithHole(5);
+
+    // 3. Run the full conversion
+    // Threshold 0.9 ensures triangles with the same normal cluster together
+    double                             threshold = 0.7;
+    std::unique_ptr<Library::CADShape> result    = converter.convert(mesh, threshold);
+
+    REQUIRE(result != nullptr);
+    TopoDS_Shape shape = result->getData();
+
+    // --- VERIFICATION ---
+    // white box verification that checks if the result has the exact number a hole avoiding clustering would bring
+
+    int planarNurbs = 0;
+    int curvedNurbs = 0;
+
+    TopExp_Explorer explorer(shape, TopAbs_FACE);
+    while (explorer.More())
+    {
+        TopoDS_Face         face = TopoDS::Face(explorer.Current());
+        BRepAdaptor_Surface surf(face);
+
+        Standard_Real uMin, uMax, vMin, vMax;
+        BRepTools::UVBounds(face, uMin, uMax, vMin, vMax);
+
+        // Sample the center of the patch
+        Standard_Real uMid = (uMin + uMax) / 2.0;
+        Standard_Real vMid = (vMin + vMax) / 2.0;
+
+        // Check Gaussian Curvature
+        // NURBS that are geometrically flat return 0.0
+        BRepLProp_SLProps props(surf, uMid, vMid, 2, Precision::Confusion());
+
+        if (props.IsCurvatureDefined())
+        {
+            Standard_Real k = props.GaussianCurvature();
+            if (Abs(k) < 1e-7)
+            {
+                planarNurbs++;
+            }
+            else
+            {
+                curvedNurbs++;
+            }
+        }
+        explorer.Next();
+    }
+
+    // Based on your description:
+    // 8 flat patches (4 solid sides + 4 'C-shaped' faces around the hole entries)
+    // 2 curved patches (the half-pipes)
+    CHECK(planarNurbs == 8);
+    CHECK(curvedNurbs == 2);
+    CHECK((planarNurbs + curvedNurbs) == 10);
+
+    // Final Safety: Check that the shape is manifold (watertight)
+    CHECK(shape.Closed() == Standard_True);
 }
 
 #endif
