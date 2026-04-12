@@ -157,6 +157,8 @@ set(Triangle_Files
     "Source/Library/Triangle/Clustering.cpp"
     "Source/Library/Triangle/BaseShapeGenerator.h"
     "Source/Library/Triangle/BaseShapeGenerator.cpp"
+    "Source/Library/Triangle/cocoon.h"
+    "Source/Library/Triangle/cocoon.cpp"
 )
 source_group("Source/Triangle" FILES ${Triangle_Files})
 

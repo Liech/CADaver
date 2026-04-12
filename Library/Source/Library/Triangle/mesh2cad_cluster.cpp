@@ -8,6 +8,7 @@
 #include "HalfEdge/mesh2halfedge.h"
 #include "Library/CAD/CADShapeFactory.h"
 #include "Triangulation.h"
+#include <BRepAdaptor_Curve.hxx>
 #include <BRepBuilderAPI_FindPlane.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
@@ -19,12 +20,30 @@
 #include <BRepFill_Filling.hxx>
 #include <BRepLib.hxx>
 #include <BRepOffsetAPI_MakeFilling.hxx>
+#include <BRepTools_WireExplorer.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_TFace.hxx>
+#include <BRep_Tool.hxx>
+#include <GeomAPI_PointsToBSpline.hxx>
+#include <GeomAPI_PointsToBSplineSurface.hxx>
+#include <GeomConvert.hxx>
+#include <GeomConvert_CompCurveToBSplineCurve.hxx>
+#include <GeomFill_BSplineCurves.hxx>
+#include <GeomFill_Coons.hxx>
+#include <GeomFill_CoonsAlgPatch.hxx>
+#include <GeomLib.hxx>
+#include <GeomPlate_BuildPlateSurface.hxx>
+#include <GeomPlate_CurveConstraint.hxx>
+#include <GeomPlate_MakeApprox.hxx>
+#include <GeomPlate_PointConstraint.hxx>
+#include <GeomPlate_Surface.hxx>
+#include <Geom_BSplineCurve.hxx>
+#include <Geom_BSplineSurface.hxx>
 #include <Geom_Plane.hxx>
 #include <Geom_Surface.hxx>
 #include <Poly_Array1OfTriangle.hxx>
 #include <Poly_Triangulation.hxx>
+#include <ShapeFix_Wire.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TopAbs_ShapeEnum.hxx> // For TopAbs_SHELL, etc.
 #include <TopExp.hxx>
@@ -33,19 +52,82 @@
 #include <TopoDS.hxx> // For the TopoDS casting utility
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
+#include <TopoDS_Iterator.hxx>
 #include <TopoDS_Shell.hxx>
 #include <TopoDS_Solid.hxx>
+#include <TopoDS_Wire.hxx>
 #include <algorithm>
 #include <format>
 #include <gp_Pnt.hxx>
+#include <gp_Vec.hxx>
 #include <map>
 #include <set>
 #include <vector>
+#include "cocoon.h"
 
 namespace Library
 {
     mesh2cad_cluster::mesh2cad_cluster() {}
     mesh2cad_cluster::~mesh2cad_cluster() {}
+
+    enum class CoonValidity
+    {
+        Valid,
+        NotClosed,
+        GapTooLarge,
+        SelfIntersecting,
+        TooFewEdges
+    };
+
+    CoonValidity CheckWireForCoon(const TopoDS_Wire& wire, double tolerance = 1e-6)
+    {
+        // 1. Topologische Grundprüfung
+        BRepCheck_Analyzer analyzer(wire);
+        if (!analyzer.IsValid())
+        {
+            return CoonValidity::SelfIntersecting;
+        }
+
+        // 2. Ist der Wire geschlossen?
+        if (!wire.Closed())
+        {
+            return CoonValidity::NotClosed;
+        }
+
+        // 3. Geometrische Lücken an den Ecken prüfen
+        // Der Coons-Solver braucht C0-Stetigkeit an den Übergängen
+        TopExp_Explorer          exp(wire, TopAbs_EDGE);
+        std::vector<TopoDS_Edge> edges;
+        while (exp.More())
+        {
+            edges.push_back(TopoDS::Edge(exp.Current()));
+            exp.Next();
+        }
+
+        if (edges.size() < 4 && edges.size() != 0)
+        {
+            // Ein Coons-Patch braucht 4 Begrenzungen.
+            // Man kann einen Wire mit 2 oder 3 Edges zwar splitten,
+            // aber für den Standard-Solver ist das oft instabil.
+            int x = 0;
+        }
+
+        for (size_t i = 0; i < edges.size(); ++i)
+        {
+            TopoDS_Edge current = edges[i];
+            TopoDS_Edge next    = edges[(i + 1) % edges.size()];
+
+            gp_Pnt pEnd   = BRep_Tool::Pnt(TopExp::LastVertex(current));
+            gp_Pnt pStart = BRep_Tool::Pnt(TopExp::FirstVertex(next));
+
+            if (pEnd.Distance(pStart) > tolerance)
+            {
+                return CoonValidity::GapTooLarge;
+            }
+        }
+
+        return CoonValidity::Valid;
+    }
 
     std::unique_ptr<CADShape> mesh2cad_cluster::convert(const Triangulation& mesh, double threshold)
     {
@@ -158,11 +240,19 @@ namespace Library
         std::map<std::pair<size_t, size_t>, TopoDS_Edge> ecache;
 
         report += "Border2Wire\n";
-        std::vector<TopoDS_Wire> wires = Borders2Wires(borders, mesh, vcache, ecache);
+        std::vector<TopoDS_Wire>             wires       = Borders2Wires(borders, mesh, vcache, ecache);
+        std::vector<std::vector<glm::dvec3>> edgeNormals = Borders2EdgeNormals(borders, cluster, mesh);
 
         // 2. Convert Mesh Clusters to B-Rep Faces
         report += "Cluster2Faces\n";
-        std::vector<TopoDS_Face> faces = Cluster2Faces(wires, cluster, mesh, vcache);
+        // std::vector<TopoDS_Face> faces = Cluster2Faces(wires, cluster, edgeNormals, mesh, vcache);
+        //std::vector<TopoDS_Face> faces = Cluster2Coon(wires, mesh);
+        std::vector<TopoDS_Face> faces;
+        for (const auto& w : wires)
+        {
+            auto f = cocoon::convert(w);
+            faces.push_back(f);
+        }
         if (faces.size() == 0)
         {
             std::ofstream out("C:\\Users\\nicol\\Downloads\\crashlog.txt");
@@ -176,7 +266,7 @@ namespace Library
 
         // 4. Creating the Solid
         auto solid = MakeSolid(stich);
-        BRepLib::OrientClosedSolid(solid);
+        //BRepLib::OrientClosedSolid(solid);
 
         auto result = CADShapeFactory::make(solid);
         CADShapeFactory::recurseFillChildShapes(*result);
@@ -208,13 +298,76 @@ namespace Library
         return solidMaker.Solid();
     }
 
+    std::vector<std::vector<glm::dvec3>> mesh2cad_cluster::Borders2EdgeNormals(const std::vector<std::vector<size_t>>& borders,
+                                                                               const std::vector<std::vector<size_t>>& clusters, // Neu: Die Cluster-Information
+                                                                               const Triangulation&                    mesh)
+    {
+        std::map<std::pair<size_t, size_t>, std::vector<size_t>> adjacency = mesh.getAdjacency();
+        std::vector<std::vector<glm::dvec3>>                     resultNormals;
+
+        for (size_t bIdx = 0; bIdx < borders.size(); ++bIdx)
+        {
+            const auto&                border = borders[bIdx];
+            // Erstelle ein Set für schnellen Lookup, welche Dreiecke zum aktuellen Cluster gehören
+            std::unordered_set<size_t> currentClusterTris(clusters[bIdx].begin(), clusters[bIdx].end());
+
+            std::vector<glm::dvec3> currentBorderNormals;
+
+            for (size_t i = 0; i < border.size(); ++i)
+            {
+                size_t idxA = border[i];
+                size_t idxB = border[(i + 1) % border.size()];
+
+                auto edgeKey = (idxA < idxB) ? std::make_pair(idxA, idxB) : std::make_pair(idxB, idxA);
+
+                glm::dvec3 edgeNormal(0.0, 0.0, 0.0);
+                bool       foundInternal = false;
+
+                if (adjacency.count(edgeKey))
+                {
+                    for (size_t triIdx : adjacency[edgeKey])
+                    {
+                        // PRÜFUNG: Gehört dieses Dreieck zum aktuellen Cluster?
+                        if (currentClusterTris.find(triIdx) != currentClusterTris.end())
+                        {
+                            const auto& v0 = mesh.vertices[mesh.indices[triIdx * 3 + 0]];
+                            const auto& v1 = mesh.vertices[mesh.indices[triIdx * 3 + 1]];
+                            const auto& v2 = mesh.vertices[mesh.indices[triIdx * 3 + 2]];
+
+                            glm::dvec3 n = glm::cross(glm::dvec3(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z), glm::dvec3(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z));
+
+                            double len = glm::length(n);
+                            if (len > 1e-12)
+                            {
+                                edgeNormal    = n / len;
+                                foundInternal = true;
+                                break; // Wir haben das interne Dreieck gefunden, weiter zur nächsten Kante
+                            }
+                        }
+                    }
+                }
+
+                if (!foundInternal)
+                {
+                    // Fallback: Falls kein internes Dreieck gefunden wurde (sollte bei Border theoretisch nicht passieren)
+                    edgeNormal = glm::dvec3(0.0, 0.0, 1.0);
+                }
+
+                currentBorderNormals.push_back(edgeNormal);
+            }
+            resultNormals.push_back(currentBorderNormals);
+        }
+
+        return resultNormals;
+    }
+
     std::vector<TopoDS_Wire> mesh2cad_cluster::Borders2Wires(const std::vector<std::vector<size_t>>&           borders,
                                                              const Triangulation&                              mesh,
                                                              std::map<size_t, TopoDS_Vertex>&                  vcache, // Changed from gp_Pnt to TopoDS_Vertex
                                                              std::map<std::pair<size_t, size_t>, TopoDS_Edge>& ecache)
     {
-        std::vector<TopoDS_Wire> resultWires;
 
+        std::vector<TopoDS_Wire> resultWires;
         for (const auto& border : borders)
         {
             BRepBuilderAPI_MakeWire wireMaker;
@@ -308,87 +461,184 @@ namespace Library
         return ss.str();
     }
 
-    std::vector<TopoDS_Face> mesh2cad_cluster::Cluster2Faces(const std::vector<TopoDS_Wire>&         wires,
-                                                             const std::vector<std::vector<size_t>>& clusters,
-                                                             const Triangulation&                    mesh,
-                                                             std::map<size_t, TopoDS_Vertex>&        vcache)
+    std::vector<TopoDS_Face> mesh2cad_cluster::Cluster2Coon(const std::vector<TopoDS_Wire>& wires, const Triangulation& mesh)
     {
         std::vector<TopoDS_Face> result_faces;
-        size_t                   count = std::min(wires.size(), clusters.size());
 
-        for (size_t i = 0; i < count; ++i)
+        for (const auto& wire : wires)
         {
-            report += "Cluster2Faces::Cluster: " + std::to_string(i) + "\n";
+            // 1. Extrahiere die 4 Kurven (vereinfacht: Annahme, das Wire hat 4 Edges)
+            std::vector<Handle(Geom_Curve)> curves;
+            std::vector<double>             firsts, lasts;
 
-            const TopoDS_Wire& current_wire = wires[i];
-            if (current_wire.IsNull())
-                continue;
-
-            try
+            BRepTools_WireExplorer exp(wire);
+            while (exp.More())
             {
-                BRepFill_Filling filler;
-
-                // 1. Add Wire Edges as Boundary Constraints
-                for (TopoDS_Iterator it(current_wire); it.More(); it.Next())
+                double f, l;
+                Handle(Geom_Curve) c = BRep_Tool::Curve(exp.Current(), f, l);
+                if (exp.Current().Orientation() == TopAbs_REVERSED)
                 {
-                    TopoDS_Edge edge = TopoDS::Edge(it.Value());
-                    if (!edge.IsNull())
-                    {
-                        filler.Add(edge, GeomAbs_C0);
-                    }
+                    // Hier müsste logisch die Kurve umgedreht werden,
+                    // für die manuelle Berechnung reicht die Richtungskontrolle
                 }
+                curves.push_back(c);
+                firsts.push_back(f);
+                lasts.push_back(l);
+                exp.Next();
+            }
 
-                // fill in some sample points
-                const auto& tri_indices  = clusters[i];
-                size_t      sample_count = 15;
-                size_t      stride       = std::max((size_t)1, tri_indices.size() / sample_count);
-                for (size_t j = 0; j < tri_indices.size(); j += stride)
+            if (curves.size() != 4)
+                continue; // Nur 4-seitige Wires
+
+            // Hilfsfunktion zur Normalisierung des Parameters auf [0, 1]
+            auto getPoint = [&](int idx, double t)
+            {
+                double p = firsts[idx] + t * (lasts[idx] - firsts[idx]);
+                return curves[idx]->Value(p);
+            };
+
+            // 2. Erstelle Punkt-Gitter (z.B. 10x10) für die Coons-Interpolation
+            int                n = 15; // Auflösung
+            TColgp_Array2OfPnt points(1, n, 1, n);
+
+            for (int i = 1; i <= n; ++i)
+            {
+                double u = double(i - 1) / (n - 1);
+                for (int j = 1; j <= n; ++j)
                 {
-                    size_t tri_idx = tri_indices[j];
+                    double v = double(j - 1) / (n - 1);
 
-                    // Calculate the Centroid (Center of the triangle)
-                    size_t v1_idx = mesh.indices[tri_idx * 3 + 0];
-                    size_t v2_idx = mesh.indices[tri_idx * 3 + 1];
-                    size_t v3_idx = mesh.indices[tri_idx * 3 + 2];
+                    // Die 4 Grenzkurven: c1(u), c2(u) [unten/oben], d1(v), d2(v) [links/rechts]
+                    gp_Pnt c1_u = getPoint(0, u);       // Untere Kante
+                    gp_Pnt c2_u = getPoint(2, 1.0 - u); // Obere Kante (umgekehrt)
+                    gp_Pnt d1_v = getPoint(3, 1.0 - v); // Linke Kante (umgekehrt)
+                    gp_Pnt d2_v = getPoint(1, v);       // Rechte Kante
 
-                    const auto& v1 = mesh.vertices[v1_idx];
-                    const auto& v2 = mesh.vertices[v2_idx];
-                    const auto& v3 = mesh.vertices[v3_idx];
+                    // Eckpunkte für die bilineare Korrektur
+                    gp_Pnt P00 = getPoint(0, 0); // Ecke unten links
+                    gp_Pnt P10 = getPoint(0, 1); // Ecke unten rechts
+                    gp_Pnt P01 = getPoint(2, 1); // Ecke oben links
+                    gp_Pnt P11 = getPoint(2, 0); // Ecke oben rechts
 
-                    gp_Pnt centroid((v1.x + v2.x + v3.x) / 3.0, (v1.y + v2.y + v3.y) / 3.0, (v1.z + v2.z + v3.z) / 3.0);
+                    // Coons Patch Formel: S(u,v) = Lc(u,v) + Ld(u,v) - B(u,v)
+                    // Lineare Interpolation in u
+                    gp_Pnt Lc;
+                    Lc.SetX((1.0 - v) * c1_u.X() + v * c2_u.X());
+                    Lc.SetY((1.0 - v) * c1_u.Y() + v * c2_u.Y());
+                    Lc.SetZ((1.0 - v) * c1_u.Z() + v * c2_u.Z());
 
-                    // Add the centroid as an internal constraint
-                    filler.Add(centroid);
-                }
+                    // Lineare Interpolation in v
+                    gp_Pnt Ld;
+                    Ld.SetX((1.0 - u) * d1_v.X() + u * d2_v.X());
+                    Ld.SetY((1.0 - u) * d1_v.Y() + u * d2_v.Y());
+                    Ld.SetZ((1.0 - u) * d1_v.Z() + u * d2_v.Z());
 
-                // 3. Build the Face
-                filler.Build();
+                    // Bilineare Interpolation der Ecken
+                    gp_Pnt B;
+                    B.SetX((1.0 - u) * (1.0 - v) * P00.X() + u * (1.0 - v) * P10.X() + (1.0 - u) * v * P01.X() + u * v * P11.X());
+                    B.SetY((1.0 - u) * (1.0 - v) * P00.Y() + u * (1.0 - v) * P10.Y() + (1.0 - u) * v * P01.Y() + u * v * P11.Y());
+                    B.SetZ((1.0 - u) * (1.0 - v) * P00.Z() + u * (1.0 - v) * P10.Z() + (1.0 - u) * v * P01.Z() + u * v * P11.Z());
 
-                if (filler.IsDone())
-                {
-                    TopoDS_Face skinned_face = filler.Face();
-                    if (!skinned_face.IsNull())
-                    {
-                        result_faces.push_back(skinned_face);
-                    }
-                    else
-                    {
+                    // Finaler Punkt
+                    gp_Pnt finalP;
+                    finalP.SetX(Lc.X() + Ld.X() - B.X());
+                    finalP.SetY(Lc.Y() + Ld.Y() - B.Y());
+                    finalP.SetZ(Lc.Z() + Ld.Z() - B.Z());
 
-                        return {};
-                    }
-                }
-                else
-                {
-                    return {};
+                    points.SetValue(i, j, finalP);
                 }
             }
-            catch (Standard_Failure const&)
+
+            // 3. Aus dem Gitter eine Fläche bauen
+            GeomAPI_PointsToBSplineSurface approx(points);
+            Handle(Geom_BSplineSurface) surface = approx.Surface();
+
+            // 4. Face erstellen
+            if (!surface.IsNull())
             {
-                // Skip problematic clusters to maintain pipeline flow
-                continue;
+                result_faces.push_back(BRepBuilderAPI_MakeFace(surface, 1e-6));
             }
         }
 
+        return result_faces;
+    }
+
+    std::vector<TopoDS_Face> mesh2cad_cluster::Cluster2Faces(const std::vector<TopoDS_Wire>&             wires,
+                                                             const std::vector<std::vector<size_t>>&     clusters,
+                                                             const std::vector<std::vector<glm::dvec3>>& edgeNormals,
+                                                             const Triangulation&                        mesh,
+                                                             std::map<size_t, TopoDS_Vertex>&            vcache)
+    {
+        std::vector<TopoDS_Face> result_faces;
+        size_t                   count = std::min({ wires.size(), clusters.size(), edgeNormals.size() });
+
+        for (size_t i = 0; i < count; ++i)
+        {
+            try
+            {
+                // Initialisierung
+                GeomPlate_BuildPlateSurface builder(3, 15, 3);
+
+                // 1. Kurven-Constraints (Ränder)
+                for (TopoDS_Iterator it(wires[i]); it.More(); it.Next())
+                {
+                    TopoDS_Edge edge = TopoDS::Edge(it.Value());
+                    if (edge.IsNull())
+                        continue;
+                    Handle(BRepAdaptor_Curve) adaptCurve = new BRepAdaptor_Curve(edge);
+                    builder.Add(new GeomPlate_CurveConstraint(adaptCurve, 0));
+                }
+
+                // 2. Punkt-Constraints (Normalen-Ersatz via Offset)
+                const auto& tri_indices  = clusters[i];
+                size_t      sample_count = 30;
+                size_t      stride       = std::max((size_t)1, tri_indices.size() / sample_count);
+                double      offset_dist  = 0.05;
+
+                for (size_t j = 0; j < tri_indices.size(); j += stride)
+                {
+                    size_t      tri_idx = tri_indices[j];
+                    const auto& v1      = mesh.vertices[mesh.indices[tri_idx * 3 + 0]];
+                    const auto& v2      = mesh.vertices[mesh.indices[tri_idx * 3 + 1]];
+                    const auto& v3      = mesh.vertices[mesh.indices[tri_idx * 3 + 2]];
+
+                    gp_Pnt pos((v1.x + v2.x + v3.x) / 3.0, (v1.y + v2.y + v3.y) / 3.0, (v1.z + v2.z + v3.z) / 3.0);
+
+                    glm::dvec3 p1(v1.x, v1.y, v1.z), p2(v2.x, v2.y, v2.z), p3(v3.x, v3.y, v3.z);
+                    glm::dvec3 n = glm::normalize(glm::cross(p2 - p1, p3 - p1));
+
+                    // Der Punkt auf dem Mesh (C0 - funktioniert immer)
+                    // Signatur: (Punkt, Order, Toleranz) -> Order 0 = C0
+                    builder.Add(new GeomPlate_PointConstraint(pos, GeomAbs_C0, 0.001));
+
+                    // Der Richtungs-Punkt (Offset erzwingt die Krümmung ohne G1-API Stress)
+                    gp_Pnt posOffset(pos.X() + n.x * offset_dist, pos.Y() + n.y * offset_dist, pos.Z() + n.z * offset_dist);
+                    builder.Add(new GeomPlate_PointConstraint(posOffset, GeomAbs_C0, 0.001));
+                }
+
+                // 3. Fläche berechnen
+                builder.Perform();
+
+                if (builder.IsDone())
+                {
+                    // Approximation
+                    GeomPlate_MakeApprox app(builder.Surface(), 0.001, 8, 3, 0.001, 0);
+
+                    // Durch den BSplineSurface-Header ist finalSurf nun korrekt zuweisbar
+                    Handle(Geom_Surface) finalSurf = app.Surface();
+
+                    BRepBuilderAPI_MakeFace faceMaker(finalSurf, wires[i], Standard_True);
+                    if (faceMaker.IsDone())
+                    {
+                        result_faces.push_back(faceMaker.Face());
+                    }
+                }
+            }
+            catch (...)
+            {
+                continue;
+            }
+        }
         return result_faces;
     }
 
@@ -416,7 +666,8 @@ namespace Library
     }
 }
 
-#ifdef ISTESTPROJECT
+#ifdef false
+//#ifdef ISTESTPROJECT
 #include "BaseShapeGenerator.h"
 #include "Library/catch.hpp"
 #include <BRepCheck_Analyzer.hxx>
@@ -671,9 +922,9 @@ TEST_CASE("mesh2cad_cluster::convert - Full Cube Reconstruction", "[mesh2cad]")
     // (You could also use BRepBuilderAPI_Sewing internally to verify this)
 }
 
-#include <BRepTools.hxx>
-#include <BRepLProp_SLProps.hxx>
 #include <BRepAdaptor_Surface.hxx>
+#include <BRepLProp_SLProps.hxx>
+#include <BRepTools.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 TEST_CASE("mesh2cad_cluster::convert - Full Cube With Hole Reconstruction", "[mesh2cad]")
