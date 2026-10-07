@@ -72,7 +72,7 @@ namespace Library
     {
         glm::dvec3               span         = end - start;
         glm::dvec3               rayDirection = glm::dvec3(0, 0, 1);
-        EpsilonEqualityPredicate predicate(1e-6);
+        EpsilonEqualityPredicate predicate(1e-5);
 
 #pragma omp parallel for
         for (long long x = 0; x < resolution.x; x++)
@@ -83,15 +83,20 @@ namespace Library
                 size_t resultOffset = resolution.z * resolution.y * x + resolution.z * y;
                 auto&  stack        = triangleStack[stackAddress];
 
-                double zMin = std::numeric_limits<double>::max();
-                for (const auto& x : stack)
+                if (stack.empty())
+                    continue;
+
+                double zMin = start.z;
+                for (const auto& tri : stack)
                 {
-                    zMin = std::min(zMin, vertecies[indices[x + 0]].z);
-                    zMin = std::min(zMin, vertecies[indices[x + 1]].z);
-                    zMin = std::min(zMin, vertecies[indices[x + 2]].z);
+                    zMin = std::min(zMin, vertecies[indices[tri + 0]].z);
+                    zMin = std::min(zMin, vertecies[indices[tri + 1]].z);
+                    zMin = std::min(zMin, vertecies[indices[tri + 2]].z);
                 }
 
-                glm::dvec3 rayStart = start + glm::dvec3(span.x * ((double)x / (double)resolution.x), span.y * ((double)y / (double)resolution.y), zMin) - rayDirection * 10.0;
+                double rx = ((double)x + 0.5) / (double)resolution.x;
+                double ry = ((double)y + 0.5) / (double)resolution.y;
+                glm::dvec3 rayStart = start + glm::dvec3(span.x * rx, span.y * ry, zMin) - rayDirection * 10.0;
 
                 std::vector<double> intersections;
                 for (auto& tri : stack)
@@ -106,13 +111,14 @@ namespace Library
                         intersections.push_back(intersectionLocation.z);
                     }
                 }
+                std::sort(intersections.begin(), intersections.end());
                 intersections.erase(std::unique(intersections.begin(), intersections.end(), predicate), intersections.end());
 
                 for (auto& zIntersection : intersections)
                 {
-                    long long zPos = std::floor(((zIntersection - start.z) / span.z) * (long long)resolution.z);
+                    long long zPos = std::round(((zIntersection - start.z) / span.z) * (double)resolution.z);
                     zPos           = std::max((long long)0, zPos);
-                    zPos           = std::min((long long)resolution.z - 1, zPos);
+                    zPos           = std::min((long long)resolution.z, zPos);
 
                     size_t memoryAddress = zPos + resultOffset;
                     size_t max           = resultOffset + resolution.z;
@@ -204,7 +210,7 @@ namespace Library
         q = glm::cross(s, edge1);
         v = f * glm::dot(rayVector, q);
 
-        if (v < 0 || u + v > 1.0)
+        if (v < -EPSILON || u + v > 1.0 + EPSILON)
             return false;
 
         // At this stage we can compute t to find out where the intersection point is on the line.
