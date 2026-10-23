@@ -3,13 +3,16 @@
 #include <memory>
 #include <string>
 
-namespace Library
+namespace CADacomb
 {
     class Triangulation;
+}
 
+namespace Library
+{
     class SaveTriangulationOperation
     {
       public:
-        static void saveToFile(const Triangulation&, const std::string& filename);
+        static void saveToFile(const CADacomb::Triangulation&, const std::string& filename);
     };
 }

@@ -3,13 +3,16 @@
 #include <memory>
 #include <string>
 
-namespace Library
+namespace CADacomb
 {
     class Triangulation;
+}
 
+namespace Library
+{
     class LoadTriangulationOperation
     {
       public:
-        static std::unique_ptr<Triangulation> loadFromFile(const std::string& filename);
+        static std::unique_ptr<CADacomb::Triangulation> loadFromFile(const std::string& filename);
     };
 }

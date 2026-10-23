@@ -1,11 +1,11 @@
 #include "SaveTriangulationOperation.h"
 
-#include "Library/Triangle/STLWriter.h"
-#include "Library/Triangle/Triangulation.h"
+#include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Triangle/Util/STLWriter.h"
 
 namespace Library
 {
-    void SaveTriangulationOperation::saveToFile(const Triangulation& volume, const std::string& filename)
+    void SaveTriangulationOperation::saveToFile(const CADacomb::Triangulation& volume, const std::string& filename)
     {
         volume.saveAsSTL(filename);
     }

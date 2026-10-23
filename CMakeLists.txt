@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8...3.20)
+cmake_minimum_required(VERSION 3.20...3.30)
 project(Solution)
 
 include(FetchContent)
@@ -11,6 +11,10 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(GDExtension)
+
+if(NOT TARGET CADacomb::CADacomb)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../CADacomb" "${CMAKE_CURRENT_BINARY_DIR}/CADacomb")
+endif()
 
 add_subdirectory(Executable)
 add_subdirectory(Library)

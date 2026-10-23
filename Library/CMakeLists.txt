@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8...3.20)
+cmake_minimum_required(VERSION 3.20...3.30)
 
 project(Library)
 project(LibraryTest)
@@ -8,7 +8,6 @@ find_package(nlohmann_json REQUIRED)
 find_package(nfd CONFIG REQUIRED) 
 find_package(OpenCASCADE)
 include_directories(SYSTEM ${OpenCASCADE_INCLUDE_DIR})
-
 
 set(Source_Files
     "Source/Library/testMain.cpp"
@@ -46,9 +45,6 @@ set(Util_Files
     "Source/Library/Util/SaveFileDialog.h"
     "Source/Library/Util/LoadFileDialog.cpp"
     "Source/Library/Util/LoadFileDialog.h"
-    "Source/Library/Util/stl_reader.h"
-    "Source/Library/Util/base64.cpp"
-    "Source/Library/Util/base64.h"
 )
 source_group("Source/Util" FILES ${Util_Files})
 
@@ -105,7 +101,7 @@ set(MagickaVox_Chunk_Files
     "Source/Library/Voxel/MagicaVox/Chunk/ChunkRCAM.cpp"
     "Source/Library/Voxel/MagicaVox/Chunk/ChunkNOTE.h"
     "Source/Library/Voxel/MagicaVox/Chunk/ChunkNOTE.cpp"
-	  "Source/Library/Voxel/MagicaVox/Chunk/Chunk.cpp"
+    "Source/Library/Voxel/MagicaVox/Chunk/Chunk.cpp"
     "Source/Library/Voxel/MagicaVox/Chunk/UnkownChunk.h"
     "Source/Library/Voxel/MagicaVox/Chunk/UnkownChunk.cpp"
     "Source/Library/Voxel/MagicaVox/Chunk/ChunkFactory.cpp"
@@ -132,48 +128,17 @@ set(MagickaVox_Files
 )
 source_group("Source/Voxel/MagicaVox" FILES ${MagickaVox_Files})
 
-set(Voxel_Files
-    "Source/Library/Voxel/BinaryVolume.h"
-    "Source/Library/Voxel/BinaryVolume.cpp"
-    "Source/Library/Voxel/MarchingCubes.h"
-    "Source/Library/Voxel/MarchingCubes.cpp"
-    "Source/Library/Voxel/BlockyVoxelTriangulation.h"
-    "Source/Library/Voxel/BlockyVoxelTriangulation.cpp"
-    "Source/Library/Voxel/Voxelizer.h"
-    "Source/Library/Voxel/Voxelizer.cpp"
-)
-source_group("Source/Voxel" FILES ${Voxel_Files})
-
 set(Triangle_Files
-    "Source/Library/Triangle/Triangulation.h"
-    "Source/Library/Triangle/Triangulation.cpp"
-    "Source/Library/Triangle/STLWriter.h"
-    "Source/Library/Triangle/STLWriter.cpp"
     "Source/Library/Triangle/mesh2cad_dumb.h"
     "Source/Library/Triangle/mesh2cad_dumb.cpp"
     "Source/Library/Triangle/mesh2cad_cluster.h"
     "Source/Library/Triangle/mesh2cad_cluster.cpp"
     "Source/Library/Triangle/Clustering.h"
     "Source/Library/Triangle/Clustering.cpp"
-    "Source/Library/Triangle/BaseShapeGenerator.h"
-    "Source/Library/Triangle/BaseShapeGenerator.cpp"
     "Source/Library/Triangle/cocoon.h"
     "Source/Library/Triangle/cocoon.cpp"
 )
 source_group("Source/Triangle" FILES ${Triangle_Files})
-
-set(HalfEdge_Files
-    "Source/Library/Triangle/HalfEdge/mesh2halfedge.h"
-    "Source/Library/Triangle/HalfEdge/mesh2halfedge.cpp"
-    "Source/Library/Triangle/HalfEdge/HalfEdge.h"
-    "Source/Library/Triangle/HalfEdge/HalfEdge.cpp"
-    "Source/Library/Triangle/HalfEdge/HalfEdgeHealth.h"
-    "Source/Library/Triangle/HalfEdge/HalfEdgeHealth.cpp"    
-)
-source_group("Source/Triangle/HalfEdge" FILES ${HalfEdge_Files})
-
-
-
 
 set(ALL_FILES
     ${Source_Files}
@@ -181,12 +146,10 @@ set(ALL_FILES
     ${Operation_Files}
     ${OperationIO_Files}
     ${CADShapes_Files}
-	  ${MagickaVox_Files}
-	  ${MagickaVox_Chunk_Files}
-	  ${MagickaVox_IO}
-	  ${Voxel_Files}
-	  ${Triangle_Files}
-	  ${HalfEdge_Files}
+    ${MagickaVox_Files}
+    ${MagickaVox_Chunk_Files}
+    ${MagickaVox_IO}
+    ${Triangle_Files}
 )
 
 ############################################################################
@@ -199,38 +162,38 @@ set_property(TARGET LibraryTest PROPERTY CXX_STANDARD 20)
 set_property(TARGET Library PROPERTY CXX_STANDARD 20)
 
 target_link_libraries(LibraryTest PUBLIC 
-glm::glm
-nlohmann_json::nlohmann_json
-nfd::nfd
+    CADacomb::CADacomb
+    glm::glm
+    nlohmann_json::nlohmann_json
+    nfd::nfd
 )
 target_link_libraries(Library PUBLIC 
-glm::glm
-nlohmann_json::nlohmann_json
-nfd::nfd
+    CADacomb::CADacomb
+    glm::glm
+    nlohmann_json::nlohmann_json
+    nfd::nfd
 )
 
 target_include_directories(Library PUBLIC 
-./Source/
+    ./Source/
 )
 target_include_directories(Library PRIVATE 
-./Source/Library/
+    ./Source/Library/
 )
 target_include_directories(LibraryTest PUBLIC 
-./Source/
+    ./Source/
 )
 target_include_directories(LibraryTest PRIVATE 
-./Source/Library/
+    ./Source/Library/
 )
 
-#https://www.youtube.com/watch?v=SfRFG_Pk9pk
-#https://dev.opencascade.org/content/buildcompile-application
 foreach(LIB ${OpenCASCADE_LIBRARIES})
-target_link_libraries(Library PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-target_link_libraries(Library PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-target_link_libraries(Library PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-target_link_libraries(LibraryTest PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-target_link_libraries(LibraryTest PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-target_link_libraries(LibraryTest PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(Library PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(Library PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(Library PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(LibraryTest PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(LibraryTest PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(LibraryTest PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
 endforeach()
 
-set_property( TARGET LibraryTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1 )
+set_property(TARGET LibraryTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1)

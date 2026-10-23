@@ -1,16 +1,16 @@
 #include "LoadVoxelOperation.h"
 
-#include "Library/Triangle/Triangulation.h"
-#include "Library/Voxel/BinaryVolume.h"
+#include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Volume/Flat/BinaryVolume.h"
+#include "CADacomb/Volume/Flat/Voxelizer.h"
 #include "Library/Voxel/MagicaVox/VoxFile.h"
-#include "Library/Voxel/Voxelizer.h"
 
 namespace Library
 {
-    std::unique_ptr<BinaryVolume> LoadVoxelOperation::loadMagicaVox(const std::string& filename)
+    std::unique_ptr<CADacomb::BinaryVolume> LoadVoxelOperation::loadMagicaVox(const std::string& filename)
     {
         auto vox          = MagicaVoxImporter::VoxFile::readBinary(filename);
-        auto result       = std::make_unique<BinaryVolume>();
+        auto result       = std::make_unique<CADacomb::BinaryVolume>();
         result->data      = vox.first;
         result->dimension = glm::ivec3(vox.second[0], vox.second[1], vox.second[2]);
         result->origin    = glm::dvec3(0, 0, 0);
@@ -18,11 +18,10 @@ namespace Library
         return std::move(result);
     }
 
-    std::unique_ptr<BinaryVolume> LoadVoxelOperation::voxelize(const Triangulation& triangulation, const glm::ivec3& resolution)
+    std::unique_ptr<CADacomb::BinaryVolume> LoadVoxelOperation::voxelize(const CADacomb::Triangulation& triangulation, const glm::ivec3& resolution)
     {
-        std::unique_ptr<BinaryVolume> result = std::make_unique<BinaryVolume>();
+        std::unique_ptr<CADacomb::BinaryVolume> result = std::make_unique<CADacomb::BinaryVolume>();
 
-        // only XYZ%8==0 allowed
         glm::u64vec3 res = resolution;
         res.x            = res.x + (8 - (res.x % 8));
         res.y            = res.y + (8 - (res.y % 8));
@@ -34,7 +33,7 @@ namespace Library
         result->origin    = aabb.first - voxelLength * 2.0;
         result->size      = aabb.second + voxelLength * 4.0;
 
-        Voxelizer().voxelize(result->data, triangulation.vertices, triangulation.indices, result->origin, result->size, res);
+        CADacomb::Voxelizer().voxelize(result->data, triangulation.vertices, triangulation.indices, result->origin, result->size, res);
         return std::move(result);
     }
 }
