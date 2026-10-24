@@ -17,11 +17,32 @@ set(Source_Files
     "Source/UIPreferences.cpp"
     "Source/PreferencesWindow.h"
     "Source/PreferencesWindow.cpp"
+    "Source/FileMenu.h"
+    "Source/FileMenu.cpp"
 )
 source_group("Source" FILES ${Source_Files})
 
+set(Project_Files
+    "Source/Project/AssetType.h"
+    "Source/Project/AssetType.cpp"
+    "Source/Project/Asset.h"
+    "Source/Project/Asset.cpp"
+    "Source/Project/TriangulationAsset.h"
+    "Source/Project/TriangulationAsset.cpp"
+    "Source/Project/VoxelAsset.h"
+    "Source/Project/VoxelAsset.cpp"
+    "Source/Project/CadAsset.h"
+    "Source/Project/CadAsset.cpp"
+    "Source/Project/Project.h"
+    "Source/Project/Project.cpp"
+    "Source/Project/ProjectWindow.h"
+    "Source/Project/ProjectWindow.cpp"
+)
+source_group("Source/Project" FILES ${Project_Files})
+
 set(ALL_FILES
     ${Source_Files}
+    ${Project_Files}
 )
 
 add_executable(CadaverExe ${ALL_FILES})

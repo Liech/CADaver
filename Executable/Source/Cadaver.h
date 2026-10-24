@@ -1,5 +1,7 @@
 #pragma once
+
 #include "PreferencesData.h"
+#include "Project/Project.h"
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -9,23 +11,29 @@ namespace Vulcant
 {
     class VulcantDevice;
     class VulcantWindow;
-    class VulcantImage;
     class VulcantGraphicCommand;
-    class VulcantComputeCommand;
     class VulcantUi;
+    enum class VulcantInputValue : short;
 }
 
+namespace Vulcant::Toolkit
+{
+    class ArcCam;
+    class MeshRenderer;
+}
+
+class FileMenu;
 class PreferencesWindow;
+class ProjectWindow;
 
 class Cadaver
 {
   public:
-    Cadaver();
+    Cadaver(Vulcant::VulcantDevice& device, const glm::ivec2& resolution = glm::ivec2(1280, 720));
     virtual ~Cadaver();
 
     static void run();
 
-    void createWindow(Vulcant::VulcantDevice& deviceInput, const glm::ivec2& resolution);
     void changeResolution(const glm::ivec2& newResolution);
 
     Vulcant::VulcantWindow& getWindow();
@@ -36,18 +44,27 @@ class Cadaver
     void onRender();
     void onResize(const glm::ivec2& newResolution);
 
-    void prepare(Vulcant::VulcantDevice& deviceInput, const glm::ivec2& resolution);
+    void prepare();
     void recordCommand();
     void renderImGui();
 
-    Vulcant::VulcantDevice*                         device = nullptr;
+    void onKey(const Vulcant::VulcantInputValue& key);
+    void frameCameraOnProject();
+
+    Vulcant::VulcantDevice&                         device;
     std::unique_ptr<Vulcant::VulcantWindow>         window;
-    std::unique_ptr<Vulcant::VulcantImage>          renderImage;
-    std::unique_ptr<Vulcant::VulcantComputeCommand> computeCmd;
     std::unique_ptr<Vulcant::VulcantGraphicCommand> uiCmdG;
+    std::unique_ptr<Vulcant::VulcantGraphicCommand> drawCmd;
     std::unique_ptr<Vulcant::VulcantUi>             ui;
+    std::unique_ptr<Vulcant::Toolkit::MeshRenderer> meshRenderer;
     PreferencesData                                 preferencesData;
     std::unique_ptr<PreferencesWindow>              preferencesWindow;
-    glm::ivec2                                      resolution    = glm::ivec2(1280, 720);
-    bool                                            quitRequested = false;
+    Project                                         project;
+    std::unique_ptr<ProjectWindow>                  projectWindow;
+    std::unique_ptr<FileMenu>                       fileMenu;
+    std::unique_ptr<Vulcant::Toolkit::ArcCam>       camera;
+    glm::vec4                                       backgroundColor = glm::vec4(0.12f, 0.12f, 0.14f, 1.0f);
+    size_t                                          lastAssetCount  = 0;
+    glm::ivec2                                      resolution      = glm::ivec2(1280, 720);
+    bool                                            quitRequested   = false;
 };
