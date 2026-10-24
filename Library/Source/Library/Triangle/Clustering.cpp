@@ -1,18 +1,19 @@
 #include "Clustering.h"
 
-#include "HalfEdge/HalfEdge.h"
-#include "HalfEdge/mesh2halfedge.h"
-#include "Triangulation.h"
+#include "CADacomb/Triangle/HalfEdge/HalfEdge.h"
+#include "CADacomb/Triangle/HalfEdge/mesh2halfedge.h"
+#include "CADacomb/Triangle/Triangulation.h"
+#include <algorithm>
 #include <queue>
 #include <unordered_set>
-#include <algorithm>
 
 namespace Library
 {
     Clustering::Clustering() {}
     Clustering::~Clustering() {}
 
-    std::vector<std::vector<size_t>> Clustering::cluster(const Triangulation& tri, std::function<bool(size_t currentIndex, size_t candidateIndex, const Triangulation&)> growFunction)
+    std::vector<std::vector<size_t>> Clustering::cluster(const CADacomb::Triangulation&                                                                  tri,
+                                                         std::function<bool(size_t currentIndex, size_t candidateIndex, const CADacomb::Triangulation&)> growFunction)
     {
         size_t                                                   numTriangles = tri.indices.size() / 3;
         std::vector<std::vector<size_t>>                         result;
@@ -75,7 +76,7 @@ namespace Library
         return result;
     }
 
-    std::vector<std::vector<size_t>> Clustering::findBorders(const HalfEdgeMesh& mesh, const std::vector<size_t>& trianglesInCluster)
+    std::vector<std::vector<size_t>> Clustering::findBorders(const CADacomb::HalfEdgeMesh& mesh, const std::vector<size_t>& trianglesInCluster)
     {
         std::unordered_set<int64_t> clusterFaces(trianglesInCluster.begin(), trianglesInCluster.end());
 
@@ -92,7 +93,7 @@ namespace Library
             do
             {
                 int64_t twinEdge = mesh.half_edges[curr].twin;
-                int64_t twinFace = (twinEdge != SafeNull) ? mesh.half_edges[twinEdge].face : SafeNull;
+                int64_t twinFace = (twinEdge != CADacomb::SafeNull) ? mesh.half_edges[twinEdge].face : CADacomb::SafeNull;
 
                 // If twinFace is outside the cluster or is a physical hole (SafeNull)
                 if (clusterFaces.find(twinFace) == clusterFaces.end())
@@ -147,7 +148,7 @@ namespace Library
         return allLoops;
     }
 
-    std::vector<std::vector<size_t>> Clustering::splitCluster(const Triangulation& tri, const std::vector<size_t>& cluster, const std::vector<size_t>& looptoBreak)
+    std::vector<std::vector<size_t>> Clustering::splitCluster(const CADacomb::Triangulation& tri, const std::vector<size_t>& cluster, const std::vector<size_t>& looptoBreak)
     {
         if (looptoBreak.empty())
             return { cluster };
@@ -236,18 +237,19 @@ namespace Library
                 clusterB.push_back(triIdx);
         }
 
-        std::set<size_t> clusterASet(clusterA.begin(),clusterA.end());
+        std::set<size_t> clusterASet(clusterA.begin(), clusterA.end());
         for (const auto& x : clusterB)
             assert(!clusterASet.contains(x));
 
         return { clusterA, clusterB };
     }
 
-    std::vector<std::vector<size_t>> Clustering::cluster_withoutHoles(const Triangulation& tri, std::function<bool(size_t currentIndex, size_t candidateIndex, const Triangulation&)> growFunction)
+    std::vector<std::vector<size_t>> Clustering::cluster_withoutHoles(const CADacomb::Triangulation&                                                                  tri,
+                                                                      std::function<bool(size_t currentIndex, size_t candidateIndex, const CADacomb::Triangulation&)> growFunction)
     {
         std::vector<std::vector<size_t>> clusters = cluster(tri, growFunction);
         std::vector<std::vector<size_t>> result;
-        auto                             halfedge = mesh2halfedge::convert(tri);
+        auto                             halfedge = CADacomb::mesh2halfedge::convert(tri);
         std::queue<std::vector<size_t>>  todo;
         for (const auto& x : clusters)
             todo.push(x);
@@ -278,42 +280,32 @@ namespace Library
 }
 
 #ifdef ISTESTPROJECT
+#include "CADacomb/Triangle/HalfEdge/HalfEdgeHealth.h"
+#include "CADacomb/Triangle/HalfEdge/mesh2halfedge.h"
+#include "CADacomb/Triangle/Triangulation.h"
 #include "Library/catch.hpp"
-using namespace Library;
 
-
-Triangulation CreateUnitCubeMeshCluster() {
-    Triangulation m;
-    // 8 Corners of a unit cube
-    // Vertex 4 is at {0, 0, 1}
+CADacomb::Triangulation CreateUnitCubeMeshCluster()
+{
+    CADacomb::Triangulation m;
     m.vertices = {
-        {0,0,0}, {1,0,0}, {1,1,0}, {0,1,0}, // Bottom: 0,1,2,3
-        {0,0,1}, {1,0,1}, {1,1,1}, {0,1,1}  // Top:    4,5,6,7
+        { 0, 0, 0 },
+        { 1, 0, 0 },
+        { 1, 1, 0 },
+        { 0, 1, 0 },
+        { 0, 0, 1 },
+        { 1, 0, 1 },
+        { 1, 1, 1 },
+        { 0, 1, 1 }
     };
 
-    // 12 Triangles (2 per face)
-    // All wound Counter-Clockwise (CCW) when viewed from the OUTSIDE
-    m.indices = {
-        // Bottom (Normal: 0, 0, -1)
-        0, 3, 2,  0, 2, 1,
-        // Top (Normal: 0, 0, 1) - Contains Vertex 4
-        4, 5, 6,  4, 6, 7,
-        // Front (Normal: 0, -1, 0) - Contains Vertex 4
-        0, 1, 5,  0, 5, 4,
-        // Right (Normal: 1, 0, 0)
-        1, 2, 6,  1, 6, 5,
-        // Back (Normal: 0, 1, 0)
-        2, 3, 7,  2, 7, 6,
-        // Left (Normal: -1, 0, 0) - Contains Vertex 4
-        3, 0, 4,  3, 4, 7
-    };
+    m.indices = { 0, 3, 2, 0, 2, 1, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7 };
     return m;
 }
 
-Triangulation CreateHoledSquare()
+CADacomb::Triangulation CreateHoledSquare()
 {
-    Triangulation tri;
-    // Create a 4x4 vertex grid (3x3 quads)
+    CADacomb::Triangulation tri;
     for (int y = 0; y < 4; ++y)
     {
         for (int x = 0; x < 4; ++x)
@@ -322,22 +314,18 @@ Triangulation CreateHoledSquare()
         }
     }
 
-    // Helper to get index at (x, y)
     auto idx = [](int x, int y) { return y * 4 + x; };
 
     for (int y = 0; y < 3; ++y)
     {
         for (int x = 0; x < 3; ++x)
         {
-            // Skip the center quad (x=1, y=1) to create a hole
             if (x == 1 && y == 1)
                 continue;
 
-            // Triangle 1
             tri.indices.push_back(idx(x, y));
             tri.indices.push_back(idx(x + 1, y));
             tri.indices.push_back(idx(x + 1, y + 1));
-            // Triangle 2
             tri.indices.push_back(idx(x, y));
             tri.indices.push_back(idx(x + 1, y + 1));
             tri.indices.push_back(idx(x, y + 1));
@@ -346,66 +334,62 @@ Triangulation CreateHoledSquare()
     return tri;
 }
 
-#include "HalfEdge/HalfEdgeHealth.h"
-TEST_CASE("Clustering::findBorders with Holed Surface", "[clustering][topology]")
+TEST_CASE("Clustering::findBorders with Holed Surface - Loop Count", "[clustering][topology]")
 {
-    using namespace Library;
+    CADacomb::Triangulation tri       = CreateHoledSquare();
+    auto                    mesh      = CADacomb::mesh2halfedge::convert(tri);
+    auto                    report    = CADacomb::HalfEdgeHealth::createReport(*mesh);
+    auto                    trireport = CADacomb::HalfEdgeHealth::createReport(tri);
+    auto                    content   = CADacomb::HalfEdgeHealth::toString(*mesh);
 
-    // 1. Setup
-    Triangulation tri       = CreateHoledSquare();
-    auto          mesh      = mesh2halfedge::convert(tri);
-    auto          report    = HalfEdgeHealth::createReport(*mesh);
-    auto          trireport = HalfEdgeHealth::createReport(tri);
-    auto          content   = HalfEdgeHealth::toString(*mesh);
-
-    // The cluster is the entire mesh (all faces)
     std::vector<size_t> cluster;
     for (size_t i = 0; i < tri.indices.size() / 3; ++i)
     {
         cluster.push_back(i);
     }
 
-    // 2. Execute
-    Clustering                       clustering;
+    Library::Clustering              clustering;
     std::vector<std::vector<size_t>> borders = clustering.findBorders(*mesh, cluster);
 
-    // 3. Assertions
-    SECTION("Correct number of loops detected")
+    REQUIRE(borders.size() == 2);
+}
+
+TEST_CASE("Clustering::findBorders with Holed Surface - Vertex Counts", "[clustering][topology]")
+{
+    CADacomb::Triangulation tri  = CreateHoledSquare();
+    auto                    mesh = CADacomb::mesh2halfedge::convert(tri);
+
+    std::vector<size_t> cluster;
+    for (size_t i = 0; i < tri.indices.size() / 3; ++i)
     {
-        // A square with a hole has 2 boundaries
-        REQUIRE(borders.size() == 2);
+        cluster.push_back(i);
     }
 
-    SECTION("Loops contain correct vertex counts")
-    {
-        // Sort by size so we know which is which
-        std::sort(borders.begin(), borders.end(), [](const auto& a, const auto& b) { return a.size() > b.size(); });
+    Library::Clustering              clustering;
+    std::vector<std::vector<size_t>> borders = clustering.findBorders(*mesh, cluster);
 
-        // Outer boundary: 4 edges * 3 = 12 vertices (perimeter of 4x4 grid)
-        CHECK(borders[0].size() == 12);
+    REQUIRE(borders.size() == 2);
+    std::sort(borders.begin(), borders.end(), [](const auto& a, const auto& b) { return a.size() > b.size(); });
 
-        // Inner hole: 4 vertices (perimeter of the deleted center quad)
-        CHECK(borders[1].size() == 4);
-    }
+    CHECK(borders[0].size() == 12);
+    CHECK(borders[1].size() == 4);
 }
 
 TEST_CASE("Diagnostic A2: Cluster Coverage for Vertex 4", "[logic]")
 {
-    Triangulation mesh      = CreateUnitCubeMeshCluster();
-    REQUIRE(Library::HalfEdgeHealth::isHealthy(mesh));
-    double        threshold = 0.9;
+    CADacomb::Triangulation mesh = CreateUnitCubeMeshCluster();
+    REQUIRE(CADacomb::HalfEdgeHealth::isHealthy(mesh));
+    double threshold = 0.9;
 
-    auto growFunction = [threshold](size_t currentIndex, size_t candidateIndex, const Triangulation& tri) -> bool
+    auto growFunction = [threshold](size_t currentIndex, size_t candidateIndex, const CADacomb::Triangulation& tri) -> bool
     {
         auto curr = tri.getFaceNormal(currentIndex);
         auto cand = tri.getFaceNormal(candidateIndex);
         return glm::dot(curr, cand) > threshold;
     };
 
-    std::vector<std::vector<size_t>> clusters = Clustering::cluster_withoutHoles(mesh, growFunction);
+    std::vector<std::vector<size_t>> clusters = Library::Clustering::cluster_withoutHoles(mesh, growFunction);
 
-    // Identify which triangles in our cube use Vertex 4
-    // Based on the indices {4,5,6}, {4,6,7}, {0,5,4}, {3,0,4}, {3,7,4}
     std::vector<size_t> trianglesWithVertex4;
     for (size_t i = 0; i < mesh.indices.size() / 3; ++i)
     {

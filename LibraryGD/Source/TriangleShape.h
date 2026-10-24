@@ -5,7 +5,7 @@
 #include <godot_cpp/classes/node3d.hpp>
 #include <memory>
 
-namespace Library
+namespace CADacomb
 {
     class Triangulation;
 }
@@ -31,9 +31,9 @@ namespace godot
         static Ref<TriangleShape> loadTriFromFile(const godot::String&);
         bool                      saveTriToFile(const godot::String&);
 
-        void                    setData(std::shared_ptr<Library::Triangulation>);
-        Library::Triangulation& getData();
-        Library::Triangulation& getData() const;
+        void                     setData(std::shared_ptr<CADacomb::Triangulation>);
+        CADacomb::Triangulation& getData();
+        CADacomb::Triangulation& getData() const;
 
       private:
         godot::Array normal_cluster(godot::Callable grow_func, bool holes);
@@ -50,6 +50,6 @@ namespace godot
         Ref<ArrayMesh>  getMesh() const;
         godot::AABB     getAABB() const;
 
-        std::shared_ptr<Library::Triangulation> shape;
+        std::shared_ptr<CADacomb::Triangulation> shape;
     };
 }

@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.20...3.30)
 project(Library)
 project(LibraryTest)
 
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/share/opencascade")
+    list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows")
+endif()
+
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(nfd CONFIG REQUIRED) 
@@ -156,44 +160,44 @@ set(ALL_FILES
 ############################################################################
 ############################################################################
 
-add_executable(LibraryTest ${ALL_FILES})
-add_library(Library ${ALL_FILES})
-set_property(TARGET LibraryTest PROPERTY CXX_STANDARD 20)
-set_property(TARGET Library PROPERTY CXX_STANDARD 20)
+add_executable(CadaverLibraryTest ${ALL_FILES})
+add_library(CadaverLibrary ${ALL_FILES})
+set_property(TARGET CadaverLibraryTest PROPERTY CXX_STANDARD 20)
+set_property(TARGET CadaverLibrary PROPERTY CXX_STANDARD 20)
 
-target_link_libraries(LibraryTest PUBLIC 
+target_link_libraries(CadaverLibraryTest PUBLIC 
     CADacomb::CADacomb
     glm::glm
     nlohmann_json::nlohmann_json
     nfd::nfd
 )
-target_link_libraries(Library PUBLIC 
+target_link_libraries(CadaverLibrary PUBLIC 
     CADacomb::CADacomb
     glm::glm
     nlohmann_json::nlohmann_json
     nfd::nfd
 )
 
-target_include_directories(Library PUBLIC 
+target_include_directories(CadaverLibrary PUBLIC 
     ./Source/
 )
-target_include_directories(Library PRIVATE 
+target_include_directories(CadaverLibrary PRIVATE 
     ./Source/Library/
 )
-target_include_directories(LibraryTest PUBLIC 
+target_include_directories(CadaverLibraryTest PUBLIC 
     ./Source/
 )
-target_include_directories(LibraryTest PRIVATE 
+target_include_directories(CadaverLibraryTest PRIVATE 
     ./Source/Library/
 )
 
 foreach(LIB ${OpenCASCADE_LIBRARIES})
-    target_link_libraries(Library PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(Library PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(Library PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(LibraryTest PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(LibraryTest PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(LibraryTest PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(CadaverLibrary PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(CadaverLibrary PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(CadaverLibrary PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(CadaverLibraryTest PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(CadaverLibraryTest PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(CadaverLibraryTest PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
 endforeach()
 
-set_property(TARGET LibraryTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1)
+set_property(TARGET CadaverLibraryTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1)

@@ -2,9 +2,9 @@
 
 #include <godot_cpp/core/class_db.hpp>
 
+#include "CADacomb/Triangle/Triangulation.h"
 #include "Library/CAD/CADFace.h"
 #include "Library/CAD/CADWire.h"
-#include "Library/Triangle/Triangulation.h"
 
 #include "CADWire.h"
 
@@ -41,7 +41,7 @@ namespace godot
         }
         return result;
     }
-    
+
     godot::String CADFace::getOrientation() const
     {
         return godot::String(get().getOrientation().c_str());

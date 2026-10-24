@@ -4,10 +4,10 @@
 #include <tuple>
 
 #include "CAD/CADShape.h"
-#include "Triangle/Triangulation.h"
-#include "Voxel/MarchingCubes.h"
-#include "Voxel/BlockyVoxelTriangulation.h"
-#include "Voxel/BinaryVolume.h"
+#include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Volume/Flat/BinaryVolume.h"
+#include "CADacomb/Volume/Flat/BlockyVoxelTriangulation.h"
+#include "CADacomb/Volume/Flat/MarchingCubes.h"
 
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>
@@ -18,15 +18,15 @@
 
 namespace Library
 {
-    std::unique_ptr<Triangulation> TriangulateOperation::triangulate(const CADShape& shape, double precision)
+    std::unique_ptr<CADacomb::Triangulation> TriangulateOperation::triangulate(const CADShape& shape, double precision)
     {
-        std::unique_ptr<Triangulation> result = std::make_unique<Triangulation>();
+        std::unique_ptr<CADacomb::Triangulation> result = std::make_unique<CADacomb::Triangulation>();
 
         BRepMesh_IncrementalMesh mesher(shape.getData(), precision);
         mesher.Perform();
         std::map<std::tuple<double, double, double>, int> vertexMap;
-        auto pointToTuple = [](const gp_Pnt& p) { return std::make_tuple(p.X(), p.Y(), p.Z()); };
-        
+        auto                                              pointToTuple = [](const gp_Pnt& p) { return std::make_tuple(p.X(), p.Y(), p.Z()); };
+
         TopExp_Explorer faceExplorer(shape.getData(), TopAbs_FACE);
         for (; faceExplorer.More(); faceExplorer.Next())
         {
@@ -40,7 +40,7 @@ namespace Library
             {
                 size_t triangleAmount = triangulation->NbTriangles();
                 size_t verticesAmount = triangulation->NbNodes();
-                
+
                 for (size_t i = 0; i < verticesAmount; i++)
                 {
                     std::tuple<double, double, double> node = pointToTuple(triangulation->Node(i + 1));
@@ -69,19 +69,18 @@ namespace Library
                         result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(c))]);
                     }
                 }
-
             }
         }
 
         return std::move(result);
     }
-    
-    std::unique_ptr<Triangulation> TriangulateOperation::triangulateRound(const BinaryVolume& shape)
+
+    std::unique_ptr<CADacomb::Triangulation> TriangulateOperation::triangulateRound(const CADacomb::BinaryVolume& shape)
     {
-        std::vector<glm::dvec3> rawResult = MarchingCubes::polygonize(shape.data, shape.origin, glm::dvec3(1, 1, 1), shape.dimension);
+        std::vector<glm::dvec3>                  rawResult = CADacomb::MarchingCubes::polygonize(shape.data, shape.origin, glm::dvec3(1, 1, 1), shape.dimension);
         // initially work with soup
-        std::unique_ptr<Triangulation> result = std::make_unique<Triangulation>();
-        std::reverse(rawResult.begin(),rawResult.end());
+        std::unique_ptr<CADacomb::Triangulation> result = std::make_unique<CADacomb::Triangulation>();
+        std::reverse(rawResult.begin(), rawResult.end());
         result->indices.resize(rawResult.size());
         for (size_t i = 0; i < rawResult.size(); i++)
             result->indices[i] = i;
@@ -90,8 +89,8 @@ namespace Library
         return std::move(result);
     }
 
-    std::unique_ptr<Triangulation> TriangulateOperation::triangulateBlocky(const BinaryVolume& shape)
+    std::unique_ptr<CADacomb::Triangulation> TriangulateOperation::triangulateBlocky(const CADacomb::BinaryVolume& shape)
     {
-        return std::move(BlockyVoxelTriangulation(shape).triangulate());
+        return std::move(CADacomb::BlockyVoxelTriangulation(shape).triangulate());
     }
 }

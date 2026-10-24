@@ -64,7 +64,7 @@ target_include_directories(LibraryGD PRIVATE
 
 target_link_libraries(LibraryGD PUBLIC 
 godot::cpp 
-Library)
+CadaverLibrary)
 
 add_custom_command(TARGET LibraryGD POST_BUILD 
                COMMAND ${CMAKE_COMMAND} -E copy_directory 

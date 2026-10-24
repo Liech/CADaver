@@ -6,7 +6,7 @@
 #include <godot_cpp/classes/node3d.hpp>
 #include <memory>
 
-namespace Library
+namespace CADacomb
 {
     class BinaryVolume;
 }
@@ -29,19 +29,19 @@ namespace godot
         static Ref<VoxelShape> loadVoxFromFile(const godot::String&);
         bool                   saveVoxToFile(const godot::String&);
 
-        void                   setData(std::shared_ptr<Library::BinaryVolume>);
-        Library::BinaryVolume& getData();
+        void                    setData(std::shared_ptr<CADacomb::BinaryVolume>);
+        CADacomb::BinaryVolume& getData();
 
       private:
-        Library::BinaryVolume& getData() const;
-        godot::AABB            getAABB() const;
-        godot::Vector3i        getResolution() const;
-        bool                   get(const godot::Vector3i&) const;
-        void                   set(const godot::Vector3i&, bool);
-        bool                   isInside(const godot::Vector3i&) const;
-        Ref<TriangleShape>     getTriangulationRound() const;
-        Ref<TriangleShape>     getTriangulationBlocky() const;
+        CADacomb::BinaryVolume& getData() const;
+        godot::AABB             getAABB() const;
+        godot::Vector3i         getResolution() const;
+        bool                    get(const godot::Vector3i&) const;
+        void                    set(const godot::Vector3i&, bool);
+        bool                    isInside(const godot::Vector3i&) const;
+        Ref<TriangleShape>      getTriangulationRound() const;
+        Ref<TriangleShape>      getTriangulationBlocky() const;
 
-        std::shared_ptr<Library::BinaryVolume> shape;
+        std::shared_ptr<CADacomb::BinaryVolume> shape;
     };
 }

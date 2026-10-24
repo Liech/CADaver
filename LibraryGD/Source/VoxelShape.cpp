@@ -1,10 +1,10 @@
 #include "VoxelShape.h"
 
+#include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Volume/Flat/BinaryVolume.h"
 #include "Library/Operation/IO/LoadVoxelOperation.h"
 #include "Library/Operation/IO/SaveVoxelOperation.h"
 #include "Library/Operation/TriangulateOperation.h"
-#include "Library/Triangle/Triangulation.h"
-#include "Library/Voxel/BinaryVolume.h"
 #include <godot_cpp/classes/surface_tool.hpp>
 
 namespace godot
@@ -24,7 +24,7 @@ namespace godot
 
     VoxelShape::VoxelShape()
     {
-        shape = std::make_unique<Library::BinaryVolume>();
+        shape = std::make_unique<CADacomb::BinaryVolume>();
     }
 
     VoxelShape::~VoxelShape() {}
@@ -37,8 +37,8 @@ namespace godot
 
     Ref<VoxelShape> VoxelShape::loadVoxFromFile(const godot::String& str)
     {
-        std::string                            filename = std::string(str.utf8());
-        std::shared_ptr<Library::BinaryVolume> result   = Library::LoadVoxelOperation::loadMagicaVox(filename);
+        std::string                             filename = std::string(str.utf8());
+        std::shared_ptr<CADacomb::BinaryVolume> result   = Library::LoadVoxelOperation::loadMagicaVox(filename);
         if (result)
         {
             auto s = godot::Ref<godot::VoxelShape>();
@@ -56,17 +56,17 @@ namespace godot
         return true;
     }
 
-    void VoxelShape::setData(std::shared_ptr<Library::BinaryVolume> vol)
+    void VoxelShape::setData(std::shared_ptr<CADacomb::BinaryVolume> vol)
     {
         shape = vol;
     }
 
-    Library::BinaryVolume& VoxelShape::getData()
+    CADacomb::BinaryVolume& VoxelShape::getData()
     {
         return *shape;
     }
 
-    Library::BinaryVolume& VoxelShape::getData() const
+    CADacomb::BinaryVolume& VoxelShape::getData() const
     {
         return *shape;
     }
@@ -86,7 +86,7 @@ namespace godot
         Ref<TriangleShape> result;
         result.instantiate();
         result->setData(std::move(mesh));
-        return            result;
+        return result;
     }
 
     Ref<TriangleShape> VoxelShape::getTriangulationBlocky() const

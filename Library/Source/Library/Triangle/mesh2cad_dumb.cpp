@@ -2,7 +2,7 @@
 
 #include "CAD/CADShape.h"
 #include "CAD/CADShapeFactory.h"
-#include "Triangulation.h"
+#include "CADacomb/Triangle/Triangulation.h"
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeSolid.hxx>
@@ -23,7 +23,7 @@
 
 namespace Library
 {
-    std::unique_ptr<CADShape> mesh2cad_dumb::cadify_dumb(const Triangulation& mesh)
+    std::unique_ptr<CADShape> mesh2cad_dumb::cadify_dumb(const CADacomb::Triangulation& mesh)
     {
         BRepBuilderAPI_Sewing sewer;
         sewer.SetTolerance(1e-6); // Adjust based on your mesh precision

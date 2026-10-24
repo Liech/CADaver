@@ -1,13 +1,14 @@
-#include "mesh2cad_cluster.h"
+ï»¿#include "mesh2cad_cluster.h"
 
 #include "CAD/CADShape.h"
 #include "CAD/CADShapeFactory.h"
+#include "CADacomb/Triangle/HalfEdge/HalfEdge.h"
+#include "CADacomb/Triangle/HalfEdge/HalfEdgeHealth.h"
+#include "CADacomb/Triangle/HalfEdge/mesh2halfedge.h"
+#include "CADacomb/Triangle/Triangulation.h"
 #include "Clustering.h"
-#include "HalfEdge/HalfEdge.h"
-#include "HalfEdge/HalfEdgeHealth.h"
-#include "HalfEdge/mesh2halfedge.h"
 #include "Library/CAD/CADShapeFactory.h"
-#include "Triangulation.h"
+#include "cocoon.h"
 #include <BRepAdaptor_Curve.hxx>
 #include <BRepBuilderAPI_FindPlane.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
@@ -63,7 +64,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include "cocoon.h"
 
 namespace Library
 {
@@ -81,7 +81,7 @@ namespace Library
 
     CoonValidity CheckWireForCoon(const TopoDS_Wire& wire, double tolerance = 1e-6)
     {
-        // 1. Topologische Grundprüfung
+        // 1. Topologische GrundprÃ¼fung
         BRepCheck_Analyzer analyzer(wire);
         if (!analyzer.IsValid())
         {
@@ -94,8 +94,8 @@ namespace Library
             return CoonValidity::NotClosed;
         }
 
-        // 3. Geometrische Lücken an den Ecken prüfen
-        // Der Coons-Solver braucht C0-Stetigkeit an den Übergängen
+        // 3. Geometrische LÃ¼cken an den Ecken prÃ¼fen
+        // Der Coons-Solver braucht C0-Stetigkeit an den ÃœbergÃ¤ngen
         TopExp_Explorer          exp(wire, TopAbs_EDGE);
         std::vector<TopoDS_Edge> edges;
         while (exp.More())
@@ -108,7 +108,7 @@ namespace Library
         {
             // Ein Coons-Patch braucht 4 Begrenzungen.
             // Man kann einen Wire mit 2 oder 3 Edges zwar splitten,
-            // aber für den Standard-Solver ist das oft instabil.
+            // aber fÃ¼r den Standard-Solver ist das oft instabil.
             int x = 0;
         }
 
@@ -129,10 +129,10 @@ namespace Library
         return CoonValidity::Valid;
     }
 
-    std::unique_ptr<CADShape> mesh2cad_cluster::convert(const Triangulation& mesh, double threshold)
+    std::unique_ptr<CADShape> mesh2cad_cluster::convert(const CADacomb::Triangulation& mesh, double threshold)
     {
         return convert(mesh,
-                       [threshold](size_t currentIndex, size_t candidateIndex, const Triangulation& tri) -> bool
+                       [threshold](size_t currentIndex, size_t candidateIndex, const CADacomb::Triangulation& tri) -> bool
                        {
                            auto curr = tri.getFaceNormal(currentIndex);
                            auto cand = tri.getFaceNormal(candidateIndex);
@@ -140,9 +140,9 @@ namespace Library
                        });
     }
 
-    Triangulation extractTriangles(const Triangulation& source, const std::vector<size_t>& triangleIndicesToKeep)
+    CADacomb::Triangulation extractTriangles(const CADacomb::Triangulation& source, const std::vector<size_t>& triangleIndicesToKeep)
     {
-        Triangulation result;
+        CADacomb::Triangulation result;
 
         // Maps old vertex index -> new vertex index
         std::unordered_map<size_t, size_t> indexMap;
@@ -179,10 +179,11 @@ namespace Library
         return result;
     }
 
-    std::unique_ptr<CADShape> mesh2cad_cluster::convert(const Triangulation& mesh, std::function<bool(size_t currentIndex, size_t candidateIndex, const Triangulation&)> growFunction)
+    std::unique_ptr<CADShape> mesh2cad_cluster::convert(const CADacomb::Triangulation&                                                                  mesh,
+                                                        std::function<bool(size_t currentIndex, size_t candidateIndex, const CADacomb::Triangulation&)> growFunction)
     {
         report       = "";
-        bool healthy = Library::HalfEdgeHealth::isHealthy(mesh);
+        bool healthy = CADacomb::HalfEdgeHealth::isHealthy(mesh);
         if (!healthy)
         {
             report += "Unhealthy\n";
@@ -190,7 +191,7 @@ namespace Library
         }
 
         report += "MESH\n";
-        report += HalfEdgeHealth::toString(mesh);
+        report += CADacomb::HalfEdgeHealth::toString(mesh);
         report += "MESHEND\n";
 
         // 0. Preperation
@@ -216,7 +217,7 @@ namespace Library
         }
 
         report += "HalfEdge\n";
-        auto                             halfedge = mesh2halfedge::convert(mesh);
+        auto                             halfedge = CADacomb::mesh2halfedge::convert(mesh);
         std::vector<std::vector<size_t>> borders;
 
         report += "Borders\n";
@@ -246,7 +247,7 @@ namespace Library
         // 2. Convert Mesh Clusters to B-Rep Faces
         report += "Cluster2Faces\n";
         // std::vector<TopoDS_Face> faces = Cluster2Faces(wires, cluster, edgeNormals, mesh, vcache);
-        //std::vector<TopoDS_Face> faces = Cluster2Coon(wires, mesh);
+        // std::vector<TopoDS_Face> faces = Cluster2Coon(wires, mesh);
         std::vector<TopoDS_Face> faces;
         for (const auto& w : wires)
         {
@@ -266,7 +267,7 @@ namespace Library
 
         // 4. Creating the Solid
         auto solid = MakeSolid(stich);
-        //BRepLib::OrientClosedSolid(solid);
+        // BRepLib::OrientClosedSolid(solid);
 
         auto result = CADShapeFactory::make(solid);
         CADShapeFactory::recurseFillChildShapes(*result);
@@ -300,7 +301,7 @@ namespace Library
 
     std::vector<std::vector<glm::dvec3>> mesh2cad_cluster::Borders2EdgeNormals(const std::vector<std::vector<size_t>>& borders,
                                                                                const std::vector<std::vector<size_t>>& clusters, // Neu: Die Cluster-Information
-                                                                               const Triangulation&                    mesh)
+                                                                               const CADacomb::Triangulation&          mesh)
     {
         std::map<std::pair<size_t, size_t>, std::vector<size_t>> adjacency = mesh.getAdjacency();
         std::vector<std::vector<glm::dvec3>>                     resultNormals;
@@ -308,7 +309,7 @@ namespace Library
         for (size_t bIdx = 0; bIdx < borders.size(); ++bIdx)
         {
             const auto&                border = borders[bIdx];
-            // Erstelle ein Set für schnellen Lookup, welche Dreiecke zum aktuellen Cluster gehören
+            // Erstelle ein Set fÃ¼r schnellen Lookup, welche Dreiecke zum aktuellen Cluster gehÃ¶ren
             std::unordered_set<size_t> currentClusterTris(clusters[bIdx].begin(), clusters[bIdx].end());
 
             std::vector<glm::dvec3> currentBorderNormals;
@@ -327,7 +328,7 @@ namespace Library
                 {
                     for (size_t triIdx : adjacency[edgeKey])
                     {
-                        // PRÜFUNG: Gehört dieses Dreieck zum aktuellen Cluster?
+                        // PRÃœFUNG: GehÃ¶rt dieses Dreieck zum aktuellen Cluster?
                         if (currentClusterTris.find(triIdx) != currentClusterTris.end())
                         {
                             const auto& v0 = mesh.vertices[mesh.indices[triIdx * 3 + 0]];
@@ -341,7 +342,7 @@ namespace Library
                             {
                                 edgeNormal    = n / len;
                                 foundInternal = true;
-                                break; // Wir haben das interne Dreieck gefunden, weiter zur nächsten Kante
+                                break; // Wir haben das interne Dreieck gefunden, weiter zur nÃ¤chsten Kante
                             }
                         }
                     }
@@ -362,7 +363,7 @@ namespace Library
     }
 
     std::vector<TopoDS_Wire> mesh2cad_cluster::Borders2Wires(const std::vector<std::vector<size_t>>&           borders,
-                                                             const Triangulation&                              mesh,
+                                                             const CADacomb::Triangulation&                    mesh,
                                                              std::map<size_t, TopoDS_Vertex>&                  vcache, // Changed from gp_Pnt to TopoDS_Vertex
                                                              std::map<std::pair<size_t, size_t>, TopoDS_Edge>& ecache)
     {
@@ -461,7 +462,7 @@ namespace Library
         return ss.str();
     }
 
-    std::vector<TopoDS_Face> mesh2cad_cluster::Cluster2Coon(const std::vector<TopoDS_Wire>& wires, const Triangulation& mesh)
+    std::vector<TopoDS_Face> mesh2cad_cluster::Cluster2Coon(const std::vector<TopoDS_Wire>& wires, const CADacomb::Triangulation& mesh)
     {
         std::vector<TopoDS_Face> result_faces;
 
@@ -478,8 +479,8 @@ namespace Library
                 Handle(Geom_Curve) c = BRep_Tool::Curve(exp.Current(), f, l);
                 if (exp.Current().Orientation() == TopAbs_REVERSED)
                 {
-                    // Hier müsste logisch die Kurve umgedreht werden,
-                    // für die manuelle Berechnung reicht die Richtungskontrolle
+                    // Hier mÃ¼sste logisch die Kurve umgedreht werden,
+                    // fÃ¼r die manuelle Berechnung reicht die Richtungskontrolle
                 }
                 curves.push_back(c);
                 firsts.push_back(f);
@@ -497,8 +498,8 @@ namespace Library
                 return curves[idx]->Value(p);
             };
 
-            // 2. Erstelle Punkt-Gitter (z.B. 10x10) für die Coons-Interpolation
-            int                n = 15; // Auflösung
+            // 2. Erstelle Punkt-Gitter (z.B. 10x10) fÃ¼r die Coons-Interpolation
+            int                n = 15; // AuflÃ¶sung
             TColgp_Array2OfPnt points(1, n, 1, n);
 
             for (int i = 1; i <= n; ++i)
@@ -514,7 +515,7 @@ namespace Library
                     gp_Pnt d1_v = getPoint(3, 1.0 - v); // Linke Kante (umgekehrt)
                     gp_Pnt d2_v = getPoint(1, v);       // Rechte Kante
 
-                    // Eckpunkte für die bilineare Korrektur
+                    // Eckpunkte fÃ¼r die bilineare Korrektur
                     gp_Pnt P00 = getPoint(0, 0); // Ecke unten links
                     gp_Pnt P10 = getPoint(0, 1); // Ecke unten rechts
                     gp_Pnt P01 = getPoint(2, 1); // Ecke oben links
@@ -549,7 +550,7 @@ namespace Library
                 }
             }
 
-            // 3. Aus dem Gitter eine Fläche bauen
+            // 3. Aus dem Gitter eine FlÃ¤che bauen
             GeomAPI_PointsToBSplineSurface approx(points);
             Handle(Geom_BSplineSurface) surface = approx.Surface();
 
@@ -566,7 +567,7 @@ namespace Library
     std::vector<TopoDS_Face> mesh2cad_cluster::Cluster2Faces(const std::vector<TopoDS_Wire>&             wires,
                                                              const std::vector<std::vector<size_t>>&     clusters,
                                                              const std::vector<std::vector<glm::dvec3>>& edgeNormals,
-                                                             const Triangulation&                        mesh,
+                                                             const CADacomb::Triangulation&              mesh,
                                                              std::map<size_t, TopoDS_Vertex>&            vcache)
     {
         std::vector<TopoDS_Face> result_faces;
@@ -579,7 +580,7 @@ namespace Library
                 // Initialisierung
                 GeomPlate_BuildPlateSurface builder(3, 15, 3);
 
-                // 1. Kurven-Constraints (Ränder)
+                // 1. Kurven-Constraints (RÃ¤nder)
                 for (TopoDS_Iterator it(wires[i]); it.More(); it.Next())
                 {
                     TopoDS_Edge edge = TopoDS::Edge(it.Value());
@@ -611,12 +612,12 @@ namespace Library
                     // Signatur: (Punkt, Order, Toleranz) -> Order 0 = C0
                     builder.Add(new GeomPlate_PointConstraint(pos, GeomAbs_C0, 0.001));
 
-                    // Der Richtungs-Punkt (Offset erzwingt die Krümmung ohne G1-API Stress)
+                    // Der Richtungs-Punkt (Offset erzwingt die KrÃ¼mmung ohne G1-API Stress)
                     gp_Pnt posOffset(pos.X() + n.x * offset_dist, pos.Y() + n.y * offset_dist, pos.Z() + n.z * offset_dist);
                     builder.Add(new GeomPlate_PointConstraint(posOffset, GeomAbs_C0, 0.001));
                 }
 
-                // 3. Fläche berechnen
+                // 3. FlÃ¤che berechnen
                 builder.Perform();
 
                 if (builder.IsDone())
@@ -667,7 +668,7 @@ namespace Library
 }
 
 #ifdef false
-//#ifdef ISTESTPROJECT
+// #ifdef ISTESTPROJECT
 #include "BaseShapeGenerator.h"
 #include "Library/catch.hpp"
 #include <BRepCheck_Analyzer.hxx>
@@ -682,9 +683,9 @@ namespace Library
 
 using namespace Library;
 
-Triangulation CreateUnitCubeMesh()
+CADacomb::Triangulation CreateUnitCubeMesh()
 {
-    Triangulation m;
+    CADacomb::Triangulation m;
     m.vertices = {
         { 0, 0, 0 },
         { 1, 0, 0 },
@@ -702,7 +703,7 @@ Triangulation CreateUnitCubeMesh()
 TEST_CASE("mesh2cad_cluster::Borders2Wires - Basic Loops", "[mesh2cad]")
 {
     Library::mesh2cad_cluster converter;
-    Library::Triangulation    mesh;
+    CADacomb::Triangulation   mesh;
 
     // Define a simple quad (2 triangles)
     // 0(0,1) -- 1(1,1)
@@ -790,7 +791,7 @@ TEST_CASE("mesh2cad_cluster::Borders2Wires - Basic Loops", "[mesh2cad]")
 TEST_CASE("mesh2cad_cluster::Borders2Wires - Topology Sharing", "[mesh2cad]")
 {
     Library::mesh2cad_cluster converter;
-    Library::Triangulation    mesh;
+    CADacomb::Triangulation   mesh;
 
     // Define vertices for two adjacent triangles
     // 0 --- 1 --- 4
@@ -874,7 +875,7 @@ TEST_CASE("mesh2cad_cluster::Borders2Wires - Topology Sharing", "[mesh2cad]")
 TEST_CASE("mesh2cad_cluster::convert - Full Cube Reconstruction", "[mesh2cad]")
 {
     Library::mesh2cad_cluster converter;
-    Library::Triangulation    mesh = CreateUnitCubeMesh();
+    CADacomb::Triangulation   mesh = CreateUnitCubeMesh();
 
     // 3. Run the full conversion
     // Threshold 0.9 ensures triangles with the same normal cluster together

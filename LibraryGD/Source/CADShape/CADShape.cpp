@@ -1,12 +1,12 @@
 #include "CADShape.h"
 #include "CADShapeFactory.h"
+#include "CADacomb/Triangle/Triangulation.h"
 #include "Library/CAD/CADShape.h"
 #include "Library/Operation/TriangulateOperation.h"
-#include "Library/Triangle/Triangulation.h"
+#include "TriangleShape.h"
 #include <godot_cpp/classes/surface_tool.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/aabb.hpp>
-#include "TriangleShape.h"
 
 namespace godot
 {

@@ -27,13 +27,11 @@ namespace Library
         res.y            = res.y + (8 - (res.y % 8));
         res.z            = res.z + (8 - (res.z % 8));
 
-        auto aabb         = triangulation.getAABB();
-        auto voxelLength  = glm::dvec3(aabb.second.x / res.x, aabb.second.y / res.y, aabb.second.z / res.z);
-        result->dimension = res;
-        result->origin    = aabb.first - voxelLength * 2.0;
-        result->size      = aabb.second + voxelLength * 4.0;
+        auto       aabb        = triangulation.getAABB();
+        auto       voxelLength = glm::dvec3(aabb.second.x / res.x, aabb.second.y / res.y, aabb.second.z / res.z);
+        glm::dvec3 origin      = aabb.first - voxelLength * 2.0;
+        glm::dvec3 size        = aabb.second + voxelLength * 4.0;
 
-        CADacomb::Voxelizer().voxelize(result->data, triangulation.vertices, triangulation.indices, result->origin, result->size, res);
-        return std::move(result);
+        return CADacomb::Voxelizer().voxelize(triangulation.vertices, triangulation.indices, origin, size, res);
     }
 }

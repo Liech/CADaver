@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8...3.20)
-project(Executable)
+project(CadaverExe)
 
 ############################################################################
 ############################################################################
@@ -25,17 +25,17 @@ set(ALL_FILES
 ############################################################################
 ############################################################################
 
-add_executable(Executable ${ALL_FILES})
-set_property(TARGET Executable PROPERTY CXX_STANDARD 20)
+add_executable(CadaverExe ${ALL_FILES})
+set_property(TARGET CadaverExe PROPERTY CXX_STANDARD 20)
 
-target_link_libraries(Executable
+target_link_libraries(CadaverExe
 glm::glm
 nlohmann_json::nlohmann_json
-Library
+CadaverLibrary
 )
 
-target_include_directories(Executable PUBLIC 
+target_include_directories(CadaverExe PUBLIC 
 ./Source/
 )
 
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Executable)
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT CadaverExe)

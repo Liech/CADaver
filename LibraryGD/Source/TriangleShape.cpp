@@ -2,16 +2,16 @@
 
 #include "CADShape/CADShape.h"
 #include "CADShape/CADShapeFactory.h"
+#include "CADacomb/Triangle/HalfEdge/HalfEdge.h"
+#include "CADacomb/Triangle/HalfEdge/HalfEdgeHealth.h"
+#include "CADacomb/Triangle/HalfEdge/mesh2halfedge.h"
+#include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Volume/Flat/BinaryVolume.h"
 #include "Library/CAD/CADShape.h"
 #include "Library/Operation/IO/LoadCADOperation.h"
 #include "Library/Operation/IO/LoadVoxelOperation.h"
 #include "Library/Triangle/Clustering.h"
-#include "Library/Triangle/HalfEdge/HalfEdge.h"
-#include "Library/Triangle/HalfEdge/HalfEdgeHealth.h"
-#include "Library/Triangle/HalfEdge/mesh2halfedge.h"
-#include "Library/Triangle/Triangulation.h"
 #include "Library/Triangle/mesh2cad_cluster.h"
-#include "Library/Voxel/BinaryVolume.h"
 #include "VoxelShape.h"
 #include <godot_cpp/classes/surface_tool.hpp>
 
@@ -36,7 +36,7 @@ namespace godot
 
     TriangleShape::TriangleShape()
     {
-        shape = std::make_unique<Library::Triangulation>();
+        shape = std::make_unique<CADacomb::Triangulation>();
     }
 
     TriangleShape::~TriangleShape() {}
@@ -49,8 +49,8 @@ namespace godot
 
     Ref<TriangleShape> TriangleShape::loadTriFromFile(const godot::String& str)
     {
-        std::string                             filename = std::string(str.utf8());
-        std::shared_ptr<Library::Triangulation> result   = Library::Triangulation::fromSTLFile(filename);
+        std::string                              filename = std::string(str.utf8());
+        std::shared_ptr<CADacomb::Triangulation> result   = CADacomb::Triangulation::fromSTLFile(filename);
         if (result)
         {
             auto s = godot::Ref<godot::TriangleShape>();
@@ -68,17 +68,17 @@ namespace godot
         return true;
     }
 
-    void TriangleShape::setData(std::shared_ptr<Library::Triangulation> vol)
+    void TriangleShape::setData(std::shared_ptr<CADacomb::Triangulation> vol)
     {
         shape = vol;
     }
 
-    Library::Triangulation& TriangleShape::getData()
+    CADacomb::Triangulation& TriangleShape::getData()
     {
         return *shape;
     }
 
-    Library::Triangulation& TriangleShape::getData() const
+    CADacomb::Triangulation& TriangleShape::getData() const
     {
         return *shape;
     }
@@ -117,8 +117,8 @@ namespace godot
 
     Ref<VoxelShape> TriangleShape::toVoxel(const Vector3i& resolution) const
     {
-        std::shared_ptr<Library::BinaryVolume> resultShape = Library::LoadVoxelOperation::voxelize(*shape, glm::ivec3(resolution.x, resolution.y, resolution.z));
-        Ref<VoxelShape>                        result;
+        std::shared_ptr<CADacomb::BinaryVolume> resultShape = Library::LoadVoxelOperation::voxelize(*shape, glm::ivec3(resolution.x, resolution.y, resolution.z));
+        Ref<VoxelShape>                         result;
         result.instantiate();
         result->setData(resultShape);
         return result;
@@ -132,7 +132,7 @@ namespace godot
 
     Ref<CADShape> TriangleShape::toCad_cluster(godot::Callable grow_func) const
     {
-        auto wrapper = [&grow_func, this](size_t current, size_t candidate, const Library::Triangulation& t) -> bool
+        auto wrapper = [&grow_func, this](size_t current, size_t candidate, const CADacomb::Triangulation& t) -> bool
         {
             auto           normCurrent   = t.getFaceNormal(current);
             auto           normCandidate = t.getFaceNormal(candidate);
@@ -159,7 +159,7 @@ namespace godot
             translatedInput.push_back(static_cast<size_t>(input[i]));
         }
 
-        auto                             halfedge = Library::mesh2halfedge::convert(*shape);
+        auto                             halfedge = CADacomb::mesh2halfedge::convert(*shape);
         std::vector<std::vector<size_t>> preResult;
         preResult = Library::Clustering::findBorders(*halfedge, translatedInput);
 
@@ -179,7 +179,7 @@ namespace godot
 
     godot::Array TriangleShape::normal_cluster(godot::Callable grow_func, bool holes)
     {
-        auto wrapper = [&grow_func, this](size_t current, size_t candidate, const Library::Triangulation& t) -> bool
+        auto wrapper = [&grow_func, this](size_t current, size_t candidate, const CADacomb::Triangulation& t) -> bool
         {
             auto           normCurrent   = t.getFaceNormal(current);
             auto           normCandidate = t.getFaceNormal(candidate);
@@ -212,22 +212,23 @@ namespace godot
     godot::String TriangleShape::toHalfEdgeString() const
     {
         std::string result;
-        auto        halfedge = Library::mesh2halfedge::convert(*shape);
-        result               = Library::HalfEdgeHealth::toString(*halfedge);
+        auto        halfedge = CADacomb::mesh2halfedge::convert(*shape);
+        result               = CADacomb::HalfEdgeHealth::toString(*halfedge);
         return result.c_str();
     }
 
     godot::String TriangleShape::getHalfEdgeReport() const
     {
         std::string result;
-        auto        halfedge = Library::mesh2halfedge::convert(*shape);
-        result               = Library::HalfEdgeHealth::createReport(*halfedge);
+        auto        halfedge = CADacomb::mesh2halfedge::convert(*shape);
+        result               = CADacomb::HalfEdgeHealth::createReport(*halfedge);
         return result.c_str();
     }
+
     godot::String TriangleShape::getMeshReport() const
     {
         std::string result;
-        result = Library::HalfEdgeHealth::createReport(*shape);
+        result = CADacomb::HalfEdgeHealth::createReport(*shape);
         return result.c_str();
     }
 }
