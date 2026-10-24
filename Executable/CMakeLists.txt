@@ -34,8 +34,14 @@ nlohmann_json::nlohmann_json
 CadaverLibrary
 )
 
-target_include_directories(CadaverExe PUBLIC 
-./Source/
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT CadaverExe)
+
+add_custom_command(TARGET CadaverExe POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>"
+        $<TARGET_FILE_DIR:CadaverExe>
 )
 
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT CadaverExe)
+set_property(TARGET CadaverExe PROPERTY VS_DEBUGGER_ENVIRONMENT 
+    "PATH=$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>;%PATH%"
+)

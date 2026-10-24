@@ -1,4 +1,4 @@
-﻿#include "mesh2cad_cluster.h"
+#include "mesh2cad_cluster.h"
 
 #include "CAD/CADShape.h"
 #include "CAD/CADShapeFactory.h"
@@ -669,7 +669,7 @@ namespace Library
 
 #ifdef false
 // #ifdef ISTESTPROJECT
-#include "BaseShapeGenerator.h"
+#include "CADacomb/Triangle/BaseShapeGenerator.h"
 #include "Library/catch.hpp"
 #include <BRepCheck_Analyzer.hxx>
 #include <BRepGProp.hxx>
@@ -680,8 +680,6 @@ namespace Library
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Vertex.hxx>
-
-using namespace Library;
 
 CADacomb::Triangulation CreateUnitCubeMesh()
 {
@@ -931,7 +929,7 @@ TEST_CASE("mesh2cad_cluster::convert - Full Cube Reconstruction", "[mesh2cad]")
 TEST_CASE("mesh2cad_cluster::convert - Full Cube With Hole Reconstruction", "[mesh2cad]")
 {
     Library::mesh2cad_cluster converter;
-    auto                      mesh = Library::BaseShapeGenerator::cubeWithHole(5);
+    auto                      mesh = CADacomb::BaseShapeGenerator::cubeWithHole(5);
 
     // 3. Run the full conversion
     // Threshold 0.9 ensures triangles with the same normal cluster together

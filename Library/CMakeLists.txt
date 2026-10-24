@@ -192,12 +192,28 @@ target_include_directories(CadaverLibraryTest PRIVATE
 )
 
 foreach(LIB ${OpenCASCADE_LIBRARIES})
-    target_link_libraries(CadaverLibrary PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(CadaverLibrary PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(CadaverLibrary PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(CadaverLibraryTest PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(CadaverLibraryTest PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-    target_link_libraries(CadaverLibraryTest PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    if(TARGET ${LIB})
+        target_link_libraries(CadaverLibrary PRIVATE ${LIB})
+        target_link_libraries(CadaverLibraryTest PRIVATE ${LIB})
+    else()
+        target_link_libraries(CadaverLibrary PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+        target_link_libraries(CadaverLibrary PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+        target_link_libraries(CadaverLibrary PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+        target_link_libraries(CadaverLibraryTest PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+        target_link_libraries(CadaverLibraryTest PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+        target_link_libraries(CadaverLibraryTest PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    endif()
 endforeach()
 
 set_property(TARGET CadaverLibraryTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1)
+
+add_custom_command(TARGET CadaverLibraryTest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>"
+        $<TARGET_FILE_DIR:CadaverLibraryTest>
+)
+
+set_property(TARGET CadaverLibraryTest PROPERTY VS_DEBUGGER_ENVIRONMENT 
+    "PATH=$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>;%PATH%"
+)
+
