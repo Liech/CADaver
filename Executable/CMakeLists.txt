@@ -78,10 +78,17 @@ set(Database_Files
 )
 source_group("Source/Database" FILES ${Database_Files})
 
+set(UI_About_Files
+    "Source/UI/About/AboutWindow.h"
+    "Source/UI/About/AboutWindow.cpp"
+)
+source_group("Source/UI/About" FILES ${UI_About_Files})
+
 set(ALL_FILES
     ${Source_Files}
     ${Preferences_Files}
     ${UI_Preferences_Files}
+    ${UI_About_Files}
     ${Project_Files}
     ${Rendering_Files}
     ${Database_Files}
@@ -113,8 +120,21 @@ add_custom_command(TARGET CadaverExe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "$<IF:$<CONFIG:Debug>,${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/debug/bin,${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/bin>"
         $<TARGET_FILE_DIR:CadaverExe>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/../about.txt"
+        "$<TARGET_FILE_DIR:CadaverExe>/about.txt"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/../Licenses"
+        "$<TARGET_FILE_DIR:CadaverExe>/Licenses"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/../about.txt"
+        "${CMAKE_CURRENT_BINARY_DIR}/about.txt"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/../Licenses"
+        "${CMAKE_CURRENT_BINARY_DIR}/Licenses"
 )
 
+set_property(TARGET CadaverExe PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:CadaverExe>")
 set_property(TARGET CadaverExe PROPERTY VS_DEBUGGER_ENVIRONMENT 
     "PATH=$<IF:$<CONFIG:Debug>,${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/debug/bin,${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/bin>;$<IF:$<CONFIG:Debug>,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/debug/bin,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin>;%PATH%"
 )

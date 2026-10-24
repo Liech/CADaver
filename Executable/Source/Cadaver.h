@@ -21,6 +21,7 @@ namespace Vulcant::Toolkit
     class Camera;
 }
 
+class AboutWindow;
 class AssetRenderFactory;
 class FileMenu;
 class PreferencesWindow;
@@ -62,6 +63,7 @@ class Cadaver
     std::unique_ptr<Renderer>                       renderer;
     std::unique_ptr<AssetRenderFactory>             assetRenderFactory;
     std::unique_ptr<PreferencesWindow>              preferencesWindow;
+    std::unique_ptr<AboutWindow>                    aboutWindow;
     std::unique_ptr<ProjectWindow>                  projectWindow;
     std::unique_ptr<FileMenu>                       fileMenu;
     std::unique_ptr<Vulcant::Toolkit::Camera>       camera;

@@ -10,6 +10,7 @@
 #include "Project/TriangulationAsset.h"
 #include "Renderer.h"
 #include "Rendering/AssetRenderFactory.h"
+#include "UI/About/AboutWindow.h"
 #include "UI/Preferences/PreferencesWindow.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
@@ -305,6 +306,7 @@ void Cadaver::prepare()
     preferencesWindow = std::make_unique<PreferencesWindow>();
     preferencesWindow->getUIPreferencesView().apply(preferences.getUIPreferences());
 
+    aboutWindow   = std::make_unique<AboutWindow>();
     projectWindow = std::make_unique<ProjectWindow>();
     fileMenu      = std::make_unique<FileMenu>();
 
@@ -342,20 +344,14 @@ void Cadaver::renderImGui()
             fileMenu->render(project, *preferencesWindow, quitRequested);
         }
 
-        if (ImGui::BeginMenu("Edit"))
-        {
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("View"))
-        {
-            ImGui::EndMenu();
-        }
-
         if (ImGui::BeginMenu("Help"))
         {
             if (ImGui::MenuItem("About CADaver"))
             {
+                if (aboutWindow)
+                {
+                    aboutWindow->setOpen(true);
+                }
             }
             ImGui::EndMenu();
         }
@@ -383,5 +379,10 @@ void Cadaver::renderImGui()
             setCameraMode(preferences.getCameraPreferences().getRequestedMode());
             preferences.getCameraPreferences().clearModeChangeRequest();
         }
+    }
+
+    if (aboutWindow)
+    {
+        aboutWindow->render();
     }
 }

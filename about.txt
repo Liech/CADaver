@@ -1,0 +1,26 @@
+================================================================================
+CADaver
+================================================================================
+
+CADaver is an interactive CAD inspection, 3D mesh visualization, and volumetric
+spatial analysis platform built with C++20 and Vulkan.
+
+Link: https://github.com/Liech/CADaver
+Version: 0.2dev
+
+License: 
+ * 0.1 uses OCCT and is therefor released under LGPL-2.1
+ * 0.2 and ascending will not use OCCT and will be released under MIT
+
+--------------------------------------------------------------------------------
+Author
+--------------------------------------------------------------------------------
+
+Nicolas Harttig
+GitHub: https://github.com/Liech
+
+--------------------------------------------------------------------------------
+AI Usage
+--------------------------------------------------------------------------------
+
+Developed with the help of Gemini and Antigravity.
