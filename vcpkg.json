@@ -1,11 +1,27 @@
 {
-  "name": "opencascadetests",
+  "name": "cadaver",
   "version-string": "0.0.1",
+  "builtin-baseline": "b0698a9c2dd8fbf980bb880574801badedf16c86",
   "dependencies": [
+    {
+      "name": "vulcant",
+      "features": [
+        "toolkit"
+      ]
+    },
     "nlohmann-json",
     "glm",
-	"opencascade",
-	"nativefiledialog-extended"
-	],
-  "builtin-baseline": "b91c3336aee7f32412508f7dd351ae2cabdb8819" 
+    "smlib",
+    "catch2",
+    "nativefiledialog-extended",
+    "opencascade",
+    "glfw3",
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding",
+        "vulkan-binding"
+      ]
+    }
+  ]
 }

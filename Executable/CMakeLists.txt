@@ -1,19 +1,22 @@
 cmake_minimum_required(VERSION 2.8...3.20)
 project(CadaverExe)
 
-############################################################################
-############################################################################
-############################################################################
-
 find_package(nlohmann_json REQUIRED)
 find_package(glm REQUIRED)
-
-############################################################################
-############################################################################
-############################################################################
+find_package(glfw3 CONFIG REQUIRED)
+find_package(imgui REQUIRED)
+find_package(Vulcant CONFIG REQUIRED)
 
 set(Source_Files
     "Source/main.cpp"
+    "Source/Cadaver.h"
+    "Source/Cadaver.cpp"
+    "Source/PreferencesData.h"
+    "Source/PreferencesData.cpp"
+    "Source/UIPreferences.h"
+    "Source/UIPreferences.cpp"
+    "Source/PreferencesWindow.h"
+    "Source/PreferencesWindow.cpp"
 )
 source_group("Source" FILES ${Source_Files})
 
@@ -21,27 +24,34 @@ set(ALL_FILES
     ${Source_Files}
 )
 
-############################################################################
-############################################################################
-############################################################################
-
 add_executable(CadaverExe ${ALL_FILES})
 set_property(TARGET CadaverExe PROPERTY CXX_STANDARD 20)
 
 target_link_libraries(CadaverExe
-glm::glm
-nlohmann_json::nlohmann_json
-CadaverLibrary
+    glm::glm
+    nlohmann_json::nlohmann_json
+    CadaverLibrary
+    Vulcant::Vulcant
+    VulcantToolkit
+    imgui::imgui
+    glfw
+)
+
+target_include_directories(CadaverExe PUBLIC 
+    ./Source/
 )
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT CadaverExe)
 
 add_custom_command(TARGET CadaverExe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>"
+        "$<IF:$<CONFIG:Debug>,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/debug/bin,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin>"
+        $<TARGET_FILE_DIR:CadaverExe>
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<IF:$<CONFIG:Debug>,${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/debug/bin,${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/bin>"
         $<TARGET_FILE_DIR:CadaverExe>
 )
 
 set_property(TARGET CadaverExe PROPERTY VS_DEBUGGER_ENVIRONMENT 
-    "PATH=$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>;%PATH%"
-)
+    "PATH=$<IF:$<CONFIG:Debug>,${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/debug/bin,${CMAKE_CURRENT_SOURCE_DIR}/../out/vcpkg_installed/x64-windows/bin>;$<IF:$<CONFIG:Debug>,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/debug/bin,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin>;%PATH%"
+)

@@ -1,0 +1,19 @@
+{
+  "default-registry": {
+    "kind": "builtin",
+    "baseline": "b0698a9c2dd8fbf980bb880574801badedf16c86"
+  },
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://github.com/Liech/vcpkg-registry",
+      "baseline": "73d1ad4e31bafedba04c130b412f224393842507",
+      "packages": [
+        "vulcant",
+        "polyglot",
+        "cadacomb",
+        "smlib"
+      ]
+    }
+  ]
+}

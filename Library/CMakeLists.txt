@@ -211,9 +211,12 @@ add_custom_command(TARGET CadaverLibraryTest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>"
         $<TARGET_FILE_DIR:CadaverLibraryTest>
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<IF:$<CONFIG:Debug>,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/debug/bin,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin>"
+        $<TARGET_FILE_DIR:CadaverLibraryTest>
 )
 
 set_property(TARGET CadaverLibraryTest PROPERTY VS_DEBUGGER_ENVIRONMENT 
-    "PATH=$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>;%PATH%"
+    "PATH=$<IF:$<CONFIG:Debug>,${OpenCASCADE_INSTALL_PREFIX}/debug/bin,${OpenCASCADE_INSTALL_PREFIX}/bin>;$<IF:$<CONFIG:Debug>,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/debug/bin,${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin>;%PATH%"
 )
 
