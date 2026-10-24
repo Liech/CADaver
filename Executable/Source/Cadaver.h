@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PreferencesData.h"
-#include "Project/Project.h"
+#include "Database/Database.h"
 
+#include <cstdint>
 #include <glm/glm.hpp>
 #include <memory>
 #include <string>
@@ -18,14 +18,16 @@ namespace Vulcant
 
 namespace Vulcant::Toolkit
 {
-    class ArcCam;
-    class MeshRenderer;
+    class Camera;
 }
 
+class AssetRenderFactory;
 class FileMenu;
 class PreferencesWindow;
 class ProjectWindow;
+class Renderer;
 
+// Main application class coordinating windowing, UI, renderer, project, and asset rendering.
 class Cadaver
 {
   public:
@@ -49,22 +51,22 @@ class Cadaver
     void renderImGui();
 
     void onKey(const Vulcant::VulcantInputValue& key);
+    void setCameraMode(int mode);
+    void resetCamera();
     void frameCameraOnProject();
 
     Vulcant::VulcantDevice&                         device;
     std::unique_ptr<Vulcant::VulcantWindow>         window;
     std::unique_ptr<Vulcant::VulcantGraphicCommand> uiCmdG;
-    std::unique_ptr<Vulcant::VulcantGraphicCommand> drawCmd;
     std::unique_ptr<Vulcant::VulcantUi>             ui;
-    std::unique_ptr<Vulcant::Toolkit::MeshRenderer> meshRenderer;
-    PreferencesData                                 preferencesData;
+    std::unique_ptr<Renderer>                       renderer;
+    std::unique_ptr<AssetRenderFactory>             assetRenderFactory;
     std::unique_ptr<PreferencesWindow>              preferencesWindow;
-    Project                                         project;
     std::unique_ptr<ProjectWindow>                  projectWindow;
     std::unique_ptr<FileMenu>                       fileMenu;
-    std::unique_ptr<Vulcant::Toolkit::ArcCam>       camera;
-    glm::vec4                                       backgroundColor = glm::vec4(0.12f, 0.12f, 0.14f, 1.0f);
-    size_t                                          lastAssetCount  = 0;
-    glm::ivec2                                      resolution      = glm::ivec2(1280, 720);
-    bool                                            quitRequested   = false;
+    std::unique_ptr<Vulcant::Toolkit::Camera>       camera;
+    size_t                                          lastAssetCount    = 0;
+    int                                             lastSelectedIndex = -1;
+    glm::ivec2                                      resolution        = glm::ivec2(1280, 720);
+    bool                                            quitRequested     = false;
 };

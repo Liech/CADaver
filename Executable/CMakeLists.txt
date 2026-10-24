@@ -11,16 +11,36 @@ set(Source_Files
     "Source/main.cpp"
     "Source/Cadaver.h"
     "Source/Cadaver.cpp"
-    "Source/PreferencesData.h"
-    "Source/PreferencesData.cpp"
-    "Source/UIPreferences.h"
-    "Source/UIPreferences.cpp"
-    "Source/PreferencesWindow.h"
-    "Source/PreferencesWindow.cpp"
+    "Source/Renderer.h"
+    "Source/Renderer.cpp"
     "Source/FileMenu.h"
     "Source/FileMenu.cpp"
 )
 source_group("Source" FILES ${Source_Files})
+
+set(Preferences_Files
+    "Source/Preferences/Preferences.h"
+    "Source/Preferences/Preferences.cpp"
+    "Source/Preferences/UIPreferences.h"
+    "Source/Preferences/UIPreferences.cpp"
+    "Source/Preferences/CameraPreferences.h"
+    "Source/Preferences/CameraPreferences.cpp"
+    "Source/Preferences/RenderPreferences.h"
+    "Source/Preferences/RenderPreferences.cpp"
+)
+source_group("Source/Preferences" FILES ${Preferences_Files})
+
+set(UI_Preferences_Files
+    "Source/UI/Preferences/PreferencesWindow.h"
+    "Source/UI/Preferences/PreferencesWindow.cpp"
+    "Source/UI/Preferences/UIPreferencesView.h"
+    "Source/UI/Preferences/UIPreferencesView.cpp"
+    "Source/UI/Preferences/CameraPreferencesView.h"
+    "Source/UI/Preferences/CameraPreferencesView.cpp"
+    "Source/UI/Preferences/RenderPreferencesView.h"
+    "Source/UI/Preferences/RenderPreferencesView.cpp"
+)
+source_group("Source/UI/Preferences" FILES ${UI_Preferences_Files})
 
 set(Project_Files
     "Source/Project/AssetType.h"
@@ -40,9 +60,31 @@ set(Project_Files
 )
 source_group("Source/Project" FILES ${Project_Files})
 
+set(Rendering_Files
+    "Source/Rendering/AssetRenderer.h"
+    "Source/Rendering/AssetRenderer.cpp"
+    "Source/Rendering/TriangulationAssetRenderer.h"
+    "Source/Rendering/TriangulationAssetRenderer.cpp"
+    "Source/Rendering/StepAssetRenderer.h"
+    "Source/Rendering/StepAssetRenderer.cpp"
+    "Source/Rendering/AssetRenderFactory.h"
+    "Source/Rendering/AssetRenderFactory.cpp"
+)
+source_group("Source/Rendering" FILES ${Rendering_Files})
+
+set(Database_Files
+    "Source/Database/Database.h"
+    "Source/Database/Database.cpp"
+)
+source_group("Source/Database" FILES ${Database_Files})
+
 set(ALL_FILES
     ${Source_Files}
+    ${Preferences_Files}
+    ${UI_Preferences_Files}
     ${Project_Files}
+    ${Rendering_Files}
+    ${Database_Files}
 )
 
 add_executable(CadaverExe ${ALL_FILES})

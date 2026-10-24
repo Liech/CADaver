@@ -4,6 +4,7 @@
 
 #include <string>
 
+// Headless data asset representing volumetric voxel geometry.
 class VoxelAsset : public Asset
 {
   public:

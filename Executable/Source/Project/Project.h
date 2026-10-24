@@ -2,9 +2,11 @@
 
 #include "Asset.h"
 
+#include <cstdint>
 #include <memory>
 #include <vector>
 
+// Headless project model managing assets and active selection without rendering dependencies.
 class Project
 {
   public:

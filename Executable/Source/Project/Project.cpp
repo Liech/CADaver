@@ -64,7 +64,10 @@ int Project::getSelectedIndex() const
 
 void Project::setSelectedIndex(int index)
 {
-    selectedIndex = index;
+    if (selectedIndex != index)
+    {
+        selectedIndex = index;
+    }
 }
 
 std::shared_ptr<Asset> Project::getSelectedAsset() const

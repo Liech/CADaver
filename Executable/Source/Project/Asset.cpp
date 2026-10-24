@@ -1,7 +1,5 @@
 #include "Asset.h"
 
-#include "Vulcant/Toolkit/MeshRenderer.h"
-
 Asset::Asset(const std::string& nameInput, AssetType typeInput)
   : name(nameInput)
   , type(typeInput)
@@ -9,13 +7,6 @@ Asset::Asset(const std::string& nameInput, AssetType typeInput)
 }
 
 Asset::~Asset() {}
-
-void Asset::render(std::vector<Vulcant::Toolkit::MeshVertex>&, bool) {}
-
-Vulcant::VulcantImage* Asset::render(Vulcant::VulcantDevice&, const glm::ivec2&, const Vulcant::Toolkit::SceneData&)
-{
-    return nullptr;
-}
 
 const std::string& Asset::getName() const
 {

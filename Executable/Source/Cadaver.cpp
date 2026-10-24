@@ -1,9 +1,16 @@
 #include "Cadaver.h"
 
 #include "FileMenu.h"
-#include "PreferencesWindow.h"
+#include "Preferences/CameraPreferences.h"
+#include "Preferences/Preferences.h"
+#include "Preferences/RenderPreferences.h"
+#include "Preferences/UIPreferences.h"
+#include "Project/CadAsset.h"
 #include "Project/ProjectWindow.h"
 #include "Project/TriangulationAsset.h"
+#include "Renderer.h"
+#include "Rendering/AssetRenderFactory.h"
+#include "UI/Preferences/PreferencesWindow.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 #include "Vulcant/Interface/VulcantImage.h"
@@ -12,7 +19,7 @@
 #include "Vulcant/Interface/VulcantUi.h"
 #include "Vulcant/Interface/VulcantWindow.h"
 #include "Vulcant/Toolkit/ArcCam.h"
-#include "Vulcant/Toolkit/MeshRenderer.h"
+#include "Vulcant/Toolkit/Freecam.h"
 #include "Vulcant/Toolkit/SceneData.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "Vulcant/Wrapper/Window.h"
@@ -50,10 +57,6 @@ Cadaver::Cadaver(Vulcant::VulcantDevice& deviceInput, const glm::ivec2& res)
 
 Cadaver::~Cadaver()
 {
-    if (drawCmd)
-    {
-        drawCmd->wait();
-    }
     if (uiCmdG)
     {
         uiCmdG->wait();
@@ -71,10 +74,11 @@ void Cadaver::changeResolution(const glm::ivec2& newResolution)
     {
         camera->setAspect(static_cast<float>(resolution.x) / static_cast<float>(resolution.y));
     }
-    if (meshRenderer)
+    if (renderer)
     {
-        meshRenderer->setResolution(resolution);
+        renderer->setResolution(resolution);
     }
+    Database::getInstance().getPreferences().getCameraPreferences().setResolution(glm::vec2(resolution));
 }
 
 Vulcant::VulcantWindow& Cadaver::getWindow()
@@ -94,9 +98,14 @@ void Cadaver::onLogic(double delta)
         camera->tick(delta);
     }
 
+    auto& project = Database::getInstance().getProject();
     if (project.getAssetCount() != lastAssetCount)
     {
         lastAssetCount = project.getAssetCount();
+        if (renderer)
+        {
+            renderer->markDirty();
+        }
         frameCameraOnProject();
     }
 
@@ -105,7 +114,7 @@ void Cadaver::onLogic(double delta)
 
 void Cadaver::onRender()
 {
-    if (!meshRenderer || !ui || !uiCmdG || !window)
+    if (!renderer || !ui || !uiCmdG || !window)
     {
         return;
     }
@@ -116,41 +125,47 @@ void Cadaver::onRender()
         sceneData = camera->getScene();
     }
 
-    std::vector<Vulcant::Toolkit::MeshVertex> sceneVertices;
-    int                                       selectedIndex = project.getSelectedIndex();
-    for (size_t i = 0; i < project.getAssetCount(); i++)
+    const auto& preferences = Database::getInstance().getPreferences();
+    const auto& camPrefs    = preferences.getCameraPreferences();
+    const auto& uiPrefs     = preferences.getUIPreferences();
+    const auto& renderPrefs = preferences.getRenderPreferences();
+
+    sceneData.nearPlane  = camPrefs.getNearPlane();
+    sceneData.farPlane   = camPrefs.getFarPlane();
+    sceneData.resolution = camPrefs.getResolution();
+
+    renderer->setClearColor(uiPrefs.getBackgroundColor());
+    renderer->setWireframeMode(static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(renderPrefs.getWireframeMode()));
+    renderer->setWireframeColor(renderPrefs.getWireframeColor());
+    renderer->setCullMode(static_cast<Vulcant::VulcantCullMode>(renderPrefs.getCullMode()));
+    renderer->setSceneData(sceneData);
+
+    auto& project       = Database::getInstance().getProject();
+    int   selectedIndex = project.getSelectedIndex();
+    if (selectedIndex != lastSelectedIndex)
     {
-        auto asset = project.getAsset(i);
-        if (asset)
+        lastSelectedIndex = selectedIndex;
+        renderer->markDirty();
+    }
+
+    if (renderer->needsRecord())
+    {
+        renderer->beginRecord();
+        for (size_t i = 0; i < project.getAssetCount(); i++)
         {
-            bool isSelected = (static_cast<int>(i) == selectedIndex);
-            asset->render(sceneVertices, isSelected);
+            auto asset = project.getAsset(i);
+            if (asset && assetRenderFactory)
+            {
+                bool isSelected = (static_cast<int>(i) == selectedIndex);
+                assetRenderFactory->render(*renderer, asset, isSelected);
+            }
         }
+        renderer->endRecord();
     }
 
-    if (sceneVertices.empty())
-    {
-        sceneVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-        sceneVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-        sceneVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-    }
+    renderer->execute();
 
-    meshRenderer->setVertices(sceneVertices);
-    meshRenderer->setSceneData(sceneData);
-
-    if (drawCmd)
-    {
-        drawCmd->wait();
-    }
-    drawCmd = device.createGraphicCommand();
-    drawCmd->startRecord();
-    drawCmd->setClearColor(backgroundColor);
-    meshRenderer->record(*drawCmd);
-    drawCmd->endRecord();
-    drawCmd->runAsync();
-    drawCmd->wait();
-
-    Vulcant::VulcantImage& resultImage = meshRenderer->getColor();
+    Vulcant::VulcantImage& resultImage = renderer->getResult();
 
     uiCmdG->wait();
     uiCmdG->startRecord();
@@ -182,6 +197,7 @@ void Cadaver::frameCameraOnProject()
     glm::dvec3 maxBound(-1e9);
     bool       hasBounds = false;
 
+    const auto& project = Database::getInstance().getProject();
     for (size_t i = 0; i < project.getAssetCount(); i++)
     {
         auto asset = project.getAsset(i);
@@ -191,6 +207,17 @@ void Cadaver::frameCameraOnProject()
             if (triAsset && triAsset->getTriangulation() && !triAsset->getTriangulation()->vertices.empty())
             {
                 auto [pos, size] = triAsset->getTriangulation()->getAABB();
+                minBound         = glm::min(minBound, pos);
+                maxBound         = glm::max(maxBound, pos + size);
+                hasBounds        = true;
+            }
+        }
+        else if (asset && asset->getType() == AssetType::Cad)
+        {
+            auto cadAsset = std::dynamic_pointer_cast<CadAsset>(asset);
+            if (cadAsset && cadAsset->getTriangulation() && !cadAsset->getTriangulation()->vertices.empty())
+            {
+                auto [pos, size] = cadAsset->getTriangulation()->getAABB();
                 minBound         = glm::min(minBound, pos);
                 maxBound         = glm::max(maxBound, pos + size);
                 hasBounds        = true;
@@ -213,21 +240,82 @@ void Cadaver::frameCameraOnProject()
     }
 }
 
+void Cadaver::setCameraMode(int mode)
+{
+    if (!window)
+    {
+        return;
+    }
+
+    const auto& camPrefs = Database::getInstance().getPreferences().getCameraPreferences();
+    glm::dvec3  eye      = camera ? camera->getEye() : glm::dvec3(0.0, 3.0, 5.0);
+    glm::dvec3  target   = camera ? camera->getTarget() : glm::dvec3(0.0, 0.0, 0.0);
+    glm::dvec3  up       = camera ? camera->getUp() : glm::dvec3(0.0, 1.0, 0.0);
+    float       zNear    = camPrefs.getNearPlane();
+    float       zFar     = camPrefs.getFarPlane();
+    float       fov      = camPrefs.getFov();
+    float       aspect   = camera ? camera->getAspect() : ((resolution.y > 0) ? static_cast<float>(resolution.x) / static_cast<float>(resolution.y) : 16.0f / 9.0f);
+    double      speed    = static_cast<double>(camPrefs.getCameraSpeed());
+    double      rotSpeed = camPrefs.getRotationSensitivity();
+
+    if (mode == 1)
+    {
+        camera = std::make_unique<Vulcant::Toolkit::Freecam>(*window, eye, target, up);
+    }
+    else
+    {
+        camera = std::make_unique<Vulcant::Toolkit::ArcCam>(*window, eye, target, up);
+    }
+
+    camera->setZNear(zNear);
+    camera->setZFar(zFar);
+    camera->setFov(fov);
+    camera->setAspect(aspect);
+    camera->setTranslationSensitivity(speed);
+    camera->setRotationSensitivity(rotSpeed);
+}
+
+void Cadaver::resetCamera()
+{
+    if (Database::getInstance().getProject().getAssetCount() > 0)
+    {
+        frameCameraOnProject();
+    }
+    else if (camera)
+    {
+        const auto& camPrefs = Database::getInstance().getPreferences().getCameraPreferences();
+        camera->setTarget(glm::dvec3(0.0, 0.0, 0.0));
+        camera->setEye(glm::dvec3(0.0, 3.0, 5.0));
+        camera->setUp(glm::dvec3(0.0, 1.0, 0.0));
+        camera->setZNear(0.05f);
+        camera->setZFar(2000.0f);
+        camera->setFov(camPrefs.getFov());
+        camera->setRotationSensitivity(camPrefs.getRotationSensitivity());
+        camera->setAspect((resolution.y > 0) ? static_cast<float>(resolution.x) / static_cast<float>(resolution.y) : 16.0f / 9.0f);
+    }
+}
+
 void Cadaver::prepare()
 {
     ui = device.createUi(*window, Vulcant::VulcantImageFormat::R32G32B32A32_SFLOAT, false);
 
+    auto& preferences = Database::getInstance().getPreferences();
+    preferences.load();
+
     preferencesWindow = std::make_unique<PreferencesWindow>();
-    preferencesData.load();
-    preferencesData.apply();
+    preferencesWindow->getUIPreferencesView().apply(preferences.getUIPreferences());
 
     projectWindow = std::make_unique<ProjectWindow>();
     fileMenu      = std::make_unique<FileMenu>();
 
-    meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(device, resolution);
+    assetRenderFactory = std::make_unique<AssetRenderFactory>();
+    renderer           = std::make_unique<Renderer>(device, resolution);
+    renderer->setClearColor(preferences.getUIPreferences().getBackgroundColor());
+    renderer->setWireframeMode(static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(preferences.getRenderPreferences().getWireframeMode()));
+    renderer->setWireframeColor(preferences.getRenderPreferences().getWireframeColor());
+    renderer->setCullMode(static_cast<Vulcant::VulcantCullMode>(preferences.getRenderPreferences().getCullMode()));
 
-    camera = std::make_unique<Vulcant::Toolkit::ArcCam>(*window, glm::dvec3(0.0, 3.0, 5.0), glm::dvec3(0.0, 0.0, 0.0));
-    camera->setAspect(static_cast<float>(resolution.x) / static_cast<float>(resolution.y));
+    setCameraMode(preferences.getCameraPreferences().getCameraMode());
 }
 
 void Cadaver::recordCommand()
@@ -242,6 +330,10 @@ void Cadaver::recordCommand()
 void Cadaver::renderImGui()
 {
     ui->newFrame();
+
+    auto& database    = Database::getInstance();
+    auto& project     = database.getProject();
+    auto& preferences = database.getPreferences();
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -278,6 +370,18 @@ void Cadaver::renderImGui()
 
     if (preferencesWindow)
     {
-        preferencesWindow->render(preferencesData);
+        preferencesWindow->render(preferences, camera.get());
+
+        if (preferences.getCameraPreferences().isResetRequested())
+        {
+            resetCamera();
+            preferences.getCameraPreferences().clearResetRequested();
+        }
+
+        if (preferences.getCameraPreferences().hasModeChangeRequest())
+        {
+            setCameraMode(preferences.getCameraPreferences().getRequestedMode());
+            preferences.getCameraPreferences().clearModeChangeRequest();
+        }
     }
 }

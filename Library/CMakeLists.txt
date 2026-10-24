@@ -180,6 +180,7 @@ target_link_libraries(CadaverLibrary PUBLIC
 
 target_include_directories(CadaverLibrary PUBLIC 
     ./Source/
+    SYSTEM ${OpenCASCADE_INCLUDE_DIR}
 )
 target_include_directories(CadaverLibrary PRIVATE 
     ./Source/Library/
@@ -193,12 +194,12 @@ target_include_directories(CadaverLibraryTest PRIVATE
 
 foreach(LIB ${OpenCASCADE_LIBRARIES})
     if(TARGET ${LIB})
-        target_link_libraries(CadaverLibrary PRIVATE ${LIB})
+        target_link_libraries(CadaverLibrary PUBLIC ${LIB})
         target_link_libraries(CadaverLibraryTest PRIVATE ${LIB})
     else()
-        target_link_libraries(CadaverLibrary PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-        target_link_libraries(CadaverLibrary PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-        target_link_libraries(CadaverLibrary PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+        target_link_libraries(CadaverLibrary PUBLIC ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+        target_link_libraries(CadaverLibrary PUBLIC debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+        target_link_libraries(CadaverLibrary PUBLIC optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
         target_link_libraries(CadaverLibraryTest PRIVATE ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
         target_link_libraries(CadaverLibraryTest PRIVATE debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
         target_link_libraries(CadaverLibraryTest PRIVATE optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)

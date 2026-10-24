@@ -2,10 +2,10 @@
 
 #include "CADacomb/Triangle/Triangulation.h"
 #include "Library/Util/LoadFileDialog.h"
-#include "PreferencesWindow.h"
 #include "Project/CadAsset.h"
 #include "Project/Project.h"
 #include "Project/TriangulationAsset.h"
+#include "UI/Preferences/PreferencesWindow.h"
 
 #include <filesystem>
 #include <imgui.h>
@@ -74,7 +74,7 @@ void FileMenu::openStepFileDialog(Project& project)
     {
         std::filesystem::path filePath(dialog.getResultPath());
         std::string           fileName = filePath.filename().string();
-        auto                  asset    = std::make_shared<CadAsset>(fileName);
+        auto                  asset    = std::make_shared<CadAsset>(fileName, dialog.getResultPath());
         project.addAsset(asset);
         project.setSelectedIndex(static_cast<int>(project.getAssetCount()) - 1);
     }

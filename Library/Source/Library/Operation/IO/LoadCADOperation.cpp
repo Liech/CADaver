@@ -19,3 +19,32 @@ namespace Library
         return mesh2cad_dumb::cadify_dumb(mesh);
     }
 }
+
+#ifdef ISTESTPROJECT
+#include "CADacomb/Triangle/Triangulation.h"
+#include "Library/Operation/TriangulateOperation.h"
+#include "Library/catch.hpp"
+#include <filesystem>
+
+TEST_CASE("LoadCADOperation/LoadAndTriangulateStep")
+{
+    std::filesystem::path stepPath = "Bo.step";
+    for (int i = 0; i < 6; i++)
+    {
+        if (std::filesystem::exists(stepPath))
+        {
+            break;
+        }
+        stepPath = ".." / stepPath;
+    }
+    REQUIRE(std::filesystem::exists(stepPath));
+
+    auto shape = Library::LoadCADOperation::loadFromFile(stepPath.string());
+    REQUIRE(shape != nullptr);
+
+    auto tri = Library::TriangulateOperation::triangulate(*shape, 0.1);
+    REQUIRE(tri != nullptr);
+    REQUIRE(!tri->vertices.empty());
+    REQUIRE(!tri->indices.empty());
+}
+#endif
