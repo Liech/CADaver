@@ -69,7 +69,7 @@ namespace Library
     {
         for (auto& x : generateChildren(shape))
         {
-            recurseFillChildShapes(*x);            
+            recurseFillChildShapes(*x);
             shape.addChild(std::move(x));
         }
     }

@@ -78,6 +78,33 @@ set(Database_Files
 )
 source_group("Source/Database" FILES ${Database_Files})
 
+set(Command_Files
+    "Source/Commands/RULES.md"
+    "Source/Commands/Command.h"
+    "Source/Commands/Command.cpp"
+    "Source/Commands/CommandFactory.h"
+    "Source/Commands/CommandFactory.cpp"
+    "Source/Commands/GatedDatabase.h"
+    "Source/Commands/GatedDatabase.cpp"
+    "Source/Commands/SelectAssetCommand.h"
+    "Source/Commands/SelectAssetCommand.cpp"
+    "Source/Commands/LoadStlAssetCommand.h"
+    "Source/Commands/LoadStlAssetCommand.cpp"
+    "Source/Commands/LoadStepAssetCommand.h"
+    "Source/Commands/LoadStepAssetCommand.cpp"
+    "Source/Commands/LoadSvoAssetCommand.h"
+    "Source/Commands/LoadSvoAssetCommand.cpp"
+    "Source/Commands/SaveVoxelAssetCommand.h"
+    "Source/Commands/SaveVoxelAssetCommand.cpp"
+    "Source/Commands/UpdateCameraPreferencesCommand.h"
+    "Source/Commands/UpdateCameraPreferencesCommand.cpp"
+    "Source/Commands/UpdateUIPreferencesCommand.h"
+    "Source/Commands/UpdateUIPreferencesCommand.cpp"
+    "Source/Commands/UpdateRenderPreferencesCommand.h"
+    "Source/Commands/UpdateRenderPreferencesCommand.cpp"
+)
+source_group("Source/Commands" FILES ${Command_Files})
+
 set(UI_About_Files
     "Source/UI/About/AboutWindow.h"
     "Source/UI/About/AboutWindow.cpp"
@@ -107,6 +134,7 @@ set(ALL_FILES
     ${Project_Files}
     ${Rendering_Files}
     ${Database_Files}
+    ${Command_Files}
 )
 
 add_executable(CadaverExe ${ALL_FILES})

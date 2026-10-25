@@ -1,0 +1,44 @@
+#include "UpdateRenderPreferencesCommand.h"
+
+#include "Database/Database.h"
+
+UpdateRenderPreferencesCommand::UpdateRenderPreferencesCommand() {}
+
+UpdateRenderPreferencesCommand::UpdateRenderPreferencesCommand(const nlohmann::json& json)
+  : preferencesData(json.at("preferences"))
+{
+}
+
+UpdateRenderPreferencesCommand::~UpdateRenderPreferencesCommand() {}
+
+std::string UpdateRenderPreferencesCommand::getType() const
+{
+    return "UpdateRenderPreferences";
+}
+
+int UpdateRenderPreferencesCommand::getVersion() const
+{
+    return 1;
+}
+
+nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+{
+    auto& renderPreferences = database.getPreferences().getRenderPreferences();
+    renderPreferences.fromJson(preferencesData);
+
+    return {
+        {    "type",    getType() },
+        { "version", getVersion() },
+        {  "status",    "Success" }
+    };
+}
+
+const nlohmann::json& UpdateRenderPreferencesCommand::getPreferencesData() const
+{
+    return preferencesData;
+}
+
+void UpdateRenderPreferencesCommand::setPreferencesData(const nlohmann::json& data)
+{
+    preferencesData = data;
+}
