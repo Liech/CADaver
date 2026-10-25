@@ -25,6 +25,9 @@ class GatedDatabase
     std::string execute(const std::string& commandString, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
 
   private:
+    void log(const std::string& msg);
+
     Database       database;
     CommandFactory commandFactory;
+    bool           locked = false;
 };

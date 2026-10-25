@@ -136,17 +136,11 @@ void Cadaver::onRender()
 
     const auto& preferences = GatedDatabase::getInstance().get().getPreferences();
     const auto& camPrefs    = preferences.getCameraPreferences();
-    const auto& uiPrefs     = preferences.getUIPreferences();
-    const auto& renderPrefs = preferences.getRenderPreferences();
 
     sceneData.nearPlane  = camPrefs.getNearPlane();
     sceneData.farPlane   = camPrefs.getFarPlane();
     sceneData.resolution = camPrefs.getResolution();
 
-    renderer->setClearColor(uiPrefs.getBackgroundColor());
-    renderer->setWireframeMode(static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(renderPrefs.getWireframeMode()));
-    renderer->setWireframeColor(renderPrefs.getWireframeColor());
-    renderer->setCullMode(static_cast<Vulcant::VulcantCullMode>(renderPrefs.getCullMode()));
     renderer->setSceneData(sceneData);
 
     const auto& project       = GatedDatabase::getInstance().get().getProject();
@@ -157,31 +151,17 @@ void Cadaver::onRender()
         renderer->markDirty();
     }
 
-    bool hasDynamicAssets = false;
+    renderer->beginRecord();
     for (size_t i = 0; i < project.getAssetCount(); i++)
     {
         auto asset = project.getAsset(i);
-        if (asset && asset->getType() == AssetType::Voxel)
+        if (asset && assetRenderFactory)
         {
-            hasDynamicAssets = true;
-            break;
+            bool isSelected = (static_cast<int>(i) == selectedIndex);
+            assetRenderFactory->render(*renderer, asset, isSelected);
         }
     }
-
-    if (hasDynamicAssets || renderer->needsRecord())
-    {
-        renderer->beginRecord();
-        for (size_t i = 0; i < project.getAssetCount(); i++)
-        {
-            auto asset = project.getAsset(i);
-            if (asset && assetRenderFactory)
-            {
-                bool isSelected = (static_cast<int>(i) == selectedIndex);
-                assetRenderFactory->render(*renderer, asset, isSelected);
-            }
-        }
-        renderer->endRecord();
-    }
+    renderer->endRecord();
 
     renderer->execute();
 
@@ -342,11 +322,7 @@ void Cadaver::prepare()
     fileMenu       = std::make_unique<FileMenu>();
 
     assetRenderFactory = std::make_unique<AssetRenderFactory>();
-    renderer           = std::make_unique<Renderer>(device, resolution);
-    renderer->setClearColor(preferences.getUIPreferences().getBackgroundColor());
-    renderer->setWireframeMode(static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(preferences.getRenderPreferences().getWireframeMode()));
-    renderer->setWireframeColor(preferences.getRenderPreferences().getWireframeColor());
-    renderer->setCullMode(static_cast<Vulcant::VulcantCullMode>(preferences.getRenderPreferences().getCullMode()));
+    renderer           = std::make_unique<Renderer>(device, resolution, GatedDatabase::getInstance());
 
     setCameraMode(preferences.getCameraPreferences().getCameraMode());
 }

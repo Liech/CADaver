@@ -1,10 +1,11 @@
-#include "Rendering/VoxelAssetRenderer.h"
+#include "VoxelAssetRenderer.h"
 
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/SVOPreferences.h"
 #include "Rendering/Renderer.h"
+#include "Vulcant/Interface/VulcantGraphicCommand.h"
 
 VoxelAssetRenderer::VoxelAssetRenderer(std::shared_ptr<VoxelAsset> assetInput)
   : asset(std::move(assetInput))
@@ -52,6 +53,18 @@ void VoxelAssetRenderer::render(Renderer& renderer, bool isSelected)
         return;
     }
 
+    if (!meshRenderer)
+    {
+        meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), renderer.getResolution());
+    }
+
+    meshRenderer->setResolution(renderer.getResolution());
+    meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
+    meshRenderer->setSceneData(renderer.getSceneData());
+    meshRenderer->setWireframeMode(renderer.getWireframeMode());
+    meshRenderer->setWireframeColor(renderer.getWireframeColor());
+    meshRenderer->setCullMode(renderer.getCullMode());
+
     int                    strategyType   = svoPrefs.getStrategyType();
     CADacomb::LODStrategy* activeStrategy = &frustumAdaptiveStrategy;
 
@@ -98,8 +111,8 @@ void VoxelAssetRenderer::render(Renderer& renderer, bool isSelected)
 
     lodMesh->update(renderer.getSceneData(), *activeStrategy);
 
-    if (lodMesh->getVertexCount() > 0)
+    if (lodMesh->getVertexCount() > 0 && renderer.getCommand())
     {
-        renderer.drawVertexBuffer(lodMesh->getVertexBuffer(), static_cast<uint32_t>(lodMesh->getVertexCount()));
+        meshRenderer->record(*renderer.getCommand(), lodMesh->getVertexBuffer(), static_cast<uint32_t>(lodMesh->getVertexCount()));
     }
 }

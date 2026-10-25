@@ -1,127 +1,45 @@
-#include "Rendering/Renderer.h"
+#include "Renderer.h"
 
+#include "Commands/GatedDatabase.h"
+#include "Database/Preferences/Preferences.h"
+#include "Database/Preferences/RenderPreferences.h"
+#include "Database/Preferences/UIPreferences.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 #include "Vulcant/Interface/VulcantImage.h"
-#include "Vulcant/Toolkit/MeshRenderer.h"
 
-Renderer::Renderer(Vulcant::VulcantDevice& deviceInput, const glm::ivec2& initialResolution)
-  : device(deviceInput)
-  , resolution(initialResolution)
+Renderer::Renderer(Vulcant::VulcantDevice& device, const glm::ivec2& resolution, GatedDatabase& gatedDatabase)
+  : device(device)
+  , resolution(resolution)
+  , gatedDatabase(gatedDatabase)
 {
-    meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(device, resolution);
+    setResolution(resolution);
 }
 
-Renderer::~Renderer()
-{
-    if (drawCmd)
-    {
-        drawCmd->wait();
-    }
-}
+Renderer::~Renderer() {}
 
 void Renderer::setResolution(const glm::ivec2& newResolution)
 {
-    if (resolution != newResolution)
+    if (resolution != newResolution || !colorImage)
     {
         resolution = newResolution;
-        if (meshRenderer)
+        if (resolution.x > 0 && resolution.y > 0)
         {
-            meshRenderer->setResolution(resolution);
+            colorImage  = device.createImage(resolution.x, resolution.y, 1, Vulcant::VulcantImageFormat::R32G32B32A32_SFLOAT);
+            normalImage = device.createImage(resolution.x, resolution.y, 1, Vulcant::VulcantImageFormat::R16G16B16A16_SFLOAT);
+            depthImage  = device.createImage(resolution.x, resolution.y, 1, Vulcant::VulcantImageFormat::D32_SFLOAT);
         }
         dirty = true;
     }
 }
 
-void Renderer::setSceneData(const Vulcant::Toolkit::SceneData& sceneDataInput)
+void Renderer::setSceneData(const Vulcant::Toolkit::SceneData& newSceneData)
 {
-    sceneData = sceneDataInput;
-    if (meshRenderer)
-    {
-        meshRenderer->setSceneData(sceneData);
-    }
-}
-
-void Renderer::setClearColor(const glm::vec4& color)
-{
-    if (clearColor != color)
-    {
-        clearColor = color;
-        dirty      = true;
-    }
-}
-
-void Renderer::setWireframeMode(Vulcant::Toolkit::MeshRenderer::WireframeMode mode)
-{
-    if (wireframeMode != mode)
-    {
-        wireframeMode = mode;
-        if (meshRenderer)
-        {
-            meshRenderer->setWireframeMode(wireframeMode);
-        }
-        dirty = true;
-    }
-}
-
-void Renderer::setWireframeColor(const glm::vec3& color)
-{
-    if (wireframeColor != color)
-    {
-        wireframeColor = color;
-        if (meshRenderer)
-        {
-            meshRenderer->setWireframeColor(wireframeColor);
-        }
-        dirty = true;
-    }
-}
-
-void Renderer::setCullMode(Vulcant::VulcantCullMode mode)
-{
-    if (cullMode != mode)
-    {
-        cullMode = mode;
-        if (meshRenderer)
-        {
-            meshRenderer->setCullMode(cullMode);
-        }
-        dirty = true;
-    }
+    sceneData = newSceneData;
 }
 
 void Renderer::beginRecord()
 {
-    accumulatedVertices.clear();
-    customBuffers.clear();
-}
-
-void Renderer::drawVertices(const std::vector<Vulcant::Toolkit::MeshVertex>& vertices)
-{
-    accumulatedVertices.insert(accumulatedVertices.end(), vertices.begin(), vertices.end());
-}
-
-void Renderer::drawVertices(const std::vector<Vulcant::Toolkit::MeshVertex>& vertices, const glm::vec3& colorOverride)
-{
-    accumulatedVertices.reserve(accumulatedVertices.size() + vertices.size());
-    for (const auto& vertex : vertices)
-    {
-        accumulatedVertices.push_back({ vertex.position, vertex.normal, colorOverride });
-    }
-}
-
-void Renderer::drawVertexBuffer(Vulcant::VulcantBuffer& buffer, uint32_t vertexCount)
-{
-    customBuffers.push_back({ &buffer, vertexCount });
-}
-
-void Renderer::endRecord()
-{
-    if (!meshRenderer)
-    {
-        return;
-    }
-
     if (drawCmd)
     {
         drawCmd->wait();
@@ -132,32 +50,15 @@ void Renderer::endRecord()
     }
 
     drawCmd->startRecord();
-    drawCmd->setClearColor(clearColor);
+    drawCmd->setClearColor(getClearColor());
+}
 
-    if (!accumulatedVertices.empty())
+void Renderer::endRecord()
+{
+    if (drawCmd)
     {
-        meshRenderer->setVertices(accumulatedVertices);
-        meshRenderer->record(*drawCmd);
+        drawCmd->endRecord();
     }
-    else if (customBuffers.empty())
-    {
-        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-        meshRenderer->setVertices(accumulatedVertices);
-        meshRenderer->record(*drawCmd);
-    }
-
-    for (const auto& custom : customBuffers)
-    {
-        if (custom.first && custom.second > 0)
-        {
-            meshRenderer->record(*drawCmd, *custom.first, custom.second);
-        }
-    }
-
-    drawCmd->endRecord();
-
     dirty = false;
 }
 
@@ -180,9 +81,9 @@ void Renderer::markDirty()
     dirty = true;
 }
 
-Vulcant::VulcantGraphicCommand* Renderer::getCommand() const
+const glm::ivec2& Renderer::getResolution() const
 {
-    return drawCmd.get();
+    return resolution;
 }
 
 const Vulcant::Toolkit::SceneData& Renderer::getSceneData() const
@@ -190,12 +91,52 @@ const Vulcant::Toolkit::SceneData& Renderer::getSceneData() const
     return sceneData;
 }
 
+glm::vec4 Renderer::getClearColor() const
+{
+    return gatedDatabase.get().getPreferences().getUIPreferences().getBackgroundColor();
+}
+
+Vulcant::Toolkit::MeshRenderer::WireframeMode Renderer::getWireframeMode() const
+{
+    return static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(gatedDatabase.get().getPreferences().getRenderPreferences().getWireframeMode());
+}
+
+glm::vec3 Renderer::getWireframeColor() const
+{
+    return gatedDatabase.get().getPreferences().getRenderPreferences().getWireframeColor();
+}
+
+Vulcant::VulcantCullMode Renderer::getCullMode() const
+{
+    return static_cast<Vulcant::VulcantCullMode>(gatedDatabase.get().getPreferences().getRenderPreferences().getCullMode());
+}
+
+Vulcant::VulcantGraphicCommand* Renderer::getCommand() const
+{
+    return drawCmd.get();
+}
+
 Vulcant::VulcantDevice& Renderer::getDevice() const
 {
     return device;
 }
 
+Vulcant::VulcantImage& Renderer::getColor() const
+{
+    return *colorImage;
+}
+
+Vulcant::VulcantImage& Renderer::getDepth() const
+{
+    return *depthImage;
+}
+
+Vulcant::VulcantImage& Renderer::getNormal() const
+{
+    return *normalImage;
+}
+
 Vulcant::VulcantImage& Renderer::getResult() const
 {
-    return meshRenderer->getColor();
+    return *colorImage;
 }

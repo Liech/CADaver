@@ -20,9 +20,22 @@ const Database& GatedDatabase::get() const
 
 nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istream* inputStream, std::ostream* outputStream)
 {
+    if (locked)
+    {
+        nlohmann::json result = {
+            {    "type",                                      "Error" },
+            { "command",                                           "" },
+            { "version",                                            0 },
+            {  "status",                                     "Locked" },
+            {   "error", "Only one command can be executed at a time" }
+        };
+        log("OUT: " + result.dump(4));
+        return result;
+    }
+
     std::string commandType;
     int         commandVersion = 0;
-    std::cout << "IN: " << std::endl << command.dump(4) << std::endl;
+    log("IN: " + command.dump(4));
     try
     {
         commandType    = command.at("type").get<std::string>();
@@ -38,17 +51,20 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
                 {  "status",                       "UnknownCommand" },
                 {   "error", "Unknown command type: " + commandType }
             };
-            std::cout << "OUT: " << std::endl << result.dump(4) << std::endl;
+            log("OUT: " + result.dump(4));
             return result;
         }
 
+        locked                = true;
         nlohmann::json result = cmd->execute(database, inputStream, outputStream);
+        locked                = false;
         assert(result.at("type").get<std::string>() == cmd->getType());
-        std::cout << "OUT: " << std::endl << result.dump(4) << std::endl;
+        log("OUT: " + result.dump(4));
         return result;
     }
     catch (const std::exception& e)
     {
+        locked                = false;
         nlohmann::json result = {
             {    "type",        "Error" },
             { "command",    commandType },
@@ -56,7 +72,7 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
             {  "status",    "Exception" },
             {   "error",       e.what() }
         };
-        std::cout << "OUT: " << std::endl << result.dump(4) << std::endl;
+        log("OUT: " + result.dump(4));
         return result;
     }
 }
@@ -82,4 +98,9 @@ std::string GatedDatabase::execute(const std::string& commandString, std::istrea
 
     nlohmann::json result = execute(parsedCommand, inputStream, outputStream);
     return result.dump();
+}
+
+void GatedDatabase::log(const std::string& msg)
+{
+    std::cout << msg << std::endl;
 }

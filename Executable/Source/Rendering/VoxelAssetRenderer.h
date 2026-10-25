@@ -7,13 +7,14 @@
 #include "CADacomb/Volume/LODStrategy/FrustumAdaptiveLODStrategy.h"
 #include "CADacomb/Volume/LODStrategy/ScreenSpaceLODStrategy.h"
 #include "CADacombRender/SVOLODMesh.h"
+#include "Vulcant/Toolkit/MeshRenderer.h"
 
 #include <memory>
 
 class Renderer;
 class VoxelAsset;
 
-// Renders VoxelAsset instances into a Renderer using dynamic LOD meshing via SVOLODMesh.
+// Renders VoxelAsset instances using dynamic SVO LOD meshing with a dedicated pipeline.
 class VoxelAssetRenderer : public AssetRenderer
 {
   public:
@@ -27,6 +28,7 @@ class VoxelAssetRenderer : public AssetRenderer
   private:
     std::shared_ptr<VoxelAsset>                         asset;
     std::unique_ptr<CADacomb::Render::SVOLODMesh<bool>> lodMesh;
+    std::unique_ptr<Vulcant::Toolkit::MeshRenderer>     meshRenderer;
 
     CADacomb::FrustumAdaptiveLODStrategy frustumAdaptiveStrategy;
     CADacomb::ScreenSpaceLODStrategy     screenSpaceStrategy;

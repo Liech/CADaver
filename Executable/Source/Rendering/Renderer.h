@@ -6,7 +6,8 @@
 
 #include <glm/glm.hpp>
 #include <memory>
-#include <vector>
+
+class GatedDatabase;
 
 namespace Vulcant
 {
@@ -15,52 +16,44 @@ namespace Vulcant
     class VulcantImage;
 }
 
-namespace Vulcant::Toolkit
-{
-    class MeshRenderer;
-    struct MeshVertex;
-}
-
+// Coordinates rendering passes, targets, and frame execution using database preferences.
 class Renderer
 {
   public:
-    Renderer(Vulcant::VulcantDevice& device, const glm::ivec2& resolution);
+    Renderer(Vulcant::VulcantDevice& device, const glm::ivec2& resolution, GatedDatabase& gatedDatabase);
     virtual ~Renderer();
 
     void setResolution(const glm::ivec2& resolution);
     void setSceneData(const Vulcant::Toolkit::SceneData& sceneData);
-    void setClearColor(const glm::vec4& color);
-    void setWireframeMode(Vulcant::Toolkit::MeshRenderer::WireframeMode mode);
-    void setWireframeColor(const glm::vec3& color);
-    void setCullMode(Vulcant::VulcantCullMode mode);
 
     void beginRecord();
-    void drawVertices(const std::vector<Vulcant::Toolkit::MeshVertex>& vertices);
-    void drawVertices(const std::vector<Vulcant::Toolkit::MeshVertex>& vertices, const glm::vec3& colorOverride);
-    void drawVertexBuffer(Vulcant::VulcantBuffer& buffer, uint32_t vertexCount);
     void endRecord();
-
     void execute();
 
     bool needsRecord() const;
     void markDirty();
 
-    const Vulcant::Toolkit::SceneData& getSceneData() const;
-    Vulcant::VulcantGraphicCommand*    getCommand() const;
-    Vulcant::VulcantDevice&            getDevice() const;
-    Vulcant::VulcantImage&             getResult() const;
+    const glm::ivec2&                             getResolution() const;
+    const Vulcant::Toolkit::SceneData&            getSceneData() const;
+    glm::vec4                                     getClearColor() const;
+    Vulcant::Toolkit::MeshRenderer::WireframeMode getWireframeMode() const;
+    glm::vec3                                     getWireframeColor() const;
+    Vulcant::VulcantCullMode                      getCullMode() const;
+    Vulcant::VulcantGraphicCommand*               getCommand() const;
+    Vulcant::VulcantDevice&                       getDevice() const;
+    Vulcant::VulcantImage&                        getColor() const;
+    Vulcant::VulcantImage&                        getDepth() const;
+    Vulcant::VulcantImage&                        getNormal() const;
+    Vulcant::VulcantImage&                        getResult() const;
 
   private:
-    Vulcant::VulcantDevice&                                   device;
-    glm::ivec2                                                resolution;
-    glm::vec4                                                 clearColor     = glm::vec4(0.12f, 0.12f, 0.14f, 1.0f);
-    glm::vec3                                                 wireframeColor = glm::vec3(1.0f, 0.0f, 0.0f);
-    std::unique_ptr<Vulcant::Toolkit::MeshRenderer>           meshRenderer;
-    std::unique_ptr<Vulcant::VulcantGraphicCommand>           drawCmd;
-    std::vector<Vulcant::Toolkit::MeshVertex>                 accumulatedVertices;
-    Vulcant::Toolkit::MeshRenderer::WireframeMode             wireframeMode = Vulcant::Toolkit::MeshRenderer::WireframeMode::Off;
-    Vulcant::VulcantCullMode                                  cullMode      = Vulcant::VulcantCullMode::Front;
-    Vulcant::Toolkit::SceneData                               sceneData;
-    std::vector<std::pair<Vulcant::VulcantBuffer*, uint32_t>> customBuffers;
-    bool                                                      dirty = true;
+    Vulcant::VulcantDevice&                         device;
+    glm::ivec2                                      resolution;
+    GatedDatabase&                                  gatedDatabase;
+    Vulcant::Toolkit::SceneData                     sceneData;
+    std::unique_ptr<Vulcant::VulcantGraphicCommand> drawCmd;
+    std::unique_ptr<Vulcant::VulcantImage>          colorImage;
+    std::unique_ptr<Vulcant::VulcantImage>          depthImage;
+    std::unique_ptr<Vulcant::VulcantImage>          normalImage;
+    bool                                            dirty = true;
 };

@@ -2,6 +2,7 @@
 
 #include "Database/Asset/CadAsset.h"
 #include "Rendering/Renderer.h"
+#include "Vulcant/Interface/VulcantGraphicCommand.h"
 
 StepAssetRenderer::StepAssetRenderer(std::shared_ptr<CadAsset> assetInput)
   : asset(std::move(assetInput))
@@ -66,23 +67,43 @@ void StepAssetRenderer::render(Renderer& renderer, bool isSelected)
         return;
     }
 
+    if (!meshRenderer)
+    {
+        meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), renderer.getResolution());
+    }
+
+    meshRenderer->setResolution(renderer.getResolution());
+    meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
+    meshRenderer->setSceneData(renderer.getSceneData());
+    meshRenderer->setWireframeMode(renderer.getWireframeMode());
+    meshRenderer->setWireframeColor(renderer.getWireframeColor());
+    meshRenderer->setCullMode(renderer.getCullMode());
+
     if (dirty || asset->isDirty() || lastColor != asset->getMeshColor())
     {
         rebuildVertices();
+        meshRenderer->setVertices(cachedVertices);
     }
 
-    if (cachedVertices.empty())
+    if (cachedVertices.empty() || !renderer.getCommand())
     {
         return;
     }
 
     if (isSelected)
     {
-        glm::vec3 highlightColor(0.95f, 0.72f, 0.32f);
-        renderer.drawVertices(cachedVertices, highlightColor);
+        glm::vec3                                 highlightColor(0.95f, 0.72f, 0.32f);
+        std::vector<Vulcant::Toolkit::MeshVertex> highlighted = cachedVertices;
+        for (auto& v : highlighted)
+        {
+            v.color = highlightColor;
+        }
+        meshRenderer->setVertices(highlighted);
+        meshRenderer->record(*renderer.getCommand());
+        meshRenderer->setVertices(cachedVertices);
     }
     else
     {
-        renderer.drawVertices(cachedVertices);
+        meshRenderer->record(*renderer.getCommand());
     }
 }
