@@ -16,29 +16,19 @@ nlohmann::json RenderPreferences::toJson() const
 
 void RenderPreferences::fromJson(const nlohmann::json& jsonObject)
 {
-    if (jsonObject.contains("meshColor") && jsonObject["meshColor"].is_array() && jsonObject["meshColor"].size() >= 3)
-    {
-        meshColor.r = jsonObject["meshColor"][0].get<float>();
-        meshColor.g = jsonObject["meshColor"][1].get<float>();
-        meshColor.b = jsonObject["meshColor"][2].get<float>();
-    }
+    const auto& meshColorArray = jsonObject.at("meshColor");
+    meshColor.r                = meshColorArray.at(0).get<float>();
+    meshColor.g                = meshColorArray.at(1).get<float>();
+    meshColor.b                = meshColorArray.at(2).get<float>();
 
-    if (jsonObject.contains("wireframeMode") && jsonObject["wireframeMode"].is_number_integer())
-    {
-        wireframeMode = jsonObject["wireframeMode"].get<int>();
-    }
+    wireframeMode = jsonObject.at("wireframeMode").get<int>();
 
-    if (jsonObject.contains("wireframeColor") && jsonObject["wireframeColor"].is_array() && jsonObject["wireframeColor"].size() >= 3)
-    {
-        wireframeColor.r = jsonObject["wireframeColor"][0].get<float>();
-        wireframeColor.g = jsonObject["wireframeColor"][1].get<float>();
-        wireframeColor.b = jsonObject["wireframeColor"][2].get<float>();
-    }
+    const auto& wireColorArray = jsonObject.at("wireframeColor");
+    wireframeColor.r           = wireColorArray.at(0).get<float>();
+    wireframeColor.g           = wireColorArray.at(1).get<float>();
+    wireframeColor.b           = wireColorArray.at(2).get<float>();
 
-    if (jsonObject.contains("cullMode") && jsonObject["cullMode"].is_number_integer())
-    {
-        cullMode = jsonObject["cullMode"].get<int>();
-    }
+    cullMode = jsonObject.at("cullMode").get<int>();
 }
 
 const glm::vec3& RenderPreferences::getMeshColor() const

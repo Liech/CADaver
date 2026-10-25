@@ -3,9 +3,11 @@
 #include "Database/Asset.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
+#include "Database/Asset/VoxelAsset.h"
 #include "Database/AssetType.h"
 #include "StepAssetRenderer.h"
 #include "TriangulationAssetRenderer.h"
+#include "VoxelAssetRenderer.h"
 
 AssetRenderFactory::AssetRenderFactory() {}
 
@@ -32,6 +34,14 @@ std::unique_ptr<AssetRenderer> AssetRenderFactory::create(const std::shared_ptr<
         if (cadAsset)
         {
             return std::make_unique<StepAssetRenderer>(cadAsset);
+        }
+    }
+    else if (asset->getType() == AssetType::Voxel)
+    {
+        auto voxelAsset = std::dynamic_pointer_cast<VoxelAsset>(asset);
+        if (voxelAsset)
+        {
+            return std::make_unique<VoxelAssetRenderer>(voxelAsset);
         }
     }
 

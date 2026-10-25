@@ -15,23 +15,14 @@ nlohmann::json UIPreferences::toJson() const
 
 void UIPreferences::fromJson(const nlohmann::json& jsonObject)
 {
-    if (jsonObject.contains("uiScale") && jsonObject["uiScale"].is_number())
-    {
-        uiScale = jsonObject["uiScale"].get<float>();
-    }
+    uiScale    = jsonObject.at("uiScale").get<float>();
+    themeIndex = jsonObject.at("themeIndex").get<int>();
 
-    if (jsonObject.contains("themeIndex") && jsonObject["themeIndex"].is_number_integer())
-    {
-        themeIndex = jsonObject["themeIndex"].get<int>();
-    }
-
-    if (jsonObject.contains("backgroundColor") && jsonObject["backgroundColor"].is_array() && jsonObject["backgroundColor"].size() >= 4)
-    {
-        backgroundColor.r = jsonObject["backgroundColor"][0].get<float>();
-        backgroundColor.g = jsonObject["backgroundColor"][1].get<float>();
-        backgroundColor.b = jsonObject["backgroundColor"][2].get<float>();
-        backgroundColor.a = jsonObject["backgroundColor"][3].get<float>();
-    }
+    const auto& bgArray = jsonObject.at("backgroundColor");
+    backgroundColor.r   = bgArray.at(0).get<float>();
+    backgroundColor.g   = bgArray.at(1).get<float>();
+    backgroundColor.b   = bgArray.at(2).get<float>();
+    backgroundColor.a   = bgArray.at(3).get<float>();
 }
 
 float UIPreferences::getUiScale() const

@@ -1,0 +1,105 @@
+#include "Rendering/VoxelAssetRenderer.h"
+
+#include "Commands/GatedDatabase.h"
+#include "Database/Asset/VoxelAsset.h"
+#include "Database/Preferences/Preferences.h"
+#include "Database/Preferences/SVOPreferences.h"
+#include "Rendering/Renderer.h"
+
+VoxelAssetRenderer::VoxelAssetRenderer(std::shared_ptr<VoxelAsset> assetInput)
+  : asset(std::move(assetInput))
+{
+}
+
+VoxelAssetRenderer::~VoxelAssetRenderer() {}
+
+void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
+{
+    if (!asset || !asset->getSVO())
+    {
+        lodMesh.reset();
+        dirty = false;
+        return;
+    }
+
+    const auto& svoPrefs = GatedDatabase::getInstance().get().getPreferences().getSVOPreferences();
+    lastChunkSize        = svoPrefs.getChunkSize();
+    lastVertexCapacity   = svoPrefs.getVertexCapacity();
+
+    lodMesh =
+      std::make_unique<CADacomb::Render::SVOLODMesh<bool>>(renderer.getDevice(), *asset->getSVO(), asset->getAABB(), static_cast<size_t>(lastVertexCapacity), static_cast<uint32_t>(lastChunkSize));
+
+    dirty = false;
+    asset->markClean();
+}
+
+void VoxelAssetRenderer::render(Renderer& renderer, bool isSelected)
+{
+    if (!asset || !asset->getSVO())
+    {
+        return;
+    }
+
+    const auto& svoPrefs = GatedDatabase::getInstance().get().getPreferences().getSVOPreferences();
+    if (dirty || asset->isDirty() || !lodMesh || lastChunkSize != svoPrefs.getChunkSize() || lastVertexCapacity != svoPrefs.getVertexCapacity() || svoPrefs.isRebuildRequested())
+    {
+        rebuildMesh(renderer);
+        const_cast<SVOPreferences&>(svoPrefs).clearRebuildRequested();
+    }
+
+    if (!lodMesh)
+    {
+        return;
+    }
+
+    int                    strategyType   = svoPrefs.getStrategyType();
+    CADacomb::LODStrategy* activeStrategy = &frustumAdaptiveStrategy;
+
+    if (strategyType == 0)
+    {
+        frustumAdaptiveStrategy.setMinPixelSize(svoPrefs.getMinPixelSize());
+        frustumAdaptiveStrategy.setMaxPixelSize(svoPrefs.getMaxPixelSize());
+        frustumAdaptiveStrategy.setTargetFillRatio(svoPrefs.getTargetFillRatio());
+        frustumAdaptiveStrategy.setMaxDepth(svoPrefs.getMaxDepth());
+        frustumAdaptiveStrategy.setFrustumCullingEnabled(svoPrefs.isFrustumCullingEnabled());
+        activeStrategy = &frustumAdaptiveStrategy;
+    }
+    else if (strategyType == 1)
+    {
+        screenSpaceStrategy.setMinPixelSize(svoPrefs.getMinPixelSize());
+        screenSpaceStrategy.setMaxPixelSize(svoPrefs.getMaxPixelSize());
+        activeStrategy = &screenSpaceStrategy;
+    }
+    else if (strategyType == 2)
+    {
+        capacityStrategy.setTargetFillRatio(svoPrefs.getTargetFillRatio());
+        activeStrategy = &capacityStrategy;
+    }
+    else if (strategyType == 3)
+    {
+        distanceBandStrategy.setNearDistance(svoPrefs.getNearDistance());
+        distanceBandStrategy.setFarDistance(svoPrefs.getFarDistance());
+        activeStrategy = &distanceBandStrategy;
+    }
+    else
+    {
+        int dec = svoPrefs.getFixedDecision();
+        fixedStrategy.setDecision(dec == 0 ? CADacomb::LODDecision::Refine : (dec == 2 ? CADacomb::LODDecision::Coarsen : CADacomb::LODDecision::Keep));
+        activeStrategy = &fixedStrategy;
+    }
+
+    glm::vec3 meshColor = isSelected ? glm::vec3(0.95f, 0.72f, 0.32f) : glm::vec3(0.6f, 0.75f, 0.9f);
+    lodMesh->setColor(meshColor);
+    if (isSelected != lastSelected)
+    {
+        lastSelected = isSelected;
+        lodMesh->markAllDirty();
+    }
+
+    lodMesh->update(renderer.getSceneData(), *activeStrategy);
+
+    if (lodMesh->getVertexCount() > 0)
+    {
+        renderer.drawVertexBuffer(lodMesh->getVertexBuffer(), static_cast<uint32_t>(lodMesh->getVertexCount()));
+    }
+}

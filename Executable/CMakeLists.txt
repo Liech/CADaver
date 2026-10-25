@@ -23,6 +23,8 @@ set(Database_Preferences_Files
     "Source/Database/Preferences/CameraPreferences.cpp"
     "Source/Database/Preferences/RenderPreferences.h"
     "Source/Database/Preferences/RenderPreferences.cpp"
+    "Source/Database/Preferences/SVOPreferences.h"
+    "Source/Database/Preferences/SVOPreferences.cpp"
 )
 source_group("Source/Database/Preferences" FILES ${Database_Preferences_Files})
 
@@ -35,6 +37,8 @@ set(UI_Preferences_Files
     "Source/UI/Preferences/CameraPreferencesView.cpp"
     "Source/UI/Preferences/RenderPreferencesView.h"
     "Source/UI/Preferences/RenderPreferencesView.cpp"
+    "Source/UI/Preferences/SVOPreferencesView.h"
+    "Source/UI/Preferences/SVOPreferencesView.cpp"
 )
 source_group("Source/UI/Preferences" FILES ${UI_Preferences_Files})
 
@@ -71,6 +75,8 @@ set(Rendering_Files
     "Source/Rendering/StepAssetRenderer.cpp"
     "Source/Rendering/AssetRenderFactory.h"
     "Source/Rendering/AssetRenderFactory.cpp"
+    "Source/Rendering/VoxelAssetRenderer.h"
+    "Source/Rendering/VoxelAssetRenderer.cpp"
 )
 source_group("Source/Rendering" FILES ${Rendering_Files})
 
@@ -106,6 +112,8 @@ set(Command_Files
     "Source/Commands/UpdateUIPreferencesCommand.cpp"
     "Source/Commands/UpdateRenderPreferencesCommand.h"
     "Source/Commands/UpdateRenderPreferencesCommand.cpp"
+    "Source/Commands/UpdateSVOPreferencesCommand.h"
+    "Source/Commands/UpdateSVOPreferencesCommand.cpp"
 )
 source_group("Source/Commands" FILES ${Command_Files})
 
@@ -168,6 +176,7 @@ set_property(TARGET CadaverExe PROPERTY CXX_STANDARD 20)
 target_link_libraries(CadaverExe
     glm::glm
     nlohmann_json::nlohmann_json
+    CADacombRender
     CadaverLibrary
     Vulcant::Vulcant
     VulcantToolkit

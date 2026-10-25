@@ -33,8 +33,9 @@ void Renderer::setResolution(const glm::ivec2& newResolution)
     }
 }
 
-void Renderer::setSceneData(const Vulcant::Toolkit::SceneData& sceneData)
+void Renderer::setSceneData(const Vulcant::Toolkit::SceneData& sceneDataInput)
 {
+    sceneData = sceneDataInput;
     if (meshRenderer)
     {
         meshRenderer->setSceneData(sceneData);
@@ -92,6 +93,7 @@ void Renderer::setCullMode(Vulcant::VulcantCullMode mode)
 void Renderer::beginRecord()
 {
     accumulatedVertices.clear();
+    customBuffers.clear();
 }
 
 void Renderer::drawVertices(const std::vector<Vulcant::Toolkit::MeshVertex>& vertices)
@@ -108,6 +110,11 @@ void Renderer::drawVertices(const std::vector<Vulcant::Toolkit::MeshVertex>& ver
     }
 }
 
+void Renderer::drawVertexBuffer(Vulcant::VulcantBuffer& buffer, uint32_t vertexCount)
+{
+    customBuffers.push_back({ &buffer, vertexCount });
+}
+
 void Renderer::endRecord()
 {
     if (!meshRenderer)
@@ -115,24 +122,40 @@ void Renderer::endRecord()
         return;
     }
 
-    if (accumulatedVertices.empty())
-    {
-        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
-    }
-
-    meshRenderer->setVertices(accumulatedVertices);
-
     if (drawCmd)
     {
         drawCmd->wait();
     }
+    else
+    {
+        drawCmd = device.createGraphicCommand();
+    }
 
-    drawCmd = device.createGraphicCommand();
     drawCmd->startRecord();
     drawCmd->setClearColor(clearColor);
-    meshRenderer->record(*drawCmd);
+
+    if (!accumulatedVertices.empty())
+    {
+        meshRenderer->setVertices(accumulatedVertices);
+        meshRenderer->record(*drawCmd);
+    }
+    else if (customBuffers.empty())
+    {
+        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
+        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
+        accumulatedVertices.push_back({ glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f) });
+        meshRenderer->setVertices(accumulatedVertices);
+        meshRenderer->record(*drawCmd);
+    }
+
+    for (const auto& custom : customBuffers)
+    {
+        if (custom.first && custom.second > 0)
+        {
+            meshRenderer->record(*drawCmd, *custom.first, custom.second);
+        }
+    }
+
     drawCmd->endRecord();
 
     dirty = false;
@@ -160,6 +183,11 @@ void Renderer::markDirty()
 Vulcant::VulcantGraphicCommand* Renderer::getCommand() const
 {
     return drawCmd.get();
+}
+
+const Vulcant::Toolkit::SceneData& Renderer::getSceneData() const
+{
+    return sceneData;
 }
 
 Vulcant::VulcantDevice& Renderer::getDevice() const

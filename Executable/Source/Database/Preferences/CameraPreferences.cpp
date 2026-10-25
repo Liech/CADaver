@@ -19,41 +19,16 @@ nlohmann::json CameraPreferences::toJson() const
 
 void CameraPreferences::fromJson(const nlohmann::json& jsonObject)
 {
-    if (jsonObject.contains("cameraMode") && jsonObject["cameraMode"].is_number_integer())
-    {
-        cameraMode = jsonObject["cameraMode"].get<int>();
-    }
+    cameraMode          = jsonObject.at("cameraMode").get<int>();
+    cameraSpeed         = jsonObject.at("cameraSpeed").get<float>();
+    rotationSensitivity = jsonObject.at("rotationSensitivity").get<double>();
+    fov                 = jsonObject.at("fov").get<float>();
+    nearPlane           = jsonObject.at("nearPlane").get<float>();
+    farPlane            = jsonObject.at("farPlane").get<float>();
 
-    if (jsonObject.contains("cameraSpeed") && jsonObject["cameraSpeed"].is_number())
-    {
-        cameraSpeed = jsonObject["cameraSpeed"].get<float>();
-    }
-
-    if (jsonObject.contains("rotationSensitivity") && jsonObject["rotationSensitivity"].is_number())
-    {
-        rotationSensitivity = jsonObject["rotationSensitivity"].get<double>();
-    }
-
-    if (jsonObject.contains("fov") && jsonObject["fov"].is_number())
-    {
-        fov = jsonObject["fov"].get<float>();
-    }
-
-    if (jsonObject.contains("nearPlane") && jsonObject["nearPlane"].is_number())
-    {
-        nearPlane = jsonObject["nearPlane"].get<float>();
-    }
-
-    if (jsonObject.contains("farPlane") && jsonObject["farPlane"].is_number())
-    {
-        farPlane = jsonObject["farPlane"].get<float>();
-    }
-
-    if (jsonObject.contains("resolution") && jsonObject["resolution"].is_array() && jsonObject["resolution"].size() >= 2)
-    {
-        resolution.x = jsonObject["resolution"][0].get<float>();
-        resolution.y = jsonObject["resolution"][1].get<float>();
-    }
+    const auto& resArray = jsonObject.at("resolution");
+    resolution.x         = resArray.at(0).get<float>();
+    resolution.y         = resArray.at(1).get<float>();
 }
 
 int CameraPreferences::getCameraMode() const

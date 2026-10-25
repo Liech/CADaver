@@ -25,20 +25,19 @@ std::string UpdateCameraPreferencesCommand::getDescription() const
 {
     return "Command: UpdateCameraPreferences\n"
            "Version: 1\n"
-           "Purpose: Updates camera settings (FOV, clip planes, resolution, sensitivity, projection mode).\n\n"
+           "Purpose: Updates camera settings (FOV, clip planes, resolution, sensitivity, camera mode).\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"UpdateCameraPreferences\",\n"
            "  \"version\": 1,\n"
            "  \"preferences\": {\n"
+           "    \"cameraMode\": <int>,\n"
+           "    \"cameraSpeed\": <float>,\n"
+           "    \"rotationSensitivity\": <double>,\n"
            "    \"fov\": <float>,\n"
-           "    \"nearClip\": <float>,\n"
-           "    \"farClip\": <float>,\n"
-           "    \"resolution\": <int>,\n"
-           "    \"sensitivity\": <float>,\n"
-           "    \"mode\": \"Perspective\" | \"Orthographic\",\n"
-           "    \"clearResetRequested\": <bool, optional>,\n"
-           "    \"clearModeChangeRequest\": <bool, optional>\n"
+           "    \"nearPlane\": <float>,\n"
+           "    \"farPlane\": <float>,\n"
+           "    \"resolution\": [<float>, <float>]\n"
            "  }\n"
            "}\n\n"
            "Input Stream: None\n"
@@ -55,15 +54,6 @@ nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database, std::
 {
     auto& cameraPreferences = database.getPreferences().getCameraPreferences();
     cameraPreferences.fromJson(preferencesData);
-
-    if (preferencesData.contains("clearResetRequested") && preferencesData["clearResetRequested"].get<bool>())
-    {
-        cameraPreferences.clearResetRequested();
-    }
-    if (preferencesData.contains("clearModeChangeRequest") && preferencesData["clearModeChangeRequest"].get<bool>())
-    {
-        cameraPreferences.clearModeChangeRequest();
-    }
 
     return {
         {    "type",    getType() },

@@ -50,6 +50,11 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                       { "preferences", workingPreferences.getCameraPreferences().toJson() }
                     });
                 }
+                if (workingPreferences.getCameraPreferences().isResetRequested())
+                {
+                    resetRequested = true;
+                    workingPreferences.getCameraPreferences().clearResetRequested();
+                }
                 ImGui::EndTabItem();
             }
 
@@ -62,6 +67,20 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                       {        "type",                          "UpdateRenderPreferences" },
                       {     "version",                                                  1 },
                       { "preferences", workingPreferences.getRenderPreferences().toJson() }
+                    });
+                }
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("SVO"))
+            {
+                if (svoPreferencesView.render(workingPreferences.getSVOPreferences()))
+                {
+                    modified = true;
+                    GatedDatabase::getInstance().execute({
+                      {        "type",                          "UpdateSVOPreferences" },
+                      {     "version",                                               1 },
+                      { "preferences", workingPreferences.getSVOPreferences().toJson() }
                     });
                 }
                 ImGui::EndTabItem();
@@ -88,6 +107,16 @@ void PreferencesWindow::setOpen(bool open)
     openState = open;
 }
 
+bool PreferencesWindow::isResetRequested() const
+{
+    return resetRequested;
+}
+
+void PreferencesWindow::clearResetRequested()
+{
+    resetRequested = false;
+}
+
 UIPreferencesView& PreferencesWindow::getUIPreferencesView()
 {
     return uiPreferencesView;
@@ -101,4 +130,9 @@ CameraPreferencesView& PreferencesWindow::getCameraPreferencesView()
 RenderPreferencesView& PreferencesWindow::getRenderPreferencesView()
 {
     return renderPreferencesView;
+}
+
+SVOPreferencesView& PreferencesWindow::getSVOPreferencesView()
+{
+    return svoPreferencesView;
 }

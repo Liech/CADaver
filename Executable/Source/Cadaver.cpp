@@ -2,6 +2,7 @@
 
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
+#include "Database/Asset/VoxelAsset.h"
 #include "Database/Preferences/CameraPreferences.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
@@ -80,10 +81,12 @@ void Cadaver::changeResolution(const glm::ivec2& newResolution)
     {
         renderer->setResolution(resolution);
     }
+    auto cameraPrefs          = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences().toJson();
+    cameraPrefs["resolution"] = { resolution.x, resolution.y };
     GatedDatabase::getInstance().execute({
-      {        "type",                            "UpdateCameraPreferences" },
-      {     "version",                                                    1 },
-      { "preferences", { { "resolution", { resolution.x, resolution.y } } } }
+      {        "type", "UpdateCameraPreferences" },
+      {     "version",                         1 },
+      { "preferences",               cameraPrefs }
     });
 }
 
@@ -154,7 +157,18 @@ void Cadaver::onRender()
         renderer->markDirty();
     }
 
-    if (renderer->needsRecord())
+    bool hasDynamicAssets = false;
+    for (size_t i = 0; i < project.getAssetCount(); i++)
+    {
+        auto asset = project.getAsset(i);
+        if (asset && asset->getType() == AssetType::Voxel)
+        {
+            hasDynamicAssets = true;
+            break;
+        }
+    }
+
+    if (hasDynamicAssets || renderer->needsRecord())
     {
         renderer->beginRecord();
         for (size_t i = 0; i < project.getAssetCount(); i++)
@@ -229,6 +243,16 @@ void Cadaver::frameCameraOnProject()
                 hasBounds        = true;
             }
         }
+        else if (asset && asset->getType() == AssetType::Voxel)
+        {
+            auto voxelAsset = std::dynamic_pointer_cast<VoxelAsset>(asset);
+            if (voxelAsset && voxelAsset->getSVO())
+            {
+                minBound  = glm::min(minBound, voxelAsset->getAABB().getMin());
+                maxBound  = glm::max(maxBound, voxelAsset->getAABB().getMax());
+                hasBounds = true;
+            }
+        }
     }
 
     if (hasBounds && camera)
@@ -272,6 +296,8 @@ void Cadaver::setCameraMode(int mode)
     {
         camera = std::make_unique<Vulcant::Toolkit::ArcCam>(*window, eye, target, up);
     }
+
+    currentCameraMode = mode;
 
     camera->setZNear(zNear);
     camera->setZFar(zFar);
@@ -380,24 +406,15 @@ void Cadaver::renderImGui()
     {
         preferencesWindow->render(preferences, camera.get());
 
-        if (preferences.getCameraPreferences().isResetRequested())
+        if (preferencesWindow->isResetRequested())
         {
             resetCamera();
-            GatedDatabase::getInstance().execute({
-              {        "type",           "UpdateCameraPreferences" },
-              {     "version",                                   1 },
-              { "preferences", { { "clearResetRequested", true } } }
-            });
+            preferencesWindow->clearResetRequested();
         }
 
-        if (preferences.getCameraPreferences().hasModeChangeRequest())
+        if (preferences.getCameraPreferences().getCameraMode() != currentCameraMode)
         {
-            setCameraMode(preferences.getCameraPreferences().getRequestedMode());
-            GatedDatabase::getInstance().execute({
-              {        "type",              "UpdateCameraPreferences" },
-              {     "version",                                      1 },
-              { "preferences", { { "clearModeChangeRequest", true } } }
-            });
+            setCameraMode(preferences.getCameraPreferences().getCameraMode());
         }
     }
 

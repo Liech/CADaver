@@ -25,14 +25,7 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
     std::cout << "IN: " << std::endl << command.dump(4) << std::endl;
     try
     {
-        if (command.contains("type"))
-        {
-            commandType = command.at("type").get<std::string>();
-        }
-        else
-        {
-            commandType = command.at("command").get<std::string>();
-        }
+        commandType    = command.at("type").get<std::string>();
         commandVersion = command.at("version").get<int>();
 
         auto cmd = commandFactory.create(command);

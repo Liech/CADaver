@@ -42,25 +42,16 @@ nlohmann::json Preferences::toJson() const
     jsonObject["ui"]     = uiPreferences.toJson();
     jsonObject["camera"] = cameraPreferences.toJson();
     jsonObject["render"] = renderPreferences.toJson();
+    jsonObject["svo"]    = svoPreferences.toJson();
     return jsonObject;
 }
 
 void Preferences::fromJson(const nlohmann::json& jsonObject)
 {
-    if (jsonObject.contains("ui"))
-    {
-        uiPreferences.fromJson(jsonObject["ui"]);
-    }
-
-    if (jsonObject.contains("camera"))
-    {
-        cameraPreferences.fromJson(jsonObject["camera"]);
-    }
-
-    if (jsonObject.contains("render"))
-    {
-        renderPreferences.fromJson(jsonObject["render"]);
-    }
+    uiPreferences.fromJson(jsonObject.at("ui"));
+    cameraPreferences.fromJson(jsonObject.at("camera"));
+    renderPreferences.fromJson(jsonObject.at("render"));
+    svoPreferences.fromJson(jsonObject.at("svo"));
 }
 
 UIPreferences& Preferences::getUIPreferences()
@@ -91,4 +82,14 @@ RenderPreferences& Preferences::getRenderPreferences()
 const RenderPreferences& Preferences::getRenderPreferences() const
 {
     return renderPreferences;
+}
+
+SVOPreferences& Preferences::getSVOPreferences()
+{
+    return svoPreferences;
+}
+
+const SVOPreferences& Preferences::getSVOPreferences() const
+{
+    return svoPreferences;
 }

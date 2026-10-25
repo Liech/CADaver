@@ -11,6 +11,7 @@
 #include "SelectAssetCommand.h"
 #include "UpdateCameraPreferencesCommand.h"
 #include "UpdateRenderPreferencesCommand.h"
+#include "UpdateSVOPreferencesCommand.h"
 #include "UpdateUIPreferencesCommand.h"
 
 CommandFactory::CommandFactory()
@@ -22,15 +23,7 @@ CommandFactory::~CommandFactory() {}
 
 std::unique_ptr<Command> CommandFactory::create(const nlohmann::json& commandJson) const
 {
-    std::string commandType;
-    if (commandJson.contains("type"))
-    {
-        commandType = commandJson.at("type").get<std::string>();
-    }
-    else
-    {
-        commandType = commandJson.at("command").get<std::string>();
-    }
+    std::string commandType = commandJson.at("type").get<std::string>();
 
     auto it = creators.find(commandType);
     if (it != creators.end())
@@ -55,6 +48,7 @@ std::vector<std::unique_ptr<Command>> CommandFactory::getAllCommands() const
     commands.push_back(std::make_unique<SelectAssetCommand>());
     commands.push_back(std::make_unique<UpdateCameraPreferencesCommand>());
     commands.push_back(std::make_unique<UpdateRenderPreferencesCommand>());
+    commands.push_back(std::make_unique<UpdateSVOPreferencesCommand>());
     commands.push_back(std::make_unique<UpdateUIPreferencesCommand>());
     return commands;
 }
@@ -78,4 +72,5 @@ void CommandFactory::registerCommands()
     registerCommand("UpdateCameraPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateCameraPreferencesCommand>(json); });
     registerCommand("UpdateUIPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateUIPreferencesCommand>(json); });
     registerCommand("UpdateRenderPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateRenderPreferencesCommand>(json); });
+    registerCommand("UpdateSVOPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateSVOPreferencesCommand>(json); });
 }

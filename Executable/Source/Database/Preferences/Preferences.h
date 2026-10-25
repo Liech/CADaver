@@ -2,6 +2,7 @@
 
 #include "Database/Preferences/CameraPreferences.h"
 #include "Database/Preferences/RenderPreferences.h"
+#include "Database/Preferences/SVOPreferences.h"
 #include "Database/Preferences/UIPreferences.h"
 
 #include <nlohmann/json.hpp>
@@ -29,8 +30,12 @@ class Preferences
     RenderPreferences&       getRenderPreferences();
     const RenderPreferences& getRenderPreferences() const;
 
+    SVOPreferences&       getSVOPreferences();
+    const SVOPreferences& getSVOPreferences() const;
+
   private:
     UIPreferences     uiPreferences;
     CameraPreferences cameraPreferences;
     RenderPreferences renderPreferences;
+    SVOPreferences    svoPreferences;
 };

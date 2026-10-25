@@ -2,6 +2,7 @@
 
 #include "CameraPreferencesView.h"
 #include "RenderPreferencesView.h"
+#include "SVOPreferencesView.h"
 #include "UIPreferencesView.h"
 
 namespace Vulcant::Toolkit
@@ -23,13 +24,19 @@ class PreferencesWindow
     bool isOpen() const;
     void setOpen(bool open);
 
+    bool isResetRequested() const;
+    void clearResetRequested();
+
     UIPreferencesView&     getUIPreferencesView();
     CameraPreferencesView& getCameraPreferencesView();
     RenderPreferencesView& getRenderPreferencesView();
+    SVOPreferencesView&    getSVOPreferencesView();
 
   private:
     UIPreferencesView     uiPreferencesView;
     CameraPreferencesView cameraPreferencesView;
     RenderPreferencesView renderPreferencesView;
-    bool                  openState = false;
+    SVOPreferencesView    svoPreferencesView;
+    bool                  openState      = false;
+    bool                  resetRequested = false;
 };

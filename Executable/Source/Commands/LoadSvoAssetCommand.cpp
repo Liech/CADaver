@@ -77,6 +77,11 @@ nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* in
         };
     }
 
+    if (bounds.getSize().x <= 0.0 || bounds.getSize().y <= 0.0 || bounds.getSize().z <= 0.0)
+    {
+        bounds = CADacomb::AABB3(glm::dvec3(0.0), glm::dvec3(static_cast<double>(svo->getDimension())));
+    }
+
     auto asset = std::make_shared<VoxelAsset>(name, "", std::move(svo), bounds);
     asset->markClean();
     database.getProject().addAsset(asset);
