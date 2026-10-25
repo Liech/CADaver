@@ -11,24 +11,20 @@ set(Source_Files
     "Source/main.cpp"
     "Source/Cadaver.h"
     "Source/Cadaver.cpp"
-    "Source/Renderer.h"
-    "Source/Renderer.cpp"
-    "Source/FileMenu.h"
-    "Source/FileMenu.cpp"
 )
 source_group("Source" FILES ${Source_Files})
 
-set(Preferences_Files
-    "Source/Preferences/Preferences.h"
-    "Source/Preferences/Preferences.cpp"
-    "Source/Preferences/UIPreferences.h"
-    "Source/Preferences/UIPreferences.cpp"
-    "Source/Preferences/CameraPreferences.h"
-    "Source/Preferences/CameraPreferences.cpp"
-    "Source/Preferences/RenderPreferences.h"
-    "Source/Preferences/RenderPreferences.cpp"
+set(Database_Preferences_Files
+    "Source/Database/Preferences/Preferences.h"
+    "Source/Database/Preferences/Preferences.cpp"
+    "Source/Database/Preferences/UIPreferences.h"
+    "Source/Database/Preferences/UIPreferences.cpp"
+    "Source/Database/Preferences/CameraPreferences.h"
+    "Source/Database/Preferences/CameraPreferences.cpp"
+    "Source/Database/Preferences/RenderPreferences.h"
+    "Source/Database/Preferences/RenderPreferences.cpp"
 )
-source_group("Source/Preferences" FILES ${Preferences_Files})
+source_group("Source/Database/Preferences" FILES ${Database_Preferences_Files})
 
 set(UI_Preferences_Files
     "Source/UI/Preferences/PreferencesWindow.h"
@@ -42,25 +38,31 @@ set(UI_Preferences_Files
 )
 source_group("Source/UI/Preferences" FILES ${UI_Preferences_Files})
 
-set(Project_Files
-    "Source/Project/AssetType.h"
-    "Source/Project/AssetType.cpp"
-    "Source/Project/Asset.h"
-    "Source/Project/Asset.cpp"
-    "Source/Project/TriangulationAsset.h"
-    "Source/Project/TriangulationAsset.cpp"
-    "Source/Project/VoxelAsset.h"
-    "Source/Project/VoxelAsset.cpp"
-    "Source/Project/CadAsset.h"
-    "Source/Project/CadAsset.cpp"
-    "Source/Project/Project.h"
-    "Source/Project/Project.cpp"
-    "Source/Project/ProjectWindow.h"
-    "Source/Project/ProjectWindow.cpp"
+set(Database_Files
+    "Source/Database/Database.h"
+    "Source/Database/Database.cpp"
+    "Source/Database/Project.h"
+    "Source/Database/Project.cpp"
+    "Source/Database/Asset.h"
+    "Source/Database/Asset.cpp"
+    "Source/Database/AssetType.h"
+    "Source/Database/AssetType.cpp"
 )
-source_group("Source/Project" FILES ${Project_Files})
+source_group("Source/Database" FILES ${Database_Files})
+
+set(Database_Asset_Files
+    "Source/Database/Asset/CadAsset.h"
+    "Source/Database/Asset/CadAsset.cpp"
+    "Source/Database/Asset/TriangulationAsset.h"
+    "Source/Database/Asset/TriangulationAsset.cpp"
+    "Source/Database/Asset/VoxelAsset.h"
+    "Source/Database/Asset/VoxelAsset.cpp"
+)
+source_group("Source/Database/Asset" FILES ${Database_Asset_Files})
 
 set(Rendering_Files
+    "Source/Rendering/Renderer.h"
+    "Source/Rendering/Renderer.cpp"
     "Source/Rendering/AssetRenderer.h"
     "Source/Rendering/AssetRenderer.cpp"
     "Source/Rendering/TriangulationAssetRenderer.h"
@@ -71,12 +73,6 @@ set(Rendering_Files
     "Source/Rendering/AssetRenderFactory.cpp"
 )
 source_group("Source/Rendering" FILES ${Rendering_Files})
-
-set(Database_Files
-    "Source/Database/Database.h"
-    "Source/Database/Database.cpp"
-)
-source_group("Source/Database" FILES ${Database_Files})
 
 set(Command_Files
     "Source/Commands/RULES.md"
@@ -139,16 +135,30 @@ set(UI_ContextMenu_Files
 )
 source_group("Source/UI/ContextMenu" FILES ${UI_ContextMenu_Files})
 
+set(UI_Project_Files
+    "Source/UI/Project/ProjectWindow.h"
+    "Source/UI/Project/ProjectWindow.cpp"
+)
+source_group("Source/UI/Project" FILES ${UI_Project_Files})
+
+set(UI_Menu_Files
+    "Source/UI/Menu/FileMenu.h"
+    "Source/UI/Menu/FileMenu.cpp"
+)
+source_group("Source/UI/Menu" FILES ${UI_Menu_Files})
+
 set(ALL_FILES
     ${Source_Files}
-    ${Preferences_Files}
+    ${Database_Files}
+    ${Database_Asset_Files}
+    ${Database_Preferences_Files}
+    ${Rendering_Files}
+    ${UI_Menu_Files}
     ${UI_Preferences_Files}
     ${UI_About_Files}
     ${UI_Commands_Files}
     ${UI_ContextMenu_Files}
-    ${Project_Files}
-    ${Rendering_Files}
-    ${Database_Files}
+    ${UI_Project_Files}
     ${Command_Files}
 )
 

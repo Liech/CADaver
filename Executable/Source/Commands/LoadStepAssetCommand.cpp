@@ -1,7 +1,7 @@
 #include "LoadStepAssetCommand.h"
 
+#include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
-#include "Project/CadAsset.h"
 
 LoadStepAssetCommand::LoadStepAssetCommand() {}
 

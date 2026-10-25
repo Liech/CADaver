@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Preferences/Preferences.h"
-#include "Project/Project.h"
+#include "Database/Preferences/Preferences.h"
+#include "Database/Project.h"
 
 // Headless database holding project and application preferences, guarded by GatedDatabase.
 class Database

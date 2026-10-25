@@ -1,7 +1,7 @@
 #include "TriangulationAssetRenderer.h"
 
-#include "Project/TriangulationAsset.h"
-#include "Renderer.h"
+#include "Database/Asset/TriangulationAsset.h"
+#include "Rendering/Renderer.h"
 
 TriangulationAssetRenderer::TriangulationAssetRenderer(std::shared_ptr<TriangulationAsset> assetInput)
   : asset(std::move(assetInput))

@@ -2,8 +2,8 @@
 
 #include "CADacomb/Volume/SVO/SVOFile.h"
 #include "Commands/GatedDatabase.h"
+#include "Database/Asset/VoxelAsset.h"
 #include "Library/Util/SaveFileDialog.h"
-#include "Project/VoxelAsset.h"
 
 #include <filesystem>
 #include <fstream>

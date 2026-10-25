@@ -1,8 +1,8 @@
 #include "TriangulationAssetContextMenu.h"
 
 #include "Commands/GatedDatabase.h"
+#include "Database/Asset/TriangulationAsset.h"
 #include "Library/Util/SaveFileDialog.h"
-#include "Project/TriangulationAsset.h"
 
 #include <filesystem>
 #include <fstream>

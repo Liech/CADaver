@@ -1,8 +1,8 @@
-#include "ProjectWindow.h"
+#include "UI/Project/ProjectWindow.h"
 
-#include "Asset.h"
 #include "Commands/GatedDatabase.h"
-#include "Project.h"
+#include "Database/Asset.h"
+#include "Database/Project.h"
 #include "UI/ContextMenu/AssetContextMenuFactory.h"
 
 #include <imgui.h>
@@ -45,8 +45,6 @@ void ProjectWindow::render(const Project& project)
         if (project.getAssetCount() == 0)
         {
             ImGui::Spacing();
-            ImGui::TextDisabled("No assets in project.");
-            ImGui::TextDisabled("Use File -> Load -> STL or STEP");
         }
         else
         {

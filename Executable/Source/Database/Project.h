@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Asset.h"
+#include "Database/Asset.h"
 
 #include <cstdint>
 #include <memory>

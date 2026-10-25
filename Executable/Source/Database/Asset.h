@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AssetType.h"
+#include "Database/AssetType.h"
 
 #include <string>
 

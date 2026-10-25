@@ -1,4 +1,4 @@
-#include "TriangulationAsset.h"
+#include "Database/Asset/TriangulationAsset.h"
 
 TriangulationAsset::TriangulationAsset(const std::string& nameInput)
   : Asset(nameInput, AssetType::Triangulation)

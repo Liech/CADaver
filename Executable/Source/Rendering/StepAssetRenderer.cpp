@@ -1,7 +1,7 @@
 #include "StepAssetRenderer.h"
 
-#include "Project/CadAsset.h"
-#include "Renderer.h"
+#include "Database/Asset/CadAsset.h"
+#include "Rendering/Renderer.h"
 
 StepAssetRenderer::StepAssetRenderer(std::shared_ptr<CadAsset> assetInput)
   : asset(std::move(assetInput))

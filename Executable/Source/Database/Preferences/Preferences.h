@@ -1,8 +1,8 @@
 #pragma once
 
-#include "CameraPreferences.h"
-#include "RenderPreferences.h"
-#include "UIPreferences.h"
+#include "Database/Preferences/CameraPreferences.h"
+#include "Database/Preferences/RenderPreferences.h"
+#include "Database/Preferences/UIPreferences.h"
 
 #include <nlohmann/json.hpp>
 #include <string>

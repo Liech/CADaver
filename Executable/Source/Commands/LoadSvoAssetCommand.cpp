@@ -1,8 +1,8 @@
 #include "LoadSvoAssetCommand.h"
 
 #include "CADacomb/Volume/SVO/SVOFile.h"
+#include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
-#include "Project/VoxelAsset.h"
 
 LoadSvoAssetCommand::LoadSvoAssetCommand() {}
 

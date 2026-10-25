@@ -3,8 +3,8 @@
 #include "AssetContextMenu.h"
 #include "CadAssetContextMenu.h"
 #include "Commands/GatedDatabase.h"
-#include "Project/Asset.h"
-#include "Project/AssetType.h"
+#include "Database/Asset.h"
+#include "Database/AssetType.h"
 #include "TriangulationAssetContextMenu.h"
 #include "VoxelAssetContextMenu.h"
 

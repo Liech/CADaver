@@ -1,4 +1,4 @@
-#include "Asset.h"
+#include "Database/Asset.h"
 
 Asset::Asset(const std::string& nameInput, AssetType typeInput)
   : name(nameInput)

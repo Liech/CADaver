@@ -1,9 +1,9 @@
 #include "SaveStepAssetCommand.h"
 
+#include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
 #include "Library/CAD/CADShape.h"
 #include "Library/Operation/IO/SaveCADOperation.h"
-#include "Project/CadAsset.h"
 
 SaveStepAssetCommand::SaveStepAssetCommand() {}
 

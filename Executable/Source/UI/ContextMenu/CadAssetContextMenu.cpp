@@ -1,8 +1,8 @@
 #include "CadAssetContextMenu.h"
 
 #include "Commands/GatedDatabase.h"
+#include "Database/Asset/CadAsset.h"
 #include "Library/Util/SaveFileDialog.h"
-#include "Project/CadAsset.h"
 
 #include <filesystem>
 #include <imgui.h>

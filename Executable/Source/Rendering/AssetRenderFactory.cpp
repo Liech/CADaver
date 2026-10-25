@@ -1,9 +1,9 @@
 #include "AssetRenderFactory.h"
 
-#include "Project/Asset.h"
-#include "Project/AssetType.h"
-#include "Project/CadAsset.h"
-#include "Project/TriangulationAsset.h"
+#include "Database/Asset.h"
+#include "Database/Asset/CadAsset.h"
+#include "Database/Asset/TriangulationAsset.h"
+#include "Database/AssetType.h"
 #include "StepAssetRenderer.h"
 #include "TriangulationAssetRenderer.h"
 

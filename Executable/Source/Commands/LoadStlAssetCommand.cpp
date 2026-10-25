@@ -1,8 +1,8 @@
 #include "LoadStlAssetCommand.h"
 
 #include "CADacomb/Triangle/Triangulation.h"
+#include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
-#include "Project/TriangulationAsset.h"
 
 LoadStlAssetCommand::LoadStlAssetCommand() {}
 

@@ -1,7 +1,7 @@
 #include "PreferencesWindow.h"
 
 #include "Commands/GatedDatabase.h"
-#include "Preferences/Preferences.h"
+#include "Database/Preferences/Preferences.h"
 
 #include <imgui.h>
 

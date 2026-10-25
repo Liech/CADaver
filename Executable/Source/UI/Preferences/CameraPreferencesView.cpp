@@ -1,6 +1,6 @@
 #include "CameraPreferencesView.h"
 
-#include "Preferences/CameraPreferences.h"
+#include "Database/Preferences/CameraPreferences.h"
 #include "Vulcant/Toolkit/Camera.h"
 
 #include <imgui.h>
