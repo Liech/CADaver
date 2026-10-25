@@ -28,6 +28,28 @@ int SaveVoxelAssetCommand::getVersion() const
     return 1;
 }
 
+std::string SaveVoxelAssetCommand::getDescription() const
+{
+    return "Command: SaveVoxelAsset\n"
+           "Version: 1\n"
+           "Purpose: Saves an SVO voxel asset to an output stream.\n\n"
+           "Input Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"SaveVoxelAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"assetIndex\": <int>\n"
+           "}\n\n"
+           "Input Stream: None\n"
+           "Output Stream: SVO binary stream\n\n"
+           "Output Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"SaveVoxelAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"status\": \"Success\" | \"NoOutputStream\" | \"AssetNotFound\" | \"NotVoxelAsset\",\n"
+           "  \"index\": <int>\n"
+           "}";
+}
+
 nlohmann::json SaveVoxelAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
 {
     if (!outputStream)

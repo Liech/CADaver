@@ -119,6 +119,12 @@ set(UI_About_Files
 )
 source_group("Source/UI/About" FILES ${UI_About_Files})
 
+set(UI_Commands_Files
+    "Source/UI/Commands/CommandsWindow.h"
+    "Source/UI/Commands/CommandsWindow.cpp"
+)
+source_group("Source/UI/Commands" FILES ${UI_Commands_Files})
+
 set(UI_ContextMenu_Files
     "Source/UI/ContextMenu/AssetContextMenu.h"
     "Source/UI/ContextMenu/AssetContextMenu.cpp"
@@ -138,6 +144,7 @@ set(ALL_FILES
     ${Preferences_Files}
     ${UI_Preferences_Files}
     ${UI_About_Files}
+    ${UI_Commands_Files}
     ${UI_ContextMenu_Files}
     ${Project_Files}
     ${Rendering_Files}

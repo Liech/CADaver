@@ -31,6 +31,29 @@ int SaveStepAssetCommand::getVersion() const
     return 1;
 }
 
+std::string SaveStepAssetCommand::getDescription() const
+{
+    return "Command: SaveStepAsset\n"
+           "Version: 1\n"
+           "Purpose: Saves a CAD asset to a STEP file on disk.\n\n"
+           "Input Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"SaveStepAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"assetIndex\": <int>,\n"
+           "  \"filePath\": \"<string>\"\n"
+           "}\n\n"
+           "Input Stream: None\n"
+           "Output Stream: None\n\n"
+           "Output Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"SaveStepAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotCadAsset\",\n"
+           "  \"index\": <int>\n"
+           "}";
+}
+
 nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
 {
     auto baseAsset = database.getProject().getAsset(static_cast<size_t>(assetIndex));

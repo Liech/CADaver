@@ -26,6 +26,28 @@ int RemoveAssetCommand::getVersion() const
     return 1;
 }
 
+std::string RemoveAssetCommand::getDescription() const
+{
+    return "Command: RemoveAsset\n"
+           "Version: 1\n"
+           "Purpose: Removes an asset from the project by index.\n\n"
+           "Input Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"RemoveAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"assetIndex\": <int>\n"
+           "}\n\n"
+           "Input Stream: None\n"
+           "Output Stream: None\n\n"
+           "Output Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"RemoveAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"status\": \"Success\" | \"IndexOutOfBounds\",\n"
+           "  \"index\": <int>\n"
+           "}";
+}
+
 nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
 {
     if (assetIndex < 0 || static_cast<size_t>(assetIndex) >= database.getProject().getAssetCount())

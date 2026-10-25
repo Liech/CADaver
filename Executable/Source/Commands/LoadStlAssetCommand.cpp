@@ -28,6 +28,29 @@ int LoadStlAssetCommand::getVersion() const
     return 1;
 }
 
+std::string LoadStlAssetCommand::getDescription() const
+{
+    return "Command: LoadStlAsset\n"
+           "Version: 1\n"
+           "Purpose: Loads an STL triangulation asset from an input stream into the project.\n\n"
+           "Input Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"LoadStlAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"name\": \"<string>\"\n"
+           "}\n\n"
+           "Input Stream: Binary or ASCII STL stream\n"
+           "Output Stream: None\n\n"
+           "Output Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"LoadStlAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"status\": \"Success\" | \"NoInputStream\" | \"ParseFailed\",\n"
+           "  \"index\": <int>,\n"
+           "  \"name\": \"<string>\"\n"
+           "}";
+}
+
 nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
 {
     if (!inputStream)

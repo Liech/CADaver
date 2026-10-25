@@ -28,6 +28,29 @@ int LoadSvoAssetCommand::getVersion() const
     return 1;
 }
 
+std::string LoadSvoAssetCommand::getDescription() const
+{
+    return "Command: LoadSvoAsset\n"
+           "Version: 1\n"
+           "Purpose: Loads an SVO voxel asset from an input stream into the project.\n\n"
+           "Input Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"LoadSvoAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"name\": \"<string>\"\n"
+           "}\n\n"
+           "Input Stream: SVO binary stream\n"
+           "Output Stream: None\n\n"
+           "Output Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"LoadSvoAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"status\": \"Success\" | \"NoInputStream\" | \"ParseFailed\",\n"
+           "  \"index\": <int>,\n"
+           "  \"name\": \"<string>\"\n"
+           "}";
+}
+
 nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
 {
     if (!inputStream)

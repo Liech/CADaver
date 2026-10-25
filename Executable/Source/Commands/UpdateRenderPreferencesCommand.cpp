@@ -21,6 +21,38 @@ int UpdateRenderPreferencesCommand::getVersion() const
     return 1;
 }
 
+std::string UpdateRenderPreferencesCommand::getDescription() const
+{
+    return "Command: UpdateRenderPreferences\n"
+           "Version: 1\n"
+           "Purpose: Updates rendering settings (render mode, step size, epsilon, shadows, SSAO, etc.).\n\n"
+           "Input Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"UpdateRenderPreferences\",\n"
+           "  \"version\": 1,\n"
+           "  \"preferences\": {\n"
+           "    \"renderMode\": <int>,\n"
+           "    \"stepSize\": <float>,\n"
+           "    \"maxSteps\": <int>,\n"
+           "    \"epsilon\": <float>,\n"
+           "    \"normalEpsilon\": <float>,\n"
+           "    \"ambientOcclusion\": <bool>,\n"
+           "    \"shadows\": <bool>,\n"
+           "    \"lightDirection\": [<float>, <float>, <float>],\n"
+           "    \"lightColor\": [<float>, <float>, <float>],\n"
+           "    \"ambientColor\": [<float>, <float>, <float>]\n"
+           "  }\n"
+           "}\n\n"
+           "Input Stream: None\n"
+           "Output Stream: None\n\n"
+           "Output Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"UpdateRenderPreferences\",\n"
+           "  \"version\": 1,\n"
+           "  \"status\": \"Success\"\n"
+           "}";
+}
+
 nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
 {
     auto& renderPreferences = database.getPreferences().getRenderPreferences();

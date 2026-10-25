@@ -21,6 +21,31 @@ int UpdateUIPreferencesCommand::getVersion() const
     return 1;
 }
 
+std::string UpdateUIPreferencesCommand::getDescription() const
+{
+    return "Command: UpdateUIPreferences\n"
+           "Version: 1\n"
+           "Purpose: Updates user interface settings (theme, scaling, layout parameters).\n\n"
+           "Input Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"UpdateUIPreferences\",\n"
+           "  \"version\": 1,\n"
+           "  \"preferences\": {\n"
+           "    \"theme\": <int>,\n"
+           "    \"fontSize\": <float>,\n"
+           "    \"uiScale\": <float>\n"
+           "  }\n"
+           "}\n\n"
+           "Input Stream: None\n"
+           "Output Stream: None\n\n"
+           "Output Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"UpdateUIPreferences\",\n"
+           "  \"version\": 1,\n"
+           "  \"status\": \"Success\"\n"
+           "}";
+}
+
 nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
 {
     auto& uiPreferences = database.getPreferences().getUIPreferences();

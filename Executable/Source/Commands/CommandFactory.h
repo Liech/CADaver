@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 // Factory responsible for parsing JSON commands and instantiating concrete Command objects.
 class CommandFactory
@@ -15,7 +16,8 @@ class CommandFactory
     CommandFactory();
     virtual ~CommandFactory();
 
-    std::unique_ptr<Command> create(const nlohmann::json& commandJson) const;
+    std::unique_ptr<Command>              create(const nlohmann::json& commandJson) const;
+    std::vector<std::unique_ptr<Command>> getAllCommands() const;
 
     void registerCommand(const std::string& name, std::function<std::unique_ptr<Command>(const nlohmann::json&)> creator);
 

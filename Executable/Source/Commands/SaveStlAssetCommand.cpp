@@ -28,6 +28,28 @@ int SaveStlAssetCommand::getVersion() const
     return 1;
 }
 
+std::string SaveStlAssetCommand::getDescription() const
+{
+    return "Command: SaveStlAsset\n"
+           "Version: 1\n"
+           "Purpose: Saves a triangulation asset to an output stream in binary STL format.\n\n"
+           "Input Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"SaveStlAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"assetIndex\": <int>\n"
+           "}\n\n"
+           "Input Stream: None\n"
+           "Output Stream: Binary STL stream\n\n"
+           "Output Syntax (JSON):\n"
+           "{\n"
+           "  \"type\": \"SaveStlAsset\",\n"
+           "  \"version\": 1,\n"
+           "  \"status\": \"Success\" | \"NoOutputStream\" | \"AssetNotFound\" | \"NotTriangulationAsset\",\n"
+           "  \"index\": <int>\n"
+           "}";
+}
+
 nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
 {
     if (!outputStream)

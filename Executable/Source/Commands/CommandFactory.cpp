@@ -41,6 +41,24 @@ std::unique_ptr<Command> CommandFactory::create(const nlohmann::json& commandJso
     return nullptr;
 }
 
+std::vector<std::unique_ptr<Command>> CommandFactory::getAllCommands() const
+{
+    std::vector<std::unique_ptr<Command>> commands;
+    commands.push_back(std::make_unique<ClearProjectCommand>());
+    commands.push_back(std::make_unique<LoadStepAssetCommand>());
+    commands.push_back(std::make_unique<LoadStlAssetCommand>());
+    commands.push_back(std::make_unique<LoadSvoAssetCommand>());
+    commands.push_back(std::make_unique<RemoveAssetCommand>());
+    commands.push_back(std::make_unique<SaveStepAssetCommand>());
+    commands.push_back(std::make_unique<SaveStlAssetCommand>());
+    commands.push_back(std::make_unique<SaveVoxelAssetCommand>());
+    commands.push_back(std::make_unique<SelectAssetCommand>());
+    commands.push_back(std::make_unique<UpdateCameraPreferencesCommand>());
+    commands.push_back(std::make_unique<UpdateRenderPreferencesCommand>());
+    commands.push_back(std::make_unique<UpdateUIPreferencesCommand>());
+    return commands;
+}
+
 void CommandFactory::registerCommand(const std::string& name, std::function<std::unique_ptr<Command>(const nlohmann::json&)> creator)
 {
     creators[name] = std::move(creator);

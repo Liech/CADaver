@@ -110,7 +110,7 @@ void ProjectWindow::renderMenuBar(const Project& project)
 {
     if (ImGui::BeginMenuBar())
     {
-        if (ImGui::BeginMenu("Project"))
+        if (ImGui::BeginMenu("Assets"))
         {
             if (ImGui::MenuItem("Clear", nullptr, false, project.getAssetCount() > 0))
             {

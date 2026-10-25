@@ -11,6 +11,7 @@
 #include "Renderer.h"
 #include "Rendering/AssetRenderFactory.h"
 #include "UI/About/AboutWindow.h"
+#include "UI/Commands/CommandsWindow.h"
 #include "UI/Preferences/PreferencesWindow.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
@@ -309,9 +310,10 @@ void Cadaver::prepare()
     preferencesWindow = std::make_unique<PreferencesWindow>();
     preferencesWindow->getUIPreferencesView().apply(preferences.getUIPreferences());
 
-    aboutWindow   = std::make_unique<AboutWindow>();
-    projectWindow = std::make_unique<ProjectWindow>();
-    fileMenu      = std::make_unique<FileMenu>();
+    aboutWindow    = std::make_unique<AboutWindow>();
+    commandsWindow = std::make_unique<CommandsWindow>();
+    projectWindow  = std::make_unique<ProjectWindow>();
+    fileMenu       = std::make_unique<FileMenu>();
 
     assetRenderFactory = std::make_unique<AssetRenderFactory>();
     renderer           = std::make_unique<Renderer>(device, resolution);
@@ -356,6 +358,13 @@ void Cadaver::renderImGui()
                     aboutWindow->setOpen(true);
                 }
             }
+            if (ImGui::MenuItem("Commands"))
+            {
+                if (commandsWindow)
+                {
+                    commandsWindow->setOpen(true);
+                }
+            }
             ImGui::EndMenu();
         }
 
@@ -395,5 +404,10 @@ void Cadaver::renderImGui()
     if (aboutWindow)
     {
         aboutWindow->render();
+    }
+
+    if (commandsWindow)
+    {
+        commandsWindow->render();
     }
 }
