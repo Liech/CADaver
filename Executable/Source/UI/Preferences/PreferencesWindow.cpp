@@ -1,5 +1,6 @@
 #include "PreferencesWindow.h"
 
+#include "Commands/GatedDatabase.h"
 #include "Preferences/Preferences.h"
 
 #include <imgui.h>
@@ -8,12 +9,14 @@ PreferencesWindow::PreferencesWindow() {}
 
 PreferencesWindow::~PreferencesWindow() {}
 
-void PreferencesWindow::render(Preferences& preferences, Vulcant::Toolkit::Camera* camera)
+void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit::Camera* camera)
 {
     if (!openState)
     {
         return;
     }
+
+    Preferences workingPreferences = preferences;
 
     ImGui::SetNextWindowSize(ImVec2(480.0f, 420.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Preferences", &openState))
@@ -24,27 +27,42 @@ void PreferencesWindow::render(Preferences& preferences, Vulcant::Toolkit::Camer
         {
             if (ImGui::BeginTabItem("UI"))
             {
-                if (uiPreferencesView.render(preferences.getUIPreferences()))
+                if (uiPreferencesView.render(workingPreferences.getUIPreferences()))
                 {
                     modified = true;
+                    GatedDatabase::getInstance().execute({
+                      {        "type",                          "UpdateUIPreferences" },
+                      {     "version",                                              1 },
+                      { "preferences", workingPreferences.getUIPreferences().toJson() }
+                    });
                 }
                 ImGui::EndTabItem();
             }
 
             if (ImGui::BeginTabItem("Camera"))
             {
-                if (cameraPreferencesView.render(preferences.getCameraPreferences(), camera))
+                if (cameraPreferencesView.render(workingPreferences.getCameraPreferences(), camera))
                 {
                     modified = true;
+                    GatedDatabase::getInstance().execute({
+                      {        "type",                          "UpdateCameraPreferences" },
+                      {     "version",                                                  1 },
+                      { "preferences", workingPreferences.getCameraPreferences().toJson() }
+                    });
                 }
                 ImGui::EndTabItem();
             }
 
             if (ImGui::BeginTabItem("Render"))
             {
-                if (renderPreferencesView.render(preferences.getRenderPreferences()))
+                if (renderPreferencesView.render(workingPreferences.getRenderPreferences()))
                 {
                     modified = true;
+                    GatedDatabase::getInstance().execute({
+                      {        "type",                          "UpdateRenderPreferences" },
+                      {     "version",                                                  1 },
+                      { "preferences", workingPreferences.getRenderPreferences().toJson() }
+                    });
                 }
                 ImGui::EndTabItem();
             }
@@ -54,7 +72,7 @@ void PreferencesWindow::render(Preferences& preferences, Vulcant::Toolkit::Camer
 
         if (modified)
         {
-            preferences.save();
+            workingPreferences.save();
         }
     }
     ImGui::End();

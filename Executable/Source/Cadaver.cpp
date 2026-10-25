@@ -79,7 +79,11 @@ void Cadaver::changeResolution(const glm::ivec2& newResolution)
     {
         renderer->setResolution(resolution);
     }
-    Database::getInstance().getPreferences().getCameraPreferences().setResolution(glm::vec2(resolution));
+    GatedDatabase::getInstance().execute({
+      {        "type",                            "UpdateCameraPreferences" },
+      {     "version",                                                    1 },
+      { "preferences", { { "resolution", { resolution.x, resolution.y } } } }
+    });
 }
 
 Vulcant::VulcantWindow& Cadaver::getWindow()
@@ -99,7 +103,7 @@ void Cadaver::onLogic(double delta)
         camera->tick(delta);
     }
 
-    auto& project = Database::getInstance().getProject();
+    const auto& project = GatedDatabase::getInstance().get().getProject();
     if (project.getAssetCount() != lastAssetCount)
     {
         lastAssetCount = project.getAssetCount();
@@ -126,7 +130,7 @@ void Cadaver::onRender()
         sceneData = camera->getScene();
     }
 
-    const auto& preferences = Database::getInstance().getPreferences();
+    const auto& preferences = GatedDatabase::getInstance().get().getPreferences();
     const auto& camPrefs    = preferences.getCameraPreferences();
     const auto& uiPrefs     = preferences.getUIPreferences();
     const auto& renderPrefs = preferences.getRenderPreferences();
@@ -141,8 +145,8 @@ void Cadaver::onRender()
     renderer->setCullMode(static_cast<Vulcant::VulcantCullMode>(renderPrefs.getCullMode()));
     renderer->setSceneData(sceneData);
 
-    auto& project       = Database::getInstance().getProject();
-    int   selectedIndex = project.getSelectedIndex();
+    const auto& project       = GatedDatabase::getInstance().get().getProject();
+    int         selectedIndex = project.getSelectedIndex();
     if (selectedIndex != lastSelectedIndex)
     {
         lastSelectedIndex = selectedIndex;
@@ -198,7 +202,7 @@ void Cadaver::frameCameraOnProject()
     glm::dvec3 maxBound(-1e9);
     bool       hasBounds = false;
 
-    const auto& project = Database::getInstance().getProject();
+    const auto& project = GatedDatabase::getInstance().get().getProject();
     for (size_t i = 0; i < project.getAssetCount(); i++)
     {
         auto asset = project.getAsset(i);
@@ -248,7 +252,7 @@ void Cadaver::setCameraMode(int mode)
         return;
     }
 
-    const auto& camPrefs = Database::getInstance().getPreferences().getCameraPreferences();
+    const auto& camPrefs = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences();
     glm::dvec3  eye      = camera ? camera->getEye() : glm::dvec3(0.0, 3.0, 5.0);
     glm::dvec3  target   = camera ? camera->getTarget() : glm::dvec3(0.0, 0.0, 0.0);
     glm::dvec3  up       = camera ? camera->getUp() : glm::dvec3(0.0, 1.0, 0.0);
@@ -278,13 +282,13 @@ void Cadaver::setCameraMode(int mode)
 
 void Cadaver::resetCamera()
 {
-    if (Database::getInstance().getProject().getAssetCount() > 0)
+    if (GatedDatabase::getInstance().get().getProject().getAssetCount() > 0)
     {
         frameCameraOnProject();
     }
     else if (camera)
     {
-        const auto& camPrefs = Database::getInstance().getPreferences().getCameraPreferences();
+        const auto& camPrefs = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences();
         camera->setTarget(glm::dvec3(0.0, 0.0, 0.0));
         camera->setEye(glm::dvec3(0.0, 3.0, 5.0));
         camera->setUp(glm::dvec3(0.0, 1.0, 0.0));
@@ -300,8 +304,7 @@ void Cadaver::prepare()
 {
     ui = device.createUi(*window, Vulcant::VulcantImageFormat::R32G32B32A32_SFLOAT, false);
 
-    auto& preferences = Database::getInstance().getPreferences();
-    preferences.load();
+    const auto& preferences = GatedDatabase::getInstance().get().getPreferences();
 
     preferencesWindow = std::make_unique<PreferencesWindow>();
     preferencesWindow->getUIPreferencesView().apply(preferences.getUIPreferences());
@@ -333,15 +336,15 @@ void Cadaver::renderImGui()
 {
     ui->newFrame();
 
-    auto& database    = Database::getInstance();
-    auto& project     = database.getProject();
-    auto& preferences = database.getPreferences();
+    const auto& database    = GatedDatabase::getInstance().get();
+    const auto& project     = database.getProject();
+    const auto& preferences = database.getPreferences();
 
     if (ImGui::BeginMainMenuBar())
     {
         if (fileMenu)
         {
-            fileMenu->render(project, *preferencesWindow, quitRequested);
+            fileMenu->render(*preferencesWindow, quitRequested);
         }
 
         if (ImGui::BeginMenu("Help"))
@@ -371,13 +374,21 @@ void Cadaver::renderImGui()
         if (preferences.getCameraPreferences().isResetRequested())
         {
             resetCamera();
-            preferences.getCameraPreferences().clearResetRequested();
+            GatedDatabase::getInstance().execute({
+              {        "type",           "UpdateCameraPreferences" },
+              {     "version",                                   1 },
+              { "preferences", { { "clearResetRequested", true } } }
+            });
         }
 
         if (preferences.getCameraPreferences().hasModeChangeRequest())
         {
             setCameraMode(preferences.getCameraPreferences().getRequestedMode());
-            preferences.getCameraPreferences().clearModeChangeRequest();
+            GatedDatabase::getInstance().execute({
+              {        "type",              "UpdateCameraPreferences" },
+              {     "version",                                      1 },
+              { "preferences", { { "clearModeChangeRequest", true } } }
+            });
         }
     }
 

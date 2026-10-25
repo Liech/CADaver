@@ -26,6 +26,15 @@ nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database, std::
     auto& cameraPreferences = database.getPreferences().getCameraPreferences();
     cameraPreferences.fromJson(preferencesData);
 
+    if (preferencesData.contains("clearResetRequested") && preferencesData["clearResetRequested"].get<bool>())
+    {
+        cameraPreferences.clearResetRequested();
+    }
+    if (preferencesData.contains("clearModeChangeRequest") && preferencesData["clearModeChangeRequest"].get<bool>())
+    {
+        cameraPreferences.clearModeChangeRequest();
+    }
+
     return {
         {    "type",    getType() },
         { "version", getVersion() },

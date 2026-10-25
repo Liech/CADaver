@@ -18,7 +18,7 @@ class PreferencesWindow
     PreferencesWindow();
     virtual ~PreferencesWindow();
 
-    void render(Preferences& preferences, Vulcant::Toolkit::Camera* camera = nullptr);
+    void render(const Preferences& preferences, Vulcant::Toolkit::Camera* camera = nullptr);
 
     bool isOpen() const;
     void setOpen(bool open);

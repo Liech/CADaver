@@ -12,7 +12,7 @@ class ProjectWindow
     ProjectWindow();
     virtual ~ProjectWindow();
 
-    void render(Project& project);
+    void render(const Project& project);
 
     float getWidth() const;
     void  setWidth(float width);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Database/Database.h"
+#include "Commands/GatedDatabase.h"
 
 #include <cstdint>
 #include <glm/glm.hpp>

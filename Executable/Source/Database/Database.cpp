@@ -1,14 +1,11 @@
 #include "Database.h"
 
-Database::Database() {}
+Database::Database()
+{
+    preferences.load();
+}
 
 Database::~Database() {}
-
-Database& Database::getInstance()
-{
-    static Database instance;
-    return instance;
-}
 
 Project& Database::getProject()
 {

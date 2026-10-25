@@ -1,6 +1,7 @@
 #include "ProjectWindow.h"
 
 #include "Asset.h"
+#include "Commands/GatedDatabase.h"
 #include "Project.h"
 #include "UI/ContextMenu/AssetContextMenuFactory.h"
 
@@ -23,7 +24,7 @@ void ProjectWindow::setWidth(float newWidth)
     width = newWidth;
 }
 
-void ProjectWindow::render(Project& project)
+void ProjectWindow::render(const Project& project)
 {
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
@@ -65,11 +66,19 @@ void ProjectWindow::render(Project& project)
                     std::string label      = asset->getName() + "##" + std::to_string(i);
                     if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
                     {
-                        project.setSelectedIndex(static_cast<int>(i));
+                        GatedDatabase::getInstance().execute({
+                          {    "type",       "SelectAsset" },
+                          { "version",                   1 },
+                          {   "index", static_cast<int>(i) }
+                        });
                     }
                     if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
                     {
-                        project.setSelectedIndex(static_cast<int>(i));
+                        GatedDatabase::getInstance().execute({
+                          {    "type",       "SelectAsset" },
+                          { "version",                   1 },
+                          {   "index", static_cast<int>(i) }
+                        });
                     }
 
                     if (contextMenuFactory)

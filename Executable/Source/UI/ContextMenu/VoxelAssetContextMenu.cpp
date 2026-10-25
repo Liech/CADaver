@@ -1,10 +1,12 @@
 #include "VoxelAssetContextMenu.h"
 
 #include "CADacomb/Volume/SVO/SVOFile.h"
+#include "Commands/GatedDatabase.h"
 #include "Library/Util/SaveFileDialog.h"
 #include "Project/VoxelAsset.h"
 
 #include <filesystem>
+#include <fstream>
 #include <imgui.h>
 
 VoxelAssetContextMenu::VoxelAssetContextMenu() {}
@@ -60,8 +62,18 @@ void VoxelAssetContextMenu::save(VoxelAsset& asset)
         {
             savePath += ".cadacombsvo";
         }
-        CADacomb::SVOFile::save(savePath, *asset.getSVO(), asset.getAABB());
+
+        std::ofstream fileStream(savePath, std::ios::binary);
+        int           selectedIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+        GatedDatabase::getInstance().execute(
+          {
+            {       "type", "SaveVoxelAsset" },
+            {    "version",                1 },
+            { "assetIndex",    selectedIndex }
+        },
+          nullptr,
+          &fileStream);
+
         asset.setFilePath(savePath);
-        asset.markClean();
     }
 }

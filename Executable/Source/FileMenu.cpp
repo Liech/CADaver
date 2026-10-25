@@ -1,22 +1,18 @@
 #include "FileMenu.h"
 
-#include "CADacomb/Triangle/Triangulation.h"
-#include "CADacomb/Volume/SVO/SVOFile.h"
+#include "Commands/GatedDatabase.h"
 #include "Library/Util/LoadFileDialog.h"
-#include "Project/CadAsset.h"
-#include "Project/Project.h"
-#include "Project/TriangulationAsset.h"
-#include "Project/VoxelAsset.h"
 #include "UI/Preferences/PreferencesWindow.h"
 
 #include <filesystem>
+#include <fstream>
 #include <imgui.h>
 
 FileMenu::FileMenu() {}
 
 FileMenu::~FileMenu() {}
 
-void FileMenu::render(Project& project, PreferencesWindow& preferencesWindow, bool& quitRequested)
+void FileMenu::render(PreferencesWindow& preferencesWindow, bool& quitRequested)
 {
     if (ImGui::BeginMenu("File"))
     {
@@ -24,15 +20,15 @@ void FileMenu::render(Project& project, PreferencesWindow& preferencesWindow, bo
         {
             if (ImGui::MenuItem("STL..."))
             {
-                openStlFileDialog(project);
+                openStlFileDialog();
             }
             if (ImGui::MenuItem("STEP..."))
             {
-                openStepFileDialog(project);
+                openStepFileDialog();
             }
             if (ImGui::MenuItem("SVO..."))
             {
-                openSvoFileDialog(project);
+                openSvoFileDialog();
             }
             ImGui::EndMenu();
         }
@@ -53,7 +49,7 @@ void FileMenu::render(Project& project, PreferencesWindow& preferencesWindow, bo
     }
 }
 
-void FileMenu::openStlFileDialog(Project& project)
+void FileMenu::openStlFileDialog()
 {
     Library::LoadFileDialog dialog;
     dialog.addFilter("STL File", { "stl" });
@@ -61,16 +57,20 @@ void FileMenu::openStlFileDialog(Project& project)
 
     if (!dialog.isCancled() && !dialog.getResultPath().empty())
     {
-        std::filesystem::path filePath(dialog.getResultPath());
-        std::string           fileName = filePath.filename().string();
-        auto                  tri      = CADacomb::Triangulation::fromSTLFile(dialog.getResultPath());
-        auto                  asset    = std::make_shared<TriangulationAsset>(fileName, std::move(tri));
-        project.addAsset(asset);
-        project.setSelectedIndex(static_cast<int>(project.getAssetCount()) - 1);
+        std::ifstream fileStream(dialog.getResultPath(), std::ios::binary);
+        std::string   fileName = std::filesystem::path(dialog.getResultPath()).filename().string();
+
+        GatedDatabase::getInstance().execute(
+          {
+            {    "type", "LoadStlAsset" },
+            { "version",              1 },
+            {    "name",       fileName }
+        },
+          &fileStream);
     }
 }
 
-void FileMenu::openStepFileDialog(Project& project)
+void FileMenu::openStepFileDialog()
 {
     Library::LoadFileDialog dialog;
     dialog.addFilter("STEP File", { "step", "stp" });
@@ -78,15 +78,18 @@ void FileMenu::openStepFileDialog(Project& project)
 
     if (!dialog.isCancled() && !dialog.getResultPath().empty())
     {
-        std::filesystem::path filePath(dialog.getResultPath());
-        std::string           fileName = filePath.filename().string();
-        auto                  asset    = std::make_shared<CadAsset>(fileName, dialog.getResultPath());
-        project.addAsset(asset);
-        project.setSelectedIndex(static_cast<int>(project.getAssetCount()) - 1);
+        std::string fileName = std::filesystem::path(dialog.getResultPath()).filename().string();
+
+        GatedDatabase::getInstance().execute({
+          {     "type",        "LoadStepAsset" },
+          {  "version",                      1 },
+          {     "name",               fileName },
+          { "filePath", dialog.getResultPath() }
+        });
     }
 }
 
-void FileMenu::openSvoFileDialog(Project& project)
+void FileMenu::openSvoFileDialog()
 {
     Library::LoadFileDialog dialog;
     dialog.addFilter("SVO File", { "cadacombsvo", "svo" });
@@ -94,13 +97,15 @@ void FileMenu::openSvoFileDialog(Project& project)
 
     if (!dialog.isCancled() && !dialog.getResultPath().empty())
     {
-        std::filesystem::path filePath(dialog.getResultPath());
-        std::string           fileName = filePath.filename().string();
-        CADacomb::AABB3       bounds;
-        auto                  svo   = CADacomb::SVOFile::load<bool>(dialog.getResultPath(), bounds);
-        auto                  asset = std::make_shared<VoxelAsset>(fileName, dialog.getResultPath(), std::move(svo), bounds);
-        asset->markClean();
-        project.addAsset(asset);
-        project.setSelectedIndex(static_cast<int>(project.getAssetCount()) - 1);
+        std::ifstream fileStream(dialog.getResultPath(), std::ios::binary);
+        std::string   fileName = std::filesystem::path(dialog.getResultPath()).filename().string();
+
+        GatedDatabase::getInstance().execute(
+          {
+            {    "type", "LoadSvoAsset" },
+            { "version",              1 },
+            {    "name",       fileName }
+        },
+          &fileStream);
     }
 }

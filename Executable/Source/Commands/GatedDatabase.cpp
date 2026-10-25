@@ -1,6 +1,7 @@
 #include "GatedDatabase.h"
 
 #include <cassert>
+#include <iostream>
 
 GatedDatabase::GatedDatabase() {}
 
@@ -21,7 +22,7 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
 {
     std::string commandType;
     int         commandVersion = 0;
-
+    std::cout << "IN: " << std::endl << command.dump(4) << std::endl;
     try
     {
         if (command.contains("type"))
@@ -37,28 +38,33 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
         auto cmd = commandFactory.create(command);
         if (!cmd)
         {
-            return {
+            nlohmann::json result = {
                 {    "type",                                "Error" },
                 { "command",                            commandType },
                 { "version",                         commandVersion },
                 {  "status",                       "UnknownCommand" },
                 {   "error", "Unknown command type: " + commandType }
             };
+            std::cout << "OUT: " << std::endl << result.dump(4) << std::endl;
+            return result;
         }
 
         nlohmann::json result = cmd->execute(database, inputStream, outputStream);
         assert(result.at("type").get<std::string>() == cmd->getType());
+        std::cout << "OUT: " << std::endl << result.dump(4) << std::endl;
         return result;
     }
     catch (const std::exception& e)
     {
-        return {
+        nlohmann::json result = {
             {    "type",        "Error" },
             { "command",    commandType },
             { "version", commandVersion },
             {  "status",    "Exception" },
             {   "error",       e.what() }
         };
+        std::cout << "OUT: " << std::endl << result.dump(4) << std::endl;
+        return result;
     }
 }
 
