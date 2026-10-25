@@ -1,6 +1,13 @@
 Repository: https://github.com/sreiter/stl_reader
 
 ================================================================================
+Modifications
+================================================================================
+Modified to add std::istream overloads (ReadStlStream, ReadStlStream_ASCII,
+ReadStlStream_BINARY, StlStreamHasASCIIFormat) allowing STL data to be read
+directly from streams.
+
+================================================================================
 License Terms
 ================================================================================
 

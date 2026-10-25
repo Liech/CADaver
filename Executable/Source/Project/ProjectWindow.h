@@ -18,6 +18,10 @@ class ProjectWindow
     void  setWidth(float width);
 
   private:
+    void renderMenuBar(const Project& project);
+    void renderClearModal();
+
     std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;
-    float                                    width = 300.0f;
+    float                                    width          = 300.0f;
+    bool                                     openClearModal = false;
 };

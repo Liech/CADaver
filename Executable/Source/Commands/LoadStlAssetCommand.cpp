@@ -4,8 +4,6 @@
 #include "Database/Database.h"
 #include "Project/TriangulationAsset.h"
 
-#include <cstdint>
-
 LoadStlAssetCommand::LoadStlAssetCommand() {}
 
 LoadStlAssetCommand::LoadStlAssetCommand(const std::string& name)
@@ -43,52 +41,15 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
         };
     }
 
-    char header[80];
-    inputStream->read(header, 80);
-
-    uint32_t triangleCount = 0;
-    inputStream->read(reinterpret_cast<char*>(&triangleCount), sizeof(uint32_t));
-
-    if (!(*inputStream))
+    auto triangulation = CADacomb::Triangulation::fromSTLStream(*inputStream);
+    if (!triangulation || triangulation->indices.empty())
     {
         return {
-            {    "type",          getType() },
-            { "version",       getVersion() },
-            {  "status", "HeaderReadFailed" },
-            {   "index",                 -1 },
-            {    "name",               name }
-        };
-    }
-
-    auto triangulation = std::make_unique<CADacomb::Triangulation>();
-    triangulation->vertices.reserve(triangleCount * 3);
-    triangulation->indices.reserve(triangleCount * 3);
-
-    for (uint32_t i = 0; i < triangleCount; i++)
-    {
-        float normal[3];
-        inputStream->read(reinterpret_cast<char*>(normal), 12);
-
-        for (int v = 0; v < 3; v++)
-        {
-            float vertex[3];
-            inputStream->read(reinterpret_cast<char*>(vertex), 12);
-            triangulation->indices.push_back(triangulation->vertices.size());
-            triangulation->vertices.emplace_back(vertex[0], vertex[1], vertex[2]);
-        }
-
-        uint16_t attrByteCount = 0;
-        inputStream->read(reinterpret_cast<char*>(&attrByteCount), 2);
-    }
-
-    if (!(*inputStream))
-    {
-        return {
-            {    "type",         getType() },
-            { "version",      getVersion() },
-            {  "status", "TruncatedStream" },
-            {   "index",                -1 },
-            {    "name",              name }
+            {    "type",     getType() },
+            { "version",  getVersion() },
+            {  "status", "ParseFailed" },
+            {   "index",            -1 },
+            {    "name",          name }
         };
     }
 

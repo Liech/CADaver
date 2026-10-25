@@ -2,6 +2,19 @@
 CADaver
 ================================================================================
 
+--------------------------------------------------------------------------------
+Third-Party Modifications
+--------------------------------------------------------------------------------
+
+* stl_reader (Sebastian Reiter, BSD-2-Clause):
+  Modified to add std::istream overloads (ReadStlStream, ReadStlStream_ASCII,
+  ReadStlStream_BINARY, StlStreamHasASCIIFormat) allowing STL geometry to be
+  read directly from streams.
+
+--------------------------------------------------------------------------------
+About
+--------------------------------------------------------------------------------
+
 CADaver is an interactive CAD inspection, 3D mesh visualization, and volumetric
 spatial analysis platform built with C++20 and Vulkan.
 

@@ -1,11 +1,11 @@
 #include "TriangulationAssetContextMenu.h"
 
-#include "CADacomb/Triangle/Triangulation.h"
-#include "Library/Operation/IO/SaveTriangulationOperation.h"
+#include "Commands/GatedDatabase.h"
 #include "Library/Util/SaveFileDialog.h"
 #include "Project/TriangulationAsset.h"
 
 #include <filesystem>
+#include <fstream>
 #include <imgui.h>
 
 TriangulationAssetContextMenu::TriangulationAssetContextMenu() {}
@@ -52,7 +52,18 @@ void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
         {
             savePath += ".stl";
         }
-        Library::SaveTriangulationOperation::saveToFile(*asset.getTriangulation(), savePath);
+
+        std::ofstream fileStream(savePath, std::ios::binary);
+        int           selectedIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+        GatedDatabase::getInstance().execute(
+          {
+            {       "type", "SaveStlAsset" },
+            {    "version",              1 },
+            { "assetIndex",  selectedIndex }
+        },
+          nullptr,
+          &fileStream);
+
         asset.markClean();
     }
 }

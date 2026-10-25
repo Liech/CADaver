@@ -1,7 +1,6 @@
 #include "CadAssetContextMenu.h"
 
-#include "Library/CAD/CADShape.h"
-#include "Library/Operation/IO/SaveCADOperation.h"
+#include "Commands/GatedDatabase.h"
 #include "Library/Util/SaveFileDialog.h"
 #include "Project/CadAsset.h"
 
@@ -61,7 +60,15 @@ void CadAssetContextMenu::save(CadAsset& asset)
         {
             savePath += ".step";
         }
-        Library::SaveCADOperation::saveToFile(*asset.getCadShape(), savePath);
+
+        int selectedIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+        GatedDatabase::getInstance().execute({
+          {       "type", "SaveStepAsset" },
+          {    "version",               1 },
+          { "assetIndex",   selectedIndex },
+          {   "filePath",        savePath }
+        });
+
         asset.setFilePath(savePath);
         asset.markClean();
     }
