@@ -1,0 +1,68 @@
+#include "CadAssetContextMenu.h"
+
+#include "Library/CAD/CADShape.h"
+#include "Library/Operation/IO/SaveCADOperation.h"
+#include "Library/Util/SaveFileDialog.h"
+#include "Project/CadAsset.h"
+
+#include <filesystem>
+#include <imgui.h>
+
+CadAssetContextMenu::CadAssetContextMenu() {}
+
+CadAssetContextMenu::~CadAssetContextMenu() {}
+
+void CadAssetContextMenu::render(Asset& asset)
+{
+    auto cadAsset = dynamic_cast<CadAsset*>(&asset);
+    if (!cadAsset)
+    {
+        return;
+    }
+
+    if (ImGui::MenuItem("Save"))
+    {
+        save(*cadAsset);
+    }
+}
+
+void CadAssetContextMenu::save(CadAsset& asset)
+{
+    if (!asset.getCadShape())
+    {
+        return;
+    }
+
+    Library::SaveFileDialog dialog;
+    dialog.addFilter("STEP File", { "step", "stp" });
+
+    if (!asset.getFilePath().empty())
+    {
+        std::filesystem::path existingPath(asset.getFilePath());
+        dialog.setDefaultPath(existingPath.parent_path().string());
+        dialog.setSaveFileName(existingPath.filename().string());
+    }
+    else
+    {
+        std::string defaultName = asset.getName();
+        if (std::filesystem::path(defaultName).extension().empty())
+        {
+            defaultName += ".step";
+        }
+        dialog.setSaveFileName(defaultName);
+    }
+
+    dialog.execute();
+
+    if (!dialog.isCancled() && !dialog.getResultPath().empty())
+    {
+        std::string savePath = dialog.getResultPath();
+        if (std::filesystem::path(savePath).extension().empty())
+        {
+            savePath += ".step";
+        }
+        Library::SaveCADOperation::saveToFile(*asset.getCadShape(), savePath);
+        asset.setFilePath(savePath);
+        asset.markClean();
+    }
+}

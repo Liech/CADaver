@@ -84,11 +84,24 @@ set(UI_About_Files
 )
 source_group("Source/UI/About" FILES ${UI_About_Files})
 
+set(UI_ContextMenu_Files
+    "Source/UI/ContextMenu/AssetContextMenu.h"
+    "Source/UI/ContextMenu/AssetContextMenu.cpp"
+    "Source/UI/ContextMenu/TriangulationAssetContextMenu.h"
+    "Source/UI/ContextMenu/TriangulationAssetContextMenu.cpp"
+    "Source/UI/ContextMenu/CadAssetContextMenu.h"
+    "Source/UI/ContextMenu/CadAssetContextMenu.cpp"
+    "Source/UI/ContextMenu/AssetContextMenuFactory.h"
+    "Source/UI/ContextMenu/AssetContextMenuFactory.cpp"
+)
+source_group("Source/UI/ContextMenu" FILES ${UI_ContextMenu_Files})
+
 set(ALL_FILES
     ${Source_Files}
     ${Preferences_Files}
     ${UI_Preferences_Files}
     ${UI_About_Files}
+    ${UI_ContextMenu_Files}
     ${Project_Files}
     ${Rendering_Files}
     ${Database_Files}

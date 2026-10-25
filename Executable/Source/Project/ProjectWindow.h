@@ -1,7 +1,11 @@
 #pragma once
 
-class Project;
+#include <memory>
 
+class Project;
+class AssetContextMenuFactory;
+
+// UI window displaying the project assets and providing selection and context operations.
 class ProjectWindow
 {
   public:
@@ -14,5 +18,6 @@ class ProjectWindow
     void  setWidth(float width);
 
   private:
-    float width = 300.0f;
+    std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;
+    float                                    width = 300.0f;
 };

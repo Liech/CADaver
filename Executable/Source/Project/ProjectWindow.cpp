@@ -2,10 +2,14 @@
 
 #include "Asset.h"
 #include "Project.h"
+#include "UI/ContextMenu/AssetContextMenuFactory.h"
 
 #include <imgui.h>
 
-ProjectWindow::ProjectWindow() {}
+ProjectWindow::ProjectWindow()
+  : contextMenuFactory(std::make_unique<AssetContextMenuFactory>())
+{
+}
 
 ProjectWindow::~ProjectWindow() {}
 
@@ -62,6 +66,15 @@ void ProjectWindow::render(Project& project)
                     if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
                     {
                         project.setSelectedIndex(static_cast<int>(i));
+                    }
+                    if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+                    {
+                        project.setSelectedIndex(static_cast<int>(i));
+                    }
+
+                    if (contextMenuFactory)
+                    {
+                        contextMenuFactory->render(asset);
                     }
 
                     ImGui::TableSetColumnIndex(1);
