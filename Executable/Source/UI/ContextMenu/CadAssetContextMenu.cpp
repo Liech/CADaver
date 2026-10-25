@@ -23,6 +23,29 @@ void CadAssetContextMenu::render(Asset& asset)
     {
         save(*cadAsset);
     }
+
+    if (ImGui::BeginMenu("Converter"))
+    {
+        if (ImGui::MenuItem("STL"))
+        {
+            int targetIndex = getAssetIndex();
+            GatedDatabase::getInstance().execute({
+              {       "type", "ConvertCadToStl" },
+              {    "version",                 1 },
+              { "assetIndex",       targetIndex }
+            });
+        }
+        if (ImGui::MenuItem("SVO"))
+        {
+            int targetIndex = getAssetIndex();
+            GatedDatabase::getInstance().execute({
+              {       "type", "ConvertCadToSvo" },
+              {    "version",                 1 },
+              { "assetIndex",       targetIndex }
+            });
+        }
+        ImGui::EndMenu();
+    }
 }
 
 void CadAssetContextMenu::save(CadAsset& asset)
@@ -66,6 +89,7 @@ void CadAssetContextMenu::save(CadAsset& asset)
         {
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
+
         GatedDatabase::getInstance().execute({
           {       "type", "SaveStepAsset" },
           {    "version",               1 },

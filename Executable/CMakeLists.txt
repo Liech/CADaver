@@ -51,6 +51,8 @@ set(Database_Files
     "Source/Database/Asset.cpp"
     "Source/Database/AssetType.h"
     "Source/Database/AssetType.cpp"
+    "Source/Database/AssetConverter.h"
+    "Source/Database/AssetConverter.cpp"
 )
 source_group("Source/Database" FILES ${Database_Files})
 
@@ -92,6 +94,14 @@ set(Command_Files
     "Source/Commands/RemoveAssetCommand.cpp"
     "Source/Commands/ClearProjectCommand.h"
     "Source/Commands/ClearProjectCommand.cpp"
+    "Source/Commands/ConvertCadToStlCommand.h"
+    "Source/Commands/ConvertCadToStlCommand.cpp"
+    "Source/Commands/ConvertCadToSvoCommand.h"
+    "Source/Commands/ConvertCadToSvoCommand.cpp"
+    "Source/Commands/ConvertStlToSvoCommand.h"
+    "Source/Commands/ConvertStlToSvoCommand.cpp"
+    "Source/Commands/ConvertSvoToStlCommand.h"
+    "Source/Commands/ConvertSvoToStlCommand.cpp"
     "Source/Commands/LoadStlAssetCommand.h"
     "Source/Commands/LoadStlAssetCommand.cpp"
     "Source/Commands/SaveStlAssetCommand.h"

@@ -1,6 +1,10 @@
 #include "CommandFactory.h"
 
 #include "ClearProjectCommand.h"
+#include "ConvertCadToStlCommand.h"
+#include "ConvertCadToSvoCommand.h"
+#include "ConvertStlToSvoCommand.h"
+#include "ConvertSvoToStlCommand.h"
 #include "LoadStepAssetCommand.h"
 #include "LoadStlAssetCommand.h"
 #include "LoadSvoAssetCommand.h"
@@ -37,6 +41,10 @@ std::vector<std::unique_ptr<Command>> CommandFactory::getAllCommands() const
 {
     std::vector<std::unique_ptr<Command>> commands;
     commands.push_back(std::make_unique<ClearProjectCommand>());
+    commands.push_back(std::make_unique<ConvertCadToStlCommand>());
+    commands.push_back(std::make_unique<ConvertCadToSvoCommand>());
+    commands.push_back(std::make_unique<ConvertStlToSvoCommand>());
+    commands.push_back(std::make_unique<ConvertSvoToStlCommand>());
     commands.push_back(std::make_unique<LoadStepAssetCommand>());
     commands.push_back(std::make_unique<LoadStlAssetCommand>());
     commands.push_back(std::make_unique<LoadSvoAssetCommand>());
@@ -60,6 +68,10 @@ void CommandFactory::registerCommands()
 {
     registerCommand("RemoveAsset", [](const nlohmann::json& json) { return std::make_unique<RemoveAssetCommand>(json); });
     registerCommand("ClearProject", [](const nlohmann::json& json) { return std::make_unique<ClearProjectCommand>(json); });
+    registerCommand("ConvertCadToStl", [](const nlohmann::json& json) { return std::make_unique<ConvertCadToStlCommand>(json); });
+    registerCommand("ConvertCadToSvo", [](const nlohmann::json& json) { return std::make_unique<ConvertCadToSvoCommand>(json); });
+    registerCommand("ConvertStlToSvo", [](const nlohmann::json& json) { return std::make_unique<ConvertStlToSvoCommand>(json); });
+    registerCommand("ConvertSvoToStl", [](const nlohmann::json& json) { return std::make_unique<ConvertSvoToStlCommand>(json); });
     registerCommand("LoadStlAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStlAssetCommand>(json); });
     registerCommand("SaveStlAsset", [](const nlohmann::json& json) { return std::make_unique<SaveStlAssetCommand>(json); });
     registerCommand("LoadStepAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStepAssetCommand>(json); });

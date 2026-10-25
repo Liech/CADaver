@@ -24,6 +24,20 @@ void TriangulationAssetContextMenu::render(Asset& asset)
     {
         save(*triAsset);
     }
+
+    if (ImGui::BeginMenu("Converter"))
+    {
+        if (ImGui::MenuItem("SVO"))
+        {
+            int targetIndex = getAssetIndex();
+            GatedDatabase::getInstance().execute({
+              {       "type", "ConvertStlToSvo" },
+              {    "version",                 1 },
+              { "assetIndex",       targetIndex }
+            });
+        }
+        ImGui::EndMenu();
+    }
 }
 
 void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
@@ -59,6 +73,7 @@ void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
         {
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
+
         GatedDatabase::getInstance().execute(
           {
             {       "type", "SaveStlAsset" },

@@ -25,6 +25,20 @@ void VoxelAssetContextMenu::render(Asset& asset)
     {
         save(*voxelAsset);
     }
+
+    if (ImGui::BeginMenu("Converter"))
+    {
+        if (ImGui::MenuItem("STL (Blocky)"))
+        {
+            int targetIndex = getAssetIndex();
+            GatedDatabase::getInstance().execute({
+              {       "type", "ConvertSvoToStl" },
+              {    "version",                 1 },
+              { "assetIndex",       targetIndex }
+            });
+        }
+        ImGui::EndMenu();
+    }
 }
 
 void VoxelAssetContextMenu::save(VoxelAsset& asset)
@@ -69,6 +83,7 @@ void VoxelAssetContextMenu::save(VoxelAsset& asset)
         {
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
+
         GatedDatabase::getInstance().execute(
           {
             {       "type", "SaveVoxelAsset" },
