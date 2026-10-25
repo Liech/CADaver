@@ -5,6 +5,7 @@
 #include "Project/Asset.h"
 #include "Project/AssetType.h"
 #include "TriangulationAssetContextMenu.h"
+#include "VoxelAssetContextMenu.h"
 
 #include <cstdint>
 #include <imgui.h>
@@ -28,6 +29,10 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
     else if (asset->getType() == AssetType::Cad)
     {
         return std::make_unique<CadAssetContextMenu>();
+    }
+    else if (asset->getType() == AssetType::Voxel)
+    {
+        return std::make_unique<VoxelAssetContextMenu>();
     }
 
     return nullptr;

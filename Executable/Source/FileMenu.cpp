@@ -1,10 +1,12 @@
 #include "FileMenu.h"
 
 #include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Volume/SVO/SVOFile.h"
 #include "Library/Util/LoadFileDialog.h"
 #include "Project/CadAsset.h"
 #include "Project/Project.h"
 #include "Project/TriangulationAsset.h"
+#include "Project/VoxelAsset.h"
 #include "UI/Preferences/PreferencesWindow.h"
 
 #include <filesystem>
@@ -27,6 +29,10 @@ void FileMenu::render(Project& project, PreferencesWindow& preferencesWindow, bo
             if (ImGui::MenuItem("STEP..."))
             {
                 openStepFileDialog(project);
+            }
+            if (ImGui::MenuItem("SVO..."))
+            {
+                openSvoFileDialog(project);
             }
             ImGui::EndMenu();
         }
@@ -75,6 +81,25 @@ void FileMenu::openStepFileDialog(Project& project)
         std::filesystem::path filePath(dialog.getResultPath());
         std::string           fileName = filePath.filename().string();
         auto                  asset    = std::make_shared<CadAsset>(fileName, dialog.getResultPath());
+        project.addAsset(asset);
+        project.setSelectedIndex(static_cast<int>(project.getAssetCount()) - 1);
+    }
+}
+
+void FileMenu::openSvoFileDialog(Project& project)
+{
+    Library::LoadFileDialog dialog;
+    dialog.addFilter("SVO File", { "cadacombsvo", "svo" });
+    dialog.execute();
+
+    if (!dialog.isCancled() && !dialog.getResultPath().empty())
+    {
+        std::filesystem::path filePath(dialog.getResultPath());
+        std::string           fileName = filePath.filename().string();
+        CADacomb::AABB3       bounds;
+        auto                  svo   = CADacomb::SVOFile::load<bool>(dialog.getResultPath(), bounds);
+        auto                  asset = std::make_shared<VoxelAsset>(fileName, dialog.getResultPath(), std::move(svo), bounds);
+        asset->markClean();
         project.addAsset(asset);
         project.setSelectedIndex(static_cast<int>(project.getAssetCount()) - 1);
     }

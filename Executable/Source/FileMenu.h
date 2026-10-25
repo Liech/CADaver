@@ -14,4 +14,5 @@ class FileMenu
   private:
     void openStlFileDialog(Project& project);
     void openStepFileDialog(Project& project);
+    void openSvoFileDialog(Project& project);
 };

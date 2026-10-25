@@ -91,6 +91,8 @@ set(UI_ContextMenu_Files
     "Source/UI/ContextMenu/TriangulationAssetContextMenu.cpp"
     "Source/UI/ContextMenu/CadAssetContextMenu.h"
     "Source/UI/ContextMenu/CadAssetContextMenu.cpp"
+    "Source/UI/ContextMenu/VoxelAssetContextMenu.h"
+    "Source/UI/ContextMenu/VoxelAssetContextMenu.cpp"
     "Source/UI/ContextMenu/AssetContextMenuFactory.h"
     "Source/UI/ContextMenu/AssetContextMenuFactory.cpp"
 )
