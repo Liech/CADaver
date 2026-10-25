@@ -8,7 +8,6 @@
 #include "SaveStepAssetCommand.h"
 #include "SaveStlAssetCommand.h"
 #include "SaveVoxelAssetCommand.h"
-#include "SelectAssetCommand.h"
 #include "UpdateCameraPreferencesCommand.h"
 #include "UpdateRenderPreferencesCommand.h"
 #include "UpdateSVOPreferencesCommand.h"
@@ -45,7 +44,6 @@ std::vector<std::unique_ptr<Command>> CommandFactory::getAllCommands() const
     commands.push_back(std::make_unique<SaveStepAssetCommand>());
     commands.push_back(std::make_unique<SaveStlAssetCommand>());
     commands.push_back(std::make_unique<SaveVoxelAssetCommand>());
-    commands.push_back(std::make_unique<SelectAssetCommand>());
     commands.push_back(std::make_unique<UpdateCameraPreferencesCommand>());
     commands.push_back(std::make_unique<UpdateRenderPreferencesCommand>());
     commands.push_back(std::make_unique<UpdateSVOPreferencesCommand>());
@@ -60,7 +58,6 @@ void CommandFactory::registerCommand(const std::string& name, std::function<std:
 
 void CommandFactory::registerCommands()
 {
-    registerCommand("SelectAsset", [](const nlohmann::json& json) { return std::make_unique<SelectAssetCommand>(json); });
     registerCommand("RemoveAsset", [](const nlohmann::json& json) { return std::make_unique<RemoveAssetCommand>(json); });
     registerCommand("ClearProject", [](const nlohmann::json& json) { return std::make_unique<ClearProjectCommand>(json); });
     registerCommand("LoadStlAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStlAssetCommand>(json); });

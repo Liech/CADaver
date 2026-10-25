@@ -17,10 +17,9 @@ class AssetContextMenuFactory
 
     void render(const std::shared_ptr<Asset>& asset);
     void render(const std::shared_ptr<Asset>& asset, int assetIndex);
-
-  private:
     void renderCloseModal();
 
+  private:
     std::string closeTargetName;
     int         closeTargetIndex = -1;
     bool        openCloseModal   = false;

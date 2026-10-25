@@ -10,4 +10,10 @@ class AssetContextMenu
     virtual ~AssetContextMenu();
 
     virtual void render(Asset& asset) = 0;
+
+    int  getAssetIndex() const;
+    void setAssetIndex(int index);
+
+  private:
+    int assetIndex = -1;
 };

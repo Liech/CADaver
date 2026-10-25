@@ -5,6 +5,7 @@
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/SVOPreferences.h"
 #include "Rendering/Renderer.h"
+#include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 
 VoxelAssetRenderer::VoxelAssetRenderer(std::shared_ptr<VoxelAsset> assetInput)
@@ -12,7 +13,13 @@ VoxelAssetRenderer::VoxelAssetRenderer(std::shared_ptr<VoxelAsset> assetInput)
 {
 }
 
-VoxelAssetRenderer::~VoxelAssetRenderer() {}
+VoxelAssetRenderer::~VoxelAssetRenderer()
+{
+    if (drawCmd)
+    {
+        drawCmd->wait();
+    }
+}
 
 void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
 {
@@ -56,10 +63,15 @@ void VoxelAssetRenderer::render(Renderer& renderer, bool isSelected)
     if (!meshRenderer)
     {
         meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), renderer.getResolution());
+        meshRenderer->setClear(false);
+        meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
+        drawCmd = renderer.getDevice().createGraphicCommand();
     }
-
-    meshRenderer->setResolution(renderer.getResolution());
-    meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
+    else if (meshRenderer->getResolution() != renderer.getResolution())
+    {
+        meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
+        drawCmd = renderer.getDevice().createGraphicCommand();
+    }
     meshRenderer->setSceneData(renderer.getSceneData());
     meshRenderer->setWireframeMode(renderer.getWireframeMode());
     meshRenderer->setWireframeColor(renderer.getWireframeColor());
@@ -101,18 +113,19 @@ void VoxelAssetRenderer::render(Renderer& renderer, bool isSelected)
         activeStrategy = &fixedStrategy;
     }
 
-    glm::vec3 meshColor = isSelected ? glm::vec3(0.95f, 0.72f, 0.32f) : glm::vec3(0.6f, 0.75f, 0.9f);
+    glm::vec3 meshColor(0.6f, 0.75f, 0.9f);
     lodMesh->setColor(meshColor);
-    if (isSelected != lastSelected)
-    {
-        lastSelected = isSelected;
-        lodMesh->markAllDirty();
-    }
 
     lodMesh->update(renderer.getSceneData(), *activeStrategy);
 
-    if (lodMesh->getVertexCount() > 0 && renderer.getCommand())
+    if (lodMesh->getVertexCount() > 0 && drawCmd)
     {
-        meshRenderer->record(*renderer.getCommand(), lodMesh->getVertexBuffer(), static_cast<uint32_t>(lodMesh->getVertexCount()));
+        drawCmd->wait();
+        drawCmd->startRecord();
+        drawCmd->setClearColor(renderer.getClearColor());
+        meshRenderer->record(*drawCmd, lodMesh->getVertexBuffer(), static_cast<uint32_t>(lodMesh->getVertexCount()));
+        drawCmd->endRecord();
+        drawCmd->runAsync();
+        drawCmd->wait();
     }
 }

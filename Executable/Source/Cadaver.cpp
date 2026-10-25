@@ -81,6 +81,10 @@ void Cadaver::changeResolution(const glm::ivec2& newResolution)
     {
         renderer->setResolution(resolution);
     }
+    if (assetRenderFactory)
+    {
+        assetRenderFactory->clearCache();
+    }
     auto cameraPrefs          = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences().toJson();
     cameraPrefs["resolution"] = { resolution.x, resolution.y };
     GatedDatabase::getInstance().execute({
@@ -111,10 +115,6 @@ void Cadaver::onLogic(double delta)
     if (project.getAssetCount() != lastAssetCount)
     {
         lastAssetCount = project.getAssetCount();
-        if (renderer)
-        {
-            renderer->markDirty();
-        }
         frameCameraOnProject();
     }
 
@@ -143,27 +143,17 @@ void Cadaver::onRender()
 
     renderer->setSceneData(sceneData);
 
-    const auto& project       = GatedDatabase::getInstance().get().getProject();
-    int         selectedIndex = project.getSelectedIndex();
-    if (selectedIndex != lastSelectedIndex)
-    {
-        lastSelectedIndex = selectedIndex;
-        renderer->markDirty();
-    }
+    const auto& project = GatedDatabase::getInstance().get().getProject();
 
-    renderer->beginRecord();
+    renderer->clear();
     for (size_t i = 0; i < project.getAssetCount(); i++)
     {
         auto asset = project.getAsset(i);
         if (asset && assetRenderFactory)
         {
-            bool isSelected = (static_cast<int>(i) == selectedIndex);
-            assetRenderFactory->render(*renderer, asset, isSelected);
+            assetRenderFactory->render(*renderer, asset, false);
         }
     }
-    renderer->endRecord();
-
-    renderer->execute();
 
     Vulcant::VulcantImage& resultImage = renderer->getResult();
 

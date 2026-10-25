@@ -16,7 +16,13 @@ Renderer::Renderer(Vulcant::VulcantDevice& device, const glm::ivec2& resolution,
     setResolution(resolution);
 }
 
-Renderer::~Renderer() {}
+Renderer::~Renderer()
+{
+    if (drawCmd)
+    {
+        drawCmd->wait();
+    }
+}
 
 void Renderer::setResolution(const glm::ivec2& newResolution)
 {
@@ -29,7 +35,12 @@ void Renderer::setResolution(const glm::ivec2& newResolution)
             normalImage = device.createImage(resolution.x, resolution.y, 1, Vulcant::VulcantImageFormat::R16G16B16A16_SFLOAT);
             depthImage  = device.createImage(resolution.x, resolution.y, 1, Vulcant::VulcantImageFormat::D32_SFLOAT);
         }
-        dirty = true;
+        clearRenderer.reset();
+        if (drawCmd)
+        {
+            drawCmd->wait();
+            drawCmd.reset();
+        }
     }
 }
 
@@ -38,47 +49,9 @@ void Renderer::setSceneData(const Vulcant::Toolkit::SceneData& newSceneData)
     sceneData = newSceneData;
 }
 
-void Renderer::beginRecord()
+void Renderer::clear()
 {
-    if (drawCmd)
-    {
-        drawCmd->wait();
-    }
-    else
-    {
-        drawCmd = device.createGraphicCommand();
-    }
-
-    drawCmd->startRecord();
-    drawCmd->setClearColor(getClearColor());
-}
-
-void Renderer::endRecord()
-{
-    if (drawCmd)
-    {
-        drawCmd->endRecord();
-    }
-    dirty = false;
-}
-
-void Renderer::execute()
-{
-    if (drawCmd)
-    {
-        drawCmd->runAsync();
-        drawCmd->wait();
-    }
-}
-
-bool Renderer::needsRecord() const
-{
-    return dirty || !drawCmd;
-}
-
-void Renderer::markDirty()
-{
-    dirty = true;
+    recordClearPass();
 }
 
 const glm::ivec2& Renderer::getResolution() const
@@ -111,11 +84,6 @@ Vulcant::VulcantCullMode Renderer::getCullMode() const
     return static_cast<Vulcant::VulcantCullMode>(gatedDatabase.get().getPreferences().getRenderPreferences().getCullMode());
 }
 
-Vulcant::VulcantGraphicCommand* Renderer::getCommand() const
-{
-    return drawCmd.get();
-}
-
 Vulcant::VulcantDevice& Renderer::getDevice() const
 {
     return device;
@@ -139,4 +107,41 @@ Vulcant::VulcantImage& Renderer::getNormal() const
 Vulcant::VulcantImage& Renderer::getResult() const
 {
     return *colorImage;
+}
+
+void Renderer::recordClearPass()
+{
+    if (!colorImage || !depthImage || !normalImage)
+    {
+        return;
+    }
+
+    if (!drawCmd)
+    {
+        drawCmd = device.createGraphicCommand();
+    }
+    else
+    {
+        drawCmd->wait();
+    }
+
+    if (!clearRenderer)
+    {
+        clearRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(device, resolution);
+        clearRenderer->setOutputTextures(*colorImage, *depthImage, *normalImage);
+
+        std::vector<Vulcant::Toolkit::MeshVertex> dummyVertices = {
+            { glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f) },
+            { glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f) },
+            { glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f) }
+        };
+        clearRenderer->setVertices(dummyVertices);
+    }
+
+    drawCmd->startRecord();
+    drawCmd->setClearColor(getClearColor());
+    clearRenderer->record(*drawCmd);
+    drawCmd->endRecord();
+    drawCmd->runAsync();
+    drawCmd->wait();
 }

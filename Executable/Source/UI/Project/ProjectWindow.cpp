@@ -54,8 +54,7 @@ void ProjectWindow::render(const Project& project)
                 ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 110.0f);
                 ImGui::TableHeadersRow();
 
-                const auto& assets        = project.getAssets();
-                int         selectedIndex = project.getSelectedIndex();
+                const auto& assets = project.getAssets();
 
                 for (size_t i = 0; i < assets.size(); i++)
                 {
@@ -68,24 +67,8 @@ void ProjectWindow::render(const Project& project)
                     ImGui::TableNextRow();
 
                     ImGui::TableSetColumnIndex(0);
-                    bool        isSelected = (selectedIndex == static_cast<int>(i));
-                    std::string label      = asset->getName() + "##" + std::to_string(i);
-                    if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
-                    {
-                        GatedDatabase::getInstance().execute({
-                          {    "type",       "SelectAsset" },
-                          { "version",                   1 },
-                          {   "index", static_cast<int>(i) }
-                        });
-                    }
-                    if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-                    {
-                        GatedDatabase::getInstance().execute({
-                          {    "type",       "SelectAsset" },
-                          { "version",                   1 },
-                          {   "index", static_cast<int>(i) }
-                        });
-                    }
+                    std::string label = asset->getName() + "##" + std::to_string(i);
+                    ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
 
                     if (contextMenuFactory)
                     {
@@ -99,6 +82,11 @@ void ProjectWindow::render(const Project& project)
             }
         }
 
+        if (contextMenuFactory)
+        {
+            contextMenuFactory->renderCloseModal();
+        }
+
         renderClearModal();
     }
     ImGui::End();
@@ -108,9 +96,9 @@ void ProjectWindow::renderMenuBar(const Project& project)
 {
     if (ImGui::BeginMenuBar())
     {
-        if (ImGui::BeginMenu("Assets"))
+        if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Clear", nullptr, false, project.getAssetCount() > 0))
+            if (ImGui::MenuItem("Clear Project...", nullptr, false, project.getAssetCount() > 0))
             {
                 openClearModal = true;
             }

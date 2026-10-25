@@ -41,8 +41,7 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
 
 void AssetContextMenuFactory::render(const std::shared_ptr<Asset>& asset)
 {
-    int selectedIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
-    render(asset, selectedIndex);
+    render(asset, -1);
 }
 
 void AssetContextMenuFactory::render(const std::shared_ptr<Asset>& asset, int assetIndex)
@@ -58,6 +57,7 @@ void AssetContextMenuFactory::render(const std::shared_ptr<Asset>& asset, int as
         auto menu = create(asset);
         if (menu)
         {
+            menu->setAssetIndex(assetIndex);
             menu->render(*asset);
         }
 
@@ -71,8 +71,6 @@ void AssetContextMenuFactory::render(const std::shared_ptr<Asset>& asset, int as
 
         ImGui::EndPopup();
     }
-
-    renderCloseModal();
 }
 
 void AssetContextMenuFactory::renderCloseModal()

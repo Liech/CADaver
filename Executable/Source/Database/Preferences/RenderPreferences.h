@@ -30,5 +30,5 @@ class RenderPreferences
     glm::vec3 meshColor      = glm::vec3(0.7f, 0.75f, 0.85f);
     glm::vec3 wireframeColor = glm::vec3(1.0f, 0.0f, 0.0f);
     int       wireframeMode  = 0;
-    int       cullMode       = 1;
+    int       cullMode       = 0;
 };

@@ -64,12 +64,16 @@ void VoxelAssetContextMenu::save(VoxelAsset& asset)
         }
 
         std::ofstream fileStream(savePath, std::ios::binary);
-        int           selectedIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+        int           targetIndex = getAssetIndex();
+        if (targetIndex < 0)
+        {
+            targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+        }
         GatedDatabase::getInstance().execute(
           {
             {       "type", "SaveVoxelAsset" },
             {    "version",                1 },
-            { "assetIndex",    selectedIndex }
+            { "assetIndex",      targetIndex }
         },
           nullptr,
           &fileStream);

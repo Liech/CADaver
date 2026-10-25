@@ -7,6 +7,11 @@
 #include <memory>
 #include <vector>
 
+namespace Vulcant
+{
+    class VulcantGraphicCommand;
+}
+
 class CadAsset;
 class Renderer;
 
@@ -24,6 +29,7 @@ class StepAssetRenderer : public AssetRenderer
   private:
     std::shared_ptr<CadAsset>                       asset;
     std::unique_ptr<Vulcant::Toolkit::MeshRenderer> meshRenderer;
+    std::unique_ptr<Vulcant::VulcantGraphicCommand> drawCmd;
     std::vector<Vulcant::Toolkit::MeshVertex>       cachedVertices;
     glm::vec3                                       lastColor = glm::vec3(0.0f);
     bool                                            dirty     = true;

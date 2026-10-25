@@ -61,11 +61,15 @@ void CadAssetContextMenu::save(CadAsset& asset)
             savePath += ".step";
         }
 
-        int selectedIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+        int targetIndex = getAssetIndex();
+        if (targetIndex < 0)
+        {
+            targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+        }
         GatedDatabase::getInstance().execute({
           {       "type", "SaveStepAsset" },
           {    "version",               1 },
-          { "assetIndex",   selectedIndex },
+          { "assetIndex",     targetIndex },
           {   "filePath",        savePath }
         });
 

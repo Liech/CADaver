@@ -88,8 +88,6 @@ set(Command_Files
     "Source/Commands/CommandFactory.cpp"
     "Source/Commands/GatedDatabase.h"
     "Source/Commands/GatedDatabase.cpp"
-    "Source/Commands/SelectAssetCommand.h"
-    "Source/Commands/SelectAssetCommand.cpp"
     "Source/Commands/RemoveAssetCommand.h"
     "Source/Commands/RemoveAssetCommand.cpp"
     "Source/Commands/ClearProjectCommand.h"

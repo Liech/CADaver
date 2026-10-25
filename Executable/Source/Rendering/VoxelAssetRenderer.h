@@ -11,6 +11,11 @@
 
 #include <memory>
 
+namespace Vulcant
+{
+    class VulcantGraphicCommand;
+}
+
 class Renderer;
 class VoxelAsset;
 
@@ -29,6 +34,7 @@ class VoxelAssetRenderer : public AssetRenderer
     std::shared_ptr<VoxelAsset>                         asset;
     std::unique_ptr<CADacomb::Render::SVOLODMesh<bool>> lodMesh;
     std::unique_ptr<Vulcant::Toolkit::MeshRenderer>     meshRenderer;
+    std::unique_ptr<Vulcant::VulcantGraphicCommand>     drawCmd;
 
     CADacomb::FrustumAdaptiveLODStrategy frustumAdaptiveStrategy;
     CADacomb::ScreenSpaceLODStrategy     screenSpaceStrategy;
@@ -38,6 +44,5 @@ class VoxelAssetRenderer : public AssetRenderer
 
     int  lastChunkSize      = 32;
     int  lastVertexCapacity = 500000;
-    bool lastSelected       = false;
     bool dirty              = true;
 };

@@ -70,7 +70,6 @@ class Cadaver
     std::unique_ptr<FileMenu>                       fileMenu;
     std::unique_ptr<Vulcant::Toolkit::Camera>       camera;
     size_t                                          lastAssetCount    = 0;
-    int                                             lastSelectedIndex = -1;
     int                                             currentCameraMode = -1;
     glm::ivec2                                      resolution        = glm::ivec2(1280, 720);
     bool                                            quitRequested     = false;

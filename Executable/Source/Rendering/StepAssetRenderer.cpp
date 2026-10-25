@@ -2,22 +2,27 @@
 
 #include "Database/Asset/CadAsset.h"
 #include "Rendering/Renderer.h"
+#include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 
 StepAssetRenderer::StepAssetRenderer(std::shared_ptr<CadAsset> assetInput)
   : asset(std::move(assetInput))
 {
-    rebuildVertices();
 }
 
-StepAssetRenderer::~StepAssetRenderer() {}
+StepAssetRenderer::~StepAssetRenderer()
+{
+    if (drawCmd)
+    {
+        drawCmd->wait();
+    }
+}
 
 void StepAssetRenderer::rebuildVertices()
 {
     cachedVertices.clear();
     if (!asset || !asset->getTriangulation() || asset->getTriangulation()->indices.empty())
     {
-        dirty = false;
         return;
     }
 
@@ -55,9 +60,6 @@ void StepAssetRenderer::rebuildVertices()
         cachedVertices.push_back({ p1, normal, lastColor });
         cachedVertices.push_back({ p2, normal, lastColor });
     }
-
-    dirty = false;
-    asset->markClean();
 }
 
 void StepAssetRenderer::render(Renderer& renderer, bool isSelected)
@@ -70,40 +72,40 @@ void StepAssetRenderer::render(Renderer& renderer, bool isSelected)
     if (!meshRenderer)
     {
         meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), renderer.getResolution());
+        meshRenderer->setClear(false);
+        meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
+        drawCmd = renderer.getDevice().createGraphicCommand();
+        dirty   = true;
     }
-
-    meshRenderer->setResolution(renderer.getResolution());
-    meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
+    else if (meshRenderer->getResolution() != renderer.getResolution())
+    {
+        meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
+        drawCmd = renderer.getDevice().createGraphicCommand();
+    }
     meshRenderer->setSceneData(renderer.getSceneData());
     meshRenderer->setWireframeMode(renderer.getWireframeMode());
     meshRenderer->setWireframeColor(renderer.getWireframeColor());
     meshRenderer->setCullMode(renderer.getCullMode());
 
-    if (dirty || asset->isDirty() || lastColor != asset->getMeshColor())
+    if (dirty || asset->isDirty() || lastColor != asset->getMeshColor() || meshRenderer->getVertexCount() == 0)
     {
+        lastColor = asset->getMeshColor();
         rebuildVertices();
         meshRenderer->setVertices(cachedVertices);
+        dirty = false;
+        asset->markClean();
     }
 
-    if (cachedVertices.empty() || !renderer.getCommand())
+    if (cachedVertices.empty() || !drawCmd)
     {
         return;
     }
 
-    if (isSelected)
-    {
-        glm::vec3                                 highlightColor(0.95f, 0.72f, 0.32f);
-        std::vector<Vulcant::Toolkit::MeshVertex> highlighted = cachedVertices;
-        for (auto& v : highlighted)
-        {
-            v.color = highlightColor;
-        }
-        meshRenderer->setVertices(highlighted);
-        meshRenderer->record(*renderer.getCommand());
-        meshRenderer->setVertices(cachedVertices);
-    }
-    else
-    {
-        meshRenderer->record(*renderer.getCommand());
-    }
+    drawCmd->wait();
+    drawCmd->startRecord();
+    drawCmd->setClearColor(renderer.getClearColor());
+    meshRenderer->record(*drawCmd);
+    drawCmd->endRecord();
+    drawCmd->runAsync();
+    drawCmd->wait();
 }
