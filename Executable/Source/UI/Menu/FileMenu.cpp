@@ -1,5 +1,6 @@
 #include "UI/Menu/FileMenu.h"
 
+#include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Library/Util/LoadFileDialog.h"
 #include "UI/Preferences/PreferencesWindow.h"
@@ -57,16 +58,21 @@ void FileMenu::openStlFileDialog()
 
     if (!dialog.isCancled() && !dialog.getResultPath().empty())
     {
-        std::ifstream fileStream(dialog.getResultPath(), std::ios::binary);
-        std::string   fileName = std::filesystem::path(dialog.getResultPath()).filename().string();
+        std::string path     = dialog.getResultPath();
+        std::string fileName = std::filesystem::path(path).filename().string();
 
-        GatedDatabase::getInstance().execute(
+        Defer::getInstance().defer(
+          [path, fileName]()
           {
-            {    "type", "LoadStlAsset" },
-            { "version",              1 },
-            {    "name",       fileName }
-        },
-          &fileStream);
+              std::ifstream fileStream(path, std::ios::binary);
+              GatedDatabase::getInstance().execute(
+                {
+                  {    "type", "LoadStlAsset" },
+                  { "version",              1 },
+                  {    "name",       fileName }
+              },
+                &fileStream);
+          });
     }
 }
 
@@ -78,14 +84,19 @@ void FileMenu::openStepFileDialog()
 
     if (!dialog.isCancled() && !dialog.getResultPath().empty())
     {
-        std::string fileName = std::filesystem::path(dialog.getResultPath()).filename().string();
+        std::string path     = dialog.getResultPath();
+        std::string fileName = std::filesystem::path(path).filename().string();
 
-        GatedDatabase::getInstance().execute({
-          {     "type",        "LoadStepAsset" },
-          {  "version",                      1 },
-          {     "name",               fileName },
-          { "filePath", dialog.getResultPath() }
-        });
+        Defer::getInstance().defer(
+          [path, fileName]()
+          {
+              GatedDatabase::getInstance().execute({
+                {     "type", "LoadStepAsset" },
+                {  "version",               1 },
+                {     "name",        fileName },
+                { "filePath",            path }
+              });
+          });
     }
 }
 
@@ -97,15 +108,20 @@ void FileMenu::openSvoFileDialog()
 
     if (!dialog.isCancled() && !dialog.getResultPath().empty())
     {
-        std::ifstream fileStream(dialog.getResultPath(), std::ios::binary);
-        std::string   fileName = std::filesystem::path(dialog.getResultPath()).filename().string();
+        std::string path     = dialog.getResultPath();
+        std::string fileName = std::filesystem::path(path).filename().string();
 
-        GatedDatabase::getInstance().execute(
+        Defer::getInstance().defer(
+          [path, fileName]()
           {
-            {    "type", "LoadSvoAsset" },
-            { "version",              1 },
-            {    "name",       fileName }
-        },
-          &fileStream);
+              std::ifstream fileStream(path, std::ios::binary);
+              GatedDatabase::getInstance().execute(
+                {
+                  {    "type", "LoadSvoAsset" },
+                  { "version",              1 },
+                  {    "name",       fileName }
+              },
+                &fileStream);
+          });
     }
 }

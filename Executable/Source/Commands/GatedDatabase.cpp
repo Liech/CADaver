@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <stdexcept>
 
 GatedDatabase::GatedDatabase() {}
 
@@ -18,9 +19,32 @@ const Database& GatedDatabase::get() const
     return database;
 }
 
+void GatedDatabase::lock()
+{
+    if (locked)
+    {
+        throw std::runtime_error("GatedDatabase: Database is already locked.");
+    }
+    locked = true;
+}
+
+void GatedDatabase::unlock()
+{
+    if (!locked)
+    {
+        throw std::runtime_error("GatedDatabase: Database is already unlocked.");
+    }
+    locked = false;
+}
+
 nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istream* inputStream, std::ostream* outputStream)
 {
     if (locked)
+    {
+        throw std::runtime_error("GatedDatabase: Database is locked. Operations must be deferred to onLogic via Defer.");
+    }
+
+    if (recursionLock)
     {
         nlohmann::json result = {
             {    "type",                                      "Error" },
@@ -55,16 +79,16 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
             return result;
         }
 
-        locked                = true;
+        recursionLock         = true;
         nlohmann::json result = cmd->execute(database, inputStream, outputStream);
-        locked                = false;
+        recursionLock         = false;
         assert(result.at("type").get<std::string>() == cmd->getType());
         log("OUT: " + result.dump(4));
         return result;
     }
     catch (const std::exception& e)
     {
-        locked                = false;
+        recursionLock         = false;
         nlohmann::json result = {
             {    "type",        "Error" },
             { "command",    commandType },

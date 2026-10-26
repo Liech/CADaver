@@ -1,5 +1,6 @@
 #include "UI/Project/ProjectWindow.h"
 
+#include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset.h"
 #include "Database/Project.h"
@@ -54,7 +55,7 @@ void ProjectWindow::render(const Project& project)
                 ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 110.0f);
                 ImGui::TableHeadersRow();
 
-                const auto& assets = project.getAssets();
+                auto assets = project.getAssets();
 
                 for (size_t i = 0; i < assets.size(); i++)
                 {
@@ -126,10 +127,14 @@ void ProjectWindow::renderClearModal()
 
         if (ImGui::Button("Yes", ImVec2(120.0f, 0.0f)))
         {
-            GatedDatabase::getInstance().execute({
-              {    "type", "ClearProject" },
-              { "version",              1 }
-            });
+            Defer::getInstance().defer(
+              []()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {    "type", "ClearProject" },
+                    { "version",              1 }
+                  });
+              });
             ImGui::CloseCurrentPopup();
         }
         ImGui::SetItemDefaultFocus();

@@ -1,5 +1,6 @@
 #include "CadAssetContextMenu.h"
 
+#include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/CadAsset.h"
 #include "Library/Util/SaveFileDialog.h"
@@ -29,20 +30,28 @@ void CadAssetContextMenu::render(Asset& asset)
         if (ImGui::MenuItem("STL"))
         {
             int targetIndex = getAssetIndex();
-            GatedDatabase::getInstance().execute({
-              {       "type", "ConvertCadToStl" },
-              {    "version",                 1 },
-              { "assetIndex",       targetIndex }
-            });
+            Defer::getInstance().defer(
+              [targetIndex]()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {       "type", "ConvertCadToStl" },
+                    {    "version",                 1 },
+                    { "assetIndex",       targetIndex }
+                  });
+              });
         }
         if (ImGui::MenuItem("SVO"))
         {
             int targetIndex = getAssetIndex();
-            GatedDatabase::getInstance().execute({
-              {       "type", "ConvertCadToSvo" },
-              {    "version",                 1 },
-              { "assetIndex",       targetIndex }
-            });
+            Defer::getInstance().defer(
+              [targetIndex]()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {       "type", "ConvertCadToSvo" },
+                    {    "version",                 1 },
+                    { "assetIndex",       targetIndex }
+                  });
+              });
         }
         ImGui::EndMenu();
     }
@@ -90,12 +99,16 @@ void CadAssetContextMenu::save(CadAsset& asset)
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
 
-        GatedDatabase::getInstance().execute({
-          {       "type", "SaveStepAsset" },
-          {    "version",               1 },
-          { "assetIndex",     targetIndex },
-          {   "filePath",        savePath }
-        });
+        Defer::getInstance().defer(
+          [targetIndex, savePath]()
+          {
+              GatedDatabase::getInstance().execute({
+                {       "type", "SaveStepAsset" },
+                {    "version",               1 },
+                { "assetIndex",     targetIndex },
+                {   "filePath",        savePath }
+              });
+          });
 
         asset.setFilePath(savePath);
         asset.markClean();

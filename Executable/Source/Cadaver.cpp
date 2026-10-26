@@ -1,5 +1,7 @@
 #include "Cadaver.h"
 
+#include "Commands/Defer.h"
+
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Asset/VoxelAsset.h"
@@ -87,11 +89,15 @@ void Cadaver::changeResolution(const glm::ivec2& newResolution)
     }
     auto cameraPrefs          = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences().toJson();
     cameraPrefs["resolution"] = { resolution.x, resolution.y };
-    GatedDatabase::getInstance().execute({
-      {        "type", "UpdateCameraPreferences" },
-      {     "version",                         1 },
-      { "preferences",               cameraPrefs }
-    });
+    Defer::getInstance().defer(
+      [cameraPrefs]()
+      {
+          GatedDatabase::getInstance().execute({
+            {        "type", "UpdateCameraPreferences" },
+            {     "version",                         1 },
+            { "preferences",               cameraPrefs }
+          });
+      });
 }
 
 Vulcant::VulcantWindow& Cadaver::getWindow()
@@ -106,6 +112,8 @@ bool Cadaver::isQuitRequested() const
 
 void Cadaver::onLogic(double delta)
 {
+    Defer::getInstance().process();
+
     if (camera)
     {
         camera->tick(delta);

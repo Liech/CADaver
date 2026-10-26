@@ -1,6 +1,7 @@
 #include "VoxelAssetContextMenu.h"
 
 #include "CADacomb/Volume/SVO/SVOFile.h"
+#include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Library/Util/SaveFileDialog.h"
@@ -31,11 +32,15 @@ void VoxelAssetContextMenu::render(Asset& asset)
         if (ImGui::MenuItem("STL (Blocky)"))
         {
             int targetIndex = getAssetIndex();
-            GatedDatabase::getInstance().execute({
-              {       "type", "ConvertSvoToStl" },
-              {    "version",                 1 },
-              { "assetIndex",       targetIndex }
-            });
+            Defer::getInstance().defer(
+              [targetIndex]()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {       "type", "ConvertSvoToStl" },
+                    {    "version",                 1 },
+                    { "assetIndex",       targetIndex }
+                  });
+              });
         }
         ImGui::EndMenu();
     }
@@ -77,21 +82,25 @@ void VoxelAssetContextMenu::save(VoxelAsset& asset)
             savePath += ".cadacombsvo";
         }
 
-        std::ofstream fileStream(savePath, std::ios::binary);
-        int           targetIndex = getAssetIndex();
+        int targetIndex = getAssetIndex();
         if (targetIndex < 0)
         {
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
 
-        GatedDatabase::getInstance().execute(
+        Defer::getInstance().defer(
+          [targetIndex, savePath]()
           {
-            {       "type", "SaveVoxelAsset" },
-            {    "version",                1 },
-            { "assetIndex",      targetIndex }
-        },
-          nullptr,
-          &fileStream);
+              std::ofstream fileStream(savePath, std::ios::binary);
+              GatedDatabase::getInstance().execute(
+                {
+                  {       "type", "SaveVoxelAsset" },
+                  {    "version",                1 },
+                  { "assetIndex",      targetIndex }
+              },
+                nullptr,
+                &fileStream);
+          });
 
         asset.setFilePath(savePath);
     }

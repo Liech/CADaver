@@ -20,14 +20,17 @@ class GatedDatabase
 
     const Database& get() const;
 
-    nlohmann::json execute(const nlohmann::json& command, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
+    void lock();
+    void unlock();
 
-    std::string execute(const std::string& commandString, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
+    nlohmann::json execute(const nlohmann::json& command, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
+    std::string    execute(const std::string& commandString, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
 
   private:
     void log(const std::string& msg);
 
     Database       database;
     CommandFactory commandFactory;
-    bool           locked = false;
+    bool           locked        = true;
+    bool           recursionLock = false;
 };

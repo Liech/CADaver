@@ -2,6 +2,7 @@
 
 #include "AssetContextMenu.h"
 #include "CadAssetContextMenu.h"
+#include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset.h"
 #include "Database/AssetType.h"
@@ -90,11 +91,16 @@ void AssetContextMenuFactory::renderCloseModal()
 
         if (ImGui::Button("Yes", ImVec2(120.0f, 0.0f)))
         {
-            GatedDatabase::getInstance().execute({
-              {       "type",    "RemoveAsset" },
-              {    "version",                1 },
-              { "assetIndex", closeTargetIndex }
-            });
+            int targetIndex = closeTargetIndex;
+            Defer::getInstance().defer(
+              [targetIndex]()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {       "type", "RemoveAsset" },
+                    {    "version",             1 },
+                    { "assetIndex",   targetIndex }
+                  });
+              });
             ImGui::CloseCurrentPopup();
         }
         ImGui::SetItemDefaultFocus();

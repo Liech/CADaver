@@ -1,5 +1,6 @@
 #include "TriangulationAssetContextMenu.h"
 
+#include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Library/Util/SaveFileDialog.h"
@@ -30,11 +31,15 @@ void TriangulationAssetContextMenu::render(Asset& asset)
         if (ImGui::MenuItem("SVO"))
         {
             int targetIndex = getAssetIndex();
-            GatedDatabase::getInstance().execute({
-              {       "type", "ConvertStlToSvo" },
-              {    "version",                 1 },
-              { "assetIndex",       targetIndex }
-            });
+            Defer::getInstance().defer(
+              [targetIndex]()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {       "type", "ConvertStlToSvo" },
+                    {    "version",                 1 },
+                    { "assetIndex",       targetIndex }
+                  });
+              });
         }
         ImGui::EndMenu();
     }
@@ -67,21 +72,25 @@ void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
             savePath += ".stl";
         }
 
-        std::ofstream fileStream(savePath, std::ios::binary);
-        int           targetIndex = getAssetIndex();
+        int targetIndex = getAssetIndex();
         if (targetIndex < 0)
         {
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
 
-        GatedDatabase::getInstance().execute(
+        Defer::getInstance().defer(
+          [targetIndex, savePath]()
           {
-            {       "type", "SaveStlAsset" },
-            {    "version",              1 },
-            { "assetIndex",    targetIndex }
-        },
-          nullptr,
-          &fileStream);
+              std::ofstream fileStream(savePath, std::ios::binary);
+              GatedDatabase::getInstance().execute(
+                {
+                  {       "type", "SaveStlAsset" },
+                  {    "version",              1 },
+                  { "assetIndex",    targetIndex }
+              },
+                nullptr,
+                &fileStream);
+          });
 
         asset.markClean();
     }
