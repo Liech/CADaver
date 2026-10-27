@@ -10,11 +10,14 @@
 #include "CADacomb/Volume/Flat/MarchingCubes.h"
 
 #include <BRepMesh_IncrementalMesh.hxx>
+#include <BRepTools.hxx>
 #include <BRep_Tool.hxx>
 #include <Poly_Triangle.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Trsf.hxx>
 
 namespace Library
 {
@@ -22,6 +25,7 @@ namespace Library
     {
         std::unique_ptr<CADacomb::Triangulation> result = std::make_unique<CADacomb::Triangulation>();
 
+        BRepTools::Clean(shape.getData());
         BRepMesh_IncrementalMesh mesher(shape.getData(), precision);
         mesher.Perform();
         std::map<std::tuple<double, double, double>, int> vertexMap;
@@ -33,40 +37,64 @@ namespace Library
             TopoDS_Face face = TopoDS::Face(faceExplorer.Current());
 
             TopAbs_Orientation o        = face.Orientation();
-            bool               reversed = o == TopAbs_REVERSED;
+            bool               reversed = (o == TopAbs_REVERSED);
             TopLoc_Location    loc;
             Handle(Poly_Triangulation) triangulation = BRep_Tool::Triangulation(face, loc);
             if (!triangulation.IsNull())
             {
-                size_t triangleAmount = triangulation->NbTriangles();
-                size_t verticesAmount = triangulation->NbNodes();
-
-                for (size_t i = 0; i < verticesAmount; i++)
+                bool    hasLoc = !loc.IsIdentity();
+                gp_Trsf trsf;
+                if (hasLoc)
                 {
-                    std::tuple<double, double, double> node = pointToTuple(triangulation->Node(i + 1));
-                    if (vertexMap.find(node) == vertexMap.end())
+                    trsf = loc.Transformation();
+                    if (trsf.IsNegative())
                     {
-                        vertexMap[node] = result->vertices.size();
-                        result->vertices.push_back(glm::dvec3(std::get<0>(node), std::get<1>(node), std::get<2>(node)));
+                        reversed = !reversed;
                     }
                 }
 
-                for (size_t i = 0; i < triangleAmount; i++)
+                size_t triangleAmount = triangulation->NbTriangles();
+                size_t verticesAmount = triangulation->NbNodes();
+
+                std::vector<int> faceVertexMap(verticesAmount + 1);
+                for (size_t i = 1; i <= verticesAmount; i++)
                 {
-                    const Poly_Triangle& tri = triangulation->Triangle(i + 1);
+                    gp_Pnt p = triangulation->Node(static_cast<int>(i));
+                    if (hasLoc)
+                    {
+                        p.Transform(trsf);
+                    }
+                    std::tuple<double, double, double> node = pointToTuple(p);
+                    auto                               it   = vertexMap.find(node);
+                    if (it == vertexMap.end())
+                    {
+                        int newIndex     = static_cast<int>(result->vertices.size());
+                        vertexMap[node]  = newIndex;
+                        faceVertexMap[i] = newIndex;
+                        result->vertices.push_back(glm::dvec3(p.X(), p.Y(), p.Z()));
+                    }
+                    else
+                    {
+                        faceVertexMap[i] = it->second;
+                    }
+                }
+
+                for (size_t i = 1; i <= triangleAmount; i++)
+                {
+                    const Poly_Triangle& tri = triangulation->Triangle(static_cast<int>(i));
                     int                  a, b, c;
                     tri.Get(a, b, c);
                     if (!reversed)
                     {
-                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(a))]);
-                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(b))]);
-                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(c))]);
+                        result->indices.push_back(faceVertexMap[a]);
+                        result->indices.push_back(faceVertexMap[b]);
+                        result->indices.push_back(faceVertexMap[c]);
                     }
                     else
                     {
-                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(a))]);
-                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(c))]);
-                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(b))]);
+                        result->indices.push_back(faceVertexMap[a]);
+                        result->indices.push_back(faceVertexMap[c]);
+                        result->indices.push_back(faceVertexMap[b]);
                     }
                 }
             }
