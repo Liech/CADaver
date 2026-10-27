@@ -15,7 +15,7 @@ class ConvertSvoToStlCommand : public Command
     virtual int         getVersion() const override;
     virtual std::string getDescription() const override;
 
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream) override;
+    virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
 
     int  getAssetIndex() const;
     void setAssetIndex(int newIndex);

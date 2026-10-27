@@ -1,5 +1,6 @@
 #include "ClearProjectCommand.h"
 
+#include "Commands/Undo/ClearProjectUndoRecord.h"
 #include "Database/Database.h"
 
 ClearProjectCommand::ClearProjectCommand() {}
@@ -38,9 +39,17 @@ std::string ClearProjectCommand::getDescription() const
            "}";
 }
 
-nlohmann::json ClearProjectCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json ClearProjectCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
+    auto assets = database.getProject().getAssets();
+    int  selIdx = database.getProject().getSelectedIndex();
+
     database.getProject().clear();
+
+    if (recordUndo && !assets.empty())
+    {
+        database.getUndoStack().push(std::make_unique<ClearProjectUndoRecord>(assets, selIdx));
+    }
 
     return {
         {    "type",    getType() },

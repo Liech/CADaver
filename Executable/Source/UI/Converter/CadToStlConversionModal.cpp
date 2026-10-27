@@ -76,12 +76,14 @@ void CadToStlConversionModal::executeConversion()
     Defer::getInstance().defer(
       [index, prec, shouldDelete]()
       {
-          GatedDatabase::getInstance().execute({
-            {         "type", "ConvertCadToStl" },
-            {      "version",                 1 },
-            {   "assetIndex",             index },
-            {    "precision",              prec },
-            { "deleteOrigin",      shouldDelete }
-          });
+          GatedDatabase::getInstance().execute(
+            {
+              {         "type", "ConvertCadToStl" },
+              {      "version",                 1 },
+              {   "assetIndex",             index },
+              {    "precision",              prec },
+              { "deleteOrigin",      shouldDelete }
+          },
+            true);
       });
 }

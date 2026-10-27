@@ -1,5 +1,6 @@
 #include "LoadStepAssetCommand.h"
 
+#include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
 
@@ -53,12 +54,17 @@ std::string LoadStepAssetCommand::getDescription() const
            "}";
 }
 
-nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto asset = std::make_shared<CadAsset>(name, filePath);
     database.getProject().addAsset(asset);
     int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
     database.getProject().setSelectedIndex(newIndex);
+
+    if (recordUndo)
+    {
+        database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(asset, static_cast<size_t>(newIndex)));
+    }
 
     return {
         {    "type",    getType() },

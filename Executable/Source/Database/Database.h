@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Project.h"
 
@@ -16,7 +17,11 @@ class Database
     Preferences&       getPreferences();
     const Preferences& getPreferences() const;
 
+    UndoStack&       getUndoStack();
+    const UndoStack& getUndoStack() const;
+
   private:
     Project     project;
     Preferences preferences;
+    UndoStack   undoStack;
 };

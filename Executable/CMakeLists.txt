@@ -39,6 +39,8 @@ set(UI_Preferences_Files
     "Source/UI/Preferences/RenderPreferencesView.cpp"
     "Source/UI/Preferences/SVOPreferencesView.h"
     "Source/UI/Preferences/SVOPreferencesView.cpp"
+    "Source/UI/Preferences/UndoPreferencesView.h"
+    "Source/UI/Preferences/UndoPreferencesView.cpp"
 )
 source_group("Source/UI/Preferences" FILES ${UI_Preferences_Files})
 
@@ -124,8 +126,30 @@ set(Command_Files
     "Source/Commands/UpdateRenderPreferencesCommand.cpp"
     "Source/Commands/UpdateSVOPreferencesCommand.h"
     "Source/Commands/UpdateSVOPreferencesCommand.cpp"
+    "Source/Commands/UndoCommand.h"
+    "Source/Commands/UndoCommand.cpp"
+    "Source/Commands/RedoCommand.h"
+    "Source/Commands/RedoCommand.cpp"
 )
 source_group("Source/Commands" FILES ${Command_Files})
+
+set(Command_Undo_Files
+    "Source/Commands/Undo/UndoRecord.h"
+    "Source/Commands/Undo/UndoRecord.cpp"
+    "Source/Commands/Undo/AddAssetUndoRecord.h"
+    "Source/Commands/Undo/AddAssetUndoRecord.cpp"
+    "Source/Commands/Undo/RemoveAssetUndoRecord.h"
+    "Source/Commands/Undo/RemoveAssetUndoRecord.cpp"
+    "Source/Commands/Undo/ReplaceAssetUndoRecord.h"
+    "Source/Commands/Undo/ReplaceAssetUndoRecord.cpp"
+    "Source/Commands/Undo/ClearProjectUndoRecord.h"
+    "Source/Commands/Undo/ClearProjectUndoRecord.cpp"
+    "Source/Commands/Undo/PreferencesUndoRecord.h"
+    "Source/Commands/Undo/PreferencesUndoRecord.cpp"
+    "Source/Commands/Undo/UndoStack.h"
+    "Source/Commands/Undo/UndoStack.cpp"
+)
+source_group("Source/Commands/Undo" FILES ${Command_Undo_Files})
 
 set(UI_About_Files
     "Source/UI/About/AboutWindow.h"
@@ -180,6 +204,8 @@ source_group("Source/UI/Project" FILES ${UI_Project_Files})
 set(UI_Menu_Files
     "Source/UI/Menu/FileMenu.h"
     "Source/UI/Menu/FileMenu.cpp"
+    "Source/UI/Menu/EditMenu.h"
+    "Source/UI/Menu/EditMenu.cpp"
 )
 source_group("Source/UI/Menu" FILES ${UI_Menu_Files})
 
@@ -198,6 +224,7 @@ set(ALL_FILES
     ${UI_ContextMenu_Files}
     ${UI_Project_Files}
     ${Command_Files}
+    ${Command_Undo_Files}
 )
 
 add_executable(CadaverExe ${ALL_FILES})

@@ -54,7 +54,7 @@ std::string SaveStepAssetCommand::getDescription() const
            "}";
 }
 
-nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool)
 {
     auto baseAsset = database.getProject().getAsset(static_cast<size_t>(assetIndex));
     if (!baseAsset)

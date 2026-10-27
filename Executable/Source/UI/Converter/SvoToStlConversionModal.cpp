@@ -74,12 +74,14 @@ void SvoToStlConversionModal::executeConversion()
     Defer::getInstance().defer(
       [index, depth, shouldDelete]()
       {
-          GatedDatabase::getInstance().execute({
-            {         "type", "ConvertSvoToStl" },
-            {      "version",                 1 },
-            {   "assetIndex",             index },
-            {  "targetDepth",             depth },
-            { "deleteOrigin",      shouldDelete }
-          });
+          GatedDatabase::getInstance().execute(
+            {
+              {         "type", "ConvertSvoToStl" },
+              {      "version",                 1 },
+              {   "assetIndex",             index },
+              {  "targetDepth",             depth },
+              { "deleteOrigin",      shouldDelete }
+          },
+            true);
       });
 }

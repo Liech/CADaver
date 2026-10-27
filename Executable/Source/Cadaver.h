@@ -25,6 +25,7 @@ class AboutWindow;
 class AssetRenderFactory;
 class CommandsWindow;
 class FileMenu;
+class EditMenu;
 class PreferencesWindow;
 class ProjectWindow;
 class Renderer;
@@ -68,6 +69,7 @@ class Cadaver
     std::unique_ptr<CommandsWindow>                 commandsWindow;
     std::unique_ptr<ProjectWindow>                  projectWindow;
     std::unique_ptr<FileMenu>                       fileMenu;
+    std::unique_ptr<EditMenu>                       editMenu;
     std::unique_ptr<Vulcant::Toolkit::Camera>       camera;
     size_t                                          lastAssetCount    = 0;
     int                                             currentCameraMode = -1;

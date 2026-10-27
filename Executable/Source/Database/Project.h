@@ -14,6 +14,7 @@ class Project
     virtual ~Project();
 
     void addAsset(std::shared_ptr<Asset> asset);
+    void insertAsset(size_t index, std::shared_ptr<Asset> asset);
     void removeAsset(size_t index);
     void clear();
 

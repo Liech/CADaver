@@ -23,8 +23,8 @@ class GatedDatabase
     void lock();
     void unlock();
 
-    nlohmann::json execute(const nlohmann::json& command, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
-    std::string    execute(const std::string& commandString, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
+    nlohmann::json execute(const nlohmann::json& command, bool recordUndo = false, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
+    std::string    execute(const std::string& commandString, bool recordUndo = false, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
 
   private:
     void log(const std::string& msg);

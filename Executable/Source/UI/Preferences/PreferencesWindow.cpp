@@ -35,11 +35,13 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                     Defer::getInstance().defer(
                       [json]()
                       {
-                          GatedDatabase::getInstance().execute({
-                            {        "type", "UpdateUIPreferences" },
-                            {     "version",                     1 },
-                            { "preferences",                  json }
-                          });
+                          GatedDatabase::getInstance().execute(
+                            {
+                              {        "type", "UpdateUIPreferences" },
+                              {     "version",                     1 },
+                              { "preferences",                  json }
+                          },
+                            true);
                       });
                 }
                 ImGui::EndTabItem();
@@ -54,11 +56,13 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                     Defer::getInstance().defer(
                       [json]()
                       {
-                          GatedDatabase::getInstance().execute({
-                            {        "type", "UpdateCameraPreferences" },
-                            {     "version",                         1 },
-                            { "preferences",                      json }
-                          });
+                          GatedDatabase::getInstance().execute(
+                            {
+                              {        "type", "UpdateCameraPreferences" },
+                              {     "version",                         1 },
+                              { "preferences",                      json }
+                          },
+                            true);
                       });
                 }
                 if (workingPreferences.getCameraPreferences().isResetRequested())
@@ -78,11 +82,13 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                     Defer::getInstance().defer(
                       [json]()
                       {
-                          GatedDatabase::getInstance().execute({
-                            {        "type", "UpdateRenderPreferences" },
-                            {     "version",                         1 },
-                            { "preferences",                      json }
-                          });
+                          GatedDatabase::getInstance().execute(
+                            {
+                              {        "type", "UpdateRenderPreferences" },
+                              {     "version",                         1 },
+                              { "preferences",                      json }
+                          },
+                            true);
                       });
                 }
                 ImGui::EndTabItem();
@@ -97,12 +103,24 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                     Defer::getInstance().defer(
                       [json]()
                       {
-                          GatedDatabase::getInstance().execute({
-                            {        "type", "UpdateSVOPreferences" },
-                            {     "version",                      1 },
-                            { "preferences",                   json }
-                          });
+                          GatedDatabase::getInstance().execute(
+                            {
+                              {        "type", "UpdateSVOPreferences" },
+                              {     "version",                      1 },
+                              { "preferences",                   json }
+                          },
+                            true);
                       });
+                }
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Undo"))
+            {
+                const auto& undoStack = GatedDatabase::getInstance().get().getUndoStack();
+                if (undoPreferencesView.render(undoStack))
+                {
+                    modified = true;
                 }
                 ImGui::EndTabItem();
             }
@@ -156,4 +174,9 @@ RenderPreferencesView& PreferencesWindow::getRenderPreferencesView()
 SVOPreferencesView& PreferencesWindow::getSVOPreferencesView()
 {
     return svoPreferencesView;
+}
+
+UndoPreferencesView& PreferencesWindow::getUndoPreferencesView()
+{
+    return undoPreferencesView;
 }

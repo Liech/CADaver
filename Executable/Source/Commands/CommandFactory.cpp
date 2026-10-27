@@ -8,10 +8,12 @@
 #include "LoadStepAssetCommand.h"
 #include "LoadStlAssetCommand.h"
 #include "LoadSvoAssetCommand.h"
+#include "RedoCommand.h"
 #include "RemoveAssetCommand.h"
 #include "SaveStepAssetCommand.h"
 #include "SaveStlAssetCommand.h"
 #include "SaveVoxelAssetCommand.h"
+#include "UndoCommand.h"
 #include "UpdateCameraPreferencesCommand.h"
 #include "UpdateRenderPreferencesCommand.h"
 #include "UpdateSVOPreferencesCommand.h"
@@ -52,6 +54,8 @@ std::vector<std::unique_ptr<Command>> CommandFactory::getAllCommands() const
     commands.push_back(std::make_unique<SaveStepAssetCommand>());
     commands.push_back(std::make_unique<SaveStlAssetCommand>());
     commands.push_back(std::make_unique<SaveVoxelAssetCommand>());
+    commands.push_back(std::make_unique<UndoCommand>());
+    commands.push_back(std::make_unique<RedoCommand>());
     commands.push_back(std::make_unique<UpdateCameraPreferencesCommand>());
     commands.push_back(std::make_unique<UpdateRenderPreferencesCommand>());
     commands.push_back(std::make_unique<UpdateSVOPreferencesCommand>());
@@ -78,6 +82,8 @@ void CommandFactory::registerCommands()
     registerCommand("SaveStepAsset", [](const nlohmann::json& json) { return std::make_unique<SaveStepAssetCommand>(json); });
     registerCommand("LoadSvoAsset", [](const nlohmann::json& json) { return std::make_unique<LoadSvoAssetCommand>(json); });
     registerCommand("SaveVoxelAsset", [](const nlohmann::json& json) { return std::make_unique<SaveVoxelAssetCommand>(json); });
+    registerCommand("Undo", [](const nlohmann::json& json) { return std::make_unique<UndoCommand>(json); });
+    registerCommand("Redo", [](const nlohmann::json& json) { return std::make_unique<RedoCommand>(json); });
     registerCommand("UpdateCameraPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateCameraPreferencesCommand>(json); });
     registerCommand("UpdateUIPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateUIPreferencesCommand>(json); });
     registerCommand("UpdateRenderPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateRenderPreferencesCommand>(json); });

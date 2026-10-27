@@ -1,5 +1,6 @@
 #include "RemoveAssetCommand.h"
 
+#include "Commands/Undo/RemoveAssetUndoRecord.h"
 #include "Database/Database.h"
 
 RemoveAssetCommand::RemoveAssetCommand() {}
@@ -48,7 +49,7 @@ std::string RemoveAssetCommand::getDescription() const
            "}";
 }
 
-nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     if (assetIndex < 0 || static_cast<size_t>(assetIndex) >= database.getProject().getAssetCount())
     {
@@ -60,7 +61,13 @@ nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream* inp
         };
     }
 
+    auto asset = database.getProject().getAsset(static_cast<size_t>(assetIndex));
     database.getProject().removeAsset(static_cast<size_t>(assetIndex));
+
+    if (recordUndo && asset)
+    {
+        database.getUndoStack().push(std::make_unique<RemoveAssetUndoRecord>(asset, static_cast<size_t>(assetIndex)));
+    }
 
     return {
         {    "type",    getType() },

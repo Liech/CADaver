@@ -1,5 +1,7 @@
 #include "ConvertCadToSvoCommand.h"
 
+#include "Commands/Undo/AddAssetUndoRecord.h"
+#include "Commands/Undo/ReplaceAssetUndoRecord.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/AssetConverter.h"
@@ -60,7 +62,7 @@ std::string ConvertCadToSvoCommand::getDescription() const
            "}";
 }
 
-nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     if (assetIndex < 0 || static_cast<size_t>(assetIndex) >= database.getProject().getAssetCount())
     {
@@ -102,6 +104,17 @@ nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*
     {
         database.getProject().removeAsset(static_cast<size_t>(assetIndex));
         newIndex--;
+        if (recordUndo)
+        {
+            database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, static_cast<size_t>(assetIndex), svoAsset, static_cast<size_t>(newIndex)));
+        }
+    }
+    else
+    {
+        if (recordUndo)
+        {
+            database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(svoAsset, static_cast<size_t>(newIndex)));
+        }
     }
 
     return {

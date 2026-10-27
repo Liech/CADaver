@@ -1,5 +1,6 @@
 #include "UpdateCameraPreferencesCommand.h"
 
+#include "Commands/Undo/PreferencesUndoRecord.h"
 #include "Database/Database.h"
 
 UpdateCameraPreferencesCommand::UpdateCameraPreferencesCommand() {}
@@ -50,10 +51,16 @@ std::string UpdateCameraPreferencesCommand::getDescription() const
            "}";
 }
 
-nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto& cameraPreferences = database.getPreferences().getCameraPreferences();
+    auto  prevJson          = cameraPreferences.toJson();
     cameraPreferences.fromJson(preferencesData);
+
+    if (recordUndo)
+    {
+        database.getUndoStack().push(std::make_unique<PreferencesUndoRecord>("Camera", prevJson, preferencesData));
+    }
 
     return {
         {    "type",    getType() },

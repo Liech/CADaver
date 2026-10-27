@@ -1,5 +1,6 @@
 #include "UpdateSVOPreferencesCommand.h"
 
+#include "Commands/Undo/PreferencesUndoRecord.h"
 #include "Database/Database.h"
 
 UpdateSVOPreferencesCommand::UpdateSVOPreferencesCommand() {}
@@ -54,10 +55,16 @@ std::string UpdateSVOPreferencesCommand::getDescription() const
            "}";
 }
 
-nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto& svoPreferences = database.getPreferences().getSVOPreferences();
+    auto  prevJson       = svoPreferences.toJson();
     svoPreferences.fromJson(preferencesData);
+
+    if (recordUndo)
+    {
+        database.getUndoStack().push(std::make_unique<PreferencesUndoRecord>("SVO", prevJson, preferencesData));
+    }
 
     return {
         {    "type",    getType() },

@@ -1,5 +1,6 @@
 #include "UpdateUIPreferencesCommand.h"
 
+#include "Commands/Undo/PreferencesUndoRecord.h"
 #include "Database/Database.h"
 
 UpdateUIPreferencesCommand::UpdateUIPreferencesCommand() {}
@@ -46,10 +47,16 @@ std::string UpdateUIPreferencesCommand::getDescription() const
            "}";
 }
 
-nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto& uiPreferences = database.getPreferences().getUIPreferences();
+    auto  prevJson      = uiPreferences.toJson();
     uiPreferences.fromJson(preferencesData);
+
+    if (recordUndo)
+    {
+        database.getUndoStack().push(std::make_unique<PreferencesUndoRecord>("UI", prevJson, preferencesData));
+    }
 
     return {
         {    "type",    getType() },

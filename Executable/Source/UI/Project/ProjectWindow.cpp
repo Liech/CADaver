@@ -131,10 +131,12 @@ void ProjectWindow::renderClearModal()
             Defer::getInstance().defer(
               []()
               {
-                  GatedDatabase::getInstance().execute({
-                    {    "type", "ClearProject" },
-                    { "version",              1 }
-                  });
+                  GatedDatabase::getInstance().execute(
+                    {
+                      {    "type", "ClearProject" },
+                      { "version",              1 }
+                  },
+                    true);
               });
             ImGui::CloseCurrentPopup();
         }

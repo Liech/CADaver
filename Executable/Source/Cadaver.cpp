@@ -13,6 +13,7 @@
 #include "Rendering/Renderer.h"
 #include "UI/About/AboutWindow.h"
 #include "UI/Commands/CommandsWindow.h"
+#include "UI/Menu/EditMenu.h"
 #include "UI/Menu/FileMenu.h"
 #include "UI/Preferences/PreferencesWindow.h"
 #include "UI/Project/ProjectWindow.h"
@@ -326,6 +327,7 @@ void Cadaver::prepare()
     commandsWindow = std::make_unique<CommandsWindow>();
     projectWindow  = std::make_unique<ProjectWindow>();
     fileMenu       = std::make_unique<FileMenu>();
+    editMenu       = std::make_unique<EditMenu>();
 
     assetRenderFactory = std::make_unique<AssetRenderFactory>();
     renderer           = std::make_unique<Renderer>(device, resolution, GatedDatabase::getInstance());
@@ -355,6 +357,11 @@ void Cadaver::renderImGui()
         if (fileMenu)
         {
             fileMenu->render(*preferencesWindow, quitRequested);
+        }
+
+        if (editMenu)
+        {
+            editMenu->render();
         }
 
         if (ImGui::BeginMenu("Help"))

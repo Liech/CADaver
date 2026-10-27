@@ -50,7 +50,7 @@ std::string SaveStlAssetCommand::getDescription() const
            "}";
 }
 
-nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool)
 {
     if (!outputStream)
     {

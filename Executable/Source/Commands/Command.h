@@ -18,5 +18,5 @@ class Command
     virtual int         getVersion() const     = 0;
     virtual std::string getDescription() const = 0;
 
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream) = 0;
+    virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) = 0;
 };

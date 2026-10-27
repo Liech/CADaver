@@ -50,7 +50,7 @@ std::string SaveVoxelAssetCommand::getDescription() const
            "}";
 }
 
-nlohmann::json SaveVoxelAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json SaveVoxelAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool)
 {
     if (!outputStream)
     {

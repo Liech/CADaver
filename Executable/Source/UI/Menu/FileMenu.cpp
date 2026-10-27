@@ -71,6 +71,7 @@ void FileMenu::openStlFileDialog()
                   { "version",              1 },
                   {    "name",       fileName }
               },
+                true,
                 &fileStream);
           });
     }
@@ -90,12 +91,14 @@ void FileMenu::openStepFileDialog()
         Defer::getInstance().defer(
           [path, fileName]()
           {
-              GatedDatabase::getInstance().execute({
-                {     "type", "LoadStepAsset" },
-                {  "version",               1 },
-                {     "name",        fileName },
-                { "filePath",            path }
-              });
+              GatedDatabase::getInstance().execute(
+                {
+                  {     "type", "LoadStepAsset" },
+                  {  "version",               1 },
+                  {     "name",        fileName },
+                  { "filePath",            path }
+              },
+                true);
           });
     }
 }
@@ -121,6 +124,7 @@ void FileMenu::openSvoFileDialog()
                   { "version",              1 },
                   {    "name",       fileName }
               },
+                true,
                 &fileStream);
           });
     }

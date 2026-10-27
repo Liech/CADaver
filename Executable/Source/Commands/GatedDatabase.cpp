@@ -37,7 +37,7 @@ void GatedDatabase::unlock()
     locked = false;
 }
 
-nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json GatedDatabase::execute(const nlohmann::json& command, bool recordUndo, std::istream* inputStream, std::ostream* outputStream)
 {
     if (locked)
     {
@@ -65,6 +65,11 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
         commandType    = command.at("type").get<std::string>();
         commandVersion = command.at("version").get<int>();
 
+        if (command.contains("recordUndo"))
+        {
+            recordUndo = command.at("recordUndo").get<bool>();
+        }
+
         auto cmd = commandFactory.create(command);
         if (!cmd)
         {
@@ -80,7 +85,7 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
         }
 
         recursionLock         = true;
-        nlohmann::json result = cmd->execute(database, inputStream, outputStream);
+        nlohmann::json result = cmd->execute(database, inputStream, outputStream, recordUndo);
         recursionLock         = false;
         assert(result.at("type").get<std::string>() == cmd->getType());
         log("OUT: " + result.dump(4));
@@ -101,7 +106,7 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
     }
 }
 
-std::string GatedDatabase::execute(const std::string& commandString, std::istream* inputStream, std::ostream* outputStream)
+std::string GatedDatabase::execute(const std::string& commandString, bool recordUndo, std::istream* inputStream, std::ostream* outputStream)
 {
     nlohmann::json parsedCommand;
     try
@@ -120,7 +125,7 @@ std::string GatedDatabase::execute(const std::string& commandString, std::istrea
         return errorResult.dump();
     }
 
-    nlohmann::json result = execute(parsedCommand, inputStream, outputStream);
+    nlohmann::json result = execute(parsedCommand, recordUndo, inputStream, outputStream);
     return result.dump();
 }
 

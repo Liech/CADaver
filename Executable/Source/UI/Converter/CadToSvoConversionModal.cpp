@@ -81,13 +81,15 @@ void CadToSvoConversionModal::executeConversion()
     Defer::getInstance().defer(
       [index, prec, dim, shouldDelete]()
       {
-          GatedDatabase::getInstance().execute({
-            {         "type", "ConvertCadToSvo" },
-            {      "version",                 1 },
-            {   "assetIndex",             index },
-            {    "precision",              prec },
-            {    "dimension",               dim },
-            { "deleteOrigin",      shouldDelete }
-          });
+          GatedDatabase::getInstance().execute(
+            {
+              {         "type", "ConvertCadToSvo" },
+              {      "version",                 1 },
+              {   "assetIndex",             index },
+              {    "precision",              prec },
+              {    "dimension",               dim },
+              { "deleteOrigin",      shouldDelete }
+          },
+            true);
       });
 }

@@ -16,6 +16,19 @@ void Project::addAsset(std::shared_ptr<Asset> asset)
     }
 }
 
+void Project::insertAsset(size_t index, std::shared_ptr<Asset> asset)
+{
+    if (asset)
+    {
+        if (index > assets.size())
+        {
+            index = assets.size();
+        }
+        assets.insert(assets.begin() + index, asset);
+        selectedIndex = static_cast<int>(index);
+    }
+}
+
 void Project::removeAsset(size_t index)
 {
     if (index < assets.size())

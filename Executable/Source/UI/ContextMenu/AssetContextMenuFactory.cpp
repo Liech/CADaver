@@ -112,11 +112,13 @@ void AssetContextMenuFactory::renderCloseModal()
             Defer::getInstance().defer(
               [targetIndex]()
               {
-                  GatedDatabase::getInstance().execute({
-                    {       "type", "RemoveAsset" },
-                    {    "version",             1 },
-                    { "assetIndex",   targetIndex }
-                  });
+                  GatedDatabase::getInstance().execute(
+                    {
+                      {       "type", "RemoveAsset" },
+                      {    "version",             1 },
+                      { "assetIndex",   targetIndex }
+                  },
+                    true);
               });
             ImGui::CloseCurrentPopup();
         }

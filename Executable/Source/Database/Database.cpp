@@ -26,3 +26,13 @@ const Preferences& Database::getPreferences() const
 {
     return preferences;
 }
+
+UndoStack& Database::getUndoStack()
+{
+    return undoStack;
+}
+
+const UndoStack& Database::getUndoStack() const
+{
+    return undoStack;
+}

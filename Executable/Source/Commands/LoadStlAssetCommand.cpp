@@ -1,6 +1,7 @@
 #include "LoadStlAssetCommand.h"
 
 #include "CADacomb/Triangle/Triangulation.h"
+#include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
 
@@ -51,7 +52,7 @@ std::string LoadStlAssetCommand::getDescription() const
            "}";
 }
 
-nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*, bool recordUndo)
 {
     if (!inputStream)
     {
@@ -80,6 +81,11 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
     database.getProject().addAsset(asset);
     int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
     database.getProject().setSelectedIndex(newIndex);
+
+    if (recordUndo)
+    {
+        database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(asset, static_cast<size_t>(newIndex)));
+    }
 
     return {
         {    "type",    getType() },
