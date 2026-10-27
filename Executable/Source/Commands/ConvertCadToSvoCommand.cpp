@@ -7,15 +7,19 @@
 
 ConvertCadToSvoCommand::ConvertCadToSvoCommand() {}
 
-ConvertCadToSvoCommand::ConvertCadToSvoCommand(int assetIndex, uint32_t dimension)
+ConvertCadToSvoCommand::ConvertCadToSvoCommand(int assetIndex, double precision, uint32_t dimension, bool deleteOrigin)
   : assetIndex(assetIndex)
+  , precision(precision)
   , dimension(dimension)
+  , deleteOrigin(deleteOrigin)
 {
 }
 
 ConvertCadToSvoCommand::ConvertCadToSvoCommand(const nlohmann::json& json)
   : assetIndex(json.at("assetIndex").get<int>())
+  , precision(json.value("precision", 0.1))
   , dimension(json.value("dimension", 64u))
+  , deleteOrigin(json.value("deleteOrigin", false))
 {
 }
 
@@ -35,13 +39,15 @@ std::string ConvertCadToSvoCommand::getDescription() const
 {
     return "Command: ConvertCadToSvo\n"
            "Version: 1\n"
-           "Purpose: Converts a CAD asset into a volumetric SVO asset via triangulation.\n\n"
+           "Purpose: Converts a CAD asset into a volumetric SVO asset.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"ConvertCadToSvo\",\n"
            "  \"version\": 1,\n"
            "  \"assetIndex\": <int>,\n"
-           "  \"dimension\": <uint, optional, default 64>\n"
+           "  \"precision\": <double, optional, default 0.1>,\n"
+           "  \"dimension\": <uint, optional, default 64>,\n"
+           "  \"deleteOrigin\": <bool, optional, default false>\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -78,7 +84,7 @@ nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*
         };
     }
 
-    auto svoAsset = AssetConverter::cadToSvo(*cadAsset, dimension);
+    auto svoAsset = AssetConverter::cadToSvo(*cadAsset, precision, dimension);
     if (!svoAsset)
     {
         return {
@@ -91,6 +97,12 @@ nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*
 
     database.getProject().addAsset(svoAsset);
     int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
+
+    if (deleteOrigin)
+    {
+        database.getProject().removeAsset(static_cast<size_t>(assetIndex));
+        newIndex--;
+    }
 
     return {
         {    "type",    getType() },
@@ -110,6 +122,16 @@ void ConvertCadToSvoCommand::setAssetIndex(int newIndex)
     assetIndex = newIndex;
 }
 
+double ConvertCadToSvoCommand::getPrecision() const
+{
+    return precision;
+}
+
+void ConvertCadToSvoCommand::setPrecision(double newPrecision)
+{
+    precision = newPrecision;
+}
+
 uint32_t ConvertCadToSvoCommand::getDimension() const
 {
     return dimension;
@@ -118,4 +140,14 @@ uint32_t ConvertCadToSvoCommand::getDimension() const
 void ConvertCadToSvoCommand::setDimension(uint32_t newDimension)
 {
     dimension = newDimension;
+}
+
+bool ConvertCadToSvoCommand::getDeleteOrigin() const
+{
+    return deleteOrigin;
+}
+
+void ConvertCadToSvoCommand::setDeleteOrigin(bool shouldDelete)
+{
+    deleteOrigin = shouldDelete;
 }

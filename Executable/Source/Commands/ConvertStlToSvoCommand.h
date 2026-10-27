@@ -7,7 +7,7 @@ class ConvertStlToSvoCommand : public Command
 {
   public:
     ConvertStlToSvoCommand();
-    explicit ConvertStlToSvoCommand(int assetIndex, uint32_t dimension = 64);
+    explicit ConvertStlToSvoCommand(int assetIndex, uint32_t dimension = 64, bool deleteOrigin = false);
     explicit ConvertStlToSvoCommand(const nlohmann::json& json);
     virtual ~ConvertStlToSvoCommand();
 
@@ -21,8 +21,11 @@ class ConvertStlToSvoCommand : public Command
     void     setAssetIndex(int newIndex);
     uint32_t getDimension() const;
     void     setDimension(uint32_t newDimension);
+    bool     getDeleteOrigin() const;
+    void     setDeleteOrigin(bool shouldDelete);
 
   private:
-    int      assetIndex = -1;
-    uint32_t dimension  = 64;
+    int      assetIndex   = -1;
+    uint32_t dimension    = 64;
+    bool     deleteOrigin = false;
 };

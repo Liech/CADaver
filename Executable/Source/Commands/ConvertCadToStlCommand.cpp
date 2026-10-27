@@ -7,13 +7,17 @@
 
 ConvertCadToStlCommand::ConvertCadToStlCommand() {}
 
-ConvertCadToStlCommand::ConvertCadToStlCommand(int assetIndex)
+ConvertCadToStlCommand::ConvertCadToStlCommand(int assetIndex, double precision, bool deleteOrigin)
   : assetIndex(assetIndex)
+  , precision(precision)
+  , deleteOrigin(deleteOrigin)
 {
 }
 
 ConvertCadToStlCommand::ConvertCadToStlCommand(const nlohmann::json& json)
   : assetIndex(json.at("assetIndex").get<int>())
+  , precision(json.value("precision", 0.1))
+  , deleteOrigin(json.value("deleteOrigin", false))
 {
 }
 
@@ -38,7 +42,9 @@ std::string ConvertCadToStlCommand::getDescription() const
            "{\n"
            "  \"type\": \"ConvertCadToStl\",\n"
            "  \"version\": 1,\n"
-           "  \"assetIndex\": <int>\n"
+           "  \"assetIndex\": <int>,\n"
+           "  \"precision\": <double, optional, default 0.1>,\n"
+           "  \"deleteOrigin\": <bool, optional, default false>\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -75,7 +81,7 @@ nlohmann::json ConvertCadToStlCommand::execute(Database& database, std::istream*
         };
     }
 
-    auto stlAsset = AssetConverter::cadToStl(*cadAsset);
+    auto stlAsset = AssetConverter::cadToStl(*cadAsset, precision);
     if (!stlAsset)
     {
         return {
@@ -88,6 +94,12 @@ nlohmann::json ConvertCadToStlCommand::execute(Database& database, std::istream*
 
     database.getProject().addAsset(stlAsset);
     int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
+
+    if (deleteOrigin)
+    {
+        database.getProject().removeAsset(static_cast<size_t>(assetIndex));
+        newIndex--;
+    }
 
     return {
         {    "type",    getType() },
@@ -105,4 +117,24 @@ int ConvertCadToStlCommand::getAssetIndex() const
 void ConvertCadToStlCommand::setAssetIndex(int newIndex)
 {
     assetIndex = newIndex;
+}
+
+double ConvertCadToStlCommand::getPrecision() const
+{
+    return precision;
+}
+
+void ConvertCadToStlCommand::setPrecision(double newPrecision)
+{
+    precision = newPrecision;
+}
+
+bool ConvertCadToStlCommand::getDeleteOrigin() const
+{
+    return deleteOrigin;
+}
+
+void ConvertCadToStlCommand::setDeleteOrigin(bool shouldDelete)
+{
+    deleteOrigin = shouldDelete;
 }

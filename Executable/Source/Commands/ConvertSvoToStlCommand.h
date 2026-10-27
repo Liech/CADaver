@@ -7,7 +7,7 @@ class ConvertSvoToStlCommand : public Command
 {
   public:
     ConvertSvoToStlCommand();
-    explicit ConvertSvoToStlCommand(int assetIndex);
+    explicit ConvertSvoToStlCommand(int assetIndex, int targetDepth = -1, bool deleteOrigin = false);
     explicit ConvertSvoToStlCommand(const nlohmann::json& json);
     virtual ~ConvertSvoToStlCommand();
 
@@ -19,7 +19,13 @@ class ConvertSvoToStlCommand : public Command
 
     int  getAssetIndex() const;
     void setAssetIndex(int newIndex);
+    int  getTargetDepth() const;
+    void setTargetDepth(int newDepth);
+    bool getDeleteOrigin() const;
+    void setDeleteOrigin(bool shouldDelete);
 
   private:
-    int assetIndex = -1;
+    int  assetIndex   = -1;
+    int  targetDepth  = -1;
+    bool deleteOrigin = false;
 };

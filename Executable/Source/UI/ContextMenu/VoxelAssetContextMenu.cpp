@@ -5,6 +5,7 @@
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Library/Util/SaveFileDialog.h"
+#include "UI/Converter/SvoToStlConversionModal.h"
 
 #include <filesystem>
 #include <fstream>
@@ -29,21 +30,34 @@ void VoxelAssetContextMenu::render(Asset& asset)
 
     if (ImGui::BeginMenu("Converter"))
     {
-        if (ImGui::MenuItem("STL (Blocky)"))
+        if (ImGui::MenuItem("STL (Blocky)..."))
         {
-            int targetIndex = getAssetIndex();
-            Defer::getInstance().defer(
-              [targetIndex]()
-              {
-                  GatedDatabase::getInstance().execute({
-                    {       "type", "ConvertSvoToStl" },
-                    {    "version",                 1 },
-                    { "assetIndex",       targetIndex }
-                  });
-              });
+            if (svoToStlModal)
+            {
+                int maxDepth = 6;
+                if (voxelAsset->getSVO())
+                {
+                    uint32_t dim = voxelAsset->getSVO()->getDimension();
+                    uint32_t d   = 0;
+                    while ((1u << d) < dim)
+                    {
+                        d++;
+                    }
+                    if (d > 0)
+                    {
+                        maxDepth = static_cast<int>(d);
+                    }
+                }
+                svoToStlModal->open(getAssetIndex(), voxelAsset->getName(), maxDepth);
+            }
         }
         ImGui::EndMenu();
     }
+}
+
+void VoxelAssetContextMenu::setSvoToStlModal(SvoToStlConversionModal* modal)
+{
+    svoToStlModal = modal;
 }
 
 void VoxelAssetContextMenu::save(VoxelAsset& asset)
@@ -88,20 +102,18 @@ void VoxelAssetContextMenu::save(VoxelAsset& asset)
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
 
-        Defer::getInstance().defer(
-          [targetIndex, savePath]()
-          {
-              std::ofstream fileStream(savePath, std::ios::binary);
-              GatedDatabase::getInstance().execute(
-                {
-                  {       "type", "SaveVoxelAsset" },
-                  {    "version",                1 },
-                  { "assetIndex",      targetIndex }
-              },
-                nullptr,
-                &fileStream);
-          });
-
-        asset.setFilePath(savePath);
+        if (targetIndex >= 0)
+        {
+            Defer::getInstance().defer(
+              [targetIndex, savePath]()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {       "type", "SaveVoxelAsset" },
+                    {    "version",                1 },
+                    { "assetIndex",      targetIndex },
+                    {   "filePath",         savePath }
+                  });
+              });
+        }
     }
 }

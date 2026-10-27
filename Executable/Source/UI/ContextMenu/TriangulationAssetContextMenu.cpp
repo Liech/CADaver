@@ -4,6 +4,7 @@
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Library/Util/SaveFileDialog.h"
+#include "UI/Converter/StlToSvoConversionModal.h"
 
 #include <filesystem>
 #include <fstream>
@@ -28,21 +29,20 @@ void TriangulationAssetContextMenu::render(Asset& asset)
 
     if (ImGui::BeginMenu("Converter"))
     {
-        if (ImGui::MenuItem("SVO"))
+        if (ImGui::MenuItem("SVO..."))
         {
-            int targetIndex = getAssetIndex();
-            Defer::getInstance().defer(
-              [targetIndex]()
-              {
-                  GatedDatabase::getInstance().execute({
-                    {       "type", "ConvertStlToSvo" },
-                    {    "version",                 1 },
-                    { "assetIndex",       targetIndex }
-                  });
-              });
+            if (stlToSvoModal)
+            {
+                stlToSvoModal->open(getAssetIndex(), triAsset->getName());
+            }
         }
         ImGui::EndMenu();
     }
+}
+
+void TriangulationAssetContextMenu::setStlToSvoModal(StlToSvoConversionModal* modal)
+{
+    stlToSvoModal = modal;
 }
 
 void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
@@ -61,7 +61,6 @@ void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
         defaultName += ".stl";
     }
     dialog.setSaveFileName(defaultName);
-
     dialog.execute();
 
     if (!dialog.isCancled() && !dialog.getResultPath().empty())
@@ -78,20 +77,18 @@ void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
 
-        Defer::getInstance().defer(
-          [targetIndex, savePath]()
-          {
-              std::ofstream fileStream(savePath, std::ios::binary);
-              GatedDatabase::getInstance().execute(
-                {
-                  {       "type", "SaveStlAsset" },
-                  {    "version",              1 },
-                  { "assetIndex",    targetIndex }
-              },
-                nullptr,
-                &fileStream);
-          });
-
-        asset.markClean();
+        if (targetIndex >= 0)
+        {
+            Defer::getInstance().defer(
+              [targetIndex, savePath]()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {       "type", "SaveStlAsset" },
+                    {    "version",              1 },
+                    { "assetIndex",    targetIndex },
+                    {   "filePath",       savePath }
+                  });
+              });
+        }
     }
 }

@@ -86,6 +86,7 @@ void ProjectWindow::render(const Project& project)
         if (contextMenuFactory)
         {
             contextMenuFactory->renderCloseModal();
+            contextMenuFactory->renderConversionModals();
         }
 
         renderClearModal();

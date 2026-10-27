@@ -19,20 +19,22 @@ AssetConverter::AssetConverter() {}
 
 AssetConverter::~AssetConverter() {}
 
-std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& asset)
+std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& asset, double precision)
 {
-    const CADacomb::Triangulation*           tri = asset.getTriangulation();
     std::unique_ptr<CADacomb::Triangulation> newTri;
 
-    if (tri && !tri->vertices.empty())
+    if (asset.getCadShape())
     {
-        newTri           = std::make_unique<CADacomb::Triangulation>();
-        newTri->vertices = tri->vertices;
-        newTri->indices  = tri->indices;
+        newTri = Library::TriangulateOperation::triangulate(*asset.getCadShape(), precision);
     }
-    else if (asset.getCadShape())
+    else if (const CADacomb::Triangulation* tri = asset.getTriangulation())
     {
-        newTri = Library::TriangulateOperation::triangulate(*asset.getCadShape(), 0.1);
+        if (!tri->vertices.empty())
+        {
+            newTri           = std::make_unique<CADacomb::Triangulation>();
+            newTri->vertices = tri->vertices;
+            newTri->indices  = tri->indices;
+        }
     }
 
     if (!newTri || newTri->vertices.empty())
@@ -51,9 +53,9 @@ std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& ass
     return std::make_shared<TriangulationAsset>(newName, std::move(newTri));
 }
 
-std::shared_ptr<VoxelAsset> AssetConverter::cadToSvo(const CadAsset& asset, uint32_t dimension)
+std::shared_ptr<VoxelAsset> AssetConverter::cadToSvo(const CadAsset& asset, double precision, uint32_t dimension)
 {
-    auto stlAsset = cadToStl(asset);
+    auto stlAsset = cadToStl(asset, precision);
     if (!stlAsset)
     {
         return nullptr;
@@ -102,7 +104,7 @@ std::shared_ptr<VoxelAsset> AssetConverter::stlToSvo(const TriangulationAsset& a
     return std::make_shared<VoxelAsset>(newName, "", std::move(svo), bounds);
 }
 
-std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlBlocky(const VoxelAsset& asset)
+std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlBlocky(const VoxelAsset& asset, int targetDepth)
 {
     const CADacomb::SVO<bool>* svo = asset.getSVO();
     if (!svo || svo->getDimension() == 0)
@@ -114,6 +116,7 @@ std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlBlocky(const VoxelAs
     const auto&                aabb = asset.getAABB();
     options.origin                  = aabb.getMin();
     options.size                    = aabb.getSize();
+    options.targetDepth             = targetDepth;
 
     auto triangulation = CADacomb::SVOBlockyTriangulation::triangulate(*svo, options);
     if (!triangulation)

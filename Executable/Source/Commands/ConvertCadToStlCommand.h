@@ -7,7 +7,7 @@ class ConvertCadToStlCommand : public Command
 {
   public:
     ConvertCadToStlCommand();
-    explicit ConvertCadToStlCommand(int assetIndex);
+    explicit ConvertCadToStlCommand(int assetIndex, double precision = 0.1, bool deleteOrigin = false);
     explicit ConvertCadToStlCommand(const nlohmann::json& json);
     virtual ~ConvertCadToStlCommand();
 
@@ -17,9 +17,15 @@ class ConvertCadToStlCommand : public Command
 
     virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream) override;
 
-    int  getAssetIndex() const;
-    void setAssetIndex(int newIndex);
+    int    getAssetIndex() const;
+    void   setAssetIndex(int newIndex);
+    double getPrecision() const;
+    void   setPrecision(double newPrecision);
+    bool   getDeleteOrigin() const;
+    void   setDeleteOrigin(bool shouldDelete);
 
   private:
-    int assetIndex = -1;
+    int    assetIndex   = -1;
+    double precision    = 0.1;
+    bool   deleteOrigin = false;
 };

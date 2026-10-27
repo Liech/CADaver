@@ -7,15 +7,17 @@
 
 ConvertStlToSvoCommand::ConvertStlToSvoCommand() {}
 
-ConvertStlToSvoCommand::ConvertStlToSvoCommand(int assetIndex, uint32_t dimension)
+ConvertStlToSvoCommand::ConvertStlToSvoCommand(int assetIndex, uint32_t dimension, bool deleteOrigin)
   : assetIndex(assetIndex)
   , dimension(dimension)
+  , deleteOrigin(deleteOrigin)
 {
 }
 
 ConvertStlToSvoCommand::ConvertStlToSvoCommand(const nlohmann::json& json)
   : assetIndex(json.at("assetIndex").get<int>())
   , dimension(json.value("dimension", 64u))
+  , deleteOrigin(json.value("deleteOrigin", false))
 {
 }
 
@@ -41,7 +43,8 @@ std::string ConvertStlToSvoCommand::getDescription() const
            "  \"type\": \"ConvertStlToSvo\",\n"
            "  \"version\": 1,\n"
            "  \"assetIndex\": <int>,\n"
-           "  \"dimension\": <uint, optional, default 64>\n"
+           "  \"dimension\": <uint, optional, default 64>,\n"
+           "  \"deleteOrigin\": <bool, optional, default false>\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -92,6 +95,12 @@ nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*
     database.getProject().addAsset(svoAsset);
     int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
 
+    if (deleteOrigin)
+    {
+        database.getProject().removeAsset(static_cast<size_t>(assetIndex));
+        newIndex--;
+    }
+
     return {
         {    "type",    getType() },
         { "version", getVersion() },
@@ -118,4 +127,14 @@ uint32_t ConvertStlToSvoCommand::getDimension() const
 void ConvertStlToSvoCommand::setDimension(uint32_t newDimension)
 {
     dimension = newDimension;
+}
+
+bool ConvertStlToSvoCommand::getDeleteOrigin() const
+{
+    return deleteOrigin;
+}
+
+void ConvertStlToSvoCommand::setDeleteOrigin(bool shouldDelete)
+{
+    deleteOrigin = shouldDelete;
 }

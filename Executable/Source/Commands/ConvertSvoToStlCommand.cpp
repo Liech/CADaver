@@ -7,13 +7,17 @@
 
 ConvertSvoToStlCommand::ConvertSvoToStlCommand() {}
 
-ConvertSvoToStlCommand::ConvertSvoToStlCommand(int assetIndex)
+ConvertSvoToStlCommand::ConvertSvoToStlCommand(int assetIndex, int targetDepth, bool deleteOrigin)
   : assetIndex(assetIndex)
+  , targetDepth(targetDepth)
+  , deleteOrigin(deleteOrigin)
 {
 }
 
 ConvertSvoToStlCommand::ConvertSvoToStlCommand(const nlohmann::json& json)
   : assetIndex(json.at("assetIndex").get<int>())
+  , targetDepth(json.value("targetDepth", -1))
+  , deleteOrigin(json.value("deleteOrigin", false))
 {
 }
 
@@ -38,7 +42,9 @@ std::string ConvertSvoToStlCommand::getDescription() const
            "{\n"
            "  \"type\": \"ConvertSvoToStl\",\n"
            "  \"version\": 1,\n"
-           "  \"assetIndex\": <int>\n"
+           "  \"assetIndex\": <int>,\n"
+           "  \"targetDepth\": <int, optional, default -1>,\n"
+           "  \"deleteOrigin\": <bool, optional, default false>\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -75,7 +81,7 @@ nlohmann::json ConvertSvoToStlCommand::execute(Database& database, std::istream*
         };
     }
 
-    auto stlAsset = AssetConverter::svoToStlBlocky(*voxelAsset);
+    auto stlAsset = AssetConverter::svoToStlBlocky(*voxelAsset, targetDepth);
     if (!stlAsset)
     {
         return {
@@ -88,6 +94,12 @@ nlohmann::json ConvertSvoToStlCommand::execute(Database& database, std::istream*
 
     database.getProject().addAsset(stlAsset);
     int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
+
+    if (deleteOrigin)
+    {
+        database.getProject().removeAsset(static_cast<size_t>(assetIndex));
+        newIndex--;
+    }
 
     return {
         {    "type",    getType() },
@@ -105,4 +117,24 @@ int ConvertSvoToStlCommand::getAssetIndex() const
 void ConvertSvoToStlCommand::setAssetIndex(int newIndex)
 {
     assetIndex = newIndex;
+}
+
+int ConvertSvoToStlCommand::getTargetDepth() const
+{
+    return targetDepth;
+}
+
+void ConvertSvoToStlCommand::setTargetDepth(int newDepth)
+{
+    targetDepth = newDepth;
+}
+
+bool ConvertSvoToStlCommand::getDeleteOrigin() const
+{
+    return deleteOrigin;
+}
+
+void ConvertSvoToStlCommand::setDeleteOrigin(bool shouldDelete)
+{
+    deleteOrigin = shouldDelete;
 }

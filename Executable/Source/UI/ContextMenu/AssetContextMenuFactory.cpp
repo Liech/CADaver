@@ -7,13 +7,23 @@
 #include "Database/Asset.h"
 #include "Database/AssetType.h"
 #include "TriangulationAssetContextMenu.h"
+#include "UI/Converter/CadToStlConversionModal.h"
+#include "UI/Converter/CadToSvoConversionModal.h"
+#include "UI/Converter/StlToSvoConversionModal.h"
+#include "UI/Converter/SvoToStlConversionModal.h"
 #include "VoxelAssetContextMenu.h"
 
 #include <cstdint>
 #include <imgui.h>
 #include <string>
 
-AssetContextMenuFactory::AssetContextMenuFactory() {}
+AssetContextMenuFactory::AssetContextMenuFactory()
+  : cadToStlModal(std::make_unique<CadToStlConversionModal>())
+  , cadToSvoModal(std::make_unique<CadToSvoConversionModal>())
+  , stlToSvoModal(std::make_unique<StlToSvoConversionModal>())
+  , svoToStlModal(std::make_unique<SvoToStlConversionModal>())
+{
+}
 
 AssetContextMenuFactory::~AssetContextMenuFactory() {}
 
@@ -26,15 +36,22 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
 
     if (asset->getType() == AssetType::Triangulation)
     {
-        return std::make_unique<TriangulationAssetContextMenu>();
+        auto menu = std::make_unique<TriangulationAssetContextMenu>();
+        menu->setStlToSvoModal(stlToSvoModal.get());
+        return menu;
     }
     else if (asset->getType() == AssetType::Cad)
     {
-        return std::make_unique<CadAssetContextMenu>();
+        auto menu = std::make_unique<CadAssetContextMenu>();
+        menu->setCadToStlModal(cadToStlModal.get());
+        menu->setCadToSvoModal(cadToSvoModal.get());
+        return menu;
     }
     else if (asset->getType() == AssetType::Voxel)
     {
-        return std::make_unique<VoxelAssetContextMenu>();
+        auto menu = std::make_unique<VoxelAssetContextMenu>();
+        menu->setSvoToStlModal(svoToStlModal.get());
+        return menu;
     }
 
     return nullptr;
@@ -111,5 +128,25 @@ void AssetContextMenuFactory::renderCloseModal()
         }
 
         ImGui::EndPopup();
+    }
+}
+
+void AssetContextMenuFactory::renderConversionModals()
+{
+    if (cadToStlModal)
+    {
+        cadToStlModal->render();
+    }
+    if (cadToSvoModal)
+    {
+        cadToSvoModal->render();
+    }
+    if (stlToSvoModal)
+    {
+        stlToSvoModal->render();
+    }
+    if (svoToStlModal)
+    {
+        svoToStlModal->render();
     }
 }

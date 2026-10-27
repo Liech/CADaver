@@ -139,6 +139,24 @@ set(UI_Commands_Files
 )
 source_group("Source/UI/Commands" FILES ${UI_Commands_Files})
 
+set(UI_Component_Files
+    "Source/UI/Component/VoxelResolutionComboBox.h"
+    "Source/UI/Component/VoxelResolutionComboBox.cpp"
+)
+source_group("Source/UI/Component" FILES ${UI_Component_Files})
+
+set(UI_Converter_Files
+    "Source/UI/Converter/CadToStlConversionModal.h"
+    "Source/UI/Converter/CadToStlConversionModal.cpp"
+    "Source/UI/Converter/CadToSvoConversionModal.h"
+    "Source/UI/Converter/CadToSvoConversionModal.cpp"
+    "Source/UI/Converter/StlToSvoConversionModal.h"
+    "Source/UI/Converter/StlToSvoConversionModal.cpp"
+    "Source/UI/Converter/SvoToStlConversionModal.h"
+    "Source/UI/Converter/SvoToStlConversionModal.cpp"
+)
+source_group("Source/UI/Converter" FILES ${UI_Converter_Files})
+
 set(UI_ContextMenu_Files
     "Source/UI/ContextMenu/AssetContextMenu.h"
     "Source/UI/ContextMenu/AssetContextMenu.cpp"
@@ -175,6 +193,8 @@ set(ALL_FILES
     ${UI_Preferences_Files}
     ${UI_About_Files}
     ${UI_Commands_Files}
+    ${UI_Component_Files}
+    ${UI_Converter_Files}
     ${UI_ContextMenu_Files}
     ${UI_Project_Files}
     ${Command_Files}

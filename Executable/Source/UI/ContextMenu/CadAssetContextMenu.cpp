@@ -4,6 +4,8 @@
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/CadAsset.h"
 #include "Library/Util/SaveFileDialog.h"
+#include "UI/Converter/CadToStlConversionModal.h"
+#include "UI/Converter/CadToSvoConversionModal.h"
 
 #include <filesystem>
 #include <imgui.h>
@@ -27,34 +29,32 @@ void CadAssetContextMenu::render(Asset& asset)
 
     if (ImGui::BeginMenu("Converter"))
     {
-        if (ImGui::MenuItem("STL"))
+        if (ImGui::MenuItem("STL..."))
         {
-            int targetIndex = getAssetIndex();
-            Defer::getInstance().defer(
-              [targetIndex]()
-              {
-                  GatedDatabase::getInstance().execute({
-                    {       "type", "ConvertCadToStl" },
-                    {    "version",                 1 },
-                    { "assetIndex",       targetIndex }
-                  });
-              });
+            if (cadToStlModal)
+            {
+                cadToStlModal->open(getAssetIndex(), cadAsset->getName());
+            }
         }
-        if (ImGui::MenuItem("SVO"))
+        if (ImGui::MenuItem("SVO..."))
         {
-            int targetIndex = getAssetIndex();
-            Defer::getInstance().defer(
-              [targetIndex]()
-              {
-                  GatedDatabase::getInstance().execute({
-                    {       "type", "ConvertCadToSvo" },
-                    {    "version",                 1 },
-                    { "assetIndex",       targetIndex }
-                  });
-              });
+            if (cadToSvoModal)
+            {
+                cadToSvoModal->open(getAssetIndex(), cadAsset->getName());
+            }
         }
         ImGui::EndMenu();
     }
+}
+
+void CadAssetContextMenu::setCadToStlModal(CadToStlConversionModal* modal)
+{
+    cadToStlModal = modal;
+}
+
+void CadAssetContextMenu::setCadToSvoModal(CadToSvoConversionModal* modal)
+{
+    cadToSvoModal = modal;
 }
 
 void CadAssetContextMenu::save(CadAsset& asset)
@@ -99,18 +99,18 @@ void CadAssetContextMenu::save(CadAsset& asset)
             targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
         }
 
-        Defer::getInstance().defer(
-          [targetIndex, savePath]()
-          {
-              GatedDatabase::getInstance().execute({
-                {       "type", "SaveStepAsset" },
-                {    "version",               1 },
-                { "assetIndex",     targetIndex },
-                {   "filePath",        savePath }
+        if (targetIndex >= 0)
+        {
+            Defer::getInstance().defer(
+              [targetIndex, savePath]()
+              {
+                  GatedDatabase::getInstance().execute({
+                    {       "type", "SaveStepAsset" },
+                    {    "version",               1 },
+                    { "assetIndex",     targetIndex },
+                    {   "filePath",        savePath }
+                  });
               });
-          });
-
-        asset.setFilePath(savePath);
-        asset.markClean();
+        }
     }
 }
