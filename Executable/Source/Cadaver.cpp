@@ -183,6 +183,14 @@ void Cadaver::onResize(const glm::ivec2& newResolution)
 
 void Cadaver::onKey(const Vulcant::VulcantInputValue& key)
 {
+    if (ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureMouse)
+    {
+        if (key == Vulcant::VulcantInputValue::MouseWheelUp || key == Vulcant::VulcantInputValue::MouseWheelDown)
+        {
+            return;
+        }
+    }
+
     if (camera)
     {
         camera->keyEvent(key);

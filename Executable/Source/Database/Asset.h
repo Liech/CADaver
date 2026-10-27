@@ -17,6 +17,8 @@ class Asset
     AssetType   getType() const;
     std::string getTypeName() const;
 
+    virtual size_t getSizeInBytes() const = 0;
+
   private:
     std::string name;
     AssetType   type;

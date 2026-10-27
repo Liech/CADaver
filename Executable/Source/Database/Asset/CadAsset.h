@@ -35,6 +35,8 @@ class CadAsset : public Asset
     const glm::vec3& getMeshColor() const;
     void             setMeshColor(const glm::vec3& color);
 
+    size_t getSizeInBytes() const override;
+
     bool isDirty() const;
     void markDirty();
     void markClean();

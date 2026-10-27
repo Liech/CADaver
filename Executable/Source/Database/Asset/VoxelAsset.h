@@ -25,6 +25,8 @@ class VoxelAsset : public Asset
     const std::string& getFilePath() const;
     void               setFilePath(const std::string& path);
 
+    size_t getSizeInBytes() const override;
+
     bool isDirty() const;
     void markClean();
 

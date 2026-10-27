@@ -55,6 +55,23 @@ void VoxelAsset::setFilePath(const std::string& path)
     dirty    = true;
 }
 
+size_t VoxelAsset::getSizeInBytes() const
+{
+    size_t size = sizeof(VoxelAsset);
+    size += getName().capacity();
+    size += filePath.capacity();
+
+    if (svo)
+    {
+        size += sizeof(CADacomb::SVO<bool>);
+        size += svo->getRaw().capacity() * sizeof(CADacomb::SVONode<bool>);
+        size += svo->getParents().capacity() * sizeof(uint32_t);
+        size += svo->getFreeBlocks().capacity() * sizeof(uint32_t);
+    }
+
+    return size;
+}
+
 bool VoxelAsset::isDirty() const
 {
     return dirty;
@@ -64,3 +81,17 @@ void VoxelAsset::markClean()
 {
     dirty = false;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("VoxelAsset/getSizeInBytes")
+{
+    VoxelAsset asset("TestVoxel");
+    REQUIRE(asset.getSizeInBytes() >= sizeof(VoxelAsset));
+
+    auto svo = std::make_unique<CADacomb::SVO<bool>>(16, false);
+    asset.setSVO(std::move(svo));
+    REQUIRE(asset.getSizeInBytes() > sizeof(VoxelAsset));
+}
+#endif

@@ -82,6 +82,46 @@ void CadAsset::setMeshColor(const glm::vec3& color)
     dirty     = true;
 }
 
+size_t CadAsset::getSizeInBytes() const
+{
+    size_t size = sizeof(CadAsset);
+    size += getName().capacity();
+    size += filePath.capacity();
+
+    if (triangulation)
+    {
+        size += sizeof(CADacomb::Triangulation);
+        size += triangulation->vertices.capacity() * sizeof(glm::dvec3);
+        size += triangulation->indices.capacity() * sizeof(size_t);
+    }
+
+    if (cadShape)
+    {
+        std::vector<const Library::CADShape*> stack;
+        stack.push_back(cadShape.get());
+        while (!stack.empty())
+        {
+            const Library::CADShape* current = stack.back();
+            stack.pop_back();
+            if (current)
+            {
+                size += sizeof(Library::CADShape);
+                const auto& children = current->getChildren();
+                size += children.capacity() * sizeof(std::shared_ptr<Library::CADShape>);
+                for (const auto& child : children)
+                {
+                    if (child)
+                    {
+                        stack.push_back(child.get());
+                    }
+                }
+            }
+        }
+    }
+
+    return size;
+}
+
 bool CadAsset::isDirty() const
 {
     return dirty;
@@ -109,3 +149,13 @@ void CadAsset::triangulateShape()
     }
     dirty = true;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("CadAsset/getSizeInBytes")
+{
+    CadAsset asset("TestCad");
+    REQUIRE(asset.getSizeInBytes() >= sizeof(CadAsset));
+}
+#endif
