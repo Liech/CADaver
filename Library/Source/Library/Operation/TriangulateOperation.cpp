@@ -59,14 +59,14 @@ namespace Library
                     if (!reversed)
                     {
                         result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(a))]);
-                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(c))]);
                         result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(b))]);
+                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(c))]);
                     }
                     else
                     {
                         result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(a))]);
-                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(b))]);
                         result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(c))]);
+                        result->indices.push_back(vertexMap[pointToTuple(triangulation->Node(b))]);
                     }
                 }
             }
