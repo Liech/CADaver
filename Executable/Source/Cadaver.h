@@ -28,6 +28,7 @@ class FileMenu;
 class EditMenu;
 class PreferencesWindow;
 class ProjectWindow;
+class ViewCubeWidget;
 class Renderer;
 
 // Main application class coordinating windowing, UI, renderer, project, and asset rendering.
@@ -70,6 +71,7 @@ class Cadaver
     std::unique_ptr<ProjectWindow>                  projectWindow;
     std::unique_ptr<FileMenu>                       fileMenu;
     std::unique_ptr<EditMenu>                       editMenu;
+    std::unique_ptr<ViewCubeWidget>                 viewCubeWidget;
     std::unique_ptr<Vulcant::Toolkit::Camera>       camera;
     size_t                                          lastAssetCount    = 0;
     int                                             currentCameraMode = -1;

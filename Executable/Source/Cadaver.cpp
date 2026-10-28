@@ -13,6 +13,7 @@
 #include "Rendering/Renderer.h"
 #include "UI/About/AboutWindow.h"
 #include "UI/Commands/CommandsWindow.h"
+#include "UI/Component/ViewCubeWidget.h"
 #include "UI/Menu/EditMenu.h"
 #include "UI/Menu/FileMenu.h"
 #include "UI/Preferences/PreferencesWindow.h"
@@ -30,8 +31,10 @@
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "Vulcant/Wrapper/Window.h"
 
-#include <algorithm>
 #include <imgui.h>
+
+#include <ImGuizmo.h>
+#include <algorithm>
 
 void Cadaver::run()
 {
@@ -328,6 +331,7 @@ void Cadaver::prepare()
     projectWindow  = std::make_unique<ProjectWindow>();
     fileMenu       = std::make_unique<FileMenu>();
     editMenu       = std::make_unique<EditMenu>();
+    viewCubeWidget = std::make_unique<ViewCubeWidget>();
 
     assetRenderFactory = std::make_unique<AssetRenderFactory>();
     renderer           = std::make_unique<Renderer>(device, resolution, GatedDatabase::getInstance());
@@ -347,6 +351,9 @@ void Cadaver::recordCommand()
 void Cadaver::renderImGui()
 {
     ui->newFrame();
+
+    ImGuizmo::BeginFrame();
+    ImGuizmo::SetRect(0.0f, 0.0f, static_cast<float>(resolution.x), static_cast<float>(resolution.y));
 
     const auto& database    = GatedDatabase::getInstance().get();
     const auto& project     = database.getProject();
@@ -415,5 +422,10 @@ void Cadaver::renderImGui()
     if (commandsWindow)
     {
         commandsWindow->render();
+    }
+
+    if (viewCubeWidget && camera)
+    {
+        viewCubeWidget->render(camera.get(), resolution, [this]() { resetCamera(); });
     }
 }

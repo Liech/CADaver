@@ -5,7 +5,10 @@ find_package(nlohmann_json REQUIRED)
 find_package(glm REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui REQUIRED)
-find_package(Vulcant CONFIG REQUIRED)
+find_package(imguizmo CONFIG REQUIRED)
+if(NOT TARGET Vulcant::Vulcant)
+    find_package(Vulcant CONFIG REQUIRED)
+endif()
 
 set(Source_Files
     "Source/main.cpp"
@@ -182,6 +185,8 @@ source_group("Source/UI/Commands" FILES ${UI_Commands_Files})
 set(UI_Component_Files
     "Source/UI/Component/VoxelResolutionComboBox.h"
     "Source/UI/Component/VoxelResolutionComboBox.cpp"
+    "Source/UI/Component/ViewCubeWidget.h"
+    "Source/UI/Component/ViewCubeWidget.cpp"
 )
 source_group("Source/UI/Component" FILES ${UI_Component_Files})
 
@@ -258,6 +263,7 @@ target_link_libraries(CadaverExe
     Vulcant::Vulcant
     VulcantToolkit
     imgui::imgui
+    imguizmo::imguizmo
     glfw
 )
 
