@@ -32,6 +32,25 @@ bool CameraPreferencesView::render(CameraPreferences& preferences, Vulcant::Tool
 
     ImGui::Spacing();
 
+    int projMode = (camera && camera->isOrthographic()) ? 1 : 0;
+    if (ImGui::RadioButton("Perspective", &projMode, 0))
+    {
+        if (camera)
+        {
+            camera->setOrthographic(false);
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Orthogonal", &projMode, 1))
+    {
+        if (camera)
+        {
+            camera->setOrthographic(true);
+        }
+    }
+
+    ImGui::Spacing();
+
     if (ImGui::Button("Reset Camera"))
     {
         preferences.requestReset();

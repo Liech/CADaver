@@ -1,10 +1,8 @@
 #include "Cadaver.h"
 
+#include "Camera/CameraController.h"
 #include "Commands/Defer.h"
 
-#include "Database/Asset/CadAsset.h"
-#include "Database/Asset/TriangulationAsset.h"
-#include "Database/Asset/VoxelAsset.h"
 #include "Database/Preferences/CameraPreferences.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
@@ -25,8 +23,7 @@
 #include "Vulcant/Interface/VulcantInputValue.h"
 #include "Vulcant/Interface/VulcantUi.h"
 #include "Vulcant/Interface/VulcantWindow.h"
-#include "Vulcant/Toolkit/ArcCam.h"
-#include "Vulcant/Toolkit/Freecam.h"
+#include "Vulcant/Toolkit/Camera.h"
 #include "Vulcant/Toolkit/SceneData.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "Vulcant/Wrapper/Window.h"
@@ -79,9 +76,9 @@ Cadaver::~Cadaver()
 void Cadaver::changeResolution(const glm::ivec2& newResolution)
 {
     resolution = newResolution;
-    if (camera)
+    if (cameraController)
     {
-        camera->setAspect(static_cast<float>(resolution.x) / static_cast<float>(resolution.y));
+        cameraController->updateAspect(resolution);
     }
     if (renderer)
     {
@@ -118,16 +115,19 @@ void Cadaver::onLogic(double delta)
 {
     Defer::getInstance().process();
 
-    if (camera)
+    if (cameraController)
     {
-        camera->tick(delta);
+        cameraController->tick(delta);
     }
 
     const auto& project = GatedDatabase::getInstance().get().getProject();
     if (project.getAssetCount() != lastAssetCount)
     {
         lastAssetCount = project.getAssetCount();
-        frameCameraOnProject();
+        if (cameraController)
+        {
+            cameraController->frameOnProject(project);
+        }
     }
 
     renderImGui();
@@ -141,9 +141,9 @@ void Cadaver::onRender()
     }
 
     Vulcant::Toolkit::SceneData sceneData{};
-    if (camera)
+    if (cameraController)
     {
-        sceneData = camera->getScene();
+        sceneData = cameraController->getSceneData();
     }
 
     const auto& preferences = GatedDatabase::getInstance().get().getPreferences();
@@ -195,125 +195,9 @@ void Cadaver::onKey(const Vulcant::VulcantInputValue& key)
         }
     }
 
-    if (camera)
+    if (cameraController)
     {
-        camera->keyEvent(key);
-    }
-}
-
-void Cadaver::frameCameraOnProject()
-{
-    glm::dvec3 minBound(1e9);
-    glm::dvec3 maxBound(-1e9);
-    bool       hasBounds = false;
-
-    const auto& project = GatedDatabase::getInstance().get().getProject();
-    for (size_t i = 0; i < project.getAssetCount(); i++)
-    {
-        auto asset = project.getAsset(i);
-        if (asset && asset->getType() == AssetType::Triangulation)
-        {
-            auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(asset);
-            if (triAsset && triAsset->getTriangulation() && !triAsset->getTriangulation()->vertices.empty())
-            {
-                auto [pos, size] = triAsset->getTriangulation()->getAABB();
-                minBound         = glm::min(minBound, pos);
-                maxBound         = glm::max(maxBound, pos + size);
-                hasBounds        = true;
-            }
-        }
-        else if (asset && asset->getType() == AssetType::Cad)
-        {
-            auto cadAsset = std::dynamic_pointer_cast<CadAsset>(asset);
-            if (cadAsset && cadAsset->getTriangulation() && !cadAsset->getTriangulation()->vertices.empty())
-            {
-                auto [pos, size] = cadAsset->getTriangulation()->getAABB();
-                minBound         = glm::min(minBound, pos);
-                maxBound         = glm::max(maxBound, pos + size);
-                hasBounds        = true;
-            }
-        }
-        else if (asset && asset->getType() == AssetType::Voxel)
-        {
-            auto voxelAsset = std::dynamic_pointer_cast<VoxelAsset>(asset);
-            if (voxelAsset && voxelAsset->getSVO())
-            {
-                minBound  = glm::min(minBound, voxelAsset->getAABB().getMin());
-                maxBound  = glm::max(maxBound, voxelAsset->getAABB().getMax());
-                hasBounds = true;
-            }
-        }
-    }
-
-    if (hasBounds && camera)
-    {
-        glm::dvec3 center = 0.5 * (minBound + maxBound);
-        glm::dvec3 size   = maxBound - minBound;
-        double     maxDim = std::max({ size.x, size.y, size.z });
-        double     dist   = (maxDim > 1e-4) ? maxDim * 1.8 : 5.0;
-
-        glm::dvec3 offset = glm::normalize(glm::dvec3(0.0, 3.0, 5.0)) * dist;
-        camera->setTarget(center);
-        camera->setEye(center + offset);
-        camera->setZNear(static_cast<float>(std::max(0.01, dist * 0.005)));
-        camera->setZFar(static_cast<float>(std::max(2000.0, dist * 50.0)));
-    }
-}
-
-void Cadaver::setCameraMode(int mode)
-{
-    if (!window)
-    {
-        return;
-    }
-
-    const auto& camPrefs = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences();
-    glm::dvec3  eye      = camera ? camera->getEye() : glm::dvec3(0.0, 3.0, 5.0);
-    glm::dvec3  target   = camera ? camera->getTarget() : glm::dvec3(0.0, 0.0, 0.0);
-    glm::dvec3  up       = camera ? camera->getUp() : glm::dvec3(0.0, 1.0, 0.0);
-    float       zNear    = camPrefs.getNearPlane();
-    float       zFar     = camPrefs.getFarPlane();
-    float       fov      = camPrefs.getFov();
-    float       aspect   = camera ? camera->getAspect() : ((resolution.y > 0) ? static_cast<float>(resolution.x) / static_cast<float>(resolution.y) : 16.0f / 9.0f);
-    double      speed    = static_cast<double>(camPrefs.getCameraSpeed());
-    double      rotSpeed = camPrefs.getRotationSensitivity();
-
-    if (mode == 1)
-    {
-        camera = std::make_unique<Vulcant::Toolkit::Freecam>(*window, eye, target, up);
-    }
-    else
-    {
-        camera = std::make_unique<Vulcant::Toolkit::ArcCam>(*window, eye, target, up);
-    }
-
-    currentCameraMode = mode;
-
-    camera->setZNear(zNear);
-    camera->setZFar(zFar);
-    camera->setFov(fov);
-    camera->setAspect(aspect);
-    camera->setTranslationSensitivity(speed);
-    camera->setRotationSensitivity(rotSpeed);
-}
-
-void Cadaver::resetCamera()
-{
-    if (GatedDatabase::getInstance().get().getProject().getAssetCount() > 0)
-    {
-        frameCameraOnProject();
-    }
-    else if (camera)
-    {
-        const auto& camPrefs = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences();
-        camera->setTarget(glm::dvec3(0.0, 0.0, 0.0));
-        camera->setEye(glm::dvec3(0.0, 3.0, 5.0));
-        camera->setUp(glm::dvec3(0.0, 1.0, 0.0));
-        camera->setZNear(0.05f);
-        camera->setZFar(2000.0f);
-        camera->setFov(camPrefs.getFov());
-        camera->setRotationSensitivity(camPrefs.getRotationSensitivity());
-        camera->setAspect((resolution.y > 0) ? static_cast<float>(resolution.x) / static_cast<float>(resolution.y) : 16.0f / 9.0f);
+        cameraController->keyEvent(key);
     }
 }
 
@@ -336,7 +220,8 @@ void Cadaver::prepare()
     assetRenderFactory = std::make_unique<AssetRenderFactory>();
     renderer           = std::make_unique<Renderer>(device, resolution, GatedDatabase::getInstance());
 
-    setCameraMode(preferences.getCameraPreferences().getCameraMode());
+    cameraController = std::make_unique<CameraController>();
+    cameraController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
 }
 
 void Cadaver::recordCommand()
@@ -398,19 +283,19 @@ void Cadaver::renderImGui()
         projectWindow->render(project);
     }
 
-    if (preferencesWindow)
+    if (preferencesWindow && cameraController)
     {
-        preferencesWindow->render(preferences, camera.get());
+        preferencesWindow->render(preferences, cameraController->getCamera());
 
         if (preferencesWindow->isResetRequested())
         {
-            resetCamera();
+            cameraController->reset(preferences.getCameraPreferences(), project);
             preferencesWindow->clearResetRequested();
         }
 
-        if (preferences.getCameraPreferences().getCameraMode() != currentCameraMode)
+        if (preferences.getCameraPreferences().getCameraMode() != cameraController->getMode())
         {
-            setCameraMode(preferences.getCameraPreferences().getCameraMode());
+            cameraController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
         }
     }
 
@@ -424,8 +309,17 @@ void Cadaver::renderImGui()
         commandsWindow->render();
     }
 
-    if (viewCubeWidget && camera)
+    if (viewCubeWidget && cameraController && cameraController->getCamera())
     {
-        viewCubeWidget->render(camera.get(), resolution, [this]() { resetCamera(); });
+        viewCubeWidget->render(cameraController->getCamera(),
+                               resolution,
+                               [this]()
+                               {
+                                   const auto& project = GatedDatabase::getInstance().get().getProject();
+                                   if (cameraController)
+                                   {
+                                       cameraController->frameOnProject(project);
+                                   }
+                               });
     }
 }

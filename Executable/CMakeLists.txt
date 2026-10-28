@@ -230,8 +230,15 @@ set(UI_Menu_Files
 )
 source_group("Source/UI/Menu" FILES ${UI_Menu_Files})
 
+set(Camera_Files
+    "Source/Camera/CameraController.h"
+    "Source/Camera/CameraController.cpp"
+)
+source_group("Source/Camera" FILES ${Camera_Files})
+
 set(ALL_FILES
     ${Source_Files}
+    ${Camera_Files}
     ${Database_Files}
     ${Database_Asset_Files}
     ${Database_Preferences_Files}

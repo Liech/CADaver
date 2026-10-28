@@ -16,13 +16,9 @@ namespace Vulcant
     enum class VulcantInputValue : short;
 }
 
-namespace Vulcant::Toolkit
-{
-    class Camera;
-}
-
 class AboutWindow;
 class AssetRenderFactory;
+class CameraController;
 class CommandsWindow;
 class FileMenu;
 class EditMenu;
@@ -55,9 +51,6 @@ class Cadaver
     void renderImGui();
 
     void onKey(const Vulcant::VulcantInputValue& key);
-    void setCameraMode(int mode);
-    void resetCamera();
-    void frameCameraOnProject();
 
     Vulcant::VulcantDevice&                         device;
     std::unique_ptr<Vulcant::VulcantWindow>         window;
@@ -72,9 +65,8 @@ class Cadaver
     std::unique_ptr<FileMenu>                       fileMenu;
     std::unique_ptr<EditMenu>                       editMenu;
     std::unique_ptr<ViewCubeWidget>                 viewCubeWidget;
-    std::unique_ptr<Vulcant::Toolkit::Camera>       camera;
-    size_t                                          lastAssetCount    = 0;
-    int                                             currentCameraMode = -1;
-    glm::ivec2                                      resolution        = glm::ivec2(1280, 720);
-    bool                                            quitRequested     = false;
+    std::unique_ptr<CameraController>               cameraController;
+    size_t                                          lastAssetCount = 0;
+    glm::ivec2                                      resolution     = glm::ivec2(1280, 720);
+    bool                                            quitRequested  = false;
 };
