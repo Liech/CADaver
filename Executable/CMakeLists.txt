@@ -112,6 +112,12 @@ set(Command_Converter_Files
 )
 source_group("Source/Commands/Converter" FILES ${Command_Converter_Files})
 
+set(Command_Generator_Files
+    "Source/Commands/Generator/GenerateLandscapeCommand.h"
+    "Source/Commands/Generator/GenerateLandscapeCommand.cpp"
+)
+source_group("Source/Commands/Generator" FILES ${Command_Generator_Files})
+
 set(Command_IO_Files
     "Source/Commands/IO/LoadStepAssetCommand.h"
     "Source/Commands/IO/LoadStepAssetCommand.cpp"
@@ -187,8 +193,16 @@ set(UI_Component_Files
     "Source/UI/Component/VoxelResolutionComboBox.cpp"
     "Source/UI/Component/ViewCubeWidget.h"
     "Source/UI/Component/ViewCubeWidget.cpp"
+    "Source/UI/Component/ModalProgressBar.h"
+    "Source/UI/Component/ModalProgressBar.cpp"
 )
 source_group("Source/UI/Component" FILES ${UI_Component_Files})
+
+set(UI_Generator_Files
+    "Source/UI/Generator/LandscapeGeneratorWindow.h"
+    "Source/UI/Generator/LandscapeGeneratorWindow.cpp"
+)
+source_group("Source/UI/Generator" FILES ${UI_Generator_Files})
 
 set(UI_Converter_Files
     "Source/UI/Converter/CadToStlConversionModal.h"
@@ -227,6 +241,8 @@ set(UI_Menu_Files
     "Source/UI/Menu/FileMenu.cpp"
     "Source/UI/Menu/EditMenu.h"
     "Source/UI/Menu/EditMenu.cpp"
+    "Source/UI/Menu/CreateMenu.h"
+    "Source/UI/Menu/CreateMenu.cpp"
 )
 source_group("Source/UI/Menu" FILES ${UI_Menu_Files})
 
@@ -248,11 +264,13 @@ set(ALL_FILES
     ${UI_About_Files}
     ${UI_Commands_Files}
     ${UI_Component_Files}
+    ${UI_Generator_Files}
     ${UI_Converter_Files}
     ${UI_ContextMenu_Files}
     ${UI_Project_Files}
     ${Command_Files}
     ${Command_Converter_Files}
+    ${Command_Generator_Files}
     ${Command_IO_Files}
     ${Command_Project_Files}
     ${Command_Preferences_Files}

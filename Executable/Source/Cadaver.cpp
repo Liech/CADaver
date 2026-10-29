@@ -12,6 +12,8 @@
 #include "UI/About/AboutWindow.h"
 #include "UI/Commands/CommandsWindow.h"
 #include "UI/Component/ViewCubeWidget.h"
+#include "UI/Generator/LandscapeGeneratorWindow.h"
+#include "UI/Menu/CreateMenu.h"
 #include "UI/Menu/EditMenu.h"
 #include "UI/Menu/FileMenu.h"
 #include "UI/Preferences/PreferencesWindow.h"
@@ -209,12 +211,14 @@ void Cadaver::prepare()
     preferencesWindow = std::make_unique<PreferencesWindow>();
     preferencesWindow->getUIPreferencesView().apply(preferences.getUIPreferences());
 
-    aboutWindow    = std::make_unique<AboutWindow>();
-    commandsWindow = std::make_unique<CommandsWindow>();
-    projectWindow  = std::make_unique<ProjectWindow>();
-    fileMenu       = std::make_unique<FileMenu>();
-    editMenu       = std::make_unique<EditMenu>();
-    viewCubeWidget = std::make_unique<ViewCubeWidget>();
+    aboutWindow              = std::make_unique<AboutWindow>();
+    commandsWindow           = std::make_unique<CommandsWindow>();
+    projectWindow            = std::make_unique<ProjectWindow>();
+    fileMenu                 = std::make_unique<FileMenu>();
+    editMenu                 = std::make_unique<EditMenu>();
+    createMenu               = std::make_unique<CreateMenu>();
+    landscapeGeneratorWindow = std::make_unique<LandscapeGeneratorWindow>();
+    viewCubeWidget           = std::make_unique<ViewCubeWidget>();
 
     assetRenderFactory = std::make_unique<AssetRenderFactory>();
     renderer           = std::make_unique<Renderer>(device, resolution, GatedDatabase::getInstance());
@@ -253,6 +257,11 @@ void Cadaver::renderImGui()
         if (editMenu)
         {
             editMenu->render();
+        }
+
+        if (createMenu && landscapeGeneratorWindow)
+        {
+            createMenu->render(*landscapeGeneratorWindow);
         }
 
         if (ImGui::BeginMenu("Help"))
@@ -306,6 +315,11 @@ void Cadaver::renderImGui()
     if (commandsWindow)
     {
         commandsWindow->render();
+    }
+
+    if (landscapeGeneratorWindow)
+    {
+        landscapeGeneratorWindow->render();
     }
 
     if (viewCubeWidget && cameraController && cameraController->getCamera())

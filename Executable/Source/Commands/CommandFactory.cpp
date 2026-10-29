@@ -4,6 +4,7 @@
 #include "Commands/Converter/ConvertCadToSvoCommand.h"
 #include "Commands/Converter/ConvertStlToSvoCommand.h"
 #include "Commands/Converter/ConvertSvoToStlCommand.h"
+#include "Commands/Generator/GenerateLandscapeCommand.h"
 #include "Commands/IO/LoadStepAssetCommand.h"
 #include "Commands/IO/LoadStlAssetCommand.h"
 #include "Commands/IO/LoadSvoAssetCommand.h"
@@ -47,6 +48,7 @@ std::vector<std::unique_ptr<Command>> CommandFactory::getAllCommands() const
     commands.push_back(std::make_unique<ConvertCadToSvoCommand>());
     commands.push_back(std::make_unique<ConvertStlToSvoCommand>());
     commands.push_back(std::make_unique<ConvertSvoToStlCommand>());
+    commands.push_back(std::make_unique<GenerateLandscapeCommand>());
     commands.push_back(std::make_unique<LoadStepAssetCommand>());
     commands.push_back(std::make_unique<LoadStlAssetCommand>());
     commands.push_back(std::make_unique<LoadSvoAssetCommand>());
@@ -76,6 +78,7 @@ void CommandFactory::registerCommands()
     registerCommand("ConvertCadToSvo", [](const nlohmann::json& json) { return std::make_unique<ConvertCadToSvoCommand>(json); });
     registerCommand("ConvertStlToSvo", [](const nlohmann::json& json) { return std::make_unique<ConvertStlToSvoCommand>(json); });
     registerCommand("ConvertSvoToStl", [](const nlohmann::json& json) { return std::make_unique<ConvertSvoToStlCommand>(json); });
+    registerCommand("GenerateLandscape", [](const nlohmann::json& json) { return std::make_unique<GenerateLandscapeCommand>(json); });
     registerCommand("LoadStlAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStlAssetCommand>(json); });
     registerCommand("SaveStlAsset", [](const nlohmann::json& json) { return std::make_unique<SaveStlAssetCommand>(json); });
     registerCommand("LoadStepAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStepAssetCommand>(json); });
