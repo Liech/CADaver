@@ -6,15 +6,19 @@
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
 
+#include <fstream>
+
 LoadStlAssetCommand::LoadStlAssetCommand() {}
 
-LoadStlAssetCommand::LoadStlAssetCommand(const std::string& name)
+LoadStlAssetCommand::LoadStlAssetCommand(const std::string& name, const std::string& filePath)
   : name(name)
+  , filePath(filePath)
 {
 }
 
 LoadStlAssetCommand::LoadStlAssetCommand(const nlohmann::json& json)
   : name(json.at("name").get<std::string>())
+  , filePath(json.value("filePath", ""))
 {
 }
 
@@ -34,14 +38,15 @@ std::string LoadStlAssetCommand::getDescription() const
 {
     return "Command: LoadStlAsset\n"
            "Version: 1\n"
-           "Purpose: Loads an STL triangulation asset from an input stream into the project.\n\n"
+           "Purpose: Loads an STL triangulation asset from an input stream or file path into the project.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"LoadStlAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"name\": \"<string>\"\n"
+           "  \"name\": \"<string>\",\n"
+           "  \"filePath\": \"<string>\" (optional)\n"
            "}\n\n"
-           "Input Stream: Binary or ASCII STL stream\n"
+           "Input Stream: Binary or ASCII STL stream (optional if filePath specified)\n"
            "Output Stream: None\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
@@ -57,7 +62,18 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
 {
     CADacomb::ProgressBar bar(1, "Loading STL asset");
 
-    if (!inputStream || bar.isCanceled())
+    std::ifstream fileStream;
+    std::istream* streamToUse = inputStream;
+    if (!streamToUse && !filePath.empty())
+    {
+        fileStream.open(filePath, std::ios::binary);
+        if (fileStream.is_open())
+        {
+            streamToUse = &fileStream;
+        }
+    }
+
+    if (!streamToUse || bar.isCanceled())
     {
         return createResponse("NoInputStream",
                               {
@@ -66,7 +82,7 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
         });
     }
 
-    auto triangulation = CADacomb::Triangulation::fromSTLStream(*inputStream);
+    auto triangulation = CADacomb::Triangulation::fromSTLStream(*streamToUse);
     if (!triangulation || triangulation->indices.empty() || bar.isCanceled())
     {
         return createResponse("ParseFailed",
@@ -103,3 +119,28 @@ void LoadStlAssetCommand::setName(const std::string& newName)
 {
     name = newName;
 }
+
+const std::string& LoadStlAssetCommand::getFilePath() const
+{
+    return filePath;
+}
+
+void LoadStlAssetCommand::setFilePath(const std::string& newFilePath)
+{
+    filePath = newFilePath;
+}
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("LoadStlAssetCommand/TypeAndVersion")
+{
+    LoadStlAssetCommand cmd("Mesh", "mesh.stl");
+    CHECK(cmd.getType() == "LoadStlAsset");
+    CHECK(cmd.getVersion() == 1);
+    CHECK_FALSE(cmd.getDescription().empty());
+    CHECK(cmd.getName() == "Mesh");
+    CHECK(cmd.getFilePath() == "mesh.stl");
+    CHECK(cmd.getRequiredAssets().empty());
+}
+#endif

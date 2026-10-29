@@ -1,9 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include "CADacomb/Util/GUID.h"
 #include "Commands/Command.h"
 
 #include <string>
+#include <vector>
 
 // Command to save a CAD asset to a STEP file.
 class SaveStepAssetCommand : public Command
@@ -17,6 +18,8 @@ class SaveStepAssetCommand : public Command
     virtual std::string getType() const override;
     virtual int         getVersion() const override;
     virtual std::string getDescription() const override;
+
+    virtual std::vector<CADacomb::GUID> getRequiredAssets() const override;
 
     virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
 

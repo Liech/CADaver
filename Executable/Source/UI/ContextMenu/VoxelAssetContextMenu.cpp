@@ -107,19 +107,12 @@ void VoxelAssetContextMenu::save(VoxelAsset& asset)
             Defer::getInstance().defer(
               [targetGuid, savePath]()
               {
-                  std::ofstream file(savePath, std::ios::binary);
-                  if (file.is_open())
-                  {
-                      GatedDatabase::getInstance().execute(
-                        {
-                          {      "type",      "SaveVoxelAsset" },
-                          {   "version",                     1 },
-                          { "assetGuid", targetGuid.toString() }
-                      },
-                        false,
-                        nullptr,
-                        &file);
-                  }
+                  GatedDatabase::getInstance().executeAsync({
+                    {      "type",      "SaveVoxelAsset" },
+                    {   "version",                     1 },
+                    { "assetGuid", targetGuid.toString() },
+                    {  "filePath",              savePath }
+                  });
               });
         }
     }

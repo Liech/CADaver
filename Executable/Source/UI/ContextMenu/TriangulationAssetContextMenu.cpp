@@ -82,19 +82,12 @@ void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
             Defer::getInstance().defer(
               [targetGuid, savePath]()
               {
-                  std::ofstream file(savePath, std::ios::binary);
-                  if (file.is_open())
-                  {
-                      GatedDatabase::getInstance().execute(
-                        {
-                          {      "type",        "SaveStlAsset" },
-                          {   "version",                     1 },
-                          { "assetGuid", targetGuid.toString() }
-                      },
-                        false,
-                        nullptr,
-                        &file);
-                  }
+                  GatedDatabase::getInstance().executeAsync({
+                    {      "type",        "SaveStlAsset" },
+                    {   "version",                     1 },
+                    { "assetGuid", targetGuid.toString() },
+                    {  "filePath",              savePath }
+                  });
               });
         }
     }

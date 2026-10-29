@@ -105,3 +105,18 @@ void LoadStepAssetCommand::setFilePath(const std::string& newFilePath)
 {
     filePath = newFilePath;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("LoadStepAssetCommand/TypeAndVersion")
+{
+    LoadStepAssetCommand cmd("Part", "part.step");
+    CHECK(cmd.getType() == "LoadStepAsset");
+    CHECK(cmd.getVersion() == 1);
+    CHECK_FALSE(cmd.getDescription().empty());
+    CHECK(cmd.getName() == "Part");
+    CHECK(cmd.getFilePath() == "part.step");
+    CHECK(cmd.getRequiredAssets().empty());
+}
+#endif

@@ -1,5 +1,6 @@
 #include "Commands/IO/SaveStepAssetCommand.h"
 
+#include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
 #include "Library/CAD/CADShape.h"
@@ -53,39 +54,40 @@ std::string SaveStepAssetCommand::getDescription() const
            "}";
 }
 
+std::vector<CADacomb::GUID> SaveStepAssetCommand::getRequiredAssets() const
+{
+    return { assetGuid };
+}
+
 nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool)
 {
+    CADacomb::ProgressBar bar(1, "Saving STEP asset");
+
     auto baseAsset = database.getProject().getAsset(assetGuid);
-    if (!baseAsset)
+    if (!baseAsset || bar.isCanceled())
     {
-        return {
-            {     "type",       getType() },
-            {  "version",    getVersion() },
-            {   "status", "AssetNotFound" },
-            { "filePath",        filePath }
-        };
+        return createResponse("AssetNotFound",
+                              {
+                                { "filePath", filePath }
+        });
     }
 
     auto cadAsset = std::dynamic_pointer_cast<CadAsset>(baseAsset);
     if (!cadAsset)
     {
-        return {
-            {     "type",     getType() },
-            {  "version",  getVersion() },
-            {   "status", "NotCadAsset" },
-            { "filePath",      filePath }
-        };
+        return createResponse("NotCadAsset",
+                              {
+                                { "filePath", filePath }
+        });
     }
 
     auto* shape = cadAsset->getCadShape();
     if (!shape)
     {
-        return {
-            {     "type",    getType() },
-            {  "version", getVersion() },
-            {   "status",    "NoShape" },
-            { "filePath",     filePath }
-        };
+        return createResponse("NoShape",
+                              {
+                                { "filePath", filePath }
+        });
     }
 
     std::string targetPath = filePath.empty() ? cadAsset->getFilePath() : filePath;
@@ -94,22 +96,20 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, 
         targetPath = cadAsset->getName() + ".step";
     }
 
-    if (!shape->save(targetPath))
+    if (!shape->save(targetPath) || bar.isCanceled())
     {
-        return {
-            {     "type",     getType() },
-            {  "version",  getVersion() },
-            {   "status", "WriteFailed" },
-            { "filePath",    targetPath }
-        };
+        return createResponse("WriteFailed",
+                              {
+                                { "filePath", targetPath }
+        });
     }
 
-    return {
-        {     "type",    getType() },
-        {  "version", getVersion() },
-        {   "status",    "Success" },
-        { "filePath",   targetPath }
-    };
+    bar.addProgress(1);
+
+    return createResponse("Success",
+                          {
+                            { "filePath", targetPath }
+    });
 }
 
 const CADacomb::GUID& SaveStepAssetCommand::getAssetGuid() const
@@ -131,3 +131,20 @@ void SaveStepAssetCommand::setFilePath(const std::string& newFilePath)
 {
     filePath = newFilePath;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("SaveStepAssetCommand/TypeAndVersion")
+{
+    CADacomb::GUID       guid = CADacomb::GUID::random();
+    SaveStepAssetCommand cmd(guid, "output.step");
+    CHECK(cmd.getType() == "SaveStepAsset");
+    CHECK(cmd.getVersion() == 1);
+    CHECK_FALSE(cmd.getDescription().empty());
+    CHECK(cmd.getAssetGuid() == guid);
+    CHECK(cmd.getFilePath() == "output.step");
+    REQUIRE(cmd.getRequiredAssets().size() == 1);
+    CHECK(cmd.getRequiredAssets().front() == guid);
+}
+#endif

@@ -64,15 +64,14 @@ void FileMenu::openStlFileDialog()
         Defer::getInstance().defer(
           [path, fileName]()
           {
-              std::ifstream fileStream(path, std::ios::binary);
-              GatedDatabase::getInstance().execute(
+              GatedDatabase::getInstance().executeAsync(
                 {
-                  {    "type", "LoadStlAsset" },
-                  { "version",              1 },
-                  {    "name",       fileName }
+                  {     "type", "LoadStlAsset" },
+                  {  "version",              1 },
+                  {     "name",       fileName },
+                  { "filePath",           path }
               },
-                true,
-                &fileStream);
+                true);
           });
     }
 }
@@ -91,7 +90,7 @@ void FileMenu::openStepFileDialog()
         Defer::getInstance().defer(
           [path, fileName]()
           {
-              GatedDatabase::getInstance().execute(
+              GatedDatabase::getInstance().executeAsync(
                 {
                   {     "type", "LoadStepAsset" },
                   {  "version",               1 },
@@ -117,15 +116,14 @@ void FileMenu::openSvoFileDialog()
         Defer::getInstance().defer(
           [path, fileName]()
           {
-              std::ifstream fileStream(path, std::ios::binary);
-              GatedDatabase::getInstance().execute(
+              GatedDatabase::getInstance().executeAsync(
                 {
-                  {    "type", "LoadSvoAsset" },
-                  { "version",              1 },
-                  {    "name",       fileName }
+                  {     "type", "LoadSvoAsset" },
+                  {  "version",              1 },
+                  {     "name",       fileName },
+                  { "filePath",           path }
               },
-                true,
-                &fileStream);
+                true);
           });
     }
 }

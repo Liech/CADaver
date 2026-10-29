@@ -104,7 +104,7 @@ void CadAssetContextMenu::save(CadAsset& asset)
             Defer::getInstance().defer(
               [targetGuid, savePath]()
               {
-                  GatedDatabase::getInstance().execute({
+                  GatedDatabase::getInstance().executeAsync({
                     {      "type",       "SaveStepAsset" },
                     {   "version",                     1 },
                     { "assetGuid", targetGuid.toString() },

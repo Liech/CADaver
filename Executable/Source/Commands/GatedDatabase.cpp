@@ -220,6 +220,10 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
     {
         taskName = command["assetName"].get<std::string>() + " (" + cmd->getType() + ")";
     }
+    else if (command.contains("name") && command["name"].is_string())
+    {
+        taskName = command["name"].get<std::string>() + " (" + cmd->getType() + ")";
+    }
 
     auto progressAsset = std::make_shared<ProgressBarAsset>(taskName, taskGuid, cmd->getType(), abductedAssets);
     database.getProject().addAsset(progressAsset);
@@ -301,19 +305,30 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
 
                 if (success)
                 {
-                    for (const auto& newAsset : newAssets)
+                    if (newAssets.empty())
                     {
-                        database.getProject().addAsset(newAsset);
-                        database.getProject().setSelectedAssetGuid(newAsset->getGuid());
-                        if (recordUndo)
+                        for (const auto& orig : abductedAssets)
                         {
-                            if (!abductedAssets.empty())
+                            database.getProject().addAsset(orig);
+                            database.getProject().setSelectedAssetGuid(orig->getGuid());
+                        }
+                    }
+                    else
+                    {
+                        for (const auto& newAsset : newAssets)
+                        {
+                            database.getProject().addAsset(newAsset);
+                            database.getProject().setSelectedAssetGuid(newAsset->getGuid());
+                            if (recordUndo)
                             {
-                                database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(abductedAssets.front(), newAsset));
-                            }
-                            else
-                            {
-                                database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(newAsset));
+                                if (!abductedAssets.empty())
+                                {
+                                    database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(abductedAssets.front(), newAsset));
+                                }
+                                else
+                                {
+                                    database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(newAsset));
+                                }
                             }
                         }
                     }
