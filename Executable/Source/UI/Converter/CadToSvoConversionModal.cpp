@@ -69,7 +69,7 @@ void CadToSvoConversionModal::executeConversion()
     Defer::getInstance().defer(
       [guid, prec, dim, delOrigin]()
       {
-          GatedDatabase::getInstance().execute(
+          GatedDatabase::getInstance().executeAsync(
             {
               {         "type", "ConvertCadToSvo" },
               {      "version",                 1 },

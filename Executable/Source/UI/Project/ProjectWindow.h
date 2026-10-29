@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 class Project;
 class AssetContextMenuFactory;
@@ -20,8 +21,11 @@ class ProjectWindow
   private:
     void renderMenuBar(const Project& project);
     void renderClearModal();
+    void renderErrorModal();
 
     std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;
+    std::string                              errorMessage;
     float                                    width          = 300.0f;
     bool                                     openClearModal = false;
+    bool                                     openErrorModal = false;
 };

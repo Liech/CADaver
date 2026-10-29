@@ -15,6 +15,8 @@ class AssetRenderFactory
     AssetRenderFactory();
     virtual ~AssetRenderFactory();
 
+    static AssetRenderFactory& getInstance();
+
     std::unique_ptr<AssetRenderer> create(const std::shared_ptr<Asset>& asset);
     void                           render(Renderer& renderer, const std::shared_ptr<Asset>& asset, bool isSelected = false);
     void                           clearCache();

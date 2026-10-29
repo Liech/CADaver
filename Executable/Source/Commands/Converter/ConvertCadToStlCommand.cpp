@@ -1,5 +1,6 @@
 #include "Commands/Converter/ConvertCadToStlCommand.h"
 
+#include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Commands/Undo/ReplaceAssetUndoRecord.h"
 #include "Database/Asset/CadAsset.h"
@@ -59,40 +60,43 @@ std::string ConvertCadToStlCommand::getDescription() const
            "}";
 }
 
+std::vector<CADacomb::GUID> ConvertCadToStlCommand::getRequiredAssets() const
+{
+    return { assetGuid };
+}
+
 nlohmann::json ConvertCadToStlCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
+    CADacomb::ProgressBar bar(1, "Converting CAD to STL");
+
     auto baseAsset = database.getProject().getAsset(assetGuid);
-    if (!baseAsset)
+    if (!baseAsset || bar.isCanceled())
     {
-        return {
-            {      "type",       getType() },
-            {   "version",    getVersion() },
-            {    "status", "AssetNotFound" },
-            { "assetGuid",              "" }
-        };
+        return createResponse("AssetNotFound",
+                              {
+                                { "assetGuid", "" }
+        });
     }
 
     auto cadAsset = std::dynamic_pointer_cast<CadAsset>(baseAsset);
-    if (!cadAsset)
+    if (!cadAsset || bar.isCanceled())
     {
-        return {
-            {      "type",     getType() },
-            {   "version",  getVersion() },
-            {    "status", "NotCadAsset" },
-            { "assetGuid",            "" }
-        };
+        return createResponse("NotCadAsset",
+                              {
+                                { "assetGuid", "" }
+        });
     }
 
     auto stlAsset = AssetConverter::cadToStl(*cadAsset, precision);
-    if (!stlAsset)
+    if (!stlAsset || bar.isCanceled())
     {
-        return {
-            {      "type",          getType() },
-            {   "version",       getVersion() },
-            {    "status", "ConversionFailed" },
-            { "assetGuid",                 "" }
-        };
+        return createResponse("ConversionFailed",
+                              {
+                                { "assetGuid", "" }
+        });
     }
+
+    bar.addProgress(1);
 
     database.getProject().addAsset(stlAsset);
 
@@ -112,12 +116,10 @@ nlohmann::json ConvertCadToStlCommand::execute(Database& database, std::istream*
         }
     }
 
-    return {
-        {      "type",                      getType() },
-        {   "version",                   getVersion() },
-        {    "status",                      "Success" },
-        { "assetGuid", stlAsset->getGuid().toString() }
-    };
+    return createResponse("Success",
+                          {
+                            { "assetGuid", stlAsset->getGuid().toString() }
+    });
 }
 
 const CADacomb::GUID& ConvertCadToStlCommand::getAssetGuid() const

@@ -1,6 +1,7 @@
 #include "Commands/IO/LoadStlAssetCommand.h"
 
 #include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
@@ -54,28 +55,28 @@ std::string LoadStlAssetCommand::getDescription() const
 
 nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*, bool recordUndo)
 {
-    if (!inputStream)
+    CADacomb::ProgressBar bar(1, "Loading STL asset");
+
+    if (!inputStream || bar.isCanceled())
     {
-        return {
-            {    "type",       getType() },
-            { "version",    getVersion() },
-            {  "status", "NoInputStream" },
-            {   "index",              -1 },
-            {    "name",            name }
-        };
+        return createResponse("NoInputStream",
+                              {
+                                { "index",   -1 },
+                                {  "name", name }
+        });
     }
 
     auto triangulation = CADacomb::Triangulation::fromSTLStream(*inputStream);
-    if (!triangulation || triangulation->indices.empty())
+    if (!triangulation || triangulation->indices.empty() || bar.isCanceled())
     {
-        return {
-            {    "type",     getType() },
-            { "version",  getVersion() },
-            {  "status", "ParseFailed" },
-            {   "index",            -1 },
-            {    "name",          name }
-        };
+        return createResponse("ParseFailed",
+                              {
+                                { "index",   -1 },
+                                {  "name", name }
+        });
     }
+
+    bar.addProgress(1);
 
     auto asset = std::make_shared<TriangulationAsset>(name, std::move(triangulation));
     database.getProject().addAsset(asset);
@@ -86,13 +87,11 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
         database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(asset));
     }
 
-    return {
-        {      "type",                   getType() },
-        {   "version",                getVersion() },
-        {    "status",                   "Success" },
-        { "assetGuid", asset->getGuid().toString() },
-        {      "name",                        name }
-    };
+    return createResponse("Success",
+                          {
+                            { "assetGuid", asset->getGuid().toString() },
+                            {      "name",                        name }
+    });
 }
 
 const std::string& LoadStlAssetCommand::getName() const

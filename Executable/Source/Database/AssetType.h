@@ -4,5 +4,6 @@ enum class AssetType
 {
     Triangulation,
     Voxel,
-    Cad
+    Cad,
+    ProgressBar
 };

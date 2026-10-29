@@ -64,6 +64,10 @@ source_group("Source/Database" FILES ${Database_Files})
 set(Database_Asset_Files
     "Source/Database/Asset/CadAsset.h"
     "Source/Database/Asset/CadAsset.cpp"
+    "Source/Database/Asset/ProgressBarAsset.h"
+    "Source/Database/Asset/ProgressBarAsset.cpp"
+    "Source/Database/Asset/ProgressBarAssetState.h"
+    "Source/Database/Asset/ProgressBarAssetState.cpp"
     "Source/Database/Asset/TriangulationAsset.h"
     "Source/Database/Asset/TriangulationAsset.cpp"
     "Source/Database/Asset/VoxelAsset.h"
@@ -237,6 +241,8 @@ set(UI_Project_Files
 source_group("Source/UI/Project" FILES ${UI_Project_Files})
 
 set(UI_Menu_Files
+    "Source/UI/Menu/TopMenu.h"
+    "Source/UI/Menu/TopMenu.cpp"
     "Source/UI/Menu/FileMenu.h"
     "Source/UI/Menu/FileMenu.cpp"
     "Source/UI/Menu/EditMenu.h"
@@ -249,6 +255,8 @@ source_group("Source/UI/Menu" FILES ${UI_Menu_Files})
 set(Camera_Files
     "Source/Camera/CameraController.h"
     "Source/Camera/CameraController.cpp"
+    "Source/Camera/ViewController.h"
+    "Source/Camera/ViewController.cpp"
 )
 source_group("Source/Camera" FILES ${Camera_Files})
 

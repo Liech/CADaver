@@ -66,7 +66,7 @@ void CadToStlConversionModal::executeConversion()
     Defer::getInstance().defer(
       [guid, prec, delOrigin]()
       {
-          GatedDatabase::getInstance().execute(
+          GatedDatabase::getInstance().executeAsync(
             {
               {         "type", "ConvertCadToStl" },
               {      "version",                 1 },

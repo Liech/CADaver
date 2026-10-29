@@ -7,17 +7,32 @@
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 #include "Vulcant/Interface/VulcantImage.h"
+#include "Vulcant/Interface/VulcantUi.h"
+#include "Vulcant/Interface/VulcantWindow.h"
 
-Renderer::Renderer(Vulcant::VulcantDevice& device, const glm::ivec2& resolution, GatedDatabase& gatedDatabase)
+#include <imgui.h>
+
+#include <ImGuizmo.h>
+
+Renderer::Renderer(Vulcant::VulcantDevice& device, Vulcant::VulcantWindow& window, const glm::ivec2& resolution, GatedDatabase& gatedDatabase)
   : device(device)
   , resolution(resolution)
   , gatedDatabase(gatedDatabase)
 {
+    ui = device.createUi(window, Vulcant::VulcantImageFormat::R32G32B32A32_SFLOAT, false);
     setResolution(resolution);
 }
 
 Renderer::~Renderer()
 {
+    if (uiCmdG)
+    {
+        uiCmdG->wait();
+    }
+    if (ui)
+    {
+        ui.reset();
+    }
     if (drawCmd)
     {
         drawCmd->wait();
@@ -41,6 +56,7 @@ void Renderer::setResolution(const glm::ivec2& newResolution)
             drawCmd->wait();
             drawCmd.reset();
         }
+        recordUiCommand();
     }
 }
 
@@ -52,6 +68,35 @@ void Renderer::setSceneData(const Vulcant::Toolkit::SceneData& newSceneData)
 void Renderer::clear()
 {
     recordClearPass();
+}
+
+void Renderer::beginUiFrame()
+{
+    if (ui)
+    {
+        ui->newFrame();
+        ImGuizmo::BeginFrame();
+        ImGuizmo::SetRect(0.0f, 0.0f, static_cast<float>(resolution.x), static_cast<float>(resolution.y));
+    }
+}
+
+void Renderer::renderUi(Vulcant::VulcantWindow& window)
+{
+    if (!ui || !uiCmdG || !colorImage)
+    {
+        return;
+    }
+
+    Vulcant::VulcantImage& resultImage = *colorImage;
+
+    uiCmdG->wait();
+    uiCmdG->startRecord();
+    ui->record(*uiCmdG, resultImage);
+    uiCmdG->endRecord();
+    uiCmdG->runAsync();
+    uiCmdG->wait();
+
+    window.blitImage(resultImage);
 }
 
 const glm::ivec2& Renderer::getResolution() const
@@ -144,4 +189,13 @@ void Renderer::recordClearPass()
     drawCmd->endRecord();
     drawCmd->runAsync();
     drawCmd->wait();
+}
+
+void Renderer::recordUiCommand()
+{
+    if (uiCmdG)
+    {
+        uiCmdG->wait();
+    }
+    uiCmdG = device.createGraphicCommand();
 }

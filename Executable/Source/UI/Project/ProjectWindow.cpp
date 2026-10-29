@@ -3,6 +3,7 @@
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset.h"
+#include "Database/Asset/ProgressBarAsset.h"
 #include "Database/Project.h"
 #include "UI/ContextMenu/AssetContextMenuFactory.h"
 
@@ -62,6 +63,47 @@ void ProjectWindow::render(const Project& project)
                         continue;
                     }
 
+                    if (asset->getType() == AssetType::ProgressBar)
+                    {
+                        auto progressAsset = std::dynamic_pointer_cast<ProgressBarAsset>(asset);
+                        if (progressAsset)
+                        {
+                            ImGui::TableNextRow();
+
+                            ImGui::TableSetColumnIndex(0);
+                            ImGui::TextUnformatted(progressAsset->getName().c_str());
+                            float p = progressAsset->getProgress();
+                            ImGui::ProgressBar(p, ImVec2(-1.0f, 14.0f));
+
+                            std::string popupId = "ProgressBarContext##" + asset->getGuid().toString();
+                            if (ImGui::BeginPopupContextItem(popupId.c_str()))
+                            {
+                                if (ImGui::MenuItem("Cancel"))
+                                {
+                                    progressAsset->cancel();
+                                    errorMessage   = "Operation '" + progressAsset->getOperationName() + "' was canceled.";
+                                    openErrorModal = true;
+                                }
+                                ImGui::EndPopup();
+                            }
+
+                            if (progressAsset->isReady())
+                            {
+                                auto        res = progressAsset->getResult();
+                                std::string st  = res.value("status", "");
+                                if (!st.empty() && st != "Success" && st != "Canceled")
+                                {
+                                    errorMessage   = "Operation '" + progressAsset->getOperationName() + "' failed: " + res.value("error", st);
+                                    openErrorModal = true;
+                                }
+                            }
+
+                            ImGui::TableSetColumnIndex(1);
+                            ImGui::TextUnformatted("Processing...");
+                            continue;
+                        }
+                    }
+
                     ImGui::TableNextRow();
 
                     ImGui::TableSetColumnIndex(0);
@@ -91,6 +133,7 @@ void ProjectWindow::render(const Project& project)
         }
 
         renderClearModal();
+        renderErrorModal();
     }
     ImGui::End();
 }
@@ -148,6 +191,29 @@ void ProjectWindow::renderClearModal()
             ImGui::CloseCurrentPopup();
         }
 
+        ImGui::EndPopup();
+    }
+}
+
+void ProjectWindow::renderErrorModal()
+{
+    if (openErrorModal)
+    {
+        ImGui::OpenPopup("Task Notification##Modal");
+        openErrorModal = false;
+    }
+
+    if (ImGui::BeginPopupModal("Task Notification##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::TextUnformatted(errorMessage.c_str());
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        if (ImGui::Button("OK", ImVec2(120.0f, 0.0f)))
+        {
+            ImGui::CloseCurrentPopup();
+        }
         ImGui::EndPopup();
     }
 }

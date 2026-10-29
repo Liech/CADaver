@@ -63,7 +63,7 @@ void SvoToStlConversionModal::executeConversion()
     Defer::getInstance().defer(
       [guid, depth, delOrigin]()
       {
-          GatedDatabase::getInstance().execute(
+          GatedDatabase::getInstance().executeAsync(
             {
               {         "type", "ConvertSvoToStl" },
               {      "version",                 1 },

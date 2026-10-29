@@ -1,5 +1,6 @@
 #include "Commands/IO/LoadStepAssetCommand.h"
 
+#include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
@@ -56,7 +57,20 @@ std::string LoadStepAssetCommand::getDescription() const
 
 nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
+    CADacomb::ProgressBar bar(1, "Loading STEP asset");
+
     auto asset = std::make_shared<CadAsset>(name, filePath);
+    if (!asset || bar.isCanceled())
+    {
+        return createResponse("LoadFailed",
+                              {
+                                { "assetGuid",   "" },
+                                {      "name", name }
+        });
+    }
+
+    bar.addProgress(1);
+
     database.getProject().addAsset(asset);
     database.getProject().setSelectedAssetGuid(asset->getGuid());
 
@@ -65,13 +79,11 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, 
         database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(asset));
     }
 
-    return {
-        {      "type",                   getType() },
-        {   "version",                getVersion() },
-        {    "status",                   "Success" },
-        { "assetGuid", asset->getGuid().toString() },
-        {      "name",                        name }
-    };
+    return createResponse("Success",
+                          {
+                            { "assetGuid", asset->getGuid().toString() },
+                            {      "name",                        name }
+    });
 }
 
 const std::string& LoadStepAssetCommand::getName() const

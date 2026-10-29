@@ -13,6 +13,12 @@ AssetRenderFactory::AssetRenderFactory() {}
 
 AssetRenderFactory::~AssetRenderFactory() {}
 
+AssetRenderFactory& AssetRenderFactory::getInstance()
+{
+    static AssetRenderFactory instance;
+    return instance;
+}
+
 std::unique_ptr<AssetRenderer> AssetRenderFactory::create(const std::shared_ptr<Asset>& asset)
 {
     if (!asset)
@@ -75,3 +81,14 @@ void AssetRenderFactory::clearCache()
 {
     rendererCache.clear();
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("AssetRenderFactory/SingletonInstance")
+{
+    auto& instance1 = AssetRenderFactory::getInstance();
+    auto& instance2 = AssetRenderFactory::getInstance();
+    CHECK(&instance1 == &instance2);
+}
+#endif

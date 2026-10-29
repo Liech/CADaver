@@ -46,6 +46,8 @@ std::string Asset::getTypeName() const
             return "SVO (Voxel)";
         case AssetType::Cad:
             return "CAD::Shape (CAD)";
+        case AssetType::ProgressBar:
+            return "Progress";
     }
     return "Unknown";
 }

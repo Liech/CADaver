@@ -14,19 +14,23 @@ namespace Vulcant
     class VulcantDevice;
     class VulcantGraphicCommand;
     class VulcantImage;
+    class VulcantUi;
+    class VulcantWindow;
 }
 
-// Coordinates target images, scene data, and frame clear using database preferences.
+// Coordinates rendering pipelines, offscreen target images, scene data, and ImGui UI rendering.
 class Renderer
 {
   public:
-    Renderer(Vulcant::VulcantDevice& device, const glm::ivec2& resolution, GatedDatabase& gatedDatabase);
+    Renderer(Vulcant::VulcantDevice& device, Vulcant::VulcantWindow& window, const glm::ivec2& resolution, GatedDatabase& gatedDatabase);
     virtual ~Renderer();
 
     void setResolution(const glm::ivec2& resolution);
     void setSceneData(const Vulcant::Toolkit::SceneData& sceneData);
 
     void clear();
+    void beginUiFrame();
+    void renderUi(Vulcant::VulcantWindow& window);
 
     const glm::ivec2&                             getResolution() const;
     const Vulcant::Toolkit::SceneData&            getSceneData() const;
@@ -42,12 +46,15 @@ class Renderer
 
   private:
     void recordClearPass();
+    void recordUiCommand();
 
     Vulcant::VulcantDevice&                         device;
     glm::ivec2                                      resolution;
     GatedDatabase&                                  gatedDatabase;
     Vulcant::Toolkit::SceneData                     sceneData;
     std::unique_ptr<Vulcant::VulcantGraphicCommand> drawCmd;
+    std::unique_ptr<Vulcant::VulcantGraphicCommand> uiCmdG;
+    std::unique_ptr<Vulcant::VulcantUi>             ui;
     std::unique_ptr<Vulcant::VulcantImage>          colorImage;
     std::unique_ptr<Vulcant::VulcantImage>          depthImage;
     std::unique_ptr<Vulcant::VulcantImage>          normalImage;

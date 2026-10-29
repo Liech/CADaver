@@ -4,6 +4,7 @@
 #include "Asset/TriangulationAsset.h"
 #include "Asset/VoxelAsset.h"
 #include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Util/ProgressBar.h"
 #include "CADacomb/Volume/AABB3.h"
 #include "CADacomb/Volume/SVO/Blocky/SVOBlockyTriangulation.h"
 #include "CADacomb/Volume/SVO/SVO.h"
@@ -21,6 +22,8 @@ AssetConverter::~AssetConverter() {}
 
 std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& asset, double precision)
 {
+    CADacomb::ProgressBar bar(1, "Triangulating CAD shape");
+
     std::unique_ptr<CADacomb::Triangulation> newTri;
 
     if (asset.getCadShape())
@@ -37,10 +40,12 @@ std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& ass
         }
     }
 
-    if (!newTri || newTri->vertices.empty())
+    if (!newTri || newTri->vertices.empty() || bar.isCanceled())
     {
         return nullptr;
     }
+
+    bar.addProgress(1);
 
     std::filesystem::path p(asset.getName());
     std::string           baseName = p.stem().string();
@@ -66,8 +71,10 @@ std::shared_ptr<VoxelAsset> AssetConverter::cadToSvo(const CadAsset& asset, doub
 
 std::shared_ptr<VoxelAsset> AssetConverter::stlToSvo(const TriangulationAsset& asset, uint32_t dimension)
 {
+    CADacomb::ProgressBar bar(1, "Converting STL to SVO");
+
     const CADacomb::Triangulation* tri = asset.getTriangulation();
-    if (!tri || tri->vertices.empty() || tri->indices.empty())
+    if (!tri || tri->vertices.empty() || tri->indices.empty() || bar.isCanceled())
     {
         return nullptr;
     }
@@ -86,10 +93,12 @@ std::shared_ptr<VoxelAsset> AssetConverter::stlToSvo(const TriangulationAsset& a
 
     CADacomb::SVOVoxelizer voxelizer;
     auto                   svo = voxelizer.voxelize<bool>(*tri, start, end, dimension);
-    if (!svo)
+    if (!svo || bar.isCanceled())
     {
         return nullptr;
     }
+
+    bar.addProgress(1);
 
     CADacomb::AABB3 bounds(start, end);
 
@@ -106,8 +115,10 @@ std::shared_ptr<VoxelAsset> AssetConverter::stlToSvo(const TriangulationAsset& a
 
 std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlBlocky(const VoxelAsset& asset, int targetDepth)
 {
+    CADacomb::ProgressBar bar(1, "Extracting blocky mesh from SVO");
+
     const CADacomb::SVO<bool>* svo = asset.getSVO();
-    if (!svo || svo->getDimension() == 0)
+    if (!svo || svo->getDimension() == 0 || bar.isCanceled())
     {
         return nullptr;
     }
@@ -119,10 +130,12 @@ std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlBlocky(const VoxelAs
     options.targetDepth             = targetDepth;
 
     auto triangulation = CADacomb::SVOBlockyTriangulation::triangulate(*svo, options);
-    if (!triangulation)
+    if (!triangulation || bar.isCanceled())
     {
         return nullptr;
     }
+
+    bar.addProgress(1);
 
     std::filesystem::path p(asset.getName());
     std::string           baseName = p.stem().string();

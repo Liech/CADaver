@@ -1,29 +1,19 @@
 #include "Cadaver.h"
 
-#include "Camera/CameraController.h"
+#include "Camera/ViewController.h"
 #include "Commands/Defer.h"
-
 #include "Database/Preferences/CameraPreferences.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Database/Preferences/UIPreferences.h"
 #include "Rendering/AssetRenderFactory.h"
 #include "Rendering/Renderer.h"
-#include "UI/About/AboutWindow.h"
-#include "UI/Commands/CommandsWindow.h"
-#include "UI/Component/ViewCubeWidget.h"
-#include "UI/Generator/LandscapeGeneratorWindow.h"
-#include "UI/Menu/CreateMenu.h"
-#include "UI/Menu/EditMenu.h"
-#include "UI/Menu/FileMenu.h"
+#include "UI/Menu/TopMenu.h"
 #include "UI/Preferences/PreferencesWindow.h"
 #include "UI/Project/ProjectWindow.h"
 #include "Vulcant/Interface/VulcantDevice.h"
-#include "Vulcant/Interface/VulcantGraphicCommand.h"
-#include "Vulcant/Interface/VulcantImage.h"
 #include "Vulcant/Interface/VulcantInput.h"
 #include "Vulcant/Interface/VulcantInputValue.h"
-#include "Vulcant/Interface/VulcantUi.h"
 #include "Vulcant/Interface/VulcantWindow.h"
 #include "Vulcant/Toolkit/Camera.h"
 #include "Vulcant/Toolkit/SceneData.h"
@@ -31,9 +21,6 @@
 #include "Vulcant/Wrapper/Window.h"
 
 #include <imgui.h>
-
-#include <ImGuizmo.h>
-#include <algorithm>
 
 void Cadaver::run()
 {
@@ -57,39 +44,26 @@ Cadaver::Cadaver(Vulcant::VulcantDevice& deviceInput, const glm::ivec2& res)
     window = device.createWindow(resolution, "CADaver");
 
     prepare();
-    recordCommand();
 
     window->start([this](double delta) { onLogic(delta); }, [this]() { onRender(); }, [this](const glm::ivec2& newResolution) { onResize(newResolution); });
     window->getInput().setCallback([this](const Vulcant::VulcantInputValue& key) { onKey(key); });
 }
 
-Cadaver::~Cadaver()
-{
-    if (uiCmdG)
-    {
-        uiCmdG->wait();
-    }
-    if (ui)
-    {
-        ui.reset();
-    }
-}
+Cadaver::~Cadaver() {}
 
 void Cadaver::changeResolution(const glm::ivec2& newResolution)
 {
     resolution = newResolution;
-    if (cameraController)
+    if (viewController)
     {
-        cameraController->updateAspect(resolution);
+        viewController->updateAspect(resolution);
     }
     if (renderer)
     {
         renderer->setResolution(resolution);
     }
-    if (assetRenderFactory)
-    {
-        assetRenderFactory->clearCache();
-    }
+    AssetRenderFactory::getInstance().clearCache();
+
     auto cameraPrefs          = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences().toJson();
     cameraPrefs["resolution"] = { resolution.x, resolution.y };
     Defer::getInstance().defer(
@@ -117,18 +91,18 @@ void Cadaver::onLogic(double delta)
 {
     Defer::getInstance().process();
 
-    if (cameraController)
+    if (viewController)
     {
-        cameraController->tick(delta);
+        viewController->tick(delta);
     }
 
     const auto& project = GatedDatabase::getInstance().get().getProject();
-    if (project.getAssetCount() != lastAssetCount)
+    if (lastAssetCount != project.getAssetCount())
     {
         lastAssetCount = project.getAssetCount();
-        if (cameraController)
+        if (viewController)
         {
-            cameraController->frameOnProject(project);
+            viewController->frameOnProject(project);
         }
     }
 
@@ -137,53 +111,38 @@ void Cadaver::onLogic(double delta)
 
 void Cadaver::onRender()
 {
-    if (!renderer || !ui || !uiCmdG || !window)
+    if (!renderer || !window)
     {
         return;
     }
 
     Vulcant::Toolkit::SceneData sceneData{};
-    if (cameraController)
+    if (viewController)
     {
-        sceneData = cameraController->getSceneData();
+        sceneData = viewController->getSceneData();
     }
 
-    const auto& preferences = GatedDatabase::getInstance().get().getPreferences();
-    const auto& camPrefs    = preferences.getCameraPreferences();
-
-    sceneData.nearPlane  = camPrefs.getNearPlane();
-    sceneData.farPlane   = camPrefs.getFarPlane();
-    sceneData.resolution = camPrefs.getResolution();
-
     renderer->setSceneData(sceneData);
-
-    const auto& project = GatedDatabase::getInstance().get().getProject();
-
     renderer->clear();
+
+    const auto& project           = GatedDatabase::getInstance().get().getProject();
+    const auto& selectedAssetGuid = project.getSelectedAssetGuid();
+
     for (const auto& asset : project.getAssets())
     {
-        if (asset && assetRenderFactory)
+        if (asset)
         {
-            assetRenderFactory->render(*renderer, asset, false);
+            bool isSelected = (!selectedAssetGuid.toString().empty() && asset->getGuid() == selectedAssetGuid);
+            AssetRenderFactory::getInstance().render(*renderer, asset, isSelected);
         }
     }
 
-    Vulcant::VulcantImage& resultImage = renderer->getResult();
-
-    uiCmdG->wait();
-    uiCmdG->startRecord();
-    ui->record(*uiCmdG, resultImage);
-    uiCmdG->endRecord();
-    uiCmdG->runAsync();
-    uiCmdG->wait();
-
-    window->blitImage(resultImage);
+    renderer->renderUi(*window);
 }
 
 void Cadaver::onResize(const glm::ivec2& newResolution)
 {
     changeResolution(newResolution);
-    recordCommand();
 }
 
 void Cadaver::onKey(const Vulcant::VulcantInputValue& key)
@@ -196,94 +155,66 @@ void Cadaver::onKey(const Vulcant::VulcantInputValue& key)
         }
     }
 
-    if (cameraController)
+    if (viewController)
     {
-        cameraController->keyEvent(key);
+        viewController->keyEvent(key);
     }
 }
 
 void Cadaver::prepare()
 {
-    ui = device.createUi(*window, Vulcant::VulcantImageFormat::R32G32B32A32_SFLOAT, false);
+    renderer = std::make_unique<Renderer>(device, *window, resolution, GatedDatabase::getInstance());
 
     const auto& preferences = GatedDatabase::getInstance().get().getPreferences();
 
-    preferencesWindow = std::make_unique<PreferencesWindow>();
-    preferencesWindow->getUIPreferencesView().apply(preferences.getUIPreferences());
-
-    aboutWindow              = std::make_unique<AboutWindow>();
-    commandsWindow           = std::make_unique<CommandsWindow>();
-    projectWindow            = std::make_unique<ProjectWindow>();
-    fileMenu                 = std::make_unique<FileMenu>();
-    editMenu                 = std::make_unique<EditMenu>();
-    createMenu               = std::make_unique<CreateMenu>();
-    landscapeGeneratorWindow = std::make_unique<LandscapeGeneratorWindow>();
-    viewCubeWidget           = std::make_unique<ViewCubeWidget>();
-
-    assetRenderFactory = std::make_unique<AssetRenderFactory>();
-    renderer           = std::make_unique<Renderer>(device, resolution, GatedDatabase::getInstance());
-
-    cameraController = std::make_unique<CameraController>();
-    cameraController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
-}
-
-void Cadaver::recordCommand()
-{
-    if (uiCmdG)
+    projectWindow = std::make_unique<ProjectWindow>();
+    topMenu       = std::make_unique<TopMenu>();
+    if (topMenu->getPreferencesWindow())
     {
-        uiCmdG->wait();
+        topMenu->getPreferencesWindow()->getUIPreferencesView().apply(preferences.getUIPreferences());
     }
-    uiCmdG = device.createGraphicCommand();
+
+    viewController = std::make_unique<ViewController>();
+    viewController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
 }
 
 void Cadaver::renderImGui()
 {
-    ui->newFrame();
+    if (!renderer)
+    {
+        return;
+    }
 
-    ImGuizmo::BeginFrame();
-    ImGuizmo::SetRect(0.0f, 0.0f, static_cast<float>(resolution.x), static_cast<float>(resolution.y));
+    renderer->beginUiFrame();
 
     const auto& database    = GatedDatabase::getInstance().get();
     const auto& project     = database.getProject();
     const auto& preferences = database.getPreferences();
 
-    if (ImGui::BeginMainMenuBar())
+    if (topMenu)
     {
-        if (fileMenu)
-        {
-            fileMenu->render(*preferencesWindow, quitRequested);
-        }
+        topMenu->render(quitRequested);
 
-        if (editMenu)
+        auto* prefWin = topMenu->getPreferencesWindow();
+        if (prefWin && viewController)
         {
-            editMenu->render();
-        }
+            topMenu->renderWindows(preferences, viewController->getCamera());
 
-        if (createMenu && landscapeGeneratorWindow)
-        {
-            createMenu->render(*landscapeGeneratorWindow);
-        }
-
-        if (ImGui::BeginMenu("Help"))
-        {
-            if (ImGui::MenuItem("About CADaver"))
+            if (prefWin->isResetRequested())
             {
-                if (aboutWindow)
-                {
-                    aboutWindow->setOpen(true);
-                }
+                viewController->reset(preferences.getCameraPreferences(), project);
+                prefWin->clearResetRequested();
             }
-            if (ImGui::MenuItem("Commands"))
-            {
-                if (commandsWindow)
-                {
-                    commandsWindow->setOpen(true);
-                }
-            }
-            ImGui::EndMenu();
-        }
 
-        ImGui::EndMainMenuBar();
+            if (preferences.getCameraPreferences().getCameraMode() != viewController->getMode())
+            {
+                viewController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
+            }
+        }
+        else
+        {
+            topMenu->renderWindows(preferences);
+        }
     }
 
     if (projectWindow)
@@ -291,48 +222,8 @@ void Cadaver::renderImGui()
         projectWindow->render(project);
     }
 
-    if (preferencesWindow && cameraController)
+    if (viewController)
     {
-        preferencesWindow->render(preferences, cameraController->getCamera());
-
-        if (preferencesWindow->isResetRequested())
-        {
-            cameraController->reset(preferences.getCameraPreferences(), project);
-            preferencesWindow->clearResetRequested();
-        }
-
-        if (preferences.getCameraPreferences().getCameraMode() != cameraController->getMode())
-        {
-            cameraController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
-        }
-    }
-
-    if (aboutWindow)
-    {
-        aboutWindow->render();
-    }
-
-    if (commandsWindow)
-    {
-        commandsWindow->render();
-    }
-
-    if (landscapeGeneratorWindow)
-    {
-        landscapeGeneratorWindow->render();
-    }
-
-    if (viewCubeWidget && cameraController && cameraController->getCamera())
-    {
-        viewCubeWidget->render(cameraController->getCamera(),
-                               resolution,
-                               [this]()
-                               {
-                                   const auto& project = GatedDatabase::getInstance().get().getProject();
-                                   if (cameraController)
-                                   {
-                                       cameraController->frameOnProject(project);
-                                   }
-                               });
+        viewController->renderViewCube(resolution, project);
     }
 }

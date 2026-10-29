@@ -1,5 +1,6 @@
 #include "Commands/Converter/ConvertStlToSvoCommand.h"
 
+#include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Commands/Undo/ReplaceAssetUndoRecord.h"
 #include "Database/Asset/TriangulationAsset.h"
@@ -59,40 +60,43 @@ std::string ConvertStlToSvoCommand::getDescription() const
            "}";
 }
 
+std::vector<CADacomb::GUID> ConvertStlToSvoCommand::getRequiredAssets() const
+{
+    return { assetGuid };
+}
+
 nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
+    CADacomb::ProgressBar bar(1, "Converting STL to SVO");
+
     auto baseAsset = database.getProject().getAsset(assetGuid);
-    if (!baseAsset)
+    if (!baseAsset || bar.isCanceled())
     {
-        return {
-            {      "type",       getType() },
-            {   "version",    getVersion() },
-            {    "status", "AssetNotFound" },
-            { "assetGuid",              "" }
-        };
+        return createResponse("AssetNotFound",
+                              {
+                                { "assetGuid", "" }
+        });
     }
 
     auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(baseAsset);
-    if (!triAsset)
+    if (!triAsset || bar.isCanceled())
     {
-        return {
-            {      "type",               getType() },
-            {   "version",            getVersion() },
-            {    "status", "NotTriangulationAsset" },
-            { "assetGuid",                      "" }
-        };
+        return createResponse("NotTriangulationAsset",
+                              {
+                                { "assetGuid", "" }
+        });
     }
 
     auto svoAsset = AssetConverter::stlToSvo(*triAsset, dimension);
-    if (!svoAsset)
+    if (!svoAsset || bar.isCanceled())
     {
-        return {
-            {      "type",          getType() },
-            {   "version",       getVersion() },
-            {    "status", "ConversionFailed" },
-            { "assetGuid",                 "" }
-        };
+        return createResponse("ConversionFailed",
+                              {
+                                { "assetGuid", "" }
+        });
     }
+
+    bar.addProgress(1);
 
     database.getProject().addAsset(svoAsset);
 
@@ -112,12 +116,10 @@ nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*
         }
     }
 
-    return {
-        {      "type",                      getType() },
-        {   "version",                   getVersion() },
-        {    "status",                      "Success" },
-        { "assetGuid", svoAsset->getGuid().toString() }
-    };
+    return createResponse("Success",
+                          {
+                            { "assetGuid", svoAsset->getGuid().toString() }
+    });
 }
 
 const CADacomb::GUID& ConvertStlToSvoCommand::getAssetGuid() const

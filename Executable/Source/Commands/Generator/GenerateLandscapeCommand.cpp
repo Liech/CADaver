@@ -84,12 +84,10 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istrea
 
     if (!svo)
     {
-        return {
-            {      "type",          getType() },
-            {   "version",       getVersion() },
-            {    "status", "GenerationFailed" },
-            { "assetGuid",                 "" }
-        };
+        return createResponse("GenerationFailed",
+                              {
+                                { "assetGuid", "" }
+        });
     }
 
     auto voxelAsset = std::make_shared<VoxelAsset>(assetName, std::move(svo), CADacomb::AABB3(glm::dvec3(0.0), glm::dvec3(static_cast<double>(dimension))));
@@ -102,12 +100,10 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istrea
         database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(voxelAsset));
     }
 
-    return {
-        {      "type",                        getType() },
-        {   "version",                     getVersion() },
-        {    "status",                        "Success" },
-        { "assetGuid", voxelAsset->getGuid().toString() }
-    };
+    return createResponse("Success",
+                          {
+                            { "assetGuid", voxelAsset->getGuid().toString() }
+    });
 }
 
 const CADacomb::LandscapeConfig& GenerateLandscapeCommand::getConfig() const
