@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+#include "CADacomb/Util/GUID.h"
 #include "Commands/Undo/UndoRecord.h"
 #include "Database/Asset.h"
 
@@ -9,7 +10,7 @@
 class ClearProjectUndoRecord : public UndoRecord
 {
   public:
-    ClearProjectUndoRecord(std::vector<std::shared_ptr<Asset>> assets, int selectedIndex);
+    ClearProjectUndoRecord(std::vector<std::shared_ptr<Asset>> assets, const CADacomb::GUID& selectedGuid);
     virtual ~ClearProjectUndoRecord();
 
     void undo(Database& database) override;
@@ -19,9 +20,9 @@ class ClearProjectUndoRecord : public UndoRecord
     size_t      getSizeInBytes() const override;
 
     const std::vector<std::shared_ptr<Asset>>& getAssets() const;
-    int                                        getSelectedIndex() const;
+    const CADacomb::GUID&                      getSelectedGuid() const;
 
   private:
     std::vector<std::shared_ptr<Asset>> assets;
-    int                                 selectedIndex = -1;
+    CADacomb::GUID                      selectedGuid;
 };

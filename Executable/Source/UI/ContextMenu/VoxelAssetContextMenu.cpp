@@ -48,7 +48,7 @@ void VoxelAssetContextMenu::render(Asset& asset)
                         maxDepth = static_cast<int>(d);
                     }
                 }
-                svoToStlModal->open(getAssetIndex(), voxelAsset->getName(), maxDepth);
+                svoToStlModal->open(getAssetGuid(), voxelAsset->getName(), maxDepth);
             }
         }
         ImGui::EndMenu();
@@ -96,23 +96,30 @@ void VoxelAssetContextMenu::save(VoxelAsset& asset)
             savePath += ".cadacombsvo";
         }
 
-        int targetIndex = getAssetIndex();
-        if (targetIndex < 0)
+        CADacomb::GUID targetGuid = getAssetGuid();
+        if (targetGuid.toString().empty())
         {
-            targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+            targetGuid = GatedDatabase::getInstance().get().getProject().getSelectedAssetGuid();
         }
 
-        if (targetIndex >= 0)
+        if (!targetGuid.toString().empty())
         {
             Defer::getInstance().defer(
-              [targetIndex, savePath]()
+              [targetGuid, savePath]()
               {
-                  GatedDatabase::getInstance().execute({
-                    {       "type", "SaveVoxelAsset" },
-                    {    "version",                1 },
-                    { "assetIndex",      targetIndex },
-                    {   "filePath",         savePath }
-                  });
+                  std::ofstream file(savePath, std::ios::binary);
+                  if (file.is_open())
+                  {
+                      GatedDatabase::getInstance().execute(
+                        {
+                          {      "type",      "SaveVoxelAsset" },
+                          {   "version",                     1 },
+                          { "assetGuid", targetGuid.toString() }
+                      },
+                        false,
+                        nullptr,
+                        &file);
+                  }
               });
         }
     }

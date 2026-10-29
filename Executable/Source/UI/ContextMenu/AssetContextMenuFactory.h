@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+
+#include "CADacomb/Util/GUID.h"
 
 #include <memory>
 #include <string>
@@ -20,7 +22,6 @@ class AssetContextMenuFactory
     std::unique_ptr<AssetContextMenu> create(const std::shared_ptr<Asset>& asset);
 
     void render(const std::shared_ptr<Asset>& asset);
-    void render(const std::shared_ptr<Asset>& asset, int assetIndex);
     void renderCloseModal();
     void renderConversionModals();
 
@@ -30,6 +31,6 @@ class AssetContextMenuFactory
     std::unique_ptr<StlToSvoConversionModal> stlToSvoModal;
     std::unique_ptr<SvoToStlConversionModal> svoToStlModal;
     std::string                              closeTargetName;
-    int                                      closeTargetIndex = -1;
-    bool                                     openCloseModal   = false;
+    CADacomb::GUID                           closeTargetGuid;
+    bool                                     openCloseModal = false;
 };

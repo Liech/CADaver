@@ -5,7 +5,7 @@
 
 ClearProjectCommand::ClearProjectCommand() {}
 
-ClearProjectCommand::ClearProjectCommand(const nlohmann::json& json) {}
+ClearProjectCommand::ClearProjectCommand(const nlohmann::json&) {}
 
 ClearProjectCommand::~ClearProjectCommand() {}
 
@@ -41,14 +41,14 @@ std::string ClearProjectCommand::getDescription() const
 
 nlohmann::json ClearProjectCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
-    auto assets = database.getProject().getAssets();
-    int  selIdx = database.getProject().getSelectedIndex();
+    auto           assets  = database.getProject().getAssets();
+    CADacomb::GUID selGuid = database.getProject().getSelectedAssetGuid();
 
     database.getProject().clear();
 
     if (recordUndo && !assets.empty())
     {
-        database.getUndoStack().push(std::make_unique<ClearProjectUndoRecord>(assets, selIdx));
+        database.getUndoStack().push(std::make_unique<ClearProjectUndoRecord>(assets, selGuid));
     }
 
     return {

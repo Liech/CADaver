@@ -1,5 +1,7 @@
 #include "Database/Project.h"
 
+#include <algorithm>
+
 Project::Project() {}
 
 Project::~Project() {}
@@ -9,38 +11,28 @@ void Project::addAsset(std::shared_ptr<Asset> asset)
     if (asset)
     {
         assets.push_back(asset);
-        if (selectedIndex < 0)
+        if (selectedGuid.toString().empty())
         {
-            selectedIndex = 0;
+            selectedGuid = asset->getGuid();
         }
     }
 }
 
-void Project::insertAsset(size_t index, std::shared_ptr<Asset> asset)
+void Project::removeAsset(const CADacomb::GUID& guid)
 {
-    if (asset)
+    auto it = std::find_if(assets.begin(), assets.end(), [&guid](const std::shared_ptr<Asset>& a) { return a && a->getGuid() == guid; });
+    if (it != assets.end())
     {
-        if (index > assets.size())
-        {
-            index = assets.size();
-        }
-        assets.insert(assets.begin() + index, asset);
-        selectedIndex = static_cast<int>(index);
-    }
-}
+        bool wasSelected = (selectedGuid == guid);
+        assets.erase(it);
 
-void Project::removeAsset(size_t index)
-{
-    if (index < assets.size())
-    {
-        assets.erase(assets.begin() + index);
         if (assets.empty())
         {
-            selectedIndex = -1;
+            selectedGuid = CADacomb::GUID();
         }
-        else if (selectedIndex >= static_cast<int>(assets.size()))
+        else if (wasSelected)
         {
-            selectedIndex = static_cast<int>(assets.size()) - 1;
+            selectedGuid = assets.front()->getGuid();
         }
     }
 }
@@ -48,7 +40,7 @@ void Project::removeAsset(size_t index)
 void Project::clear()
 {
     assets.clear();
-    selectedIndex = -1;
+    selectedGuid = CADacomb::GUID();
 }
 
 size_t Project::getAssetCount() const
@@ -56,11 +48,19 @@ size_t Project::getAssetCount() const
     return assets.size();
 }
 
-std::shared_ptr<Asset> Project::getAsset(size_t index) const
+bool Project::hasAsset(const CADacomb::GUID& guid) const
 {
-    if (index < assets.size())
+    return getAsset(guid) != nullptr;
+}
+
+std::shared_ptr<Asset> Project::getAsset(const CADacomb::GUID& guid) const
+{
+    for (const auto& asset : assets)
     {
-        return assets[index];
+        if (asset && asset->getGuid() == guid)
+        {
+            return asset;
+        }
     }
     return nullptr;
 }
@@ -70,24 +70,78 @@ const std::vector<std::shared_ptr<Asset>>& Project::getAssets() const
     return assets;
 }
 
-int Project::getSelectedIndex() const
+CADacomb::GUID Project::getSelectedAssetGuid() const
 {
-    return selectedIndex;
+    return selectedGuid;
 }
 
-void Project::setSelectedIndex(int index)
+void Project::setSelectedAssetGuid(const CADacomb::GUID& guid)
 {
-    if (selectedIndex != index)
-    {
-        selectedIndex = index;
-    }
+    selectedGuid = guid;
 }
 
 std::shared_ptr<Asset> Project::getSelectedAsset() const
 {
-    if (selectedIndex >= 0 && selectedIndex < static_cast<int>(assets.size()))
-    {
-        return assets[selectedIndex];
-    }
-    return nullptr;
+    return getAsset(selectedGuid);
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+class MockAsset : public Asset
+{
+  public:
+    MockAsset(const std::string& name)
+      : Asset(name, AssetType::Triangulation)
+    {
+    }
+
+    virtual ~MockAsset() {}
+
+    size_t getSizeInBytes() const override
+    {
+        return 64;
+    }
+};
+
+TEST_CASE("Project/AddAndGetAssetByGuid")
+{
+    Project project;
+    CHECK(project.getAssetCount() == 0);
+    CHECK(project.getSelectedAsset() == nullptr);
+
+    auto           asset = std::make_shared<MockAsset>("Cube");
+    CADacomb::GUID guid  = asset->getGuid();
+    CHECK_FALSE(guid.toString().empty());
+
+    project.addAsset(asset);
+    CHECK(project.getAssetCount() == 1);
+    CHECK(project.hasAsset(guid));
+    CHECK(project.getAsset(guid) == asset);
+    CHECK(project.getSelectedAssetGuid() == guid);
+    CHECK(project.getSelectedAsset() == asset);
+}
+
+TEST_CASE("Project/RemoveAssetByGuid")
+{
+    Project project;
+    auto    asset1 = std::make_shared<MockAsset>("A");
+    auto    asset2 = std::make_shared<MockAsset>("B");
+
+    project.addAsset(asset1);
+    project.addAsset(asset2);
+    CHECK(project.getAssetCount() == 2);
+
+    project.setSelectedAssetGuid(asset2->getGuid());
+    CHECK(project.getSelectedAsset() == asset2);
+
+    project.removeAsset(asset2->getGuid());
+    CHECK(project.getAssetCount() == 1);
+    CHECK_FALSE(project.hasAsset(asset2->getGuid()));
+    CHECK(project.getSelectedAssetGuid() == asset1->getGuid());
+
+    project.clear();
+    CHECK(project.getAssetCount() == 0);
+    CHECK(project.getSelectedAsset() == nullptr);
+}
+#endif

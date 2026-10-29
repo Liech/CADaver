@@ -2,9 +2,9 @@
 
 #include "Database/Database.h"
 
-ClearProjectUndoRecord::ClearProjectUndoRecord(std::vector<std::shared_ptr<Asset>> assetsInput, int selectedIndexInput)
+ClearProjectUndoRecord::ClearProjectUndoRecord(std::vector<std::shared_ptr<Asset>> assetsInput, const CADacomb::GUID& selectedGuidInput)
   : assets(std::move(assetsInput))
-  , selectedIndex(selectedIndexInput)
+  , selectedGuid(selectedGuidInput)
 {
 }
 
@@ -18,7 +18,7 @@ void ClearProjectUndoRecord::undo(Database& database)
     {
         project.addAsset(asset);
     }
-    project.setSelectedIndex(selectedIndex);
+    project.setSelectedAssetGuid(selectedGuid);
 }
 
 void ClearProjectUndoRecord::redo(Database& database)
@@ -34,7 +34,6 @@ std::string ClearProjectUndoRecord::getDescription() const
 size_t ClearProjectUndoRecord::getSizeInBytes() const
 {
     size_t size = sizeof(ClearProjectUndoRecord);
-    size += assets.capacity() * sizeof(std::shared_ptr<Asset>);
     for (const auto& asset : assets)
     {
         if (asset)
@@ -50,7 +49,7 @@ const std::vector<std::shared_ptr<Asset>>& ClearProjectUndoRecord::getAssets() c
     return assets;
 }
 
-int ClearProjectUndoRecord::getSelectedIndex() const
+const CADacomb::GUID& ClearProjectUndoRecord::getSelectedGuid() const
 {
-    return selectedIndex;
+    return selectedGuid;
 }

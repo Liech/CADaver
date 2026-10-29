@@ -9,8 +9,8 @@
 
 ConvertCadToSvoCommand::ConvertCadToSvoCommand() {}
 
-ConvertCadToSvoCommand::ConvertCadToSvoCommand(int assetIndex, double precision, uint32_t dimension, bool deleteOrigin)
-  : assetIndex(assetIndex)
+ConvertCadToSvoCommand::ConvertCadToSvoCommand(const CADacomb::GUID& assetGuid, double precision, uint32_t dimension, bool deleteOrigin)
+  : assetGuid(assetGuid)
   , precision(precision)
   , dimension(dimension)
   , deleteOrigin(deleteOrigin)
@@ -18,7 +18,7 @@ ConvertCadToSvoCommand::ConvertCadToSvoCommand(int assetIndex, double precision,
 }
 
 ConvertCadToSvoCommand::ConvertCadToSvoCommand(const nlohmann::json& json)
-  : assetIndex(json.at("assetIndex").get<int>())
+  : assetGuid(json.value("assetGuid", ""))
   , precision(json.value("precision", 0.1))
   , dimension(json.value("dimension", 64u))
   , deleteOrigin(json.value("deleteOrigin", false))
@@ -41,15 +41,15 @@ std::string ConvertCadToSvoCommand::getDescription() const
 {
     return "Command: ConvertCadToSvo\n"
            "Version: 1\n"
-           "Purpose: Converts a CAD asset into a volumetric SVO asset.\n\n"
+           "Purpose: Converts a CAD asset to a volumetric SVO asset via triangulation.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"ConvertCadToSvo\",\n"
            "  \"version\": 1,\n"
-           "  \"assetIndex\": <int>,\n"
-           "  \"precision\": <double, optional, default 0.1>,\n"
-           "  \"dimension\": <uint, optional, default 64>,\n"
-           "  \"deleteOrigin\": <bool, optional, default false>\n"
+           "  \"assetGuid\": <string>,\n"
+           "  \"precision\": <double> (optional, default: 0.1),\n"
+           "  \"dimension\": <uint> (optional, default: 64),\n"
+           "  \"deleteOrigin\": <bool> (optional, default: false)\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -57,32 +57,32 @@ std::string ConvertCadToSvoCommand::getDescription() const
            "{\n"
            "  \"type\": \"ConvertCadToSvo\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"IndexOutOfBounds\" | \"NotCadAsset\" | \"ConversionFailed\",\n"
-           "  \"index\": <int>\n"
+           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotCadAsset\" | \"ConversionFailed\",\n"
+           "  \"assetGuid\": <string>\n"
            "}";
 }
 
 nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
-    if (assetIndex < 0 || static_cast<size_t>(assetIndex) >= database.getProject().getAssetCount())
+    auto baseAsset = database.getProject().getAsset(assetGuid);
+    if (!baseAsset)
     {
         return {
-            {    "type",          getType() },
-            { "version",       getVersion() },
-            {  "status", "IndexOutOfBounds" },
-            {   "index",                 -1 }
+            {      "type",       getType() },
+            {   "version",    getVersion() },
+            {    "status", "AssetNotFound" },
+            { "assetGuid",              "" }
         };
     }
 
-    auto baseAsset = database.getProject().getAsset(assetIndex);
-    auto cadAsset  = std::dynamic_pointer_cast<CadAsset>(baseAsset);
+    auto cadAsset = std::dynamic_pointer_cast<CadAsset>(baseAsset);
     if (!cadAsset)
     {
         return {
-            {    "type",     getType() },
-            { "version",  getVersion() },
-            {  "status", "NotCadAsset" },
-            {   "index",            -1 }
+            {      "type",     getType() },
+            {   "version",  getVersion() },
+            {    "status", "NotCadAsset" },
+            { "assetGuid",            "" }
         };
     }
 
@@ -90,49 +90,47 @@ nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*
     if (!svoAsset)
     {
         return {
-            {    "type",          getType() },
-            { "version",       getVersion() },
-            {  "status", "ConversionFailed" },
-            {   "index",                 -1 }
+            {      "type",          getType() },
+            {   "version",       getVersion() },
+            {    "status", "ConversionFailed" },
+            { "assetGuid",                 "" }
         };
     }
 
     database.getProject().addAsset(svoAsset);
-    int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
 
     if (deleteOrigin)
     {
-        database.getProject().removeAsset(static_cast<size_t>(assetIndex));
-        newIndex--;
+        database.getProject().removeAsset(assetGuid);
         if (recordUndo)
         {
-            database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, static_cast<size_t>(assetIndex), svoAsset, static_cast<size_t>(newIndex)));
+            database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, svoAsset));
         }
     }
     else
     {
         if (recordUndo)
         {
-            database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(svoAsset, static_cast<size_t>(newIndex)));
+            database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(svoAsset));
         }
     }
 
     return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" },
-        {   "index",     newIndex }
+        {      "type",                      getType() },
+        {   "version",                   getVersion() },
+        {    "status",                      "Success" },
+        { "assetGuid", svoAsset->getGuid().toString() }
     };
 }
 
-int ConvertCadToSvoCommand::getAssetIndex() const
+const CADacomb::GUID& ConvertCadToSvoCommand::getAssetGuid() const
 {
-    return assetIndex;
+    return assetGuid;
 }
 
-void ConvertCadToSvoCommand::setAssetIndex(int newIndex)
+void ConvertCadToSvoCommand::setAssetGuid(const CADacomb::GUID& newGuid)
 {
-    assetIndex = newIndex;
+    assetGuid = newGuid;
 }
 
 double ConvertCadToSvoCommand::getPrecision() const

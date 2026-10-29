@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+
+#include "CADacomb/Util/GUID.h"
 
 #include <string>
 
@@ -9,16 +11,16 @@ class SvoToStlConversionModal
     SvoToStlConversionModal();
     virtual ~SvoToStlConversionModal();
 
-    void open(int assetIndex, const std::string& assetName, int maxDepth = 6);
+    void open(const CADacomb::GUID& assetGuid, const std::string& assetName, int maxDepth = 6);
     void render();
 
   private:
     void executeConversion();
 
-    std::string targetAssetName;
-    int         targetAssetIndex = -1;
-    int         targetDepth      = -1;
-    int         maxTreeDepth     = 6;
-    bool        deleteOrigin     = false;
-    bool        shouldOpenPopup  = false;
+    std::string    targetAssetName;
+    CADacomb::GUID targetAssetGuid;
+    int            targetDepth     = -1;
+    int            maxTreeDepth    = 6;
+    bool           deleteOrigin    = false;
+    bool           shouldOpenPopup = false;
 };

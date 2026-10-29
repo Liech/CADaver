@@ -3,19 +3,18 @@
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
 #include "Library/CAD/CADShape.h"
-#include "Library/Operation/IO/SaveCADOperation.h"
 
 SaveStepAssetCommand::SaveStepAssetCommand() {}
 
-SaveStepAssetCommand::SaveStepAssetCommand(int assetIndex, const std::string& filePath)
+SaveStepAssetCommand::SaveStepAssetCommand(const CADacomb::GUID& assetGuid, const std::string& filePath)
   : filePath(filePath)
-  , assetIndex(assetIndex)
+  , assetGuid(assetGuid)
 {
 }
 
 SaveStepAssetCommand::SaveStepAssetCommand(const nlohmann::json& json)
-  : filePath(json.at("filePath").get<std::string>())
-  , assetIndex(json.at("assetIndex").get<int>())
+  : filePath(json.value("filePath", ""))
+  , assetGuid(json.value("assetGuid", ""))
 {
 }
 
@@ -35,13 +34,13 @@ std::string SaveStepAssetCommand::getDescription() const
 {
     return "Command: SaveStepAsset\n"
            "Version: 1\n"
-           "Purpose: Saves a CAD asset to a STEP file on disk.\n\n"
+           "Purpose: Saves a CAD asset to a STEP file.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveStepAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"assetIndex\": <int>,\n"
-           "  \"filePath\": \"<string>\"\n"
+           "  \"assetGuid\": <string>,\n"
+           "  \"filePath\": <string> (optional)\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -49,55 +48,78 @@ std::string SaveStepAssetCommand::getDescription() const
            "{\n"
            "  \"type\": \"SaveStepAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotCadAsset\",\n"
-           "  \"index\": <int>\n"
+           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotCadAsset\" | \"NoShape\" | \"WriteFailed\",\n"
+           "  \"filePath\": <string>\n"
            "}";
 }
 
-nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool)
+nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool)
 {
-    auto baseAsset = database.getProject().getAsset(static_cast<size_t>(assetIndex));
+    auto baseAsset = database.getProject().getAsset(assetGuid);
     if (!baseAsset)
     {
         return {
-            {    "type",       getType() },
-            { "version",    getVersion() },
-            {  "status", "AssetNotFound" },
-            {   "index",      assetIndex }
+            {     "type",       getType() },
+            {  "version",    getVersion() },
+            {   "status", "AssetNotFound" },
+            { "filePath",        filePath }
         };
     }
 
     auto cadAsset = std::dynamic_pointer_cast<CadAsset>(baseAsset);
-    if (!cadAsset || !cadAsset->getCadShape())
+    if (!cadAsset)
     {
         return {
-            {    "type",     getType() },
-            { "version",  getVersion() },
-            {  "status", "NotCadAsset" },
-            {   "index",    assetIndex }
+            {     "type",     getType() },
+            {  "version",  getVersion() },
+            {   "status", "NotCadAsset" },
+            { "filePath",      filePath }
         };
     }
 
-    Library::SaveCADOperation::saveToFile(*cadAsset->getCadShape(), filePath);
-    cadAsset->setFilePath(filePath);
-    cadAsset->markClean();
+    auto* shape = cadAsset->getCadShape();
+    if (!shape)
+    {
+        return {
+            {     "type",    getType() },
+            {  "version", getVersion() },
+            {   "status",    "NoShape" },
+            { "filePath",     filePath }
+        };
+    }
+
+    std::string targetPath = filePath.empty() ? cadAsset->getFilePath() : filePath;
+    if (targetPath.empty())
+    {
+        targetPath = cadAsset->getName() + ".step";
+    }
+
+    if (!shape->save(targetPath))
+    {
+        return {
+            {     "type",     getType() },
+            {  "version",  getVersion() },
+            {   "status", "WriteFailed" },
+            { "filePath",    targetPath }
+        };
+    }
 
     return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" },
-        {   "index",   assetIndex }
+        {     "type",    getType() },
+        {  "version", getVersion() },
+        {   "status",    "Success" },
+        { "filePath",   targetPath }
     };
 }
 
-int SaveStepAssetCommand::getAssetIndex() const
+const CADacomb::GUID& SaveStepAssetCommand::getAssetGuid() const
 {
-    return assetIndex;
+    return assetGuid;
 }
 
-void SaveStepAssetCommand::setAssetIndex(int index)
+void SaveStepAssetCommand::setAssetGuid(const CADacomb::GUID& guid)
 {
-    assetIndex = index;
+    assetGuid = guid;
 }
 
 const std::string& SaveStepAssetCommand::getFilePath() const

@@ -1,13 +1,14 @@
-#pragma once
+﻿#pragma once
 
+#include "CADacomb/Util/GUID.h"
 #include "Commands/Command.h"
 
-// Command to remove an asset from the project by index.
+// Command to remove an asset from the project by GUID.
 class RemoveAssetCommand : public Command
 {
   public:
     RemoveAssetCommand();
-    explicit RemoveAssetCommand(int assetIndex);
+    explicit RemoveAssetCommand(const CADacomb::GUID& assetGuid);
     explicit RemoveAssetCommand(const nlohmann::json& json);
     virtual ~RemoveAssetCommand();
 
@@ -17,9 +18,9 @@ class RemoveAssetCommand : public Command
 
     virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
 
-    int  getAssetIndex() const;
-    void setAssetIndex(int index);
+    const CADacomb::GUID& getAssetGuid() const;
+    void                  setAssetGuid(const CADacomb::GUID& guid);
 
   private:
-    int assetIndex = -1;
+    CADacomb::GUID assetGuid;
 };

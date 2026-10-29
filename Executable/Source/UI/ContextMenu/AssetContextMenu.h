@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+
+#include "CADacomb/Util/GUID.h"
 
 class Asset;
 
@@ -11,9 +13,9 @@ class AssetContextMenu
 
     virtual void render(Asset& asset) = 0;
 
-    int  getAssetIndex() const;
-    void setAssetIndex(int index);
+    const CADacomb::GUID& getAssetGuid() const;
+    void                  setAssetGuid(const CADacomb::GUID& guid);
 
   private:
-    int assetIndex = -1;
+    CADacomb::GUID assetGuid;
 };

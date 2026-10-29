@@ -137,7 +137,7 @@ TEST_CASE("UndoStack/PushUndoRedo")
 
     auto asset = std::make_shared<TriangulationAsset>("Test");
     database.getProject().addAsset(asset);
-    stack.push(std::make_unique<AddAssetUndoRecord>(asset, 0));
+    stack.push(std::make_unique<AddAssetUndoRecord>(asset));
 
     REQUIRE(stack.canUndo());
     REQUIRE_FALSE(stack.canRedo());

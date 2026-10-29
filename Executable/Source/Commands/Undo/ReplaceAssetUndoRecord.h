@@ -8,7 +8,7 @@
 class ReplaceAssetUndoRecord : public UndoRecord
 {
   public:
-    ReplaceAssetUndoRecord(std::shared_ptr<Asset> originAsset, size_t originIndex, std::shared_ptr<Asset> newAsset, size_t newIndex);
+    ReplaceAssetUndoRecord(std::shared_ptr<Asset> originAsset, std::shared_ptr<Asset> newAsset);
     virtual ~ReplaceAssetUndoRecord();
 
     void undo(Database& database) override;
@@ -19,12 +19,8 @@ class ReplaceAssetUndoRecord : public UndoRecord
 
     std::shared_ptr<Asset> getOriginAsset() const;
     std::shared_ptr<Asset> getNewAsset() const;
-    size_t                 getOriginIndex() const;
-    size_t                 getNewIndex() const;
 
   private:
     std::shared_ptr<Asset> originAsset;
     std::shared_ptr<Asset> newAsset;
-    size_t                 originIndex = 0;
-    size_t                 newIndex    = 0;
 };

@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+#include "CADacomb/Util/GUID.h"
 #include "Commands/Command.h"
 
 // Command to convert a CAD asset to a triangulation STL asset.
@@ -7,7 +8,7 @@ class ConvertCadToStlCommand : public Command
 {
   public:
     ConvertCadToStlCommand();
-    explicit ConvertCadToStlCommand(int assetIndex, double precision = 0.1, bool deleteOrigin = false);
+    explicit ConvertCadToStlCommand(const CADacomb::GUID& assetGuid, double precision = 0.1, bool deleteOrigin = false);
     explicit ConvertCadToStlCommand(const nlohmann::json& json);
     virtual ~ConvertCadToStlCommand();
 
@@ -17,15 +18,15 @@ class ConvertCadToStlCommand : public Command
 
     virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
 
-    int    getAssetIndex() const;
-    void   setAssetIndex(int newIndex);
-    double getPrecision() const;
-    void   setPrecision(double newPrecision);
-    bool   getDeleteOrigin() const;
-    void   setDeleteOrigin(bool shouldDelete);
+    const CADacomb::GUID& getAssetGuid() const;
+    void                  setAssetGuid(const CADacomb::GUID& newGuid);
+    double                getPrecision() const;
+    void                  setPrecision(double newPrecision);
+    bool                  getDeleteOrigin() const;
+    void                  setDeleteOrigin(bool shouldDelete);
 
   private:
-    int    assetIndex   = -1;
-    double precision    = 0.1;
-    bool   deleteOrigin = false;
+    CADacomb::GUID assetGuid;
+    double         precision    = 0.1;
+    bool           deleteOrigin = false;
 };

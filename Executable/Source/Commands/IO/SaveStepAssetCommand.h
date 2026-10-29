@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+#include "CADacomb/Util/GUID.h"
 #include "Commands/Command.h"
 
 #include <string>
@@ -9,7 +10,7 @@ class SaveStepAssetCommand : public Command
 {
   public:
     SaveStepAssetCommand();
-    explicit SaveStepAssetCommand(int assetIndex, const std::string& filePath = "");
+    explicit SaveStepAssetCommand(const CADacomb::GUID& assetGuid, const std::string& filePath = "");
     explicit SaveStepAssetCommand(const nlohmann::json& json);
     virtual ~SaveStepAssetCommand();
 
@@ -19,13 +20,13 @@ class SaveStepAssetCommand : public Command
 
     virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
 
-    int  getAssetIndex() const;
-    void setAssetIndex(int index);
+    const CADacomb::GUID& getAssetGuid() const;
+    void                  setAssetGuid(const CADacomb::GUID& guid);
 
     const std::string& getFilePath() const;
     void               setFilePath(const std::string& newFilePath);
 
   private:
-    std::string filePath;
-    int         assetIndex = -1;
+    std::string    filePath;
+    CADacomb::GUID assetGuid;
 };

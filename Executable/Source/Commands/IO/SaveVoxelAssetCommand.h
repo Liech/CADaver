@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+#include "CADacomb/Util/GUID.h"
 #include "Commands/Command.h"
 
 // Command to save an SVO voxel asset to an output stream.
@@ -7,7 +8,7 @@ class SaveVoxelAssetCommand : public Command
 {
   public:
     SaveVoxelAssetCommand();
-    explicit SaveVoxelAssetCommand(int assetIndex);
+    explicit SaveVoxelAssetCommand(const CADacomb::GUID& assetGuid);
     explicit SaveVoxelAssetCommand(const nlohmann::json& json);
     virtual ~SaveVoxelAssetCommand();
 
@@ -17,9 +18,9 @@ class SaveVoxelAssetCommand : public Command
 
     virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
 
-    int  getAssetIndex() const;
-    void setAssetIndex(int index);
+    const CADacomb::GUID& getAssetGuid() const;
+    void                  setAssetGuid(const CADacomb::GUID& guid);
 
   private:
-    int assetIndex = -1;
+    CADacomb::GUID assetGuid;
 };

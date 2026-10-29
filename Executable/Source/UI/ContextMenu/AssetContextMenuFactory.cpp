@@ -1,28 +1,26 @@
-#include "AssetContextMenuFactory.h"
+#include "UI/ContextMenu/AssetContextMenuFactory.h"
 
-#include "AssetContextMenu.h"
-#include "CadAssetContextMenu.h"
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
-#include "Database/Asset.h"
-#include "Database/AssetType.h"
-#include "TriangulationAssetContextMenu.h"
+#include "Database/Asset/CadAsset.h"
+#include "Database/Asset/TriangulationAsset.h"
+#include "Database/Asset/VoxelAsset.h"
+#include "UI/ContextMenu/CadAssetContextMenu.h"
+#include "UI/ContextMenu/TriangulationAssetContextMenu.h"
+#include "UI/ContextMenu/VoxelAssetContextMenu.h"
 #include "UI/Converter/CadToStlConversionModal.h"
 #include "UI/Converter/CadToSvoConversionModal.h"
 #include "UI/Converter/StlToSvoConversionModal.h"
 #include "UI/Converter/SvoToStlConversionModal.h"
-#include "VoxelAssetContextMenu.h"
 
-#include <cstdint>
 #include <imgui.h>
-#include <string>
 
 AssetContextMenuFactory::AssetContextMenuFactory()
-  : cadToStlModal(std::make_unique<CadToStlConversionModal>())
-  , cadToSvoModal(std::make_unique<CadToSvoConversionModal>())
-  , stlToSvoModal(std::make_unique<StlToSvoConversionModal>())
-  , svoToStlModal(std::make_unique<SvoToStlConversionModal>())
 {
+    cadToStlModal = std::make_unique<CadToStlConversionModal>();
+    cadToSvoModal = std::make_unique<CadToSvoConversionModal>();
+    stlToSvoModal = std::make_unique<StlToSvoConversionModal>();
+    svoToStlModal = std::make_unique<SvoToStlConversionModal>();
 }
 
 AssetContextMenuFactory::~AssetContextMenuFactory() {}
@@ -34,17 +32,17 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
         return nullptr;
     }
 
-    if (asset->getType() == AssetType::Triangulation)
-    {
-        auto menu = std::make_unique<TriangulationAssetContextMenu>();
-        menu->setStlToSvoModal(stlToSvoModal.get());
-        return menu;
-    }
-    else if (asset->getType() == AssetType::Cad)
+    if (asset->getType() == AssetType::Cad)
     {
         auto menu = std::make_unique<CadAssetContextMenu>();
         menu->setCadToStlModal(cadToStlModal.get());
         menu->setCadToSvoModal(cadToSvoModal.get());
+        return menu;
+    }
+    else if (asset->getType() == AssetType::Triangulation)
+    {
+        auto menu = std::make_unique<TriangulationAssetContextMenu>();
+        menu->setStlToSvoModal(stlToSvoModal.get());
         return menu;
     }
     else if (asset->getType() == AssetType::Voxel)
@@ -59,11 +57,6 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
 
 void AssetContextMenuFactory::render(const std::shared_ptr<Asset>& asset)
 {
-    render(asset, -1);
-}
-
-void AssetContextMenuFactory::render(const std::shared_ptr<Asset>& asset, int assetIndex)
-{
     if (!asset)
     {
         return;
@@ -75,16 +68,16 @@ void AssetContextMenuFactory::render(const std::shared_ptr<Asset>& asset, int as
         auto menu = create(asset);
         if (menu)
         {
-            menu->setAssetIndex(assetIndex);
+            menu->setAssetGuid(asset->getGuid());
             menu->render(*asset);
         }
 
         ImGui::Separator();
         if (ImGui::MenuItem("Close"))
         {
-            closeTargetIndex = assetIndex;
-            closeTargetName  = asset->getName();
-            openCloseModal   = true;
+            closeTargetGuid = asset->getGuid();
+            closeTargetName = asset->getName();
+            openCloseModal  = true;
         }
 
         ImGui::EndPopup();
@@ -108,15 +101,15 @@ void AssetContextMenuFactory::renderCloseModal()
 
         if (ImGui::Button("Yes", ImVec2(120.0f, 0.0f)))
         {
-            int targetIndex = closeTargetIndex;
+            CADacomb::GUID targetGuid = closeTargetGuid;
             Defer::getInstance().defer(
-              [targetIndex]()
+              [targetGuid]()
               {
                   GatedDatabase::getInstance().execute(
                     {
-                      {       "type", "RemoveAsset" },
-                      {    "version",             1 },
-                      { "assetIndex",   targetIndex }
+                      {      "type",         "RemoveAsset" },
+                      {   "version",                     1 },
+                      { "assetGuid", targetGuid.toString() }
                   },
                     true);
               });
@@ -128,7 +121,6 @@ void AssetContextMenuFactory::renderCloseModal()
         {
             ImGui::CloseCurrentPopup();
         }
-
         ImGui::EndPopup();
     }
 }

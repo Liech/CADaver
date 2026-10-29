@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
+#include "CADacomb/Util/GUID.h"
 #include "Database/Asset.h"
 
-#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -14,19 +14,19 @@ class Project
     virtual ~Project();
 
     void addAsset(std::shared_ptr<Asset> asset);
-    void insertAsset(size_t index, std::shared_ptr<Asset> asset);
-    void removeAsset(size_t index);
+    void removeAsset(const CADacomb::GUID& guid);
     void clear();
 
     size_t                                     getAssetCount() const;
-    std::shared_ptr<Asset>                     getAsset(size_t index) const;
+    bool                                       hasAsset(const CADacomb::GUID& guid) const;
+    std::shared_ptr<Asset>                     getAsset(const CADacomb::GUID& guid) const;
     const std::vector<std::shared_ptr<Asset>>& getAssets() const;
 
-    int                    getSelectedIndex() const;
-    void                   setSelectedIndex(int index);
+    CADacomb::GUID         getSelectedAssetGuid() const;
+    void                   setSelectedAssetGuid(const CADacomb::GUID& guid);
     std::shared_ptr<Asset> getSelectedAsset() const;
 
   private:
     std::vector<std::shared_ptr<Asset>> assets;
-    int                                 selectedIndex = -1;
+    CADacomb::GUID                      selectedGuid;
 };

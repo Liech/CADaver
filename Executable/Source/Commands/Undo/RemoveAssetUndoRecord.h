@@ -8,7 +8,7 @@
 class RemoveAssetUndoRecord : public UndoRecord
 {
   public:
-    RemoveAssetUndoRecord(std::shared_ptr<Asset> asset, size_t index);
+    RemoveAssetUndoRecord(std::shared_ptr<Asset> asset);
     virtual ~RemoveAssetUndoRecord();
 
     void undo(Database& database) override;
@@ -18,9 +18,7 @@ class RemoveAssetUndoRecord : public UndoRecord
     size_t      getSizeInBytes() const override;
 
     std::shared_ptr<Asset> getAsset() const;
-    size_t                 getIndex() const;
 
   private:
     std::shared_ptr<Asset> asset;
-    size_t                 index = 0;
 };

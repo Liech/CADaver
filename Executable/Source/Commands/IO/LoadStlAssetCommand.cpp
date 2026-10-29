@@ -79,20 +79,19 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
 
     auto asset = std::make_shared<TriangulationAsset>(name, std::move(triangulation));
     database.getProject().addAsset(asset);
-    int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
-    database.getProject().setSelectedIndex(newIndex);
+    database.getProject().setSelectedAssetGuid(asset->getGuid());
 
     if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(asset, static_cast<size_t>(newIndex)));
+        database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(asset));
     }
 
     return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" },
-        {   "index",     newIndex },
-        {    "name",         name }
+        {      "type",                   getType() },
+        {   "version",                getVersion() },
+        {    "status",                   "Success" },
+        { "assetGuid", asset->getGuid().toString() },
+        {      "name",                        name }
     };
 }
 

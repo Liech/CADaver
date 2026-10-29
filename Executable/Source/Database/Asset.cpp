@@ -1,12 +1,25 @@
 #include "Database/Asset.h"
 
 Asset::Asset(const std::string& nameInput, AssetType typeInput)
-  : name(nameInput)
+  : guid(CADacomb::GUID::random())
+  , name(nameInput)
+  , type(typeInput)
+{
+}
+
+Asset::Asset(const CADacomb::GUID& guidInput, const std::string& nameInput, AssetType typeInput)
+  : guid(guidInput)
+  , name(nameInput)
   , type(typeInput)
 {
 }
 
 Asset::~Asset() {}
+
+const CADacomb::GUID& Asset::getGuid() const
+{
+    return guid;
+}
 
 const std::string& Asset::getName() const
 {

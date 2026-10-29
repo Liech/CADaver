@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+
+#include "CADacomb/Util/GUID.h"
 
 #include <string>
 
@@ -9,15 +11,15 @@ class CadToStlConversionModal
     CadToStlConversionModal();
     virtual ~CadToStlConversionModal();
 
-    void open(int assetIndex, const std::string& assetName);
+    void open(const CADacomb::GUID& assetGuid, const std::string& assetName);
     void render();
 
   private:
     void executeConversion();
 
-    std::string targetAssetName;
-    int         targetAssetIndex = -1;
-    double      precision        = 0.1;
-    bool        deleteOrigin     = false;
-    bool        shouldOpenPopup  = false;
+    std::string    targetAssetName;
+    CADacomb::GUID targetAssetGuid;
+    double         precision       = 0.1;
+    bool           deleteOrigin    = false;
+    bool           shouldOpenPopup = false;
 };

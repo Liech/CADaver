@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+#include "CADacomb/Util/GUID.h"
 #include "UI/Component/VoxelResolutionComboBox.h"
 
 #include <string>
@@ -11,7 +12,7 @@ class StlToSvoConversionModal
     StlToSvoConversionModal();
     virtual ~StlToSvoConversionModal();
 
-    void open(int assetIndex, const std::string& assetName);
+    void open(const CADacomb::GUID& assetGuid, const std::string& assetName);
     void render();
 
   private:
@@ -19,7 +20,7 @@ class StlToSvoConversionModal
 
     VoxelResolutionComboBox resolutionComboBox;
     std::string             targetAssetName;
-    int                     targetAssetIndex = -1;
-    bool                    deleteOrigin     = false;
-    bool                    shouldOpenPopup  = false;
+    CADacomb::GUID          targetAssetGuid;
+    bool                    deleteOrigin    = false;
+    bool                    shouldOpenPopup = false;
 };

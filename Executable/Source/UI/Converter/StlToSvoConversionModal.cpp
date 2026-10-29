@@ -1,4 +1,4 @@
-#include "StlToSvoConversionModal.h"
+#include "UI/Converter/StlToSvoConversionModal.h"
 
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
@@ -9,12 +9,11 @@ StlToSvoConversionModal::StlToSvoConversionModal() {}
 
 StlToSvoConversionModal::~StlToSvoConversionModal() {}
 
-void StlToSvoConversionModal::open(int assetIndex, const std::string& assetName)
+void StlToSvoConversionModal::open(const CADacomb::GUID& assetGuid, const std::string& assetName)
 {
-    targetAssetIndex = assetIndex;
-    targetAssetName  = assetName;
-    deleteOrigin     = false;
-    resolutionComboBox.setResolution(64);
+    targetAssetGuid = assetGuid;
+    targetAssetName = assetName;
+    deleteOrigin    = false;
     shouldOpenPopup = true;
 }
 
@@ -22,22 +21,18 @@ void StlToSvoConversionModal::render()
 {
     if (shouldOpenPopup)
     {
-        ImGui::OpenPopup("Convert STL to SVO##Modal");
+        ImGui::OpenPopup("Convert to SVO##StlModal");
         shouldOpenPopup = false;
     }
 
-    if (ImGui::BeginPopupModal("Convert STL to SVO##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::BeginPopupModal("Convert to SVO##StlModal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("Convert STL '%s' to SVO", targetAssetName.c_str());
-        ImGui::Spacing();
-        ImGui::Separator();
+        ImGui::Text("Converting: %s", targetAssetName.c_str());
         ImGui::Spacing();
 
         resolutionComboBox.render();
 
-        ImGui::Spacing();
-        ImGui::Checkbox("Delete original asset", &deleteOrigin);
-
+        ImGui::Checkbox("Delete original STL asset", &deleteOrigin);
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
@@ -47,37 +42,32 @@ void StlToSvoConversionModal::render()
             executeConversion();
             ImGui::CloseCurrentPopup();
         }
-
+        ImGui::SetItemDefaultFocus();
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
             ImGui::CloseCurrentPopup();
         }
-
         ImGui::EndPopup();
     }
 }
 
 void StlToSvoConversionModal::executeConversion()
 {
-    int index = targetAssetIndex;
-    if (index < 0)
-    {
-        return;
-    }
+    CADacomb::GUID guid      = targetAssetGuid;
+    uint32_t       dim       = static_cast<uint32_t>(resolutionComboBox.getResolution());
+    bool           delOrigin = deleteOrigin;
 
-    uint32_t dim          = resolutionComboBox.getResolution();
-    bool     shouldDelete = deleteOrigin;
     Defer::getInstance().defer(
-      [index, dim, shouldDelete]()
+      [guid, dim, delOrigin]()
       {
           GatedDatabase::getInstance().execute(
             {
               {         "type", "ConvertStlToSvo" },
               {      "version",                 1 },
-              {   "assetIndex",             index },
+              {    "assetGuid",   guid.toString() },
               {    "dimension",               dim },
-              { "deleteOrigin",      shouldDelete }
+              { "deleteOrigin",         delOrigin }
           },
             true);
       });

@@ -85,9 +85,8 @@ void CameraController::frameOnProject(const Project& project)
     CADacomb::AABB3 globalAABB;
     bool            hasBounds = false;
 
-    for (size_t i = 0; i < project.getAssetCount(); i++)
+    for (const auto& asset : project.getAssets())
     {
-        auto asset = project.getAsset(i);
         if (asset && asset->getType() == AssetType::Triangulation)
         {
             auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(asset);

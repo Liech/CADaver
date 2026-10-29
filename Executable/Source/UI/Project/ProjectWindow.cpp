@@ -55,11 +55,8 @@ void ProjectWindow::render(const Project& project)
                 ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 110.0f);
                 ImGui::TableHeadersRow();
 
-                auto assets = project.getAssets();
-
-                for (size_t i = 0; i < assets.size(); i++)
+                for (const auto& asset : project.getAssets())
                 {
-                    const auto& asset = assets[i];
                     if (!asset)
                     {
                         continue;
@@ -68,12 +65,16 @@ void ProjectWindow::render(const Project& project)
                     ImGui::TableNextRow();
 
                     ImGui::TableSetColumnIndex(0);
-                    std::string label = asset->getName() + "##" + std::to_string(i);
-                    ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
+                    bool        isSelected = (project.getSelectedAssetGuid() == asset->getGuid());
+                    std::string label      = asset->getName() + "##" + asset->getGuid().toString();
+                    if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
+                    {
+                        const_cast<Project&>(project).setSelectedAssetGuid(asset->getGuid());
+                    }
 
                     if (contextMenuFactory)
                     {
-                        contextMenuFactory->render(asset, static_cast<int>(i));
+                        contextMenuFactory->render(asset);
                     }
 
                     ImGui::TableSetColumnIndex(1);

@@ -1,4 +1,4 @@
-#include "CadToStlConversionModal.h"
+#include "UI/Converter/CadToStlConversionModal.h"
 
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
@@ -9,40 +9,35 @@ CadToStlConversionModal::CadToStlConversionModal() {}
 
 CadToStlConversionModal::~CadToStlConversionModal() {}
 
-void CadToStlConversionModal::open(int assetIndex, const std::string& assetName)
+void CadToStlConversionModal::open(const CADacomb::GUID& assetGuid, const std::string& assetName)
 {
-    targetAssetIndex = assetIndex;
-    targetAssetName  = assetName;
-    precision        = 0.1;
-    deleteOrigin     = false;
-    shouldOpenPopup  = true;
+    targetAssetGuid = assetGuid;
+    targetAssetName = assetName;
+    precision       = 0.1;
+    deleteOrigin    = false;
+    shouldOpenPopup = true;
 }
 
 void CadToStlConversionModal::render()
 {
     if (shouldOpenPopup)
     {
-        ImGui::OpenPopup("Convert CAD to STL##Modal");
+        ImGui::OpenPopup("Convert to STL##Modal");
         shouldOpenPopup = false;
     }
 
-    if (ImGui::BeginPopupModal("Convert CAD to STL##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::BeginPopupModal("Convert to STL##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("Convert CAD '%s' to STL", targetAssetName.c_str());
-        ImGui::Spacing();
-        ImGui::Separator();
+        ImGui::Text("Converting: %s", targetAssetName.c_str());
         ImGui::Spacing();
 
-        float prec = static_cast<float>(precision);
-        if (ImGui::SliderFloat("Deflection / Precision", &prec, 0.001f, 1.0f, "%.4f", ImGuiSliderFlags_Logarithmic))
+        float p = static_cast<float>(precision);
+        if (ImGui::SliderFloat("Tessellation Precision", &p, 0.001f, 1.0f, "%.3f", ImGuiSliderFlags_Logarithmic))
         {
-            precision = static_cast<double>(prec);
+            precision = static_cast<double>(p);
         }
-        ImGui::TextDisabled("Controls triangulation chordal deflection.");
 
-        ImGui::Spacing();
-        ImGui::Checkbox("Delete original asset", &deleteOrigin);
-
+        ImGui::Checkbox("Delete original CAD asset", &deleteOrigin);
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
@@ -52,37 +47,32 @@ void CadToStlConversionModal::render()
             executeConversion();
             ImGui::CloseCurrentPopup();
         }
-
+        ImGui::SetItemDefaultFocus();
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
             ImGui::CloseCurrentPopup();
         }
-
         ImGui::EndPopup();
     }
 }
 
 void CadToStlConversionModal::executeConversion()
 {
-    int index = targetAssetIndex;
-    if (index < 0)
-    {
-        return;
-    }
+    CADacomb::GUID guid      = targetAssetGuid;
+    double         prec      = precision;
+    bool           delOrigin = deleteOrigin;
 
-    double prec         = precision;
-    bool   shouldDelete = deleteOrigin;
     Defer::getInstance().defer(
-      [index, prec, shouldDelete]()
+      [guid, prec, delOrigin]()
       {
           GatedDatabase::getInstance().execute(
             {
               {         "type", "ConvertCadToStl" },
               {      "version",                 1 },
-              {   "assetIndex",             index },
+              {    "assetGuid",   guid.toString() },
               {    "precision",              prec },
-              { "deleteOrigin",      shouldDelete }
+              { "deleteOrigin",         delOrigin }
           },
             true);
       });

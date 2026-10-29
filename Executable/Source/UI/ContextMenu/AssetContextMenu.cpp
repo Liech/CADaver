@@ -1,15 +1,15 @@
-#include "AssetContextMenu.h"
+#include "UI/ContextMenu/AssetContextMenu.h"
 
 AssetContextMenu::AssetContextMenu() {}
 
 AssetContextMenu::~AssetContextMenu() {}
 
-int AssetContextMenu::getAssetIndex() const
+const CADacomb::GUID& AssetContextMenu::getAssetGuid() const
 {
-    return assetIndex;
+    return assetGuid;
 }
 
-void AssetContextMenu::setAssetIndex(int index)
+void AssetContextMenu::setAssetGuid(const CADacomb::GUID& guid)
 {
-    assetIndex = index;
+    assetGuid = guid;
 }

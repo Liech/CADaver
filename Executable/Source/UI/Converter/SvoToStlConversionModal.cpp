@@ -1,46 +1,40 @@
-#include "SvoToStlConversionModal.h"
+#include "UI/Converter/SvoToStlConversionModal.h"
 
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 
-#include <algorithm>
 #include <imgui.h>
 
 SvoToStlConversionModal::SvoToStlConversionModal() {}
 
 SvoToStlConversionModal::~SvoToStlConversionModal() {}
 
-void SvoToStlConversionModal::open(int assetIndex, const std::string& assetName, int maxDepth)
+void SvoToStlConversionModal::open(const CADacomb::GUID& assetGuid, const std::string& assetName, int maxDepth)
 {
-    targetAssetIndex = assetIndex;
-    targetAssetName  = assetName;
-    maxTreeDepth     = std::max(1, maxDepth);
-    targetDepth      = maxTreeDepth;
-    deleteOrigin     = false;
-    shouldOpenPopup  = true;
+    targetAssetGuid = assetGuid;
+    targetAssetName = assetName;
+    targetDepth     = maxDepth;
+    maxTreeDepth    = maxDepth;
+    deleteOrigin    = false;
+    shouldOpenPopup = true;
 }
 
 void SvoToStlConversionModal::render()
 {
     if (shouldOpenPopup)
     {
-        ImGui::OpenPopup("Convert SVO to STL##Modal");
+        ImGui::OpenPopup("Convert to STL##SvoModal");
         shouldOpenPopup = false;
     }
 
-    if (ImGui::BeginPopupModal("Convert SVO to STL##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::BeginPopupModal("Convert to STL##SvoModal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("Convert SVO '%s' to STL (Blocky)", targetAssetName.c_str());
-        ImGui::Spacing();
-        ImGui::Separator();
+        ImGui::Text("Converting: %s", targetAssetName.c_str());
         ImGui::Spacing();
 
-        ImGui::SliderInt("LOD Depth", &targetDepth, 1, maxTreeDepth);
-        ImGui::TextDisabled("Target octree depth level (Max: %d).", maxTreeDepth);
+        ImGui::SliderInt("Target LOD Depth", &targetDepth, 0, maxTreeDepth);
 
-        ImGui::Spacing();
-        ImGui::Checkbox("Delete original asset", &deleteOrigin);
-
+        ImGui::Checkbox("Delete original SVO asset", &deleteOrigin);
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
@@ -50,37 +44,32 @@ void SvoToStlConversionModal::render()
             executeConversion();
             ImGui::CloseCurrentPopup();
         }
-
+        ImGui::SetItemDefaultFocus();
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
             ImGui::CloseCurrentPopup();
         }
-
         ImGui::EndPopup();
     }
 }
 
 void SvoToStlConversionModal::executeConversion()
 {
-    int index = targetAssetIndex;
-    if (index < 0)
-    {
-        return;
-    }
+    CADacomb::GUID guid      = targetAssetGuid;
+    int            depth     = targetDepth;
+    bool           delOrigin = deleteOrigin;
 
-    int  depth        = targetDepth;
-    bool shouldDelete = deleteOrigin;
     Defer::getInstance().defer(
-      [index, depth, shouldDelete]()
+      [guid, depth, delOrigin]()
       {
           GatedDatabase::getInstance().execute(
             {
               {         "type", "ConvertSvoToStl" },
               {      "version",                 1 },
-              {   "assetIndex",             index },
+              {    "assetGuid",   guid.toString() },
               {  "targetDepth",             depth },
-              { "deleteOrigin",      shouldDelete }
+              { "deleteOrigin",         delOrigin }
           },
             true);
       });

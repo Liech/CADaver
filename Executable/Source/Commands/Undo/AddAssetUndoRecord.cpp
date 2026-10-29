@@ -2,9 +2,8 @@
 
 #include "Database/Database.h"
 
-AddAssetUndoRecord::AddAssetUndoRecord(std::shared_ptr<Asset> assetInput, size_t indexInput)
+AddAssetUndoRecord::AddAssetUndoRecord(std::shared_ptr<Asset> assetInput)
   : asset(std::move(assetInput))
-  , index(indexInput)
 {
 }
 
@@ -12,12 +11,18 @@ AddAssetUndoRecord::~AddAssetUndoRecord() {}
 
 void AddAssetUndoRecord::undo(Database& database)
 {
-    database.getProject().removeAsset(index);
+    if (asset)
+    {
+        database.getProject().removeAsset(asset->getGuid());
+    }
 }
 
 void AddAssetUndoRecord::redo(Database& database)
 {
-    database.getProject().insertAsset(index, asset);
+    if (asset)
+    {
+        database.getProject().addAsset(asset);
+    }
 }
 
 std::string AddAssetUndoRecord::getDescription() const
@@ -39,9 +44,4 @@ size_t AddAssetUndoRecord::getSizeInBytes() const
 std::shared_ptr<Asset> AddAssetUndoRecord::getAsset() const
 {
     return asset;
-}
-
-size_t AddAssetUndoRecord::getIndex() const
-{
-    return index;
 }

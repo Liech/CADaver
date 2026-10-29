@@ -1,4 +1,4 @@
-#include "CadToSvoConversionModal.h"
+#include "UI/Converter/CadToSvoConversionModal.h"
 
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
@@ -9,13 +9,12 @@ CadToSvoConversionModal::CadToSvoConversionModal() {}
 
 CadToSvoConversionModal::~CadToSvoConversionModal() {}
 
-void CadToSvoConversionModal::open(int assetIndex, const std::string& assetName)
+void CadToSvoConversionModal::open(const CADacomb::GUID& assetGuid, const std::string& assetName)
 {
-    targetAssetIndex = assetIndex;
-    targetAssetName  = assetName;
-    precision        = 0.1;
-    deleteOrigin     = false;
-    resolutionComboBox.setResolution(64);
+    targetAssetGuid = assetGuid;
+    targetAssetName = assetName;
+    precision       = 0.1;
+    deleteOrigin    = false;
     shouldOpenPopup = true;
 }
 
@@ -23,30 +22,24 @@ void CadToSvoConversionModal::render()
 {
     if (shouldOpenPopup)
     {
-        ImGui::OpenPopup("Convert CAD to SVO##Modal");
+        ImGui::OpenPopup("Convert to SVO##CadModal");
         shouldOpenPopup = false;
     }
 
-    if (ImGui::BeginPopupModal("Convert CAD to SVO##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::BeginPopupModal("Convert to SVO##CadModal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("Convert CAD '%s' to SVO", targetAssetName.c_str());
-        ImGui::Spacing();
-        ImGui::Separator();
+        ImGui::Text("Converting: %s", targetAssetName.c_str());
         ImGui::Spacing();
 
-        float prec = static_cast<float>(precision);
-        if (ImGui::SliderFloat("Deflection / Precision", &prec, 0.001f, 1.0f, "%.4f", ImGuiSliderFlags_Logarithmic))
-        {
-            precision = static_cast<double>(prec);
-        }
-        ImGui::TextDisabled("Controls intermediate triangulation chordal deflection.");
-
-        ImGui::Spacing();
         resolutionComboBox.render();
 
-        ImGui::Spacing();
-        ImGui::Checkbox("Delete original asset", &deleteOrigin);
+        float p = static_cast<float>(precision);
+        if (ImGui::SliderFloat("Tessellation Precision", &p, 0.001f, 1.0f, "%.3f", ImGuiSliderFlags_Logarithmic))
+        {
+            precision = static_cast<double>(p);
+        }
 
+        ImGui::Checkbox("Delete original CAD asset", &deleteOrigin);
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
@@ -56,39 +49,34 @@ void CadToSvoConversionModal::render()
             executeConversion();
             ImGui::CloseCurrentPopup();
         }
-
+        ImGui::SetItemDefaultFocus();
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
             ImGui::CloseCurrentPopup();
         }
-
         ImGui::EndPopup();
     }
 }
 
 void CadToSvoConversionModal::executeConversion()
 {
-    int index = targetAssetIndex;
-    if (index < 0)
-    {
-        return;
-    }
+    CADacomb::GUID guid      = targetAssetGuid;
+    double         prec      = precision;
+    uint32_t       dim       = static_cast<uint32_t>(resolutionComboBox.getResolution());
+    bool           delOrigin = deleteOrigin;
 
-    double   prec         = precision;
-    uint32_t dim          = resolutionComboBox.getResolution();
-    bool     shouldDelete = deleteOrigin;
     Defer::getInstance().defer(
-      [index, prec, dim, shouldDelete]()
+      [guid, prec, dim, delOrigin]()
       {
           GatedDatabase::getInstance().execute(
             {
               {         "type", "ConvertCadToSvo" },
               {      "version",                 1 },
-              {   "assetIndex",             index },
+              {    "assetGuid",   guid.toString() },
               {    "precision",              prec },
               {    "dimension",               dim },
-              { "deleteOrigin",      shouldDelete }
+              { "deleteOrigin",         delOrigin }
           },
             true);
       });

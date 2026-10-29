@@ -158,9 +158,8 @@ void Cadaver::onRender()
     const auto& project = GatedDatabase::getInstance().get().getProject();
 
     renderer->clear();
-    for (size_t i = 0; i < project.getAssetCount(); i++)
+    for (const auto& asset : project.getAssets())
     {
-        auto asset = project.getAsset(i);
         if (asset && assetRenderFactory)
         {
             assetRenderFactory->render(*renderer, asset, false);

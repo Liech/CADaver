@@ -5,13 +5,13 @@
 
 RemoveAssetCommand::RemoveAssetCommand() {}
 
-RemoveAssetCommand::RemoveAssetCommand(int assetIndex)
-  : assetIndex(assetIndex)
+RemoveAssetCommand::RemoveAssetCommand(const CADacomb::GUID& assetGuid)
+  : assetGuid(assetGuid)
 {
 }
 
 RemoveAssetCommand::RemoveAssetCommand(const nlohmann::json& json)
-  : assetIndex(json.at("assetIndex").get<int>())
+  : assetGuid(json.value("assetGuid", ""))
 {
 }
 
@@ -31,12 +31,12 @@ std::string RemoveAssetCommand::getDescription() const
 {
     return "Command: RemoveAsset\n"
            "Version: 1\n"
-           "Purpose: Removes an asset from the project by index.\n\n"
+           "Purpose: Removes an asset from the project by GUID.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"RemoveAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"assetIndex\": <int>\n"
+           "  \"assetGuid\": <string>\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -44,45 +44,45 @@ std::string RemoveAssetCommand::getDescription() const
            "{\n"
            "  \"type\": \"RemoveAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"IndexOutOfBounds\",\n"
-           "  \"index\": <int>\n"
+           "  \"status\": \"Success\" | \"AssetNotFound\",\n"
+           "  \"assetGuid\": <string>\n"
            "}";
 }
 
 nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
-    if (assetIndex < 0 || static_cast<size_t>(assetIndex) >= database.getProject().getAssetCount())
+    auto asset = database.getProject().getAsset(assetGuid);
+    if (!asset)
     {
         return {
-            {    "type",          getType() },
-            { "version",       getVersion() },
-            {  "status", "IndexOutOfBounds" },
-            {   "index",         assetIndex }
+            {      "type",            getType() },
+            {   "version",         getVersion() },
+            {    "status",      "AssetNotFound" },
+            { "assetGuid", assetGuid.toString() }
         };
     }
 
-    auto asset = database.getProject().getAsset(static_cast<size_t>(assetIndex));
-    database.getProject().removeAsset(static_cast<size_t>(assetIndex));
+    database.getProject().removeAsset(assetGuid);
 
-    if (recordUndo && asset)
+    if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<RemoveAssetUndoRecord>(asset, static_cast<size_t>(assetIndex)));
+        database.getUndoStack().push(std::make_unique<RemoveAssetUndoRecord>(asset));
     }
 
     return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" },
-        {   "index",   assetIndex }
+        {      "type",            getType() },
+        {   "version",         getVersion() },
+        {    "status",            "Success" },
+        { "assetGuid", assetGuid.toString() }
     };
 }
 
-int RemoveAssetCommand::getAssetIndex() const
+const CADacomb::GUID& RemoveAssetCommand::getAssetGuid() const
 {
-    return assetIndex;
+    return assetGuid;
 }
 
-void RemoveAssetCommand::setAssetIndex(int index)
+void RemoveAssetCommand::setAssetGuid(const CADacomb::GUID& guid)
 {
-    assetIndex = index;
+    assetGuid = guid;
 }

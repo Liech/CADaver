@@ -33,14 +33,14 @@ void CadAssetContextMenu::render(Asset& asset)
         {
             if (cadToStlModal)
             {
-                cadToStlModal->open(getAssetIndex(), cadAsset->getName());
+                cadToStlModal->open(getAssetGuid(), cadAsset->getName());
             }
         }
         if (ImGui::MenuItem("SVO..."))
         {
             if (cadToSvoModal)
             {
-                cadToSvoModal->open(getAssetIndex(), cadAsset->getName());
+                cadToSvoModal->open(getAssetGuid(), cadAsset->getName());
             }
         }
         ImGui::EndMenu();
@@ -93,22 +93,22 @@ void CadAssetContextMenu::save(CadAsset& asset)
             savePath += ".step";
         }
 
-        int targetIndex = getAssetIndex();
-        if (targetIndex < 0)
+        CADacomb::GUID targetGuid = getAssetGuid();
+        if (targetGuid.toString().empty())
         {
-            targetIndex = GatedDatabase::getInstance().get().getProject().getSelectedIndex();
+            targetGuid = GatedDatabase::getInstance().get().getProject().getSelectedAssetGuid();
         }
 
-        if (targetIndex >= 0)
+        if (!targetGuid.toString().empty())
         {
             Defer::getInstance().defer(
-              [targetIndex, savePath]()
+              [targetGuid, savePath]()
               {
                   GatedDatabase::getInstance().execute({
-                    {       "type", "SaveStepAsset" },
-                    {    "version",               1 },
-                    { "assetIndex",     targetIndex },
-                    {   "filePath",        savePath }
+                    {      "type",       "SaveStepAsset" },
+                    {   "version",                     1 },
+                    { "assetGuid", targetGuid.toString() },
+                    {  "filePath",              savePath }
                   });
               });
         }

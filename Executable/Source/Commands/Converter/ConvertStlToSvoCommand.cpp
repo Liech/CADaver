@@ -9,15 +9,15 @@
 
 ConvertStlToSvoCommand::ConvertStlToSvoCommand() {}
 
-ConvertStlToSvoCommand::ConvertStlToSvoCommand(int assetIndex, uint32_t dimension, bool deleteOrigin)
-  : assetIndex(assetIndex)
+ConvertStlToSvoCommand::ConvertStlToSvoCommand(const CADacomb::GUID& assetGuid, uint32_t dimension, bool deleteOrigin)
+  : assetGuid(assetGuid)
   , dimension(dimension)
   , deleteOrigin(deleteOrigin)
 {
 }
 
 ConvertStlToSvoCommand::ConvertStlToSvoCommand(const nlohmann::json& json)
-  : assetIndex(json.at("assetIndex").get<int>())
+  : assetGuid(json.value("assetGuid", ""))
   , dimension(json.value("dimension", 64u))
   , deleteOrigin(json.value("deleteOrigin", false))
 {
@@ -39,14 +39,14 @@ std::string ConvertStlToSvoCommand::getDescription() const
 {
     return "Command: ConvertStlToSvo\n"
            "Version: 1\n"
-           "Purpose: Converts a triangulation STL asset into a volumetric SVO asset.\n\n"
+           "Purpose: Converts a triangulation STL asset to a volumetric SVO asset.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"ConvertStlToSvo\",\n"
            "  \"version\": 1,\n"
-           "  \"assetIndex\": <int>,\n"
-           "  \"dimension\": <uint, optional, default 64>,\n"
-           "  \"deleteOrigin\": <bool, optional, default false>\n"
+           "  \"assetGuid\": <string>,\n"
+           "  \"dimension\": <uint> (optional, default: 64),\n"
+           "  \"deleteOrigin\": <bool> (optional, default: false)\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -54,32 +54,32 @@ std::string ConvertStlToSvoCommand::getDescription() const
            "{\n"
            "  \"type\": \"ConvertStlToSvo\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"IndexOutOfBounds\" | \"NotTriangulationAsset\" | \"ConversionFailed\",\n"
-           "  \"index\": <int>\n"
+           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotTriangulationAsset\" | \"ConversionFailed\",\n"
+           "  \"assetGuid\": <string>\n"
            "}";
 }
 
 nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
-    if (assetIndex < 0 || static_cast<size_t>(assetIndex) >= database.getProject().getAssetCount())
+    auto baseAsset = database.getProject().getAsset(assetGuid);
+    if (!baseAsset)
     {
         return {
-            {    "type",          getType() },
-            { "version",       getVersion() },
-            {  "status", "IndexOutOfBounds" },
-            {   "index",                 -1 }
+            {      "type",       getType() },
+            {   "version",    getVersion() },
+            {    "status", "AssetNotFound" },
+            { "assetGuid",              "" }
         };
     }
 
-    auto baseAsset = database.getProject().getAsset(assetIndex);
-    auto triAsset  = std::dynamic_pointer_cast<TriangulationAsset>(baseAsset);
+    auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(baseAsset);
     if (!triAsset)
     {
         return {
-            {    "type",               getType() },
-            { "version",            getVersion() },
-            {  "status", "NotTriangulationAsset" },
-            {   "index",                      -1 }
+            {      "type",               getType() },
+            {   "version",            getVersion() },
+            {    "status", "NotTriangulationAsset" },
+            { "assetGuid",                      "" }
         };
     }
 
@@ -87,49 +87,47 @@ nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*
     if (!svoAsset)
     {
         return {
-            {    "type",          getType() },
-            { "version",       getVersion() },
-            {  "status", "ConversionFailed" },
-            {   "index",                 -1 }
+            {      "type",          getType() },
+            {   "version",       getVersion() },
+            {    "status", "ConversionFailed" },
+            { "assetGuid",                 "" }
         };
     }
 
     database.getProject().addAsset(svoAsset);
-    int newIndex = static_cast<int>(database.getProject().getAssetCount()) - 1;
 
     if (deleteOrigin)
     {
-        database.getProject().removeAsset(static_cast<size_t>(assetIndex));
-        newIndex--;
+        database.getProject().removeAsset(assetGuid);
         if (recordUndo)
         {
-            database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, static_cast<size_t>(assetIndex), svoAsset, static_cast<size_t>(newIndex)));
+            database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, svoAsset));
         }
     }
     else
     {
         if (recordUndo)
         {
-            database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(svoAsset, static_cast<size_t>(newIndex)));
+            database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(svoAsset));
         }
     }
 
     return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" },
-        {   "index",     newIndex }
+        {      "type",                      getType() },
+        {   "version",                   getVersion() },
+        {    "status",                      "Success" },
+        { "assetGuid", svoAsset->getGuid().toString() }
     };
 }
 
-int ConvertStlToSvoCommand::getAssetIndex() const
+const CADacomb::GUID& ConvertStlToSvoCommand::getAssetGuid() const
 {
-    return assetIndex;
+    return assetGuid;
 }
 
-void ConvertStlToSvoCommand::setAssetIndex(int newIndex)
+void ConvertStlToSvoCommand::setAssetGuid(const CADacomb::GUID& newGuid)
 {
-    assetIndex = newIndex;
+    assetGuid = newGuid;
 }
 
 uint32_t ConvertStlToSvoCommand::getDimension() const
