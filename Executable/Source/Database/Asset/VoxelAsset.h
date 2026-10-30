@@ -16,8 +16,9 @@ class VoxelAsset : public Asset
     VoxelAsset(const std::string& name, const std::string& filePath, std::unique_ptr<CADacomb::SVO<bool>> svo, const CADacomb::AABB3& aabb = CADacomb::AABB3());
     virtual ~VoxelAsset();
 
-    CADacomb::SVO<bool>* getSVO() const;
-    void                 setSVO(std::unique_ptr<CADacomb::SVO<bool>> svo);
+    const CADacomb::SVO<bool>* getSVO() const;
+    CADacomb::SVO<bool>*       getSVO();
+    void                       setSVO(std::unique_ptr<CADacomb::SVO<bool>> svo);
 
     const CADacomb::AABB3& getAABB() const;
     void                   setAABB(const CADacomb::AABB3& aabb);
@@ -27,12 +28,8 @@ class VoxelAsset : public Asset
 
     size_t getSizeInBytes() const override;
 
-    bool isDirty() const;
-    void markClean();
-
   private:
     std::unique_ptr<CADacomb::SVO<bool>> svo;
     CADacomb::AABB3                      aabb;
     std::string                          filePath;
-    bool                                 dirty = true;
 };

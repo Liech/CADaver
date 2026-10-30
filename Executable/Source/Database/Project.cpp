@@ -53,7 +53,7 @@ bool Project::hasAsset(const CADacomb::GUID& guid) const
     return getAsset(guid) != nullptr;
 }
 
-std::shared_ptr<Asset> Project::getAsset(const CADacomb::GUID& guid) const
+std::shared_ptr<const Asset> Project::getAsset(const CADacomb::GUID& guid) const
 {
     for (const auto& asset : assets)
     {
@@ -65,7 +65,24 @@ std::shared_ptr<Asset> Project::getAsset(const CADacomb::GUID& guid) const
     return nullptr;
 }
 
-const std::vector<std::shared_ptr<Asset>>& Project::getAssets() const
+std::shared_ptr<Asset> Project::getAsset(const CADacomb::GUID& guid)
+{
+    for (const auto& asset : assets)
+    {
+        if (asset && asset->getGuid() == guid)
+        {
+            return asset;
+        }
+    }
+    return nullptr;
+}
+
+std::vector<std::shared_ptr<const Asset>> Project::getAssets() const
+{
+    return std::vector<std::shared_ptr<const Asset>>(assets.begin(), assets.end());
+}
+
+const std::vector<std::shared_ptr<Asset>>& Project::getAssets()
 {
     return assets;
 }
@@ -80,7 +97,12 @@ void Project::setSelectedAssetGuid(const CADacomb::GUID& guid)
     selectedGuid = guid;
 }
 
-std::shared_ptr<Asset> Project::getSelectedAsset() const
+std::shared_ptr<const Asset> Project::getSelectedAsset() const
+{
+    return getAsset(selectedGuid);
+}
+
+std::shared_ptr<Asset> Project::getSelectedAsset()
 {
     return getAsset(selectedGuid);
 }

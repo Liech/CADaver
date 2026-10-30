@@ -7,7 +7,7 @@
 
 TriangulationAssetRenderer::TriangulationAssetRenderer() {}
 
-TriangulationAssetRenderer::TriangulationAssetRenderer(std::shared_ptr<TriangulationAsset> assetInput)
+TriangulationAssetRenderer::TriangulationAssetRenderer(std::shared_ptr<const TriangulationAsset> assetInput)
   : asset(std::move(assetInput))
 {
 }
@@ -22,9 +22,9 @@ TriangulationAssetRenderer::~TriangulationAssetRenderer()
     meshRenderer.reset();
 }
 
-void TriangulationAssetRenderer::setAsset(const std::shared_ptr<Asset>& newAsset)
+void TriangulationAssetRenderer::setAsset(const std::shared_ptr<const Asset>& newAsset)
 {
-    asset = std::dynamic_pointer_cast<TriangulationAsset>(newAsset);
+    asset = std::dynamic_pointer_cast<const TriangulationAsset>(newAsset);
     dirty = true;
 }
 
@@ -97,13 +97,13 @@ void TriangulationAssetRenderer::render(Renderer& renderer, bool isSelected)
     meshRenderer->setWireframeColor(renderer.getWireframeColor());
     meshRenderer->setCullMode(renderer.getCullMode());
 
-    if (dirty || asset->isDirty() || lastColor != asset->getMeshColor() || meshRenderer->getVertexCount() == 0)
+    if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || meshRenderer->getVertexCount() == 0)
     {
         lastColor = asset->getMeshColor();
         rebuildVertices();
         meshRenderer->setVertices(cachedVertices);
-        dirty = false;
-        asset->markClean();
+        dirty        = false;
+        lastRevision = asset->getRevision();
     }
 
     if (cachedVertices.empty() || !drawCmd)

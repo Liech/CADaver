@@ -21,8 +21,14 @@ class Asset
 
     virtual size_t getSizeInBytes() const = 0;
 
+    size_t getRevision() const;
+
+  protected:
+    void markModified();
+
   private:
     CADacomb::GUID guid;
     std::string    name;
     std::string    type;
+    size_t         revision = 0;
 };

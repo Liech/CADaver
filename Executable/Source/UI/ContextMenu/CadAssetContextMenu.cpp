@@ -14,9 +14,9 @@ CadAssetContextMenu::CadAssetContextMenu() {}
 
 CadAssetContextMenu::~CadAssetContextMenu() {}
 
-void CadAssetContextMenu::render(Asset& asset)
+void CadAssetContextMenu::render(const Asset& asset)
 {
-    auto cadAsset = dynamic_cast<CadAsset*>(&asset);
+    auto cadAsset = dynamic_cast<const CadAsset*>(&asset);
     if (!cadAsset)
     {
         return;
@@ -57,7 +57,7 @@ void CadAssetContextMenu::setCadToSvoModal(CadToSvoConversionModal* modal)
     cadToSvoModal = modal;
 }
 
-void CadAssetContextMenu::save(CadAsset& asset)
+void CadAssetContextMenu::save(const CadAsset& asset)
 {
     if (!asset.getCadShape())
     {

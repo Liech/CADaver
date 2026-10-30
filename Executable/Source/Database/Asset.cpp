@@ -29,9 +29,20 @@ const std::string& Asset::getName() const
 void Asset::setName(const std::string& newName)
 {
     name = newName;
+    markModified();
 }
 
 const std::string& Asset::getType() const
 {
     return type;
+}
+
+size_t Asset::getRevision() const
+{
+    return revision;
+}
+
+void Asset::markModified()
+{
+    revision++;
 }

@@ -64,8 +64,6 @@ set(Database_Asset_Files
     "Source/Database/Asset/CadAsset.cpp"
     "Source/Database/Asset/ProgressBarAsset.h"
     "Source/Database/Asset/ProgressBarAsset.cpp"
-    "Source/Database/Asset/ProgressBarAssetState.h"
-    "Source/Database/Asset/ProgressBarAssetState.cpp"
     "Source/Database/Asset/TriangulationAsset.h"
     "Source/Database/Asset/TriangulationAsset.cpp"
     "Source/Database/Asset/VoxelAsset.h"

@@ -13,12 +13,12 @@ class VoxelAssetContextMenu : public AssetContextMenu
     VoxelAssetContextMenu();
     virtual ~VoxelAssetContextMenu();
 
-    void render(Asset& asset) override;
+    void render(const Asset& asset) override;
 
     void setSvoToStlModal(SvoToStlConversionModal* modal);
 
   private:
-    void save(VoxelAsset& asset);
+    void save(const VoxelAsset& asset);
 
     SvoToStlConversionModal* svoToStlModal = nullptr;
 };

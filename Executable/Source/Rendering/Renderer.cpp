@@ -98,7 +98,7 @@ void Renderer::clear()
     recordClearPass();
 }
 
-void Renderer::renderAsset(const std::shared_ptr<Asset>& asset, bool isSelected)
+void Renderer::renderAsset(const std::shared_ptr<const Asset>& asset, bool isSelected)
 {
     if (!asset)
     {
@@ -122,7 +122,7 @@ void Renderer::renderAsset(const std::shared_ptr<Asset>& asset, bool isSelected)
     }
 }
 
-void Renderer::pruneRenderers(const std::vector<std::shared_ptr<Asset>>& activeAssets)
+void Renderer::pruneRenderers(const std::vector<std::shared_ptr<const Asset>>& activeAssets)
 {
     std::set<CADacomb::GUID> activeGuids;
     for (const auto& a : activeAssets)

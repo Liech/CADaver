@@ -2,7 +2,6 @@
 
 #include "CADacomb/Util/GUID.h"
 #include "Database/Asset.h"
-#include "Database/Asset/ProgressBarAssetState.h"
 
 #include <future>
 #include <memory>
@@ -20,19 +19,16 @@ class ProgressBarAsset : public Asset
     const CADacomb::GUID& getTaskGuid() const;
     const std::string&    getOperationName() const;
 
-    ProgressBarAssetState getState() const;
-    void                  setState(ProgressBarAssetState newState);
-
     float getProgress() const;
 
-    const std::vector<std::shared_ptr<Asset>>& getAbductedAssets() const;
+    std::vector<std::shared_ptr<const Asset>> getAbductedAssets() const;
 
     std::shared_future<nlohmann::json> getFuture() const;
     void                               setFuture(const std::shared_future<nlohmann::json>& newFuture);
     bool                               isReady() const;
     nlohmann::json                     getResult() const;
 
-    void cancel();
+    void cancel() const;
 
     virtual size_t getSizeInBytes() const override;
 
@@ -41,5 +37,4 @@ class ProgressBarAsset : public Asset
     std::string                         operationName;
     std::vector<std::shared_ptr<Asset>> abductedAssets;
     std::shared_future<nlohmann::json>  future;
-    ProgressBarAssetState               state = ProgressBarAssetState::Running;
 };

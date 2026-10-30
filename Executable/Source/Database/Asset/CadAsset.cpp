@@ -46,10 +46,15 @@ const std::string& CadAsset::getFilePath() const
 void CadAsset::setFilePath(const std::string& path)
 {
     filePath = path;
-    dirty    = true;
+    markModified();
 }
 
-Library::CADShape* CadAsset::getCadShape() const
+const Library::CADShape* CadAsset::getCadShape() const
+{
+    return cadShape.get();
+}
+
+Library::CADShape* CadAsset::getCadShape()
 {
     return cadShape.get();
 }
@@ -60,7 +65,12 @@ void CadAsset::setCadShape(std::shared_ptr<Library::CADShape> shape)
     triangulateShape();
 }
 
-CADacomb::Triangulation* CadAsset::getTriangulation() const
+const CADacomb::Triangulation* CadAsset::getTriangulation() const
+{
+    return triangulation.get();
+}
+
+CADacomb::Triangulation* CadAsset::getTriangulation()
 {
     return triangulation.get();
 }
@@ -68,7 +78,7 @@ CADacomb::Triangulation* CadAsset::getTriangulation() const
 void CadAsset::setTriangulation(std::unique_ptr<CADacomb::Triangulation> tri)
 {
     triangulation = std::move(tri);
-    dirty         = true;
+    markModified();
 }
 
 const glm::vec3& CadAsset::getMeshColor() const
@@ -79,7 +89,7 @@ const glm::vec3& CadAsset::getMeshColor() const
 void CadAsset::setMeshColor(const glm::vec3& color)
 {
     meshColor = color;
-    dirty     = true;
+    markModified();
 }
 
 size_t CadAsset::getSizeInBytes() const
@@ -122,21 +132,6 @@ size_t CadAsset::getSizeInBytes() const
     return size;
 }
 
-bool CadAsset::isDirty() const
-{
-    return dirty;
-}
-
-void CadAsset::markDirty()
-{
-    dirty = true;
-}
-
-void CadAsset::markClean()
-{
-    dirty = false;
-}
-
 void CadAsset::triangulateShape()
 {
     if (cadShape)
@@ -147,7 +142,7 @@ void CadAsset::triangulateShape()
     {
         triangulation.reset();
     }
-    dirty = true;
+    markModified();
 }
 
 #ifdef ISTESTPROJECT

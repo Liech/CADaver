@@ -65,7 +65,7 @@ void ProjectWindow::render(const Project& project)
 
                     if (asset->getType() == "Progress")
                     {
-                        auto progressAsset = std::dynamic_pointer_cast<ProgressBarAsset>(asset);
+                        auto progressAsset = std::dynamic_pointer_cast<const ProgressBarAsset>(asset);
                         if (progressAsset)
                         {
                             ImGui::TableNextRow();
@@ -107,11 +107,11 @@ void ProjectWindow::render(const Project& project)
                     ImGui::TableNextRow();
 
                     ImGui::TableSetColumnIndex(0);
-                    bool        isSelected = (project.getSelectedAssetGuid() == asset->getGuid());
+                    bool        isSelected = (selectedAssetGuid == asset->getGuid());
                     std::string label      = asset->getName() + "##" + asset->getGuid().toString();
                     if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
                     {
-                        const_cast<Project&>(project).setSelectedAssetGuid(asset->getGuid());
+                        selectedAssetGuid = asset->getGuid();
                     }
 
                     if (contextMenuFactory)

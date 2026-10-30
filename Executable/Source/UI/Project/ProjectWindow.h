@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CADacomb/Util/GUID.h"
+
 #include <memory>
 #include <string>
 
@@ -25,6 +27,7 @@ class ProjectWindow
 
     std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;
     std::string                              errorMessage;
+    CADacomb::GUID                           selectedAssetGuid;
     float                                    width          = 300.0f;
     bool                                     openClearModal = false;
     bool                                     openErrorModal = false;

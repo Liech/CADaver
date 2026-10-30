@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CADacomb/Util/GUID.h"
 #include "Database/Asset.h"
@@ -19,12 +19,15 @@ class Project
 
     size_t                                     getAssetCount() const;
     bool                                       hasAsset(const CADacomb::GUID& guid) const;
-    std::shared_ptr<Asset>                     getAsset(const CADacomb::GUID& guid) const;
-    const std::vector<std::shared_ptr<Asset>>& getAssets() const;
+    std::shared_ptr<const Asset>               getAsset(const CADacomb::GUID& guid) const;
+    std::shared_ptr<Asset>                     getAsset(const CADacomb::GUID& guid);
+    std::vector<std::shared_ptr<const Asset>>  getAssets() const;
+    const std::vector<std::shared_ptr<Asset>>& getAssets();
 
-    CADacomb::GUID         getSelectedAssetGuid() const;
-    void                   setSelectedAssetGuid(const CADacomb::GUID& guid);
-    std::shared_ptr<Asset> getSelectedAsset() const;
+    CADacomb::GUID               getSelectedAssetGuid() const;
+    void                         setSelectedAssetGuid(const CADacomb::GUID& guid);
+    std::shared_ptr<const Asset> getSelectedAsset() const;
+    std::shared_ptr<Asset>       getSelectedAsset();
 
   private:
     std::vector<std::shared_ptr<Asset>> assets;

@@ -7,7 +7,7 @@
 
 StepAssetRenderer::StepAssetRenderer() {}
 
-StepAssetRenderer::StepAssetRenderer(std::shared_ptr<CadAsset> assetInput)
+StepAssetRenderer::StepAssetRenderer(std::shared_ptr<const CadAsset> assetInput)
   : asset(std::move(assetInput))
 {
 }
@@ -22,9 +22,9 @@ StepAssetRenderer::~StepAssetRenderer()
     meshRenderer.reset();
 }
 
-void StepAssetRenderer::setAsset(const std::shared_ptr<Asset>& newAsset)
+void StepAssetRenderer::setAsset(const std::shared_ptr<const Asset>& newAsset)
 {
-    asset = std::dynamic_pointer_cast<CadAsset>(newAsset);
+    asset = std::dynamic_pointer_cast<const CadAsset>(newAsset);
     dirty = true;
 }
 
@@ -97,13 +97,13 @@ void StepAssetRenderer::render(Renderer& renderer, bool isSelected)
     meshRenderer->setWireframeColor(renderer.getWireframeColor());
     meshRenderer->setCullMode(renderer.getCullMode());
 
-    if (dirty || asset->isDirty() || lastColor != asset->getMeshColor() || meshRenderer->getVertexCount() == 0)
+    if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || meshRenderer->getVertexCount() == 0)
     {
         lastColor = asset->getMeshColor();
         rebuildVertices();
         meshRenderer->setVertices(cachedVertices);
-        dirty = false;
-        asset->markClean();
+        dirty        = false;
+        lastRevision = asset->getRevision();
     }
 
     if (cachedVertices.empty() || !drawCmd)

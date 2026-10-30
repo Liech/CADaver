@@ -26,20 +26,18 @@ class CadAsset : public Asset
     const std::string& getFilePath() const;
     void               setFilePath(const std::string& path);
 
-    Library::CADShape* getCadShape() const;
-    void               setCadShape(std::shared_ptr<Library::CADShape> shape);
+    const Library::CADShape* getCadShape() const;
+    Library::CADShape*       getCadShape();
+    void                     setCadShape(std::shared_ptr<Library::CADShape> shape);
 
-    CADacomb::Triangulation* getTriangulation() const;
-    void                     setTriangulation(std::unique_ptr<CADacomb::Triangulation> tri);
+    const CADacomb::Triangulation* getTriangulation() const;
+    CADacomb::Triangulation*       getTriangulation();
+    void                           setTriangulation(std::unique_ptr<CADacomb::Triangulation> tri);
 
     const glm::vec3& getMeshColor() const;
     void             setMeshColor(const glm::vec3& color);
 
     size_t getSizeInBytes() const override;
-
-    bool isDirty() const;
-    void markDirty();
-    void markClean();
 
   private:
     void triangulateShape();
@@ -48,5 +46,4 @@ class CadAsset : public Asset
     std::shared_ptr<Library::CADShape>       cadShape;
     std::unique_ptr<CADacomb::Triangulation> triangulation;
     glm::vec3                                meshColor = glm::vec3(0.68f, 0.78f, 0.90f);
-    bool                                     dirty     = true;
 };

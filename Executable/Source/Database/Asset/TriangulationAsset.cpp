@@ -13,7 +13,12 @@ TriangulationAsset::TriangulationAsset(const std::string& nameInput, std::unique
 
 TriangulationAsset::~TriangulationAsset() {}
 
-CADacomb::Triangulation* TriangulationAsset::getTriangulation() const
+const CADacomb::Triangulation* TriangulationAsset::getTriangulation() const
+{
+    return triangulation.get();
+}
+
+CADacomb::Triangulation* TriangulationAsset::getTriangulation()
 {
     return triangulation.get();
 }
@@ -21,7 +26,7 @@ CADacomb::Triangulation* TriangulationAsset::getTriangulation() const
 void TriangulationAsset::setTriangulation(std::unique_ptr<CADacomb::Triangulation> tri)
 {
     triangulation = std::move(tri);
-    dirty         = true;
+    markModified();
 }
 
 const glm::vec3& TriangulationAsset::getMeshColor() const
@@ -32,7 +37,7 @@ const glm::vec3& TriangulationAsset::getMeshColor() const
 void TriangulationAsset::setMeshColor(const glm::vec3& color)
 {
     meshColor = color;
-    dirty     = true;
+    markModified();
 }
 
 size_t TriangulationAsset::getSizeInBytes() const
@@ -48,16 +53,6 @@ size_t TriangulationAsset::getSizeInBytes() const
     }
 
     return size;
-}
-
-bool TriangulationAsset::isDirty() const
-{
-    return dirty;
-}
-
-void TriangulationAsset::markClean()
-{
-    dirty = false;
 }
 
 #ifdef ISTESTPROJECT

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CADacomb/Util/GUID.h"
 
@@ -19,9 +19,9 @@ class AssetContextMenuFactory
     AssetContextMenuFactory();
     virtual ~AssetContextMenuFactory();
 
-    std::unique_ptr<AssetContextMenu> create(const std::shared_ptr<Asset>& asset);
+    std::unique_ptr<AssetContextMenu> create(const std::shared_ptr<const Asset>& asset);
 
-    void render(const std::shared_ptr<Asset>& asset);
+    void render(const std::shared_ptr<const Asset>& asset);
     void renderCloseModal();
     void renderConversionModals();
 

@@ -85,7 +85,6 @@ nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* in
     bar.addProgress(1);
 
     auto asset = std::make_shared<VoxelAsset>(name, "", std::move(svo), bounds);
-    asset->markClean();
     database.getProject().addAsset(asset);
     database.getProject().setSelectedAssetGuid(asset->getGuid());
 

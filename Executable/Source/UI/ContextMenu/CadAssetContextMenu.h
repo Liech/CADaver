@@ -14,13 +14,13 @@ class CadAssetContextMenu : public AssetContextMenu
     CadAssetContextMenu();
     virtual ~CadAssetContextMenu();
 
-    void render(Asset& asset) override;
+    void render(const Asset& asset) override;
 
     void setCadToStlModal(CadToStlConversionModal* modal);
     void setCadToSvoModal(CadToSvoConversionModal* modal);
 
   private:
-    void save(CadAsset& asset);
+    void save(const CadAsset& asset);
 
     CadToStlConversionModal* cadToStlModal = nullptr;
     CadToSvoConversionModal* cadToSvoModal = nullptr;

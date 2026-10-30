@@ -15,9 +15,9 @@ VoxelAssetContextMenu::VoxelAssetContextMenu() {}
 
 VoxelAssetContextMenu::~VoxelAssetContextMenu() {}
 
-void VoxelAssetContextMenu::render(Asset& asset)
+void VoxelAssetContextMenu::render(const Asset& asset)
 {
-    auto voxelAsset = dynamic_cast<VoxelAsset*>(&asset);
+    auto voxelAsset = dynamic_cast<const VoxelAsset*>(&asset);
     if (!voxelAsset)
     {
         return;
@@ -60,7 +60,7 @@ void VoxelAssetContextMenu::setSvoToStlModal(SvoToStlConversionModal* modal)
     svoToStlModal = modal;
 }
 
-void VoxelAssetContextMenu::save(VoxelAsset& asset)
+void VoxelAssetContextMenu::save(const VoxelAsset& asset)
 {
     if (!asset.getSVO())
     {

@@ -25,7 +25,7 @@ AssetContextMenuFactory::AssetContextMenuFactory()
 
 AssetContextMenuFactory::~AssetContextMenuFactory() {}
 
-std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::shared_ptr<Asset>& asset)
+std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::shared_ptr<const Asset>& asset)
 {
     if (!asset)
     {
@@ -55,7 +55,7 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
     return nullptr;
 }
 
-void AssetContextMenuFactory::render(const std::shared_ptr<Asset>& asset)
+void AssetContextMenuFactory::render(const std::shared_ptr<const Asset>& asset)
 {
     if (!asset)
     {

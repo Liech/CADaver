@@ -14,9 +14,9 @@ TriangulationAssetContextMenu::TriangulationAssetContextMenu() {}
 
 TriangulationAssetContextMenu::~TriangulationAssetContextMenu() {}
 
-void TriangulationAssetContextMenu::render(Asset& asset)
+void TriangulationAssetContextMenu::render(const Asset& asset)
 {
-    auto triAsset = dynamic_cast<TriangulationAsset*>(&asset);
+    auto triAsset = dynamic_cast<const TriangulationAsset*>(&asset);
     if (!triAsset)
     {
         return;
@@ -45,7 +45,7 @@ void TriangulationAssetContextMenu::setStlToSvoModal(StlToSvoConversionModal* mo
     stlToSvoModal = modal;
 }
 
-void TriangulationAssetContextMenu::save(TriangulationAsset& asset)
+void TriangulationAssetContextMenu::save(const TriangulationAsset& asset)
 {
     if (!asset.getTriangulation())
     {

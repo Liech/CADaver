@@ -12,6 +12,6 @@ class AssetRenderer
     AssetRenderer();
     virtual ~AssetRenderer();
 
-    virtual void setAsset(const std::shared_ptr<Asset>& asset);
+    virtual void setAsset(const std::shared_ptr<const Asset>& asset);
     virtual void render(Renderer& renderer, bool isSelected = false) = 0;
 };

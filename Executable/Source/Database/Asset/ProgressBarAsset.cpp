@@ -24,16 +24,6 @@ const std::string& ProgressBarAsset::getOperationName() const
     return operationName;
 }
 
-ProgressBarAssetState ProgressBarAsset::getState() const
-{
-    return state;
-}
-
-void ProgressBarAsset::setState(ProgressBarAssetState newState)
-{
-    state = newState;
-}
-
 float ProgressBarAsset::getProgress() const
 {
     auto statuses = CADacomb::ProgressBar::getProgress(taskGuid);
@@ -49,9 +39,9 @@ float ProgressBarAsset::getProgress() const
     return static_cast<float>(status.current) / static_cast<float>(status.max);
 }
 
-const std::vector<std::shared_ptr<Asset>>& ProgressBarAsset::getAbductedAssets() const
+std::vector<std::shared_ptr<const Asset>> ProgressBarAsset::getAbductedAssets() const
 {
-    return abductedAssets;
+    return std::vector<std::shared_ptr<const Asset>>(abductedAssets.begin(), abductedAssets.end());
 }
 
 std::shared_future<nlohmann::json> ProgressBarAsset::getFuture() const
@@ -82,10 +72,9 @@ nlohmann::json ProgressBarAsset::getResult() const
     return {};
 }
 
-void ProgressBarAsset::cancel()
+void ProgressBarAsset::cancel() const
 {
     CADacomb::ProgressBar::cancel(taskGuid);
-    state = ProgressBarAssetState::Canceled;
 }
 
 size_t ProgressBarAsset::getSizeInBytes() const
@@ -104,11 +93,7 @@ TEST_CASE("ProgressBarAsset/ConstructionAndState")
     CHECK(asset.getName() == "Task");
     CHECK(asset.getTaskGuid() == taskGuid);
     CHECK(asset.getOperationName() == "Convert");
-    CHECK(asset.getState() == ProgressBarAssetState::Running);
     CHECK(asset.getType() == "Progress");
     CHECK_FALSE(asset.isReady());
-
-    asset.cancel();
-    CHECK(asset.getState() == ProgressBarAssetState::Canceled);
 }
 #endif

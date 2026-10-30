@@ -20,19 +20,20 @@ class StepAssetRenderer : public AssetRenderer
 {
   public:
     StepAssetRenderer();
-    StepAssetRenderer(std::shared_ptr<CadAsset> asset);
+    StepAssetRenderer(std::shared_ptr<const CadAsset> asset);
     virtual ~StepAssetRenderer();
 
-    virtual void setAsset(const std::shared_ptr<Asset>& asset) override;
+    virtual void setAsset(const std::shared_ptr<const Asset>& asset) override;
     virtual void render(Renderer& renderer, bool isSelected = false) override;
 
     void rebuildVertices();
 
   private:
-    std::shared_ptr<CadAsset>                       asset;
+    std::shared_ptr<const CadAsset>                 asset;
     std::unique_ptr<Vulcant::Toolkit::MeshRenderer> meshRenderer;
     std::unique_ptr<Vulcant::VulcantGraphicCommand> drawCmd;
     std::vector<Vulcant::Toolkit::MeshVertex>       cachedVertices;
-    glm::vec3                                       lastColor = glm::vec3(0.0f);
-    bool                                            dirty     = true;
+    glm::vec3                                       lastColor    = glm::vec3(0.0f);
+    size_t                                          lastRevision = 0;
+    bool                                            dirty        = true;
 };

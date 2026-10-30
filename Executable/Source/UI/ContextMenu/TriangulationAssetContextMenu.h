@@ -13,12 +13,12 @@ class TriangulationAssetContextMenu : public AssetContextMenu
     TriangulationAssetContextMenu();
     virtual ~TriangulationAssetContextMenu();
 
-    void render(Asset& asset) override;
+    void render(const Asset& asset) override;
 
     void setStlToSvoModal(StlToSvoConversionModal* modal);
 
   private:
-    void save(TriangulationAsset& asset);
+    void save(const TriangulationAsset& asset);
 
     StlToSvoConversionModal* stlToSvoModal = nullptr;
 };

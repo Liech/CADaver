@@ -20,19 +20,20 @@ class TriangulationAssetRenderer : public AssetRenderer
 {
   public:
     TriangulationAssetRenderer();
-    TriangulationAssetRenderer(std::shared_ptr<TriangulationAsset> asset);
+    TriangulationAssetRenderer(std::shared_ptr<const TriangulationAsset> asset);
     virtual ~TriangulationAssetRenderer();
 
-    virtual void setAsset(const std::shared_ptr<Asset>& asset) override;
+    virtual void setAsset(const std::shared_ptr<const Asset>& asset) override;
     virtual void render(Renderer& renderer, bool isSelected = false) override;
 
     void rebuildVertices();
 
   private:
-    std::shared_ptr<TriangulationAsset>             asset;
+    std::shared_ptr<const TriangulationAsset>       asset;
     std::unique_ptr<Vulcant::Toolkit::MeshRenderer> meshRenderer;
     std::unique_ptr<Vulcant::VulcantGraphicCommand> drawCmd;
     std::vector<Vulcant::Toolkit::MeshVertex>       cachedVertices;
-    glm::vec3                                       lastColor = glm::vec3(0.0f);
-    bool                                            dirty     = true;
+    glm::vec3                                       lastColor    = glm::vec3(0.0f);
+    size_t                                          lastRevision = 0;
+    bool                                            dirty        = true;
 };

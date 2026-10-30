@@ -22,15 +22,20 @@ VoxelAsset::VoxelAsset(const std::string& nameInput, const std::string& filePath
 
 VoxelAsset::~VoxelAsset() {}
 
-CADacomb::SVO<bool>* VoxelAsset::getSVO() const
+const CADacomb::SVO<bool>* VoxelAsset::getSVO() const
+{
+    return svo.get();
+}
+
+CADacomb::SVO<bool>* VoxelAsset::getSVO()
 {
     return svo.get();
 }
 
 void VoxelAsset::setSVO(std::unique_ptr<CADacomb::SVO<bool>> newSvo)
 {
-    svo   = std::move(newSvo);
-    dirty = true;
+    svo = std::move(newSvo);
+    markModified();
 }
 
 const CADacomb::AABB3& VoxelAsset::getAABB() const
@@ -40,8 +45,8 @@ const CADacomb::AABB3& VoxelAsset::getAABB() const
 
 void VoxelAsset::setAABB(const CADacomb::AABB3& newAABB)
 {
-    aabb  = newAABB;
-    dirty = true;
+    aabb = newAABB;
+    markModified();
 }
 
 const std::string& VoxelAsset::getFilePath() const
@@ -52,7 +57,7 @@ const std::string& VoxelAsset::getFilePath() const
 void VoxelAsset::setFilePath(const std::string& path)
 {
     filePath = path;
-    dirty    = true;
+    markModified();
 }
 
 size_t VoxelAsset::getSizeInBytes() const
@@ -70,16 +75,6 @@ size_t VoxelAsset::getSizeInBytes() const
     }
 
     return size;
-}
-
-bool VoxelAsset::isDirty() const
-{
-    return dirty;
-}
-
-void VoxelAsset::markClean()
-{
-    dirty = false;
 }
 
 #ifdef ISTESTPROJECT
