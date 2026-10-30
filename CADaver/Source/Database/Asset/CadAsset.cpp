@@ -1,8 +1,8 @@
 #include "Database/Asset/CadAsset.h"
 
-#include "CADaverLibrary/CAD/CADShape.h"
-#include "CADaverLibrary/Operation/IO/LoadCADOperation.h"
-#include "CADaverLibrary/Operation/TriangulateOperation.h"
+#include "CADacomb/CAD/Interface/Shape.h"
+#include "CADacomb/CAD/Interface/TessellationOptions.h"
+#include "CADacomb/CAD/Sm/KernelSm.h"
 
 CadAsset::CadAsset(const std::string& nameInput)
   : Asset(nameInput, "Cad")
@@ -15,7 +15,7 @@ CadAsset::CadAsset(const std::string& nameInput, const std::string& filePathInpu
     loadFromFile(filePathInput);
 }
 
-CadAsset::CadAsset(const std::string& nameInput, std::shared_ptr<Library::CADShape> cadShapeInput)
+CadAsset::CadAsset(const std::string& nameInput, std::shared_ptr<CADacomb::CAD::Shape> cadShapeInput)
   : Asset(nameInput, "Cad")
   , cadShape(std::move(cadShapeInput))
 {
@@ -26,14 +26,16 @@ CadAsset::~CadAsset() {}
 
 bool CadAsset::loadFromFile(const std::string& path)
 {
-    filePath         = path;
-    auto loadedShape = Library::LoadCADOperation::loadFromFile(filePath);
-    if (!loadedShape)
+    filePath = path;
+
+    CADacomb::CAD::KernelSm kernel;
+    auto                    shapes = kernel.loadStepFile(filePath);
+    if (shapes.empty() || !shapes[0])
     {
         return false;
     }
 
-    cadShape = std::move(loadedShape);
+    cadShape = std::move(shapes[0]);
     triangulateShape();
     return true;
 }
@@ -49,17 +51,17 @@ void CadAsset::setFilePath(const std::string& path)
     markModified();
 }
 
-const Library::CADShape* CadAsset::getCadShape() const
+const CADacomb::CAD::Shape* CadAsset::getCadShape() const
 {
     return cadShape.get();
 }
 
-Library::CADShape* CadAsset::getCadShape()
+CADacomb::CAD::Shape* CadAsset::getCadShape()
 {
     return cadShape.get();
 }
 
-void CadAsset::setCadShape(std::shared_ptr<Library::CADShape> shape)
+void CadAsset::setCadShape(std::shared_ptr<CADacomb::CAD::Shape> shape)
 {
     cadShape = std::move(shape);
     triangulateShape();
@@ -107,26 +109,7 @@ size_t CadAsset::getSizeInBytes() const
 
     if (cadShape)
     {
-        std::vector<const Library::CADShape*> stack;
-        stack.push_back(cadShape.get());
-        while (!stack.empty())
-        {
-            const Library::CADShape* current = stack.back();
-            stack.pop_back();
-            if (current)
-            {
-                size += sizeof(Library::CADShape);
-                const auto& children = current->getChildren();
-                size += children.capacity() * sizeof(std::shared_ptr<Library::CADShape>);
-                for (const auto& child : children)
-                {
-                    if (child)
-                    {
-                        stack.push_back(child.get());
-                    }
-                }
-            }
-        }
+        size += sizeof(CADacomb::CAD::Shape);
     }
 
     return size;
@@ -136,7 +119,10 @@ void CadAsset::triangulateShape()
 {
     if (cadShape)
     {
-        triangulation = Library::TriangulateOperation::triangulate(*cadShape, 0.1);
+        CADacomb::CAD::KernelSm            kernel;
+        CADacomb::CAD::TessellationOptions options;
+        options.setChordHeightTolerance(0.1);
+        triangulation = kernel.tessellate(*cadShape, options);
     }
     else
     {

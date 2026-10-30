@@ -6,6 +6,7 @@ find_package(glm REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui REQUIRED)
 find_package(imguizmo CONFIG REQUIRED)
+find_package(nfd CONFIG REQUIRED)
 if(NOT TARGET Vulcant::Vulcant)
     find_package(Vulcant CONFIG REQUIRED)
 endif()
@@ -256,7 +257,16 @@ set(Camera_Files
 )
 source_group("Source/Camera" FILES ${Camera_Files})
 
+set(UI_Dialog_Files
+    "Source/UI/Dialog/LoadFileDialog.cpp"
+    "Source/UI/Dialog/LoadFileDialog.h"
+    "Source/UI/Dialog/SaveFileDialog.cpp"
+    "Source/UI/Dialog/SaveFileDialog.h"
+)
+source_group("Source/UI/Dialog" FILES ${UI_Dialog_Files})
+
 set(ALL_FILES
+    ${UI_Dialog_Files}
     ${Source_Files}
     ${Camera_Files}
     ${Database_Files}
@@ -289,6 +299,7 @@ target_link_libraries(CadaverExe
     nlohmann_json::nlohmann_json
     CADacombRender
     CadaverLibrary
+    nfd::nfd
     Vulcant::Vulcant
     VulcantToolkit
     imgui::imgui

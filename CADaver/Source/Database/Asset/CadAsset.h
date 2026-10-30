@@ -7,9 +7,9 @@
 #include <memory>
 #include <string>
 
-namespace Library
+namespace CADacomb::CAD
 {
-    class CADShape;
+    class Shape;
 }
 
 // Headless data asset representing CAD model geometry and its tessellated mesh.
@@ -18,7 +18,7 @@ class CadAsset : public Asset
   public:
     CadAsset(const std::string& name);
     CadAsset(const std::string& name, const std::string& filePath);
-    CadAsset(const std::string& name, std::shared_ptr<Library::CADShape> cadShape);
+    CadAsset(const std::string& name, std::shared_ptr<CADacomb::CAD::Shape> cadShape);
     virtual ~CadAsset();
 
     bool loadFromFile(const std::string& filePath);
@@ -26,9 +26,9 @@ class CadAsset : public Asset
     const std::string& getFilePath() const;
     void               setFilePath(const std::string& path);
 
-    const Library::CADShape* getCadShape() const;
-    Library::CADShape*       getCadShape();
-    void                     setCadShape(std::shared_ptr<Library::CADShape> shape);
+    const CADacomb::CAD::Shape* getCadShape() const;
+    CADacomb::CAD::Shape*       getCadShape();
+    void                        setCadShape(std::shared_ptr<CADacomb::CAD::Shape> shape);
 
     const CADacomb::Triangulation* getTriangulation() const;
     CADacomb::Triangulation*       getTriangulation();
@@ -43,7 +43,7 @@ class CadAsset : public Asset
     void triangulateShape();
 
     std::string                              filePath;
-    std::shared_ptr<Library::CADShape>       cadShape;
+    std::shared_ptr<CADacomb::CAD::Shape>    cadShape;
     std::unique_ptr<CADacomb::Triangulation> triangulation;
     glm::vec3                                meshColor = glm::vec3(0.68f, 0.78f, 0.90f);
 };

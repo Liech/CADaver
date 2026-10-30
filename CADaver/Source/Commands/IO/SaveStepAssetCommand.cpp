@@ -1,9 +1,9 @@
 #include "Commands/IO/SaveStepAssetCommand.h"
 
+#include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
-#include "CADaverLibrary/CAD/CADShape.h"
 
 SaveStepAssetCommand::SaveStepAssetCommand() {}
 
@@ -96,7 +96,20 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, 
         targetPath = cadAsset->getName() + ".step";
     }
 
-    if (!shape->save(targetPath) || bar.isCanceled())
+    try
+    {
+        CADacomb::CAD::KernelSm kernel;
+        kernel.saveStepFile(*shape, targetPath, cadAsset->getName());
+    }
+    catch (...)
+    {
+        return createResponse("WriteFailed",
+                              {
+                                { "filePath", targetPath }
+        });
+    }
+
+    if (bar.isCanceled())
     {
         return createResponse("WriteFailed",
                               {

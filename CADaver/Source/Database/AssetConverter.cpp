@@ -3,13 +3,14 @@
 #include "Asset/CadAsset.h"
 #include "Asset/TriangulationAsset.h"
 #include "Asset/VoxelAsset.h"
+#include "CADacomb/CAD/Interface/TessellationOptions.h"
+#include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Triangle/Triangulation.h"
 #include "CADacomb/Util/ProgressBar.h"
 #include "CADacomb/Volume/AABB3.h"
 #include "CADacomb/Volume/SVO/Blocky/SVOBlockyTriangulation.h"
 #include "CADacomb/Volume/SVO/SVO.h"
 #include "CADacomb/Volume/SVO/SVOVoxelizer.h"
-#include "CADaverLibrary/Operation/TriangulateOperation.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -28,7 +29,10 @@ std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& ass
 
     if (asset.getCadShape())
     {
-        newTri = Library::TriangulateOperation::triangulate(*asset.getCadShape(), precision);
+        CADacomb::CAD::KernelSm            kernel;
+        CADacomb::CAD::TessellationOptions options;
+        options.setChordHeightTolerance(precision);
+        newTri = kernel.tessellate(*asset.getCadShape(), options);
     }
     else if (const CADacomb::Triangulation* tri = asset.getTriangulation())
     {
