@@ -137,8 +137,6 @@ set(Triangle_Files
     "Source/CADaverLibrary/Triangle/mesh2cad_dumb.cpp"
     "Source/CADaverLibrary/Triangle/mesh2cad_cluster.h"
     "Source/CADaverLibrary/Triangle/mesh2cad_cluster.cpp"
-    "Source/CADaverLibrary/Triangle/Clustering.h"
-    "Source/CADaverLibrary/Triangle/Clustering.cpp"
     "Source/CADaverLibrary/Triangle/cocoon.h"
     "Source/CADaverLibrary/Triangle/cocoon.cpp"
 )

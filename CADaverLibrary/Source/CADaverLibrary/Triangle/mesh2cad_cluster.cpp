@@ -6,7 +6,7 @@
 #include "CADacomb/Triangle/HalfEdge/HalfEdgeHealth.h"
 #include "CADacomb/Triangle/HalfEdge/mesh2halfedge.h"
 #include "CADacomb/Triangle/Triangulation.h"
-#include "Clustering.h"
+#include "CADacomb/Triangle/Clustering.h"
 #include "CADaverLibrary/CAD/CADShapeFactory.h"
 #include "cocoon.h"
 #include <BRepAdaptor_Curve.hxx>
@@ -64,6 +64,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <unordered_set>
 
 namespace Library
 {
@@ -196,7 +197,7 @@ namespace Library
 
         // 0. Preperation
         report += "Clustering\n";
-        std::vector<std::vector<size_t>> cluster = Clustering::cluster_withoutHoles(mesh, growFunction);
+        std::vector<std::vector<size_t>> cluster = CADacomb::Clustering::clusterWithoutHoles(mesh, growFunction);
 
         size_t counter = 0;
         for (const auto& c : cluster)
@@ -225,7 +226,7 @@ namespace Library
         for (const auto& c : cluster)
         {
             report += "  Border " + std::to_string(counter) + "\n";
-            auto b = Clustering::findBorders(*halfedge, c)[0];
+            auto b = CADacomb::Clustering::findBorders(*halfedge, c)[0];
             borders.push_back(b); // withoutHoles ensures .size()==1
             for (size_t x : b)
             {
