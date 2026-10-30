@@ -13,8 +13,6 @@
     "glm",
     "smlib",
     "catch2",
-    "nativefiledialog-extended",
-    "opencascade",
     "glfw3",
     {
       "name": "imgui",

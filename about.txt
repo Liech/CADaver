@@ -21,9 +21,9 @@ spatial analysis platform built with C++20 and Vulkan.
 Link: https://github.com/Liech/CADaver
 Version: 0.2dev
 
-License: 
- * 0.1 uses OCCT and is therefor released under LGPL-2.1
- * 0.2 and ascending will not use OCCT and will be released under MIT
+License: MIT
+ * 0.1 used OCCT and was released under LGPL-2.1
+ * 0.2 and ascending do not use OCCT and are released under MIT
 
 --------------------------------------------------------------------------------
 Author
