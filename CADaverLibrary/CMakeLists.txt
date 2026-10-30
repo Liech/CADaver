@@ -76,15 +76,6 @@ set(OperationIO_Files
 )
 source_group("Source/Operation/IO" FILES ${OperationIO_Files})
 
-set(Triangle_Files
-    "Source/CADaverLibrary/Triangle/mesh2cad_dumb.h"
-    "Source/CADaverLibrary/Triangle/mesh2cad_dumb.cpp"
-    "Source/CADaverLibrary/Triangle/mesh2cad_cluster.h"
-    "Source/CADaverLibrary/Triangle/mesh2cad_cluster.cpp"
-    "Source/CADaverLibrary/Triangle/cocoon.h"
-    "Source/CADaverLibrary/Triangle/cocoon.cpp"
-)
-source_group("Source/Triangle" FILES ${Triangle_Files})
 
 set(ALL_FILES
     ${Source_Files}
@@ -92,7 +83,6 @@ set(ALL_FILES
     ${Operation_Files}
     ${OperationIO_Files}
     ${CADShapes_Files}
-    ${Triangle_Files}
 )
 
 ############################################################################

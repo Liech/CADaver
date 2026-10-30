@@ -1,7 +1,6 @@
 #include "LoadCADOperation.h"
 
 #include "CADaverLibrary/CAD/CADShape.h"
-#include "CADaverLibrary/Triangle/mesh2cad_dumb.h"
 
 namespace Library
 {
@@ -12,11 +11,6 @@ namespace Library
     std::unique_ptr<CADShape> LoadCADOperation::loadFromFile(const std::string& filename)
     {
         return CADShape::load(filename);
-    }
-
-    std::unique_ptr<CADShape> LoadCADOperation::cadify_dumb(const CADacomb::Triangulation& mesh)
-    {
-        return mesh2cad_dumb::cadify_dumb(mesh);
     }
 }
 
