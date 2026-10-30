@@ -13,8 +13,47 @@ set(Source_Files
 )
 source_group("Source" FILES ${Source_Files})
 
+set(Database_Preferences_Files
+    "Source/CADaverLibrary/Database/Preferences/Preferences.h"
+    "Source/CADaverLibrary/Database/Preferences/Preferences.cpp"
+    "Source/CADaverLibrary/Database/Preferences/UIPreferences.h"
+    "Source/CADaverLibrary/Database/Preferences/UIPreferences.cpp"
+    "Source/CADaverLibrary/Database/Preferences/CameraPreferences.h"
+    "Source/CADaverLibrary/Database/Preferences/CameraPreferences.cpp"
+    "Source/CADaverLibrary/Database/Preferences/RenderPreferences.h"
+    "Source/CADaverLibrary/Database/Preferences/RenderPreferences.cpp"
+    "Source/CADaverLibrary/Database/Preferences/SVOPreferences.h"
+    "Source/CADaverLibrary/Database/Preferences/SVOPreferences.cpp"
+)
+source_group("Source/Database/Preferences" FILES ${Database_Preferences_Files})
+
+set(Database_Files
+    "Source/CADaverLibrary/Database/Project.h"
+    "Source/CADaverLibrary/Database/Project.cpp"
+    "Source/CADaverLibrary/Database/Asset.h"
+    "Source/CADaverLibrary/Database/Asset.cpp"
+    "Source/CADaverLibrary/Database/AssetConverter.h"
+    "Source/CADaverLibrary/Database/AssetConverter.cpp"
+)
+source_group("Source/Database" FILES ${Database_Files})
+
+set(Database_Asset_Files
+    "Source/CADaverLibrary/Database/Asset/CadAsset.h"
+    "Source/CADaverLibrary/Database/Asset/CadAsset.cpp"
+    "Source/CADaverLibrary/Database/Asset/ProgressBarAsset.h"
+    "Source/CADaverLibrary/Database/Asset/ProgressBarAsset.cpp"
+    "Source/CADaverLibrary/Database/Asset/TriangulationAsset.h"
+    "Source/CADaverLibrary/Database/Asset/TriangulationAsset.cpp"
+    "Source/CADaverLibrary/Database/Asset/VoxelAsset.h"
+    "Source/CADaverLibrary/Database/Asset/VoxelAsset.cpp"
+)
+source_group("Source/Database/Asset" FILES ${Database_Asset_Files})
+
 set(ALL_FILES
     ${Source_Files}
+    ${Database_Preferences_Files}
+    ${Database_Files}
+    ${Database_Asset_Files}
 )
 
 ############################################################################
@@ -41,10 +80,12 @@ target_link_libraries(CadaverLibrary PUBLIC
 
 target_include_directories(CadaverLibrary PUBLIC
     ./Source/
+    ./Source/CADaverLibrary/
 )
 
 target_include_directories(CadaverLibraryTest PUBLIC
     ./Source/
+    ./Source/CADaverLibrary/
 )
 
 set_property(TARGET CadaverLibraryTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1)

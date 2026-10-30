@@ -18,20 +18,6 @@ set(Source_Files
 )
 source_group("Source" FILES ${Source_Files})
 
-set(Database_Preferences_Files
-    "Source/Database/Preferences/Preferences.h"
-    "Source/Database/Preferences/Preferences.cpp"
-    "Source/Database/Preferences/UIPreferences.h"
-    "Source/Database/Preferences/UIPreferences.cpp"
-    "Source/Database/Preferences/CameraPreferences.h"
-    "Source/Database/Preferences/CameraPreferences.cpp"
-    "Source/Database/Preferences/RenderPreferences.h"
-    "Source/Database/Preferences/RenderPreferences.cpp"
-    "Source/Database/Preferences/SVOPreferences.h"
-    "Source/Database/Preferences/SVOPreferences.cpp"
-)
-source_group("Source/Database/Preferences" FILES ${Database_Preferences_Files})
-
 set(UI_Preferences_Files
     "Source/UI/Preferences/PreferencesWindow.h"
     "Source/UI/Preferences/PreferencesWindow.cpp"
@@ -51,26 +37,8 @@ source_group("Source/UI/Preferences" FILES ${UI_Preferences_Files})
 set(Database_Files
     "Source/Database/Database.h"
     "Source/Database/Database.cpp"
-    "Source/Database/Project.h"
-    "Source/Database/Project.cpp"
-    "Source/Database/Asset.h"
-    "Source/Database/Asset.cpp"
-    "Source/Database/AssetConverter.h"
-    "Source/Database/AssetConverter.cpp"
 )
 source_group("Source/Database" FILES ${Database_Files})
-
-set(Database_Asset_Files
-    "Source/Database/Asset/CadAsset.h"
-    "Source/Database/Asset/CadAsset.cpp"
-    "Source/Database/Asset/ProgressBarAsset.h"
-    "Source/Database/Asset/ProgressBarAsset.cpp"
-    "Source/Database/Asset/TriangulationAsset.h"
-    "Source/Database/Asset/TriangulationAsset.cpp"
-    "Source/Database/Asset/VoxelAsset.h"
-    "Source/Database/Asset/VoxelAsset.cpp"
-)
-source_group("Source/Database/Asset" FILES ${Database_Asset_Files})
 
 set(Rendering_Files
     "Source/Rendering/Renderer.h"
@@ -270,8 +238,6 @@ set(ALL_FILES
     ${Source_Files}
     ${Camera_Files}
     ${Database_Files}
-    ${Database_Asset_Files}
-    ${Database_Preferences_Files}
     ${Rendering_Files}
     ${UI_Menu_Files}
     ${UI_Preferences_Files}
