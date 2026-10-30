@@ -1,19 +1,19 @@
 #include "Database/Asset/VoxelAsset.h"
 
 VoxelAsset::VoxelAsset(const std::string& nameInput)
-  : Asset(nameInput, AssetType::Voxel)
+  : Asset(nameInput, "Voxel")
 {
 }
 
 VoxelAsset::VoxelAsset(const std::string& nameInput, std::unique_ptr<CADacomb::SVO<bool>> svoInput, const CADacomb::AABB3& aabbInput)
-  : Asset(nameInput, AssetType::Voxel)
+  : Asset(nameInput, "Voxel")
   , svo(std::move(svoInput))
   , aabb(aabbInput)
 {
 }
 
 VoxelAsset::VoxelAsset(const std::string& nameInput, const std::string& filePathInput, std::unique_ptr<CADacomb::SVO<bool>> svoInput, const CADacomb::AABB3& aabbInput)
-  : Asset(nameInput, AssetType::Voxel)
+  : Asset(nameInput, "Voxel")
   , svo(std::move(svoInput))
   , aabb(aabbInput)
   , filePath(filePathInput)

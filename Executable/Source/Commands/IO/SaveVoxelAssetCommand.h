@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
-// Command to save an SVO voxel asset to an output stream or file path.
+// Command to save an SVO voxel asset to an output stream.
 class SaveVoxelAssetCommand : public Command
 {
   public:
     SaveVoxelAssetCommand();
-    explicit SaveVoxelAssetCommand(const CADacomb::GUID& assetGuid, const std::string& filePath = "");
+    explicit SaveVoxelAssetCommand(const CADacomb::GUID& assetGuid);
     explicit SaveVoxelAssetCommand(const nlohmann::json& json);
     virtual ~SaveVoxelAssetCommand();
 
@@ -26,10 +26,6 @@ class SaveVoxelAssetCommand : public Command
     const CADacomb::GUID& getAssetGuid() const;
     void                  setAssetGuid(const CADacomb::GUID& guid);
 
-    const std::string& getFilePath() const;
-    void               setFilePath(const std::string& newFilePath);
-
   private:
-    std::string    filePath;
     CADacomb::GUID assetGuid;
 };

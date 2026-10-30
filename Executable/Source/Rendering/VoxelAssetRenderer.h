@@ -23,9 +23,11 @@ class VoxelAsset;
 class VoxelAssetRenderer : public AssetRenderer
 {
   public:
+    VoxelAssetRenderer();
     explicit VoxelAssetRenderer(std::shared_ptr<VoxelAsset> asset);
     virtual ~VoxelAssetRenderer();
 
+    virtual void setAsset(const std::shared_ptr<Asset>& asset) override;
     virtual void render(Renderer& renderer, bool isSelected = false) override;
 
     void rebuildMesh(Renderer& renderer);

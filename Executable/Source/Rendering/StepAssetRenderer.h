@@ -19,9 +19,11 @@ class Renderer;
 class StepAssetRenderer : public AssetRenderer
 {
   public:
+    StepAssetRenderer();
     StepAssetRenderer(std::shared_ptr<CadAsset> asset);
     virtual ~StepAssetRenderer();
 
+    virtual void setAsset(const std::shared_ptr<Asset>& asset) override;
     virtual void render(Renderer& renderer, bool isSelected = false) override;
 
     void rebuildVertices();

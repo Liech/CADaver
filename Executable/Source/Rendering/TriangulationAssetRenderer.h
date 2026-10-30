@@ -19,9 +19,11 @@ class TriangulationAsset;
 class TriangulationAssetRenderer : public AssetRenderer
 {
   public:
+    TriangulationAssetRenderer();
     TriangulationAssetRenderer(std::shared_ptr<TriangulationAsset> asset);
     virtual ~TriangulationAssetRenderer();
 
+    virtual void setAsset(const std::shared_ptr<Asset>& asset) override;
     virtual void render(Renderer& renderer, bool isSelected = false) override;
 
     void rebuildVertices();

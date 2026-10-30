@@ -6,19 +6,15 @@
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
 
-#include <fstream>
-
 LoadSvoAssetCommand::LoadSvoAssetCommand() {}
 
-LoadSvoAssetCommand::LoadSvoAssetCommand(const std::string& name, const std::string& filePath)
+LoadSvoAssetCommand::LoadSvoAssetCommand(const std::string& name)
   : name(name)
-  , filePath(filePath)
 {
 }
 
 LoadSvoAssetCommand::LoadSvoAssetCommand(const nlohmann::json& json)
   : name(json.at("name").get<std::string>())
-  , filePath(json.value("filePath", ""))
 {
 }
 
@@ -38,15 +34,14 @@ std::string LoadSvoAssetCommand::getDescription() const
 {
     return "Command: LoadSvoAsset\n"
            "Version: 1\n"
-           "Purpose: Loads an SVO voxel asset from an input stream or file path into the project.\n\n"
+           "Purpose: Loads an SVO voxel asset from an input stream into the project.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"LoadSvoAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"name\": \"<string>\",\n"
-           "  \"filePath\": \"<string>\" (optional)\n"
+           "  \"name\": \"<string>\"\n"
            "}\n\n"
-           "Input Stream: SVO binary stream (optional if filePath specified)\n"
+           "Input Stream: SVO binary stream\n"
            "Output Stream: None\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
@@ -62,18 +57,7 @@ nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* in
 {
     CADacomb::ProgressBar bar(1, "Loading SVO asset");
 
-    std::ifstream fileStream;
-    std::istream* streamToUse = inputStream;
-    if (!streamToUse && !filePath.empty())
-    {
-        fileStream.open(filePath, std::ios::binary);
-        if (fileStream.is_open())
-        {
-            streamToUse = &fileStream;
-        }
-    }
-
-    if (!streamToUse || bar.isCanceled())
+    if (!inputStream || bar.isCanceled())
     {
         return createResponse("NoInputStream",
                               {
@@ -83,7 +67,7 @@ nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* in
     }
 
     CADacomb::AABB3                      bounds;
-    std::unique_ptr<CADacomb::SVO<bool>> svo = CADacomb::SVOFile::load<bool>(*streamToUse, bounds);
+    std::unique_ptr<CADacomb::SVO<bool>> svo = CADacomb::SVOFile::load<bool>(*inputStream, bounds);
     if (!svo || bar.isCanceled())
     {
         return createResponse("ParseFailed",
@@ -127,27 +111,16 @@ void LoadSvoAssetCommand::setName(const std::string& newName)
     name = newName;
 }
 
-const std::string& LoadSvoAssetCommand::getFilePath() const
-{
-    return filePath;
-}
-
-void LoadSvoAssetCommand::setFilePath(const std::string& newFilePath)
-{
-    filePath = newFilePath;
-}
-
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("LoadSvoAssetCommand/TypeAndVersion")
 {
-    LoadSvoAssetCommand cmd("Voxel", "voxel.cadacombsvo");
+    LoadSvoAssetCommand cmd("Voxel");
     CHECK(cmd.getType() == "LoadSvoAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());
     CHECK(cmd.getName() == "Voxel");
-    CHECK(cmd.getFilePath() == "voxel.cadacombsvo");
     CHECK(cmd.getRequiredAssets().empty());
 }
 #endif

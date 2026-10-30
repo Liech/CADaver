@@ -4,19 +4,15 @@
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
 
-#include <fstream>
-
 SaveStlAssetCommand::SaveStlAssetCommand() {}
 
-SaveStlAssetCommand::SaveStlAssetCommand(const CADacomb::GUID& assetGuid, const std::string& filePath)
-  : filePath(filePath)
-  , assetGuid(assetGuid)
+SaveStlAssetCommand::SaveStlAssetCommand(const CADacomb::GUID& assetGuid)
+  : assetGuid(assetGuid)
 {
 }
 
 SaveStlAssetCommand::SaveStlAssetCommand(const nlohmann::json& json)
-  : filePath(json.value("filePath", ""))
-  , assetGuid(json.value("assetGuid", ""))
+  : assetGuid(json.value("assetGuid", ""))
 {
 }
 
@@ -36,16 +32,15 @@ std::string SaveStlAssetCommand::getDescription() const
 {
     return "Command: SaveStlAsset\n"
            "Version: 1\n"
-           "Purpose: Saves a triangulation asset to a binary STL output stream or file path.\n\n"
+           "Purpose: Saves a triangulation asset to a binary STL output stream.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveStlAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"assetGuid\": <string>,\n"
-           "  \"filePath\": <string> (optional)\n"
+           "  \"assetGuid\": <string>\n"
            "}\n\n"
            "Input Stream: None\n"
-           "Output Stream: Binary STL data (optional if filePath specified)\n\n"
+           "Output Stream: Binary STL data\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveStlAsset\",\n"
@@ -81,23 +76,12 @@ nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream*, s
         return createResponse("NoTriangulation");
     }
 
-    std::ofstream fileStream;
-    std::ostream* streamToUse = outputStream;
-    if (!streamToUse && !filePath.empty())
-    {
-        fileStream.open(filePath, std::ios::binary);
-        if (fileStream.is_open())
-        {
-            streamToUse = &fileStream;
-        }
-    }
-
-    if (!streamToUse || bar.isCanceled())
+    if (!outputStream || bar.isCanceled())
     {
         return createResponse("NoOutputStream");
     }
 
-    tri->saveAsSTL(*streamToUse);
+    tri->saveAsSTL(*outputStream);
     bar.addProgress(1);
 
     return createResponse("Success");
@@ -113,28 +97,17 @@ void SaveStlAssetCommand::setAssetGuid(const CADacomb::GUID& guid)
     assetGuid = guid;
 }
 
-const std::string& SaveStlAssetCommand::getFilePath() const
-{
-    return filePath;
-}
-
-void SaveStlAssetCommand::setFilePath(const std::string& newFilePath)
-{
-    filePath = newFilePath;
-}
-
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("SaveStlAssetCommand/TypeAndVersion")
 {
     CADacomb::GUID      guid = CADacomb::GUID::random();
-    SaveStlAssetCommand cmd(guid, "output.stl");
+    SaveStlAssetCommand cmd(guid);
     CHECK(cmd.getType() == "SaveStlAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());
     CHECK(cmd.getAssetGuid() == guid);
-    CHECK(cmd.getFilePath() == "output.stl");
     REQUIRE(cmd.getRequiredAssets().size() == 1);
     CHECK(cmd.getRequiredAssets().front() == guid);
 }

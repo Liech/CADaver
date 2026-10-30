@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
-// Command to save a triangulation asset to a binary STL output stream or file path.
+// Command to save a triangulation asset to a binary STL output stream.
 class SaveStlAssetCommand : public Command
 {
   public:
     SaveStlAssetCommand();
-    explicit SaveStlAssetCommand(const CADacomb::GUID& assetGuid, const std::string& filePath = "");
+    explicit SaveStlAssetCommand(const CADacomb::GUID& assetGuid);
     explicit SaveStlAssetCommand(const nlohmann::json& json);
     virtual ~SaveStlAssetCommand();
 
@@ -26,10 +26,6 @@ class SaveStlAssetCommand : public Command
     const CADacomb::GUID& getAssetGuid() const;
     void                  setAssetGuid(const CADacomb::GUID& guid);
 
-    const std::string& getFilePath() const;
-    void               setFilePath(const std::string& newFilePath);
-
   private:
-    std::string    filePath;
     CADacomb::GUID assetGuid;
 };

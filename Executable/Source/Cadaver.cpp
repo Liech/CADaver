@@ -6,7 +6,6 @@
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Database/Preferences/UIPreferences.h"
-#include "Rendering/AssetRenderFactory.h"
 #include "Rendering/Renderer.h"
 #include "UI/Menu/TopMenu.h"
 #include "UI/Preferences/PreferencesWindow.h"
@@ -62,7 +61,6 @@ void Cadaver::changeResolution(const glm::ivec2& newResolution)
     {
         renderer->setResolution(resolution);
     }
-    AssetRenderFactory::getInstance().clearCache();
 
     auto cameraPrefs          = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences().toJson();
     cameraPrefs["resolution"] = { resolution.x, resolution.y };
@@ -122,22 +120,7 @@ void Cadaver::onRender()
         sceneData = viewController->getSceneData();
     }
 
-    renderer->setSceneData(sceneData);
-    renderer->clear();
-
-    const auto& project           = GatedDatabase::getInstance().get().getProject();
-    const auto& selectedAssetGuid = project.getSelectedAssetGuid();
-
-    for (const auto& asset : project.getAssets())
-    {
-        if (asset)
-        {
-            bool isSelected = (!selectedAssetGuid.toString().empty() && asset->getGuid() == selectedAssetGuid);
-            AssetRenderFactory::getInstance().render(*renderer, asset, isSelected);
-        }
-    }
-
-    renderer->renderUi(*window);
+    renderer->render(sceneData);
 }
 
 void Cadaver::onResize(const glm::ivec2& newResolution)

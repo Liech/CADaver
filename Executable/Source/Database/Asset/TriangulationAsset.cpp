@@ -1,12 +1,12 @@
 #include "Database/Asset/TriangulationAsset.h"
 
 TriangulationAsset::TriangulationAsset(const std::string& nameInput)
-  : Asset(nameInput, AssetType::Triangulation)
+  : Asset(nameInput, "Triangulation")
 {
 }
 
 TriangulationAsset::TriangulationAsset(const std::string& nameInput, std::unique_ptr<CADacomb::Triangulation> tri)
-  : Asset(nameInput, AssetType::Triangulation)
+  : Asset(nameInput, "Triangulation")
   , triangulation(std::move(tri))
 {
 }

@@ -5,6 +5,8 @@
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 
+StepAssetRenderer::StepAssetRenderer() {}
+
 StepAssetRenderer::StepAssetRenderer(std::shared_ptr<CadAsset> assetInput)
   : asset(std::move(assetInput))
 {
@@ -15,7 +17,15 @@ StepAssetRenderer::~StepAssetRenderer()
     if (drawCmd)
     {
         drawCmd->wait();
+        drawCmd.reset();
     }
+    meshRenderer.reset();
+}
+
+void StepAssetRenderer::setAsset(const std::shared_ptr<Asset>& newAsset)
+{
+    asset = std::dynamic_pointer_cast<CadAsset>(newAsset);
+    dirty = true;
 }
 
 void StepAssetRenderer::rebuildVertices()

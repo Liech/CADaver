@@ -32,20 +32,20 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
         return nullptr;
     }
 
-    if (asset->getType() == AssetType::Cad)
+    if (asset->getType() == "Cad")
     {
         auto menu = std::make_unique<CadAssetContextMenu>();
         menu->setCadToStlModal(cadToStlModal.get());
         menu->setCadToSvoModal(cadToSvoModal.get());
         return menu;
     }
-    else if (asset->getType() == AssetType::Triangulation)
+    else if (asset->getType() == "Triangulation")
     {
         auto menu = std::make_unique<TriangulationAssetContextMenu>();
         menu->setStlToSvoModal(stlToSvoModal.get());
         return menu;
     }
-    else if (asset->getType() == AssetType::Voxel)
+    else if (asset->getType() == "Voxel")
     {
         auto menu = std::make_unique<VoxelAssetContextMenu>();
         menu->setSvoToStlModal(svoToStlModal.get());

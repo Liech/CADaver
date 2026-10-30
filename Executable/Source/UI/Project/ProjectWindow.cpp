@@ -63,7 +63,7 @@ void ProjectWindow::render(const Project& project)
                         continue;
                     }
 
-                    if (asset->getType() == AssetType::ProgressBar)
+                    if (asset->getType() == "Progress")
                     {
                         auto progressAsset = std::dynamic_pointer_cast<ProgressBarAsset>(asset);
                         if (progressAsset)
@@ -120,7 +120,7 @@ void ProjectWindow::render(const Project& project)
                     }
 
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::TextUnformatted(asset->getTypeName().c_str());
+                    ImGui::TextUnformatted(asset->getType().c_str());
                 }
                 ImGui::EndTable();
             }

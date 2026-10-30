@@ -87,7 +87,7 @@ void CameraController::frameOnProject(const Project& project)
 
     for (const auto& asset : project.getAssets())
     {
-        if (asset && asset->getType() == AssetType::Triangulation)
+        if (asset && asset->getType() == "Triangulation")
         {
             auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(asset);
             if (triAsset && triAsset->getTriangulation() && !triAsset->getTriangulation()->vertices.empty())
@@ -105,7 +105,7 @@ void CameraController::frameOnProject(const Project& project)
                 }
             }
         }
-        else if (asset && asset->getType() == AssetType::Cad)
+        else if (asset && asset->getType() == "Cad")
         {
             auto cadAsset = std::dynamic_pointer_cast<CadAsset>(asset);
             if (cadAsset && cadAsset->getTriangulation() && !cadAsset->getTriangulation()->vertices.empty())
@@ -123,7 +123,7 @@ void CameraController::frameOnProject(const Project& project)
                 }
             }
         }
-        else if (asset && asset->getType() == AssetType::Voxel)
+        else if (asset && asset->getType() == "Voxel")
         {
             auto voxelAsset = std::dynamic_pointer_cast<VoxelAsset>(asset);
             if (voxelAsset && voxelAsset->getSVO())

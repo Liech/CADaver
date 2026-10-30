@@ -92,7 +92,7 @@ class MockAsset : public Asset
 {
   public:
     MockAsset(const std::string& name)
-      : Asset(name, AssetType::Triangulation)
+      : Asset(name, "Triangulation")
     {
     }
 

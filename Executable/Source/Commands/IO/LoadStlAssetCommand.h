@@ -4,12 +4,12 @@
 
 #include <string>
 
-// Command to load an STL triangulation asset from an input stream or file path into the project.
+// Command to load an STL triangulation asset from an input stream into the project.
 class LoadStlAssetCommand : public Command
 {
   public:
     LoadStlAssetCommand();
-    explicit LoadStlAssetCommand(const std::string& name, const std::string& filePath = "");
+    explicit LoadStlAssetCommand(const std::string& name);
     explicit LoadStlAssetCommand(const nlohmann::json& json);
     virtual ~LoadStlAssetCommand();
 
@@ -22,10 +22,6 @@ class LoadStlAssetCommand : public Command
     const std::string& getName() const;
     void               setName(const std::string& newName);
 
-    const std::string& getFilePath() const;
-    void               setFilePath(const std::string& newFilePath);
-
   private:
     std::string name;
-    std::string filePath;
 };

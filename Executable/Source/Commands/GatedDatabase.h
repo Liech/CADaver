@@ -30,8 +30,14 @@ class GatedDatabase
     nlohmann::json execute(const nlohmann::json& command, bool recordUndo = false, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
     std::string    execute(const std::string& commandString, bool recordUndo = false, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
 
-    std::future<nlohmann::json> executeAsync(const nlohmann::json& command, bool recordUndo = false);
-    std::future<std::string>    executeAsync(const std::string& commandString, bool recordUndo = false);
+    std::future<nlohmann::json> executeAsync(const nlohmann::json&         command,
+                                             bool                          recordUndo   = false,
+                                             std::shared_ptr<std::istream> inputStream  = nullptr,
+                                             std::shared_ptr<std::ostream> outputStream = nullptr);
+    std::future<std::string>    executeAsync(const std::string&            commandString,
+                                             bool                          recordUndo   = false,
+                                             std::shared_ptr<std::istream> inputStream  = nullptr,
+                                             std::shared_ptr<std::ostream> outputStream = nullptr);
 
     bool hasActiveTasks() const;
     void cancelAllTasks();

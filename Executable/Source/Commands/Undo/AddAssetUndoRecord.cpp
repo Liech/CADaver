@@ -28,7 +28,7 @@ void AddAssetUndoRecord::redo(Database& database)
 std::string AddAssetUndoRecord::getDescription() const
 {
     std::string assetName = asset ? asset->getName() : "";
-    return "Add " + (asset ? asset->getTypeName() : "Asset") + ": " + assetName;
+    return "Add " + (asset ? asset->getType() : "Asset") + ": " + assetName;
 }
 
 size_t AddAssetUndoRecord::getSizeInBytes() const

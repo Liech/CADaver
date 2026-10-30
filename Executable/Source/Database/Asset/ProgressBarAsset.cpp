@@ -5,7 +5,7 @@
 #include <chrono>
 
 ProgressBarAsset::ProgressBarAsset(const std::string& name, const CADacomb::GUID& taskGuid, const std::string& operationName, const std::vector<std::shared_ptr<Asset>>& abductedAssets)
-  : Asset(name, AssetType::ProgressBar)
+  : Asset(name, "Progress")
   , taskGuid(taskGuid)
   , operationName(operationName)
   , abductedAssets(abductedAssets)
@@ -105,8 +105,7 @@ TEST_CASE("ProgressBarAsset/ConstructionAndState")
     CHECK(asset.getTaskGuid() == taskGuid);
     CHECK(asset.getOperationName() == "Convert");
     CHECK(asset.getState() == ProgressBarAssetState::Running);
-    CHECK(asset.getType() == AssetType::ProgressBar);
-    CHECK(asset.getTypeName() == "Progress");
+    CHECK(asset.getType() == "Progress");
     CHECK_FALSE(asset.isReady());
 
     asset.cancel();

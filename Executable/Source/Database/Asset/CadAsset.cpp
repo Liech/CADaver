@@ -5,18 +5,18 @@
 #include "Library/Operation/TriangulateOperation.h"
 
 CadAsset::CadAsset(const std::string& nameInput)
-  : Asset(nameInput, AssetType::Cad)
+  : Asset(nameInput, "Cad")
 {
 }
 
 CadAsset::CadAsset(const std::string& nameInput, const std::string& filePathInput)
-  : Asset(nameInput, AssetType::Cad)
+  : Asset(nameInput, "Cad")
 {
     loadFromFile(filePathInput);
 }
 
 CadAsset::CadAsset(const std::string& nameInput, std::shared_ptr<Library::CADShape> cadShapeInput)
-  : Asset(nameInput, AssetType::Cad)
+  : Asset(nameInput, "Cad")
   , cadShape(std::move(cadShapeInput))
 {
     triangulateShape();

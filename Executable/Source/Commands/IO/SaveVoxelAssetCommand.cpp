@@ -5,19 +5,15 @@
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
 
-#include <fstream>
-
 SaveVoxelAssetCommand::SaveVoxelAssetCommand() {}
 
-SaveVoxelAssetCommand::SaveVoxelAssetCommand(const CADacomb::GUID& assetGuid, const std::string& filePath)
-  : filePath(filePath)
-  , assetGuid(assetGuid)
+SaveVoxelAssetCommand::SaveVoxelAssetCommand(const CADacomb::GUID& assetGuid)
+  : assetGuid(assetGuid)
 {
 }
 
 SaveVoxelAssetCommand::SaveVoxelAssetCommand(const nlohmann::json& json)
-  : filePath(json.value("filePath", ""))
-  , assetGuid(json.value("assetGuid", ""))
+  : assetGuid(json.value("assetGuid", ""))
 {
 }
 
@@ -37,16 +33,15 @@ std::string SaveVoxelAssetCommand::getDescription() const
 {
     return "Command: SaveVoxelAsset\n"
            "Version: 1\n"
-           "Purpose: Saves an SVO voxel asset to an output stream or file path.\n\n"
+           "Purpose: Saves an SVO voxel asset to an output stream.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveVoxelAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"assetGuid\": <string>,\n"
-           "  \"filePath\": <string> (optional)\n"
+           "  \"assetGuid\": <string>\n"
            "}\n\n"
            "Input Stream: None\n"
-           "Output Stream: SVO binary data (optional if filePath specified)\n\n"
+           "Output Stream: SVO binary data\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveVoxelAsset\",\n"
@@ -81,23 +76,12 @@ nlohmann::json SaveVoxelAssetCommand::execute(Database& database, std::istream*,
         return createResponse("NoSVO");
     }
 
-    std::ofstream fileStream;
-    std::ostream* streamToUse = outputStream;
-    if (!streamToUse && !filePath.empty())
-    {
-        fileStream.open(filePath, std::ios::binary);
-        if (fileStream.is_open())
-        {
-            streamToUse = &fileStream;
-        }
-    }
-
-    if (!streamToUse || bar.isCanceled())
+    if (!outputStream || bar.isCanceled())
     {
         return createResponse("NoOutputStream");
     }
 
-    CADacomb::SVOFile::save(*streamToUse, *voxelAsset->getSVO(), voxelAsset->getAABB());
+    CADacomb::SVOFile::save(*outputStream, *voxelAsset->getSVO(), voxelAsset->getAABB());
     bar.addProgress(1);
 
     return createResponse("Success");
@@ -113,28 +97,17 @@ void SaveVoxelAssetCommand::setAssetGuid(const CADacomb::GUID& guid)
     assetGuid = guid;
 }
 
-const std::string& SaveVoxelAssetCommand::getFilePath() const
-{
-    return filePath;
-}
-
-void SaveVoxelAssetCommand::setFilePath(const std::string& newFilePath)
-{
-    filePath = newFilePath;
-}
-
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("SaveVoxelAssetCommand/TypeAndVersion")
 {
     CADacomb::GUID        guid = CADacomb::GUID::random();
-    SaveVoxelAssetCommand cmd(guid, "output.cadacombsvo");
+    SaveVoxelAssetCommand cmd(guid);
     CHECK(cmd.getType() == "SaveVoxelAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());
     CHECK(cmd.getAssetGuid() == guid);
-    CHECK(cmd.getFilePath() == "output.cadacombsvo");
     REQUIRE(cmd.getRequiredAssets().size() == 1);
     CHECK(cmd.getRequiredAssets().front() == guid);
 }

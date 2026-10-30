@@ -168,7 +168,7 @@ void GatedDatabase::cancelAllTasks()
     }
 }
 
-std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& command, bool recordUndo)
+std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& command, bool recordUndo, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
 {
     if (locked)
     {
@@ -240,7 +240,7 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
     std::shared_ptr<Command> sharedCmd = std::move(cmd);
 
     std::thread worker(
-      [this, taskGuid, progressAsset, abductedAssets, sharedCmd, recordUndo, promise, callerPromise]()
+      [this, taskGuid, progressAsset, abductedAssets, sharedCmd, recordUndo, inputStream, outputStream, promise, callerPromise]()
       {
           CADacomb::ProgressBar::setThreadGuid(taskGuid);
 
@@ -255,7 +255,7 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
 
           try
           {
-              result  = sharedCmd->execute(isolatedDb, nullptr, nullptr, false);
+              result  = sharedCmd->execute(isolatedDb, inputStream.get(), outputStream.get(), false);
               success = (result.value("status", "") == "Success");
           }
           catch (const std::exception& e)
@@ -360,7 +360,7 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
     return callerFuture;
 }
 
-std::future<std::string> GatedDatabase::executeAsync(const std::string& commandString, bool recordUndo)
+std::future<std::string> GatedDatabase::executeAsync(const std::string& commandString, bool recordUndo, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
 {
     nlohmann::json parsedCommand;
     try
@@ -381,6 +381,6 @@ std::future<std::string> GatedDatabase::executeAsync(const std::string& commandS
         return p.get_future();
     }
 
-    auto fut = executeAsync(parsedCommand, recordUndo);
+    auto fut = executeAsync(parsedCommand, recordUndo, std::move(inputStream), std::move(outputStream));
     return std::async(std::launch::deferred, [f = std::move(fut)]() mutable { return f.get().dump(); });
 }

@@ -1,7 +1,6 @@
-﻿#pragma once
+#pragma once
 
 #include "CADacomb/Util/GUID.h"
-#include "Database/AssetType.h"
 
 #include <string>
 
@@ -9,8 +8,8 @@
 class Asset
 {
   public:
-    Asset(const std::string& name, AssetType type);
-    Asset(const CADacomb::GUID& guid, const std::string& name, AssetType type);
+    Asset(const std::string& name, const std::string& type);
+    Asset(const CADacomb::GUID& guid, const std::string& name, const std::string& type);
     virtual ~Asset();
 
     const CADacomb::GUID& getGuid() const;
@@ -18,13 +17,12 @@ class Asset
     const std::string& getName() const;
     void               setName(const std::string& name);
 
-    AssetType   getType() const;
-    std::string getTypeName() const;
+    const std::string& getType() const;
 
     virtual size_t getSizeInBytes() const = 0;
 
   private:
     CADacomb::GUID guid;
     std::string    name;
-    AssetType      type;
+    std::string    type;
 };

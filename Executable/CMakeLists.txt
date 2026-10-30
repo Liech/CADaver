@@ -54,8 +54,6 @@ set(Database_Files
     "Source/Database/Project.cpp"
     "Source/Database/Asset.h"
     "Source/Database/Asset.cpp"
-    "Source/Database/AssetType.h"
-    "Source/Database/AssetType.cpp"
     "Source/Database/AssetConverter.h"
     "Source/Database/AssetConverter.cpp"
 )

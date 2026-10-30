@@ -1,14 +1,13 @@
 #pragma once
 
-#include "AssetRenderer.h"
-
+#include <functional>
+#include <map>
 #include <memory>
-#include <unordered_map>
+#include <string>
 
-class Asset;
-class Renderer;
+class AssetRenderer;
 
-// Factory and manager for creating and executing asset renderers.
+// Factory responsible for instantiating concrete AssetRenderer objects.
 class AssetRenderFactory
 {
   public:
@@ -17,10 +16,12 @@ class AssetRenderFactory
 
     static AssetRenderFactory& getInstance();
 
-    std::unique_ptr<AssetRenderer> create(const std::shared_ptr<Asset>& asset);
-    void                           render(Renderer& renderer, const std::shared_ptr<Asset>& asset, bool isSelected = false);
-    void                           clearCache();
+    std::shared_ptr<AssetRenderer> create(const std::string& type) const;
+
+    void registerRenderer(const std::string& type, std::function<std::shared_ptr<AssetRenderer>()> creator);
 
   private:
-    std::unordered_map<const Asset*, std::shared_ptr<AssetRenderer>> rendererCache;
+    void registerRenderers();
+
+    std::map<std::string, std::function<std::shared_ptr<AssetRenderer>()>> renderMap;
 };

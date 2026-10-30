@@ -5,6 +5,8 @@
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 
+TriangulationAssetRenderer::TriangulationAssetRenderer() {}
+
 TriangulationAssetRenderer::TriangulationAssetRenderer(std::shared_ptr<TriangulationAsset> assetInput)
   : asset(std::move(assetInput))
 {
@@ -15,7 +17,15 @@ TriangulationAssetRenderer::~TriangulationAssetRenderer()
     if (drawCmd)
     {
         drawCmd->wait();
+        drawCmd.reset();
     }
+    meshRenderer.reset();
+}
+
+void TriangulationAssetRenderer::setAsset(const std::shared_ptr<Asset>& newAsset)
+{
+    asset = std::dynamic_pointer_cast<TriangulationAsset>(newAsset);
+    dirty = true;
 }
 
 void TriangulationAssetRenderer::rebuildVertices()

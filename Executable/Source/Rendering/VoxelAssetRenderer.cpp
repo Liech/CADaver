@@ -8,6 +8,8 @@
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 
+VoxelAssetRenderer::VoxelAssetRenderer() {}
+
 VoxelAssetRenderer::VoxelAssetRenderer(std::shared_ptr<VoxelAsset> assetInput)
   : asset(std::move(assetInput))
 {
@@ -18,7 +20,16 @@ VoxelAssetRenderer::~VoxelAssetRenderer()
     if (drawCmd)
     {
         drawCmd->wait();
+        drawCmd.reset();
     }
+    lodMesh.reset();
+    meshRenderer.reset();
+}
+
+void VoxelAssetRenderer::setAsset(const std::shared_ptr<Asset>& newAsset)
+{
+    asset = std::dynamic_pointer_cast<VoxelAsset>(newAsset);
+    dirty = true;
 }
 
 void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)

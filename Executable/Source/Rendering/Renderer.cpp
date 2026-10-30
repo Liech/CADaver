@@ -1,6 +1,9 @@
 #include "Renderer.h"
 
+#include "AssetRenderFactory.h"
+#include "AssetRenderer.h"
 #include "Commands/GatedDatabase.h"
+#include "Database/Asset.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Database/Preferences/UIPreferences.h"
@@ -13,9 +16,11 @@
 #include <imgui.h>
 
 #include <ImGuizmo.h>
+#include <set>
 
 Renderer::Renderer(Vulcant::VulcantDevice& device, Vulcant::VulcantWindow& window, const glm::ivec2& resolution, GatedDatabase& gatedDatabase)
   : device(device)
+  , window(window)
   , resolution(resolution)
   , gatedDatabase(gatedDatabase)
 {
@@ -25,6 +30,8 @@ Renderer::Renderer(Vulcant::VulcantDevice& device, Vulcant::VulcantWindow& windo
 
 Renderer::~Renderer()
 {
+    renderers.clear();
+
     if (uiCmdG)
     {
         uiCmdG->wait();
@@ -65,9 +72,78 @@ void Renderer::setSceneData(const Vulcant::Toolkit::SceneData& newSceneData)
     sceneData = newSceneData;
 }
 
+void Renderer::render(const Vulcant::Toolkit::SceneData& newSceneData)
+{
+    setSceneData(newSceneData);
+    clear();
+
+    const auto& project           = gatedDatabase.get().getProject();
+    const auto& selectedAssetGuid = project.getSelectedAssetGuid();
+    pruneRenderers(project.getAssets());
+
+    for (const auto& asset : project.getAssets())
+    {
+        if (asset)
+        {
+            bool isSelected = (!selectedAssetGuid.toString().empty() && asset->getGuid() == selectedAssetGuid);
+            renderAsset(asset, isSelected);
+        }
+    }
+
+    renderUi();
+}
+
 void Renderer::clear()
 {
     recordClearPass();
+}
+
+void Renderer::renderAsset(const std::shared_ptr<Asset>& asset, bool isSelected)
+{
+    if (!asset)
+    {
+        return;
+    }
+
+    auto it = renderers.find(asset->getGuid());
+    if (it == renderers.end())
+    {
+        auto newRenderer = AssetRenderFactory::getInstance().create(asset->getType());
+        if (newRenderer)
+        {
+            newRenderer->setAsset(asset);
+            it = renderers.emplace(asset->getGuid(), std::move(newRenderer)).first;
+        }
+    }
+
+    if (it != renderers.end() && it->second)
+    {
+        it->second->render(*this, isSelected);
+    }
+}
+
+void Renderer::pruneRenderers(const std::vector<std::shared_ptr<Asset>>& activeAssets)
+{
+    std::set<CADacomb::GUID> activeGuids;
+    for (const auto& a : activeAssets)
+    {
+        if (a)
+        {
+            activeGuids.insert(a->getGuid());
+        }
+    }
+
+    for (auto it = renderers.begin(); it != renderers.end();)
+    {
+        if (activeGuids.find(it->first) == activeGuids.end())
+        {
+            it = renderers.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
 }
 
 void Renderer::beginUiFrame()
@@ -80,7 +156,7 @@ void Renderer::beginUiFrame()
     }
 }
 
-void Renderer::renderUi(Vulcant::VulcantWindow& window)
+void Renderer::renderUi()
 {
     if (!ui || !uiCmdG || !colorImage)
     {
