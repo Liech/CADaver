@@ -76,62 +76,6 @@ set(OperationIO_Files
 )
 source_group("Source/Operation/IO" FILES ${OperationIO_Files})
 
-set(MagickaVox_Chunk_Files
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/Chunk.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkFactory.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkLAYR.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkLAYR.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkMAIN.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkMAIN.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkMATL.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkMATL.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunknGRP.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunknGRP.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunknSHP.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunknSHP.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunknTRN.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunknTRN.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkPACK.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkPACK.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkRGBA.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkRGBA.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkrOBJ.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkrOBJ.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkSIZE.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkSIZE.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkXYZI.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkXYZI.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkRCAM.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkRCAM.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkNOTE.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkNOTE.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/Chunk.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/UnkownChunk.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/UnkownChunk.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/Chunk/ChunkFactory.cpp"
-)
-source_group("Source/Voxel/MagicaVox/Chunk/" FILES ${MagickaVox_Chunk_Files})
-
-set(MagickaVox_IO
-    "Source/CADaverLibrary/Voxel/MagicaVox/IO/Reader.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/IO/Reader.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/IO/typeDICT.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/IO/typeDICT.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/IO/typeROTATION.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/IO/typeROTATION.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/IO/Writer.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/IO/Writer.cpp"
-)
-source_group("Source/Voxel/MagicaVox/IO" FILES ${MagickaVox_IO})
-
-set(MagickaVox_Files
-    "Source/CADaverLibrary/Voxel/MagicaVox/VoxFile.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/VoxFile.cpp"
-    "Source/CADaverLibrary/Voxel/MagicaVox/VoxFileRaw.h"
-    "Source/CADaverLibrary/Voxel/MagicaVox/VoxFileRaw.cpp"
-)
-source_group("Source/Voxel/MagicaVox" FILES ${MagickaVox_Files})
-
 set(Triangle_Files
     "Source/CADaverLibrary/Triangle/mesh2cad_dumb.h"
     "Source/CADaverLibrary/Triangle/mesh2cad_dumb.cpp"
@@ -148,9 +92,6 @@ set(ALL_FILES
     ${Operation_Files}
     ${OperationIO_Files}
     ${CADShapes_Files}
-    ${MagickaVox_Files}
-    ${MagickaVox_Chunk_Files}
-    ${MagickaVox_IO}
     ${Triangle_Files}
 )
 

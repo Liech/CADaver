@@ -3,7 +3,7 @@
 #include "CADacomb/Triangle/Triangulation.h"
 #include "CADacomb/Volume/Flat/BinaryVolume.h"
 #include "CADacomb/Volume/Flat/Voxelizer.h"
-#include "CADaverLibrary/Voxel/MagicaVox/VoxFile.h"
+#include "CADacomb/Volume/MagicaVox/VoxFile.h"
 
 namespace Library
 {
