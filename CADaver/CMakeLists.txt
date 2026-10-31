@@ -109,28 +109,6 @@ set(Command_Preferences_Files
 )
 source_group("Source/Commands/Preferences" FILES ${Command_Preferences_Files})
 
-set(Command_Undo_Files
-    "Source/Commands/Undo/UndoCommand.h"
-    "Source/Commands/Undo/UndoCommand.cpp"
-    "Source/Commands/Undo/RedoCommand.h"
-    "Source/Commands/Undo/RedoCommand.cpp"
-    "Source/Commands/Undo/UndoRecord.h"
-    "Source/Commands/Undo/UndoRecord.cpp"
-    "Source/Commands/Undo/AddAssetUndoRecord.h"
-    "Source/Commands/Undo/AddAssetUndoRecord.cpp"
-    "Source/Commands/Undo/RemoveAssetUndoRecord.h"
-    "Source/Commands/Undo/RemoveAssetUndoRecord.cpp"
-    "Source/Commands/Undo/ReplaceAssetUndoRecord.h"
-    "Source/Commands/Undo/ReplaceAssetUndoRecord.cpp"
-    "Source/Commands/Undo/ClearProjectUndoRecord.h"
-    "Source/Commands/Undo/ClearProjectUndoRecord.cpp"
-    "Source/Commands/Undo/PreferencesUndoRecord.h"
-    "Source/Commands/Undo/PreferencesUndoRecord.cpp"
-    "Source/Commands/Undo/UndoStack.h"
-    "Source/Commands/Undo/UndoStack.cpp"
-)
-source_group("Source/Commands/Undo" FILES ${Command_Undo_Files})
-
 set(UI_About_Files
     "Source/UI/About/AboutWindow.h"
     "Source/UI/About/AboutWindow.cpp"
@@ -239,7 +217,6 @@ set(ALL_FILES
     ${Command_IO_Files}
     ${Command_Project_Files}
     ${Command_Preferences_Files}
-    ${Command_Undo_Files}
 )
 
 add_executable(CadaverExe ${ALL_FILES})

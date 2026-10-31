@@ -1,4 +1,4 @@
-#include "Commands/Undo/UndoStack.h"
+#include "Undo/UndoStack.h"
 
 #include "Database/Database.h"
 
@@ -129,8 +129,8 @@ void UndoStack::prune()
 }
 
 #ifdef ISTESTPROJECT
-#include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Database/Asset/TriangulationAsset.h"
+#include "Undo/AddAssetUndoRecord.h"
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("UndoStack/PushUndoRedo")

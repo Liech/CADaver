@@ -1,8 +1,8 @@
 #include "Commands/Project/RemoveAssetCommand.h"
 
-#include "Commands/Undo/RemoveAssetUndoRecord.h"
-#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
+#include "Undo/RemoveAssetUndoRecord.h"
+#include "Undo/UndoStack.h"
 
 RemoveAssetCommand::RemoveAssetCommand() {}
 

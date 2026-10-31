@@ -2,10 +2,10 @@
 
 #include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Util/ProgressBar.h"
-#include "Commands/Undo/AddAssetUndoRecord.h"
-#include "Commands/Undo/UndoStack.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
+#include "Undo/AddAssetUndoRecord.h"
+#include "Undo/UndoStack.h"
 
 LoadStepAssetCommand::LoadStepAssetCommand() {}
 

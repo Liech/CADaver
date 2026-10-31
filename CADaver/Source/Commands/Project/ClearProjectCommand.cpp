@@ -1,8 +1,8 @@
 #include "Commands/Project/ClearProjectCommand.h"
 
-#include "Commands/Undo/ClearProjectUndoRecord.h"
-#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
+#include "Undo/ClearProjectUndoRecord.h"
+#include "Undo/UndoStack.h"
 
 ClearProjectCommand::ClearProjectCommand() {}
 

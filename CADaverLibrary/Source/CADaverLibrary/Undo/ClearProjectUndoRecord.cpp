@@ -1,4 +1,4 @@
-#include "Commands/Undo/ClearProjectUndoRecord.h"
+#include "Undo/ClearProjectUndoRecord.h"
 
 #include "Database/Database.h"
 

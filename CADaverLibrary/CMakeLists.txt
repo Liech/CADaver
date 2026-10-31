@@ -55,6 +55,28 @@ set(Execution_Files
 )
 source_group("Source/Execution" FILES ${Execution_Files})
 
+set(Undo_Files
+    "Source/CADaverLibrary/Undo/UndoCommand.h"
+    "Source/CADaverLibrary/Undo/UndoCommand.cpp"
+    "Source/CADaverLibrary/Undo/RedoCommand.h"
+    "Source/CADaverLibrary/Undo/RedoCommand.cpp"
+    "Source/CADaverLibrary/Undo/UndoRecord.h"
+    "Source/CADaverLibrary/Undo/UndoRecord.cpp"
+    "Source/CADaverLibrary/Undo/AddAssetUndoRecord.h"
+    "Source/CADaverLibrary/Undo/AddAssetUndoRecord.cpp"
+    "Source/CADaverLibrary/Undo/RemoveAssetUndoRecord.h"
+    "Source/CADaverLibrary/Undo/RemoveAssetUndoRecord.cpp"
+    "Source/CADaverLibrary/Undo/ReplaceAssetUndoRecord.h"
+    "Source/CADaverLibrary/Undo/ReplaceAssetUndoRecord.cpp"
+    "Source/CADaverLibrary/Undo/ClearProjectUndoRecord.h"
+    "Source/CADaverLibrary/Undo/ClearProjectUndoRecord.cpp"
+    "Source/CADaverLibrary/Undo/PreferencesUndoRecord.h"
+    "Source/CADaverLibrary/Undo/PreferencesUndoRecord.cpp"
+    "Source/CADaverLibrary/Undo/UndoStack.h"
+    "Source/CADaverLibrary/Undo/UndoStack.cpp"
+)
+source_group("Source/Undo" FILES ${Undo_Files})
+
 set(Database_Asset_Files
     "Source/CADaverLibrary/Database/Asset/CadAsset.h"
     "Source/CADaverLibrary/Database/Asset/CadAsset.cpp"
@@ -74,6 +96,7 @@ set(ALL_FILES
     ${Database_Files}
     ${Database_Asset_Files}
     ${Execution_Files}
+    ${Undo_Files}
 )
 
 ############################################################################

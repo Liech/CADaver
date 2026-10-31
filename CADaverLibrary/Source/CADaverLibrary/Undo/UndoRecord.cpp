@@ -1,4 +1,4 @@
-#include "Commands/Undo/UndoRecord.h"
+#include "Undo/UndoRecord.h"
 
 UndoRecord::UndoRecord() {}
 

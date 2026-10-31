@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Commands/Undo/UndoRecord.h"
 #include "Database/Asset.h"
+#include "Undo/UndoRecord.h"
 
 #include <memory>
 

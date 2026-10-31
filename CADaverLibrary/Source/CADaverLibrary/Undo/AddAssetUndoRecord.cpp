@@ -1,4 +1,4 @@
-#include "Commands/Undo/AddAssetUndoRecord.h"
+#include "Undo/AddAssetUndoRecord.h"
 
 #include "Database/Database.h"
 

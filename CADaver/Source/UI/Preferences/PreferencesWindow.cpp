@@ -1,9 +1,9 @@
 #include "PreferencesWindow.h"
 
-#include "Commands/Undo/UndoStack.h"
 #include "Database/Preferences/Preferences.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
+#include "Undo/UndoStack.h"
 
 #include <fstream>
 #include <imgui.h>

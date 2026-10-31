@@ -1,9 +1,9 @@
 #include "UI/Preferences/UndoPreferencesView.h"
 
-#include "Commands/Undo/UndoRecord.h"
-#include "Commands/Undo/UndoStack.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
+#include "Undo/UndoRecord.h"
+#include "Undo/UndoStack.h"
 
 #include <cstdio>
 #include <imgui.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Commands/Undo/UndoRecord.h"
+#include "Undo/UndoRecord.h"
 
 #include <nlohmann/json.hpp>
 #include <string>

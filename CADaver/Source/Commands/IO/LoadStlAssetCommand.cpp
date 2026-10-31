@@ -2,10 +2,10 @@
 
 #include "CADacomb/Triangle/Triangulation.h"
 #include "CADacomb/Util/ProgressBar.h"
-#include "Commands/Undo/AddAssetUndoRecord.h"
-#include "Commands/Undo/UndoStack.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
+#include "Undo/AddAssetUndoRecord.h"
+#include "Undo/UndoStack.h"
 
 LoadStlAssetCommand::LoadStlAssetCommand() {}
 

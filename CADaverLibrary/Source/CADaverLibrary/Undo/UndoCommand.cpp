@@ -1,58 +1,58 @@
-#include "Commands/Undo/RedoCommand.h"
+#include "Undo/UndoCommand.h"
 
-#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
+#include "Undo/UndoStack.h"
 
-RedoCommand::RedoCommand() {}
+UndoCommand::UndoCommand() {}
 
-RedoCommand::RedoCommand(const nlohmann::json&) {}
+UndoCommand::UndoCommand(const nlohmann::json&) {}
 
-RedoCommand::~RedoCommand() {}
+UndoCommand::~UndoCommand() {}
 
-std::string RedoCommand::getType() const
+std::string UndoCommand::getType() const
 {
-    return "Redo";
+    return "Undo";
 }
 
-int RedoCommand::getVersion() const
+int UndoCommand::getVersion() const
 {
     return 1;
 }
 
-std::string RedoCommand::getDescription() const
+std::string UndoCommand::getDescription() const
 {
-    return "Command: Redo\n"
+    return "Command: Undo\n"
            "Version: 1\n"
-           "Purpose: Redoes the last undone mutation in the database.\n\n"
+           "Purpose: Undoes the last recorded mutation in the database.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
-           "  \"type\": \"Redo\",\n"
+           "  \"type\": \"Undo\",\n"
            "  \"version\": 1\n"
            "}\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
-           "  \"type\": \"Redo\",\n"
+           "  \"type\": \"Undo\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"NothingToRedo\",\n"
+           "  \"status\": \"Success\" | \"NothingToUndo\",\n"
            "  \"canUndo\": <bool>,\n"
            "  \"canRedo\": <bool>\n"
            "}";
 }
 
-nlohmann::json RedoCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json UndoCommand::execute(Database& database, std::istream*, std::ostream*)
 {
-    if (!UndoStack::getInstance().canRedo())
+    if (!UndoStack::getInstance().canUndo())
     {
         return {
             {    "type",                          getType() },
             { "version",                       getVersion() },
             {  "status",                      "NotExecuted" },
-            { "canUndo", UndoStack::getInstance().canUndo() },
-            { "canRedo",                              false }
+            { "canUndo",                              false },
+            { "canRedo", UndoStack::getInstance().canRedo() }
         };
     }
 
-    UndoStack::getInstance().redo(database);
+    UndoStack::getInstance().undo(database);
 
     return {
         {    "type",                          getType() },

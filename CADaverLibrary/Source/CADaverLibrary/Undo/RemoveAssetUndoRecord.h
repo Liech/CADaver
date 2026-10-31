@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Commands/Undo/UndoRecord.h"
 #include "Database/Asset.h"
+#include "Undo/UndoRecord.h"
 
 #include <memory>
 
-class AddAssetUndoRecord : public UndoRecord
+class RemoveAssetUndoRecord : public UndoRecord
 {
   public:
-    AddAssetUndoRecord(std::shared_ptr<Asset> asset);
-    virtual ~AddAssetUndoRecord();
+    RemoveAssetUndoRecord(std::shared_ptr<Asset> asset);
+    virtual ~RemoveAssetUndoRecord();
 
     void undo(Database& database) override;
     void redo(Database& database) override;

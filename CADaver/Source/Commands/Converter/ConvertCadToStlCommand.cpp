@@ -1,13 +1,13 @@
 #include "Commands/Converter/ConvertCadToStlCommand.h"
 
 #include "CADacomb/Util/ProgressBar.h"
-#include "Commands/Undo/AddAssetUndoRecord.h"
-#include "Commands/Undo/ReplaceAssetUndoRecord.h"
-#include "Commands/Undo/UndoStack.h"
 #include "Conversion/AssetConverter.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
+#include "Undo/AddAssetUndoRecord.h"
+#include "Undo/ReplaceAssetUndoRecord.h"
+#include "Undo/UndoStack.h"
 
 ConvertCadToStlCommand::ConvertCadToStlCommand() {}
 

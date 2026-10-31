@@ -1,4 +1,4 @@
-#include "Commands/Undo/PreferencesUndoRecord.h"
+#include "Undo/PreferencesUndoRecord.h"
 
 #include "Database/Database.h"
 

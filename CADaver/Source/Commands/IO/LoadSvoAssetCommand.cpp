@@ -2,10 +2,10 @@
 
 #include "CADacomb/Util/ProgressBar.h"
 #include "CADacomb/Volume/SVO/SVOFile.h"
-#include "Commands/Undo/AddAssetUndoRecord.h"
-#include "Commands/Undo/UndoStack.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
+#include "Undo/AddAssetUndoRecord.h"
+#include "Undo/UndoStack.h"
 
 LoadSvoAssetCommand::LoadSvoAssetCommand() {}
 

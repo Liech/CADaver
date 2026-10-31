@@ -1,8 +1,8 @@
 #include "Commands/Preferences/UpdateCameraPreferencesCommand.h"
 
-#include "Commands/Undo/PreferencesUndoRecord.h"
-#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
+#include "Undo/PreferencesUndoRecord.h"
+#include "Undo/UndoStack.h"
 
 UpdateCameraPreferencesCommand::UpdateCameraPreferencesCommand() {}
 
