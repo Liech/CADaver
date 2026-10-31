@@ -25,30 +25,12 @@ std::string SvoToStlConversionModal::getDescription() const
 {
     return "Window: SvoToStlConversionModal\n"
            "Title: Convert to STL\n"
-           "Purpose: Modal dialog for extracting a blocky boundary triangulation mesh asset from a Sparse Voxel Octree (SVO) volumetric asset at a chosen LOD depth.\n\n"
+           "Purpose: Dialog for extracting a blocky boundary triangulation mesh asset from a Sparse Voxel Octree (SVO) volumetric asset at a chosen LOD depth.\n\n"
            "Parameters:\n"
            "  - Target Asset: Voxel asset from the project to mesh\n"
            "  - Target LOD Depth: Octree hierarchy depth level to extract (0 up to log2(dimension))\n"
            "  - Delete original SVO asset: Removes the source voxel asset upon successful conversion\n\n"
            "Dispatched Command: ConvertSvoToStl (async)";
-}
-
-bool SvoToStlConversionModal::isOpen() const
-{
-    return openState;
-}
-
-void SvoToStlConversionModal::open()
-{
-    deleteOrigin    = false;
-    openState       = true;
-    shouldOpenPopup = true;
-}
-
-void SvoToStlConversionModal::close()
-{
-    openState       = false;
-    shouldOpenPopup = false;
 }
 
 void SvoToStlConversionModal::setTargetAsset(const CADacomb::GUID& assetGuid)
@@ -63,21 +45,14 @@ void SvoToStlConversionModal::render()
         return;
     }
 
-    const auto& project = gatedDatabase->get().getProject();
-
-    if (shouldOpenPopup)
+    if (ImGui::Begin("Convert to STL##SvoModal", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::OpenPopup("Convert to STL##SvoModal");
-        shouldOpenPopup = false;
-        updateMaxDepthFromSelectedAsset(project, true);
-    }
+        const auto& project = gatedDatabase->get().getProject();
 
-    if (ImGui::BeginPopupModal("Convert to STL##SvoModal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-        CADacomb::GUID previousGuid = assetComboBox.getSelectedGuid();
-        bool           changed      = assetComboBox.render(project);
-        if (changed || assetComboBox.getSelectedGuid() != previousGuid)
+        bool changed = assetComboBox.render(project);
+        if (changed || assetComboBox.getSelectedGuid() != lastTrackedGuid)
         {
+            lastTrackedGuid = assetComboBox.getSelectedGuid();
             updateMaxDepthFromSelectedAsset(project, true);
         }
         else
@@ -99,7 +74,6 @@ void SvoToStlConversionModal::render()
         {
             executeConversion();
             close();
-            ImGui::CloseCurrentPopup();
         }
         ImGui::EndDisabled();
 
@@ -108,14 +82,9 @@ void SvoToStlConversionModal::render()
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
             close();
-            ImGui::CloseCurrentPopup();
         }
-        ImGui::EndPopup();
     }
-    else if (!shouldOpenPopup)
-    {
-        openState = false;
-    }
+    ImGui::End();
 }
 
 void SvoToStlConversionModal::executeConversion()

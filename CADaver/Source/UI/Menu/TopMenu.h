@@ -11,13 +11,10 @@ namespace Vulcant::Toolkit
     class Camera;
 }
 
-class AboutWindow;
-class CommandsWindow;
 class GatedDatabase;
-class LandscapeGeneratorWindow;
 class PreferencesWindow;
 class UndoStack;
-class WindowsWindow;
+class WindowContainer;
 
 // Coordinates the main top menu bar by hosting File, Edit, Create, and Help menus and their dialog windows.
 class TopMenu
@@ -26,22 +23,14 @@ class TopMenu
     TopMenu();
     virtual ~TopMenu();
 
-    void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& quitRequested);
+    void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, WindowContainer& windowContainer, bool& quitRequested);
     void renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera = nullptr);
 
-    PreferencesWindow*        getPreferencesWindow() const;
-    AboutWindow*              getAboutWindow() const;
-    CommandsWindow*           getCommandsWindow() const;
-    WindowsWindow*            getWindowsWindow() const;
-    LandscapeGeneratorWindow* getLandscapeGeneratorWindow() const;
+    PreferencesWindow* getPreferencesWindow() const;
 
   private:
-    FileMenu                                  fileMenu;
-    EditMenu                                  editMenu;
-    CreateMenu                                createMenu;
-    std::unique_ptr<PreferencesWindow>        preferencesWindow;
-    std::unique_ptr<AboutWindow>              aboutWindow;
-    std::unique_ptr<CommandsWindow>           commandsWindow;
-    std::unique_ptr<WindowsWindow>            windowsWindow;
-    std::unique_ptr<LandscapeGeneratorWindow> landscapeGeneratorWindow;
+    FileMenu                           fileMenu;
+    EditMenu                           editMenu;
+    CreateMenu                         createMenu;
+    std::unique_ptr<PreferencesWindow> preferencesWindow;
 };

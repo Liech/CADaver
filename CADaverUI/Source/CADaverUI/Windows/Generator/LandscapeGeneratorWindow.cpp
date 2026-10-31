@@ -34,21 +34,6 @@ std::string LandscapeGeneratorWindow::getDescription() const
            "Dispatched Command: GenerateLandscape (async)";
 }
 
-void LandscapeGeneratorWindow::open()
-{
-    openState = true;
-}
-
-void LandscapeGeneratorWindow::close()
-{
-    openState = false;
-}
-
-bool LandscapeGeneratorWindow::isOpen() const
-{
-    return openState;
-}
-
 CADacomb::LandscapeConfig LandscapeGeneratorWindow::buildConfig() const
 {
     CADacomb::LandscapeConfig config;
@@ -105,7 +90,6 @@ void LandscapeGeneratorWindow::render()
     }
 
     ImGui::SetNextWindowSize(ImVec2(480.0f, 460.0f), ImGuiCond_FirstUseEver);
-
     if (ImGui::Begin("Landscape Generator", &openState))
     {
         char nameBuffer[128];

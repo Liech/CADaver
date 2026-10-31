@@ -1,4 +1,4 @@
-#include "VoxelAssetContextMenu.h"
+#include "UI/ContextMenu/VoxelAssetContextMenu.h"
 
 #include "CADacomb/Volume/SVO/SVOFile.h"
 #include "Database/Asset/VoxelAsset.h"
@@ -6,16 +6,18 @@
 #include "Execution/GatedDatabase.h"
 #include "UI/Dialog/SaveFileDialog.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
+#include "Windows/WindowContainer.h"
 
 #include <filesystem>
 #include <fstream>
 #include <imgui.h>
+#include <memory>
 
 VoxelAssetContextMenu::VoxelAssetContextMenu() {}
 
 VoxelAssetContextMenu::~VoxelAssetContextMenu() {}
 
-void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& asset)
+void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset)
 {
     auto voxelAsset = dynamic_cast<const VoxelAsset*>(&asset);
     if (!voxelAsset)
@@ -32,19 +34,15 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& as
     {
         if (ImGui::MenuItem("STL (Blocky)..."))
         {
-            if (svoToStlModal)
+            windowContainer.open("SvoToStlConversionModal");
+            auto modal = std::dynamic_pointer_cast<SvoToStlConversionModal>(windowContainer.get("SvoToStlConversionModal"));
+            if (modal)
             {
-                svoToStlModal->setTargetAsset(voxelAsset->getGuid());
-                svoToStlModal->open();
+                modal->setTargetAsset(voxelAsset->getGuid());
             }
         }
         ImGui::EndMenu();
     }
-}
-
-void VoxelAssetContextMenu::setSvoToStlModal(SvoToStlConversionModal* modal)
-{
-    svoToStlModal = modal;
 }
 
 void VoxelAssetContextMenu::save(GatedDatabase& gatedDatabase, const VoxelAsset& asset)

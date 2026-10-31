@@ -166,6 +166,8 @@ void Cadaver::prepare()
 {
     registerCommands();
 
+    windowContainer.setInput(gatedDatabase, Defer::getInstance());
+
     renderer = std::make_unique<Renderer>(device, *window, resolution, gatedDatabase);
 
     const auto& preferences = gatedDatabase.get().getPreferences();
@@ -219,7 +221,7 @@ void Cadaver::renderImGui()
 
     if (topMenu)
     {
-        topMenu->render(gatedDatabase, undoStack, quitRequested);
+        topMenu->render(gatedDatabase, undoStack, windowContainer, quitRequested);
 
         auto* prefWin = topMenu->getPreferencesWindow();
         if (prefWin && viewController)
@@ -245,8 +247,10 @@ void Cadaver::renderImGui()
 
     if (projectWindow)
     {
-        projectWindow->render(gatedDatabase);
+        projectWindow->render(gatedDatabase, windowContainer);
     }
+
+    windowContainer.render();
 
     if (viewController)
     {

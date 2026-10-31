@@ -1,11 +1,11 @@
 #pragma once
 
-#include "AssetContextMenu.h"
+#include "UI/ContextMenu/AssetContextMenu.h"
 
 class Asset;
 class GatedDatabase;
-class SvoToStlConversionModal;
 class VoxelAsset;
+class WindowContainer;
 
 // Context menu for voxel assets providing SVO save and conversion operations.
 class VoxelAssetContextMenu : public AssetContextMenu
@@ -14,12 +14,8 @@ class VoxelAssetContextMenu : public AssetContextMenu
     VoxelAssetContextMenu();
     virtual ~VoxelAssetContextMenu();
 
-    void render(GatedDatabase& gatedDatabase, const Asset& asset) override;
-
-    void setSvoToStlModal(SvoToStlConversionModal* modal);
+    void render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset) override;
 
   private:
     void save(GatedDatabase& gatedDatabase, const VoxelAsset& asset);
-
-    SvoToStlConversionModal* svoToStlModal = nullptr;
 };

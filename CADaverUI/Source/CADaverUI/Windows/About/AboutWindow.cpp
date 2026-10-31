@@ -26,22 +26,6 @@ std::string AboutWindow::getDescription() const
            "Dispatched Command: None (read-only informational window)";
 }
 
-bool AboutWindow::isOpen() const
-{
-    return openState;
-}
-
-void AboutWindow::open()
-{
-    loadData();
-    openState = true;
-}
-
-void AboutWindow::close()
-{
-    openState = false;
-}
-
 std::string AboutWindow::readFileContent(const std::string& filePath) const
 {
     std::ifstream stream(filePath);

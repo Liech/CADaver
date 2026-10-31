@@ -1,6 +1,6 @@
 #pragma once
 
-class LandscapeGeneratorWindow;
+class WindowContainer;
 
 // Renders the main Create top menu and delegates opening creation windows.
 class CreateMenu
@@ -9,5 +9,5 @@ class CreateMenu
     CreateMenu();
     virtual ~CreateMenu();
 
-    void render(LandscapeGeneratorWindow& landscapeGeneratorWindow);
+    void render(WindowContainer& windowContainer);
 };

@@ -8,20 +8,10 @@
 #include "UI/ContextMenu/CadAssetContextMenu.h"
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 #include "UI/ContextMenu/VoxelAssetContextMenu.h"
-#include "Windows/Conversion/CadToStlConversionModal.h"
-#include "Windows/Conversion/CadToSvoConversionModal.h"
-#include "Windows/Conversion/StlToSvoConversionModal.h"
-#include "Windows/Conversion/SvoToStlConversionModal.h"
 
 #include <imgui.h>
 
-AssetContextMenuFactory::AssetContextMenuFactory()
-{
-    cadToStlModal = std::make_unique<CadToStlConversionModal>();
-    cadToSvoModal = std::make_unique<CadToSvoConversionModal>();
-    stlToSvoModal = std::make_unique<StlToSvoConversionModal>();
-    svoToStlModal = std::make_unique<SvoToStlConversionModal>();
-}
+AssetContextMenuFactory::AssetContextMenuFactory() {}
 
 AssetContextMenuFactory::~AssetContextMenuFactory() {}
 
@@ -34,28 +24,21 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
 
     if (asset->getType() == "Cad")
     {
-        auto menu = std::make_unique<CadAssetContextMenu>();
-        menu->setCadToStlModal(cadToStlModal.get());
-        menu->setCadToSvoModal(cadToSvoModal.get());
-        return menu;
+        return std::make_unique<CadAssetContextMenu>();
     }
     else if (asset->getType() == "Triangulation")
     {
-        auto menu = std::make_unique<TriangulationAssetContextMenu>();
-        menu->setStlToSvoModal(stlToSvoModal.get());
-        return menu;
+        return std::make_unique<TriangulationAssetContextMenu>();
     }
     else if (asset->getType() == "Voxel")
     {
-        auto menu = std::make_unique<VoxelAssetContextMenu>();
-        menu->setSvoToStlModal(svoToStlModal.get());
-        return menu;
+        return std::make_unique<VoxelAssetContextMenu>();
     }
 
     return nullptr;
 }
 
-void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, const std::shared_ptr<const Asset>& asset)
+void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const std::shared_ptr<const Asset>& asset)
 {
     if (!asset)
     {
@@ -68,7 +51,7 @@ void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, const std::sh
         auto menu = create(asset);
         if (menu)
         {
-            menu->render(gatedDatabase, *asset);
+            menu->render(gatedDatabase, windowContainer, *asset);
         }
 
         ImGui::Separator();
@@ -119,30 +102,5 @@ void AssetContextMenuFactory::renderCloseModal(GatedDatabase& gatedDatabase)
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
-    }
-}
-
-void AssetContextMenuFactory::renderConversionModals(GatedDatabase& gatedDatabase)
-{
-    auto& defer = Defer::getInstance();
-    if (cadToStlModal)
-    {
-        cadToStlModal->setInput(gatedDatabase, defer);
-        cadToStlModal->render();
-    }
-    if (cadToSvoModal)
-    {
-        cadToSvoModal->setInput(gatedDatabase, defer);
-        cadToSvoModal->render();
-    }
-    if (stlToSvoModal)
-    {
-        stlToSvoModal->setInput(gatedDatabase, defer);
-        stlToSvoModal->render();
-    }
-    if (svoToStlModal)
-    {
-        svoToStlModal->setInput(gatedDatabase, defer);
-        svoToStlModal->render();
     }
 }

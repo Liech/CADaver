@@ -1,6 +1,7 @@
 #include "Windows/About/WindowsWindow.h"
 
 #include "Windows/Window.h"
+#include "Windows/WindowContainer.h"
 #include "Windows/WindowFactory.h"
 
 #include <algorithm>
@@ -22,24 +23,8 @@ std::string WindowsWindow::getDescription() const
            "Purpose: Interactive reference browser displaying all UI windows registered in WindowFactory along with their purpose, parameters, and dispatched commands.\n\n"
            "Parameters:\n"
            "  - Left Pane (IndexPane): Alphabetically sorted list of registered Window types\n"
-           "  - Right Pane (ContentPane): Full window specification (title, purpose, UI controls/parameters, and dispatched commands)\n\n"
+           "  - Right Pane (ContentPane): Open button and full window specification (title, purpose, UI controls/parameters, and dispatched commands)\n\n"
            "Dispatched Command: None (read-only documentation window)";
-}
-
-bool WindowsWindow::isOpen() const
-{
-    return openState;
-}
-
-void WindowsWindow::open()
-{
-    loaded    = false;
-    openState = true;
-}
-
-void WindowsWindow::close()
-{
-    openState = false;
 }
 
 void WindowsWindow::loadData()
@@ -98,6 +83,13 @@ void WindowsWindow::render()
         ImGui::BeginChild("ContentPane", ImVec2(0.0f, 0.0f), true, ImGuiWindowFlags_HorizontalScrollbar);
         if (selectedIndex >= 0 && selectedIndex < static_cast<int>(entries.size()))
         {
+            if (windowContainer && ImGui::Button("Open", ImVec2(120.0f, 0.0f)))
+            {
+                windowContainer->open(entries[selectedIndex].first);
+            }
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
             ImGui::TextUnformatted(entries[selectedIndex].second.c_str());
         }
         ImGui::EndChild();

@@ -27,22 +27,6 @@ std::string CommandsWindow::getDescription() const
            "Dispatched Command: None (read-only documentation window)";
 }
 
-bool CommandsWindow::isOpen() const
-{
-    return openState;
-}
-
-void CommandsWindow::open()
-{
-    loaded    = false;
-    openState = true;
-}
-
-void CommandsWindow::close()
-{
-    openState = false;
-}
-
 void CommandsWindow::loadData()
 {
     entries.clear();

@@ -1,29 +1,21 @@
 #include "UI/Menu/TopMenu.h"
 
 #include "Database/Preferences/Preferences.h"
-#include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/Preferences/PreferencesWindow.h"
 #include "Vulcant/Toolkit/Camera.h"
-#include "Windows/About/AboutWindow.h"
-#include "Windows/About/CommandsWindow.h"
-#include "Windows/About/WindowsWindow.h"
-#include "Windows/Generator/LandscapeGeneratorWindow.h"
+#include "Windows/WindowContainer.h"
 
 #include <imgui.h>
 
 TopMenu::TopMenu()
   : preferencesWindow(std::make_unique<PreferencesWindow>())
-  , aboutWindow(std::make_unique<AboutWindow>())
-  , commandsWindow(std::make_unique<CommandsWindow>())
-  , windowsWindow(std::make_unique<WindowsWindow>())
-  , landscapeGeneratorWindow(std::make_unique<LandscapeGeneratorWindow>())
 {
 }
 
 TopMenu::~TopMenu() {}
 
-void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& quitRequested)
+void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, WindowContainer& windowContainer, bool& quitRequested)
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -32,33 +24,21 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& q
             fileMenu.render(gatedDatabase, *preferencesWindow, quitRequested);
         }
         editMenu.render(undoStack);
-        if (landscapeGeneratorWindow)
-        {
-            createMenu.render(*landscapeGeneratorWindow);
-        }
+        createMenu.render(windowContainer);
 
         if (ImGui::BeginMenu("Help"))
         {
             if (ImGui::MenuItem("About CADaver"))
             {
-                if (aboutWindow)
-                {
-                    aboutWindow->open();
-                }
+                windowContainer.open("AboutWindow");
             }
             if (ImGui::MenuItem("Commands"))
             {
-                if (commandsWindow)
-                {
-                    commandsWindow->open();
-                }
+                windowContainer.open("CommandsWindow");
             }
             if (ImGui::MenuItem("Windows"))
             {
-                if (windowsWindow)
-                {
-                    windowsWindow->open();
-                }
+                windowContainer.open("WindowsWindow");
             }
             ImGui::EndMenu();
         }
@@ -69,56 +49,15 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& q
 
 void TopMenu::renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera)
 {
-    auto& defer = Defer::getInstance();
     if (preferencesWindow)
     {
         preferencesWindow->render(gatedDatabase, undoStack, camera);
-    }
-    if (aboutWindow)
-    {
-        aboutWindow->setInput(gatedDatabase, defer);
-        aboutWindow->render();
-    }
-    if (commandsWindow)
-    {
-        commandsWindow->setInput(gatedDatabase, defer);
-        commandsWindow->render();
-    }
-    if (windowsWindow)
-    {
-        windowsWindow->setInput(gatedDatabase, defer);
-        windowsWindow->render();
-    }
-    if (landscapeGeneratorWindow)
-    {
-        landscapeGeneratorWindow->setInput(gatedDatabase, defer);
-        landscapeGeneratorWindow->render();
     }
 }
 
 PreferencesWindow* TopMenu::getPreferencesWindow() const
 {
     return preferencesWindow.get();
-}
-
-AboutWindow* TopMenu::getAboutWindow() const
-{
-    return aboutWindow.get();
-}
-
-CommandsWindow* TopMenu::getCommandsWindow() const
-{
-    return commandsWindow.get();
-}
-
-WindowsWindow* TopMenu::getWindowsWindow() const
-{
-    return windowsWindow.get();
-}
-
-LandscapeGeneratorWindow* TopMenu::getLandscapeGeneratorWindow() const
-{
-    return landscapeGeneratorWindow.get();
 }
 
 #ifdef ISTESTPROJECT
@@ -128,8 +67,5 @@ TEST_CASE("TopMenu/Construction")
 {
     TopMenu topMenu;
     CHECK(topMenu.getPreferencesWindow() != nullptr);
-    CHECK(topMenu.getAboutWindow() != nullptr);
-    CHECK(topMenu.getCommandsWindow() != nullptr);
-    CHECK(topMenu.getLandscapeGeneratorWindow() != nullptr);
 }
 #endif

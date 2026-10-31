@@ -26,7 +26,7 @@ void ProjectWindow::setWidth(float newWidth)
     width = newWidth;
 }
 
-void ProjectWindow::render(GatedDatabase& gatedDatabase)
+void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer)
 {
     const auto&          project  = gatedDatabase.get().getProject();
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -113,7 +113,7 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase)
 
                     if (contextMenuFactory)
                     {
-                        contextMenuFactory->render(gatedDatabase, asset);
+                        contextMenuFactory->render(gatedDatabase, windowContainer, asset);
                     }
 
                     ImGui::TableSetColumnIndex(1);
@@ -126,7 +126,6 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase)
         if (contextMenuFactory)
         {
             contextMenuFactory->renderCloseModal(gatedDatabase);
-            contextMenuFactory->renderConversionModals(gatedDatabase);
         }
 
         renderClearModal(gatedDatabase);

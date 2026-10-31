@@ -7,11 +7,8 @@
 
 class Asset;
 class AssetContextMenu;
-class CadToStlConversionModal;
-class CadToSvoConversionModal;
 class GatedDatabase;
-class StlToSvoConversionModal;
-class SvoToStlConversionModal;
+class WindowContainer;
 
 // Factory for creating and rendering asset context menus based on asset type.
 class AssetContextMenuFactory
@@ -22,16 +19,11 @@ class AssetContextMenuFactory
 
     std::unique_ptr<AssetContextMenu> create(const std::shared_ptr<const Asset>& asset);
 
-    void render(GatedDatabase& gatedDatabase, const std::shared_ptr<const Asset>& asset);
+    void render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const std::shared_ptr<const Asset>& asset);
     void renderCloseModal(GatedDatabase& gatedDatabase);
-    void renderConversionModals(GatedDatabase& gatedDatabase);
 
   private:
-    std::unique_ptr<CadToStlConversionModal> cadToStlModal;
-    std::unique_ptr<CadToSvoConversionModal> cadToSvoModal;
-    std::unique_ptr<StlToSvoConversionModal> stlToSvoModal;
-    std::unique_ptr<SvoToStlConversionModal> svoToStlModal;
-    std::string                              closeTargetName;
-    CADacomb::GUID                           closeTargetGuid;
-    bool                                     openCloseModal = false;
+    std::string    closeTargetName;
+    CADacomb::GUID closeTargetGuid;
+    bool           openCloseModal = false;
 };

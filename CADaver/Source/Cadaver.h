@@ -2,6 +2,7 @@
 
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"
+#include "Windows/WindowContainer.h"
 
 #include <cstdint>
 #include <glm/glm.hpp>
@@ -48,6 +49,7 @@ class Cadaver
     Vulcant::VulcantDevice&                 device;
     GatedDatabase                           gatedDatabase;
     UndoStack                               undoStack;
+    WindowContainer                         windowContainer;
     std::unique_ptr<Vulcant::VulcantWindow> window;
     std::unique_ptr<Renderer>               renderer;
     std::unique_ptr<ViewController>         viewController;

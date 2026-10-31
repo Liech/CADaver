@@ -2,26 +2,34 @@
 
 #include <string>
 
-class GatedDatabase;
 class Defer;
+class GatedDatabase;
+class WindowContainer;
 
-// Base interface for UI windows managed by the application.
+// Base class for UI windows managed by the application.
 class Window
 {
   public:
     Window();
     virtual ~Window();
 
-    void setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput);
+    void setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput, WindowContainer& windowContainerInput);
 
     virtual std::string getType() const        = 0;
     virtual std::string getDescription() const = 0;
     virtual void        render()               = 0;
-    virtual bool        isOpen() const         = 0;
-    virtual void        open()                 = 0;
-    virtual void        close()                = 0;
+
+    bool isOpen() const;
+    void open();
+    void close();
+    bool consumeFocus();
 
   protected:
-    GatedDatabase* gatedDatabase = nullptr;
-    Defer*         defer         = nullptr;
+    GatedDatabase*   gatedDatabase   = nullptr;
+    Defer*           defer           = nullptr;
+    WindowContainer* windowContainer = nullptr;
+    bool             openState       = false;
+
+  private:
+    bool shouldFocus = false;
 };

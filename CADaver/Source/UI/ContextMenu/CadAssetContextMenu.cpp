@@ -1,4 +1,4 @@
-#include "CadAssetContextMenu.h"
+#include "UI/ContextMenu/CadAssetContextMenu.h"
 
 #include "Database/Asset/CadAsset.h"
 #include "Execution/Defer.h"
@@ -6,15 +6,17 @@
 #include "UI/Dialog/SaveFileDialog.h"
 #include "Windows/Conversion/CadToStlConversionModal.h"
 #include "Windows/Conversion/CadToSvoConversionModal.h"
+#include "Windows/WindowContainer.h"
 
 #include <filesystem>
 #include <imgui.h>
+#include <memory>
 
 CadAssetContextMenu::CadAssetContextMenu() {}
 
 CadAssetContextMenu::~CadAssetContextMenu() {}
 
-void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& asset)
+void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset)
 {
     auto cadAsset = dynamic_cast<const CadAsset*>(&asset);
     if (!cadAsset)
@@ -31,32 +33,24 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& asse
     {
         if (ImGui::MenuItem("STL..."))
         {
-            if (cadToStlModal)
+            windowContainer.open("CadToStlConversionModal");
+            auto modal = std::dynamic_pointer_cast<CadToStlConversionModal>(windowContainer.get("CadToStlConversionModal"));
+            if (modal)
             {
-                cadToStlModal->setTargetAsset(cadAsset->getGuid());
-                cadToStlModal->open();
+                modal->setTargetAsset(cadAsset->getGuid());
             }
         }
         if (ImGui::MenuItem("SVO..."))
         {
-            if (cadToSvoModal)
+            windowContainer.open("CadToSvoConversionModal");
+            auto modal = std::dynamic_pointer_cast<CadToSvoConversionModal>(windowContainer.get("CadToSvoConversionModal"));
+            if (modal)
             {
-                cadToSvoModal->setTargetAsset(cadAsset->getGuid());
-                cadToSvoModal->open();
+                modal->setTargetAsset(cadAsset->getGuid());
             }
         }
         ImGui::EndMenu();
     }
-}
-
-void CadAssetContextMenu::setCadToStlModal(CadToStlConversionModal* modal)
-{
-    cadToStlModal = modal;
-}
-
-void CadAssetContextMenu::setCadToSvoModal(CadToSvoConversionModal* modal)
-{
-    cadToSvoModal = modal;
 }
 
 void CadAssetContextMenu::save(GatedDatabase& gatedDatabase, const CadAsset& asset)

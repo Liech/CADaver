@@ -2,6 +2,7 @@
 
 class Asset;
 class GatedDatabase;
+class WindowContainer;
 
 // Abstract base class for asset context menus rendered in the UI.
 class AssetContextMenu
@@ -10,5 +11,5 @@ class AssetContextMenu
     AssetContextMenu();
     virtual ~AssetContextMenu();
 
-    virtual void render(GatedDatabase& gatedDatabase, const Asset& asset) = 0;
+    virtual void render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset) = 0;
 };

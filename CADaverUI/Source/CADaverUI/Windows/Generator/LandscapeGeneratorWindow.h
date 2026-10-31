@@ -16,9 +16,6 @@ class LandscapeGeneratorWindow : public Window
     virtual std::string getType() const override;
     virtual std::string getDescription() const override;
     virtual void        render() override;
-    virtual bool        isOpen() const override;
-    virtual void        open() override;
-    virtual void        close() override;
 
   private:
     void                      startGenerate();
@@ -34,5 +31,4 @@ class LandscapeGeneratorWindow : public Window
     bool        caves         = false;
     float       caveThreshold = 0.12f;
     std::string assetName     = "Landscape";
-    bool        openState     = false;
 };

@@ -16,9 +16,6 @@ class AboutWindow : public Window
     virtual std::string getType() const override;
     virtual std::string getDescription() const override;
     virtual void        render() override;
-    virtual bool        isOpen() const override;
-    virtual void        open() override;
-    virtual void        close() override;
 
   private:
     void        loadData();
@@ -26,6 +23,5 @@ class AboutWindow : public Window
 
     std::vector<std::pair<std::string, std::string>> entries;
     int                                              selectedIndex = 0;
-    bool                                             openState     = false;
     bool                                             loaded        = false;
 };

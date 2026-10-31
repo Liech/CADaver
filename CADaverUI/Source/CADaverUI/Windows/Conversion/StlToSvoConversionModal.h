@@ -7,7 +7,7 @@
 
 #include <string>
 
-// Modal dialog for converting a triangulation STL asset to a volumetric SVO asset.
+// Dialog window for converting a triangulation STL asset to a volumetric SVO asset.
 class StlToSvoConversionModal : public Window
 {
   public:
@@ -17,9 +17,6 @@ class StlToSvoConversionModal : public Window
     virtual std::string getType() const override;
     virtual std::string getDescription() const override;
     virtual void        render() override;
-    virtual bool        isOpen() const override;
-    virtual void        open() override;
-    virtual void        close() override;
 
     void setTargetAsset(const CADacomb::GUID& assetGuid);
 
@@ -28,7 +25,5 @@ class StlToSvoConversionModal : public Window
 
     AssetComboBox           assetComboBox;
     VoxelResolutionComboBox resolutionComboBox;
-    bool                    deleteOrigin    = false;
-    bool                    openState       = false;
-    bool                    shouldOpenPopup = false;
+    bool                    deleteOrigin = false;
 };

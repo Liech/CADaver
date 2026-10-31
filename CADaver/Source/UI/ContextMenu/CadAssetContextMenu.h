@@ -1,12 +1,11 @@
 #pragma once
 
-#include "AssetContextMenu.h"
+#include "UI/ContextMenu/AssetContextMenu.h"
 
 class Asset;
 class CadAsset;
-class CadToStlConversionModal;
-class CadToSvoConversionModal;
 class GatedDatabase;
+class WindowContainer;
 
 // Context menu for CAD assets providing STEP save and conversion operations.
 class CadAssetContextMenu : public AssetContextMenu
@@ -15,14 +14,8 @@ class CadAssetContextMenu : public AssetContextMenu
     CadAssetContextMenu();
     virtual ~CadAssetContextMenu();
 
-    void render(GatedDatabase& gatedDatabase, const Asset& asset) override;
-
-    void setCadToStlModal(CadToStlConversionModal* modal);
-    void setCadToSvoModal(CadToSvoConversionModal* modal);
+    void render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset) override;
 
   private:
     void save(GatedDatabase& gatedDatabase, const CadAsset& asset);
-
-    CadToStlConversionModal* cadToStlModal = nullptr;
-    CadToSvoConversionModal* cadToSvoModal = nullptr;
 };

@@ -23,30 +23,12 @@ std::string StlToSvoConversionModal::getDescription() const
 {
     return "Window: StlToSvoConversionModal\n"
            "Title: Convert to SVO\n"
-           "Purpose: Modal dialog for voxelizing a triangulated STL mesh asset into a Sparse Voxel Octree (SVO) volumetric asset.\n\n"
+           "Purpose: Dialog for voxelizing a triangulated STL mesh asset into a Sparse Voxel Octree (SVO) volumetric asset.\n\n"
            "Parameters:\n"
            "  - Target Asset: Triangulation asset from the project to voxelize\n"
            "  - Voxel Resolution: Cubic SVO grid resolution (16, 32, 64, 128, 256, 512, default: 64)\n"
            "  - Delete original STL asset: Removes the source triangulation asset upon successful conversion\n\n"
            "Dispatched Command: ConvertStlToSvo (async)";
-}
-
-bool StlToSvoConversionModal::isOpen() const
-{
-    return openState;
-}
-
-void StlToSvoConversionModal::open()
-{
-    deleteOrigin    = false;
-    openState       = true;
-    shouldOpenPopup = true;
-}
-
-void StlToSvoConversionModal::close()
-{
-    openState       = false;
-    shouldOpenPopup = false;
 }
 
 void StlToSvoConversionModal::setTargetAsset(const CADacomb::GUID& assetGuid)
@@ -61,13 +43,7 @@ void StlToSvoConversionModal::render()
         return;
     }
 
-    if (shouldOpenPopup)
-    {
-        ImGui::OpenPopup("Convert to SVO##StlModal");
-        shouldOpenPopup = false;
-    }
-
-    if (ImGui::BeginPopupModal("Convert to SVO##StlModal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::Begin("Convert to SVO##StlModal", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
         const auto& project = gatedDatabase->get().getProject();
         assetComboBox.render(project);
@@ -86,7 +62,6 @@ void StlToSvoConversionModal::render()
         {
             executeConversion();
             close();
-            ImGui::CloseCurrentPopup();
         }
         ImGui::EndDisabled();
 
@@ -95,14 +70,9 @@ void StlToSvoConversionModal::render()
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
             close();
-            ImGui::CloseCurrentPopup();
         }
-        ImGui::EndPopup();
     }
-    else if (!shouldOpenPopup)
-    {
-        openState = false;
-    }
+    ImGui::End();
 }
 
 void StlToSvoConversionModal::executeConversion()

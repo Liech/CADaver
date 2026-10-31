@@ -23,32 +23,13 @@ std::string CadToSvoConversionModal::getDescription() const
 {
     return "Window: CadToSvoConversionModal\n"
            "Title: Convert to SVO\n"
-           "Purpose: Modal dialog for converting a STEP/CAD asset directly into a Sparse Voxel Octree (SVO) volumetric asset via intermediate triangulation.\n\n"
+           "Purpose: Dialog for converting a STEP/CAD asset directly into a Sparse Voxel Octree (SVO) volumetric asset via intermediate triangulation.\n\n"
            "Parameters:\n"
            "  - Target Asset: CAD asset from the project to convert\n"
            "  - Voxel Resolution: Cubic SVO grid resolution (16, 32, 64, 128, 256, 512, default: 64)\n"
            "  - Tessellation Precision: Linear deflection tolerance for intermediate triangulation (0.001 to 1.0, default: 0.1)\n"
            "  - Delete original CAD asset: Removes the source CAD asset upon successful conversion\n\n"
            "Dispatched Command: ConvertCadToSvo (async)";
-}
-
-bool CadToSvoConversionModal::isOpen() const
-{
-    return openState;
-}
-
-void CadToSvoConversionModal::open()
-{
-    precision       = 0.1;
-    deleteOrigin    = false;
-    openState       = true;
-    shouldOpenPopup = true;
-}
-
-void CadToSvoConversionModal::close()
-{
-    openState       = false;
-    shouldOpenPopup = false;
 }
 
 void CadToSvoConversionModal::setTargetAsset(const CADacomb::GUID& assetGuid)
@@ -63,13 +44,7 @@ void CadToSvoConversionModal::render()
         return;
     }
 
-    if (shouldOpenPopup)
-    {
-        ImGui::OpenPopup("Convert to SVO##CadModal");
-        shouldOpenPopup = false;
-    }
-
-    if (ImGui::BeginPopupModal("Convert to SVO##CadModal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::Begin("Convert to SVO##CadModal", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
         const auto& project = gatedDatabase->get().getProject();
         assetComboBox.render(project);
@@ -94,7 +69,6 @@ void CadToSvoConversionModal::render()
         {
             executeConversion();
             close();
-            ImGui::CloseCurrentPopup();
         }
         ImGui::EndDisabled();
 
@@ -103,14 +77,9 @@ void CadToSvoConversionModal::render()
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
             close();
-            ImGui::CloseCurrentPopup();
         }
-        ImGui::EndPopup();
     }
-    else if (!shouldOpenPopup)
-    {
-        openState = false;
-    }
+    ImGui::End();
 }
 
 void CadToSvoConversionModal::executeConversion()

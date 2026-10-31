@@ -25,6 +25,8 @@ source_group("Source/Component" FILES ${Component_Files})
 set(Windows_Files
     "Source/CADaverUI/Windows/Window.h"
     "Source/CADaverUI/Windows/Window.cpp"
+    "Source/CADaverUI/Windows/WindowContainer.h"
+    "Source/CADaverUI/Windows/WindowContainer.cpp"
     "Source/CADaverUI/Windows/WindowFactory.h"
     "Source/CADaverUI/Windows/WindowFactory.cpp"
 )

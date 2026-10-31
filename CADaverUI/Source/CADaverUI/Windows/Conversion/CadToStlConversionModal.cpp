@@ -23,31 +23,12 @@ std::string CadToStlConversionModal::getDescription() const
 {
     return "Window: CadToStlConversionModal\n"
            "Title: Convert to STL\n"
-           "Purpose: Modal dialog for tessellating a STEP/CAD boundary-representation asset into a triangulated STL mesh asset.\n\n"
+           "Purpose: Dialog for tessellating a STEP/CAD boundary-representation asset into a triangulated STL mesh asset.\n\n"
            "Parameters:\n"
            "  - Target Asset: CAD asset from the project to convert\n"
            "  - Tessellation Precision: Linear deflection tolerance for surface triangulation (0.001 to 1.0, default: 0.1)\n"
            "  - Delete original CAD asset: Removes the source CAD asset upon successful conversion\n\n"
            "Dispatched Command: ConvertCadToStl (async)";
-}
-
-bool CadToStlConversionModal::isOpen() const
-{
-    return openState;
-}
-
-void CadToStlConversionModal::open()
-{
-    precision       = 0.1;
-    deleteOrigin    = false;
-    openState       = true;
-    shouldOpenPopup = true;
-}
-
-void CadToStlConversionModal::close()
-{
-    openState       = false;
-    shouldOpenPopup = false;
 }
 
 void CadToStlConversionModal::setTargetAsset(const CADacomb::GUID& assetGuid)
@@ -62,13 +43,7 @@ void CadToStlConversionModal::render()
         return;
     }
 
-    if (shouldOpenPopup)
-    {
-        ImGui::OpenPopup("Convert to STL##Modal");
-        shouldOpenPopup = false;
-    }
-
-    if (ImGui::BeginPopupModal("Convert to STL##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::Begin("Convert to STL##CadModal", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
         const auto& project = gatedDatabase->get().getProject();
         assetComboBox.render(project);
@@ -91,7 +66,6 @@ void CadToStlConversionModal::render()
         {
             executeConversion();
             close();
-            ImGui::CloseCurrentPopup();
         }
         ImGui::EndDisabled();
 
@@ -100,14 +74,9 @@ void CadToStlConversionModal::render()
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
             close();
-            ImGui::CloseCurrentPopup();
         }
-        ImGui::EndPopup();
     }
-    else if (!shouldOpenPopup)
-    {
-        openState = false;
-    }
+    ImGui::End();
 }
 
 void CadToStlConversionModal::executeConversion()
