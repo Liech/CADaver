@@ -111,7 +111,7 @@ void LoadStlAssetCommand::setName(const std::string& newName)
 
 TEST_CASE("LoadStlAssetCommand/TypeAndVersion")
 {
-    LoadStlAssetCommand cmd("Mesh");
+    LoadStlAssetCommand cmd(std::string("Mesh"));
     CHECK(cmd.getType() == "LoadStlAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());

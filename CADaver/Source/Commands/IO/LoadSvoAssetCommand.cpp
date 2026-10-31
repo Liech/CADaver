@@ -118,7 +118,7 @@ void LoadSvoAssetCommand::setName(const std::string& newName)
 
 TEST_CASE("LoadSvoAssetCommand/TypeAndVersion")
 {
-    LoadSvoAssetCommand cmd("Voxel");
+    LoadSvoAssetCommand cmd(std::string("Voxel"));
     CHECK(cmd.getType() == "LoadSvoAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());

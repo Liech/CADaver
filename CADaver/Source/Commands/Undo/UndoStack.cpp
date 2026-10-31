@@ -165,7 +165,7 @@ TEST_CASE("UndoStack/PruneMaxSteps")
     {
         auto asset = std::make_shared<TriangulationAsset>();
         asset->setName("Asset" + std::to_string(i));
-        stack.push(std::make_unique<AddAssetUndoRecord>(asset, i));
+        stack.push(std::make_unique<AddAssetUndoRecord>(asset));
     }
 
     REQUIRE(stack.getUndoHistory().size() == 3);
@@ -176,7 +176,7 @@ TEST_CASE("UndoStack/MemoryCapacityTracking")
     UndoStack stack;
     auto      asset = std::make_shared<TriangulationAsset>();
     asset->setName("Asset");
-    stack.push(std::make_unique<AddAssetUndoRecord>(asset, 0));
+    stack.push(std::make_unique<AddAssetUndoRecord>(asset));
 
     REQUIRE(stack.getTotalMemoryBytes() > 0);
 }
