@@ -50,7 +50,7 @@ class Renderer
   private:
     void setSceneData(const Vulcant::Toolkit::SceneData& sceneData);
     void clear();
-    void renderAsset(const std::shared_ptr<const Asset>& asset, bool isSelected);
+    void renderAsset(const std::shared_ptr<const Asset>& asset);
     void pruneRenderers(const std::vector<std::shared_ptr<const Asset>>& activeAssets);
     void renderUi();
     void recordClearPass();

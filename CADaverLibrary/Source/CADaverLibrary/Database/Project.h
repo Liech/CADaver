@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-// Headless project model managing assets and active selection without rendering dependencies.
+// Headless project model managing assets without rendering dependencies.
 class Project
 {
   public:
@@ -24,12 +24,6 @@ class Project
     std::vector<std::shared_ptr<const Asset>>  getAssets() const;
     const std::vector<std::shared_ptr<Asset>>& getAssets();
 
-    CADacomb::GUID               getSelectedAssetGuid() const;
-    void                         setSelectedAssetGuid(const CADacomb::GUID& guid);
-    std::shared_ptr<const Asset> getSelectedAsset() const;
-    std::shared_ptr<Asset>       getSelectedAsset();
-
   private:
     std::vector<std::shared_ptr<Asset>> assets;
-    CADacomb::GUID                      selectedGuid;
 };

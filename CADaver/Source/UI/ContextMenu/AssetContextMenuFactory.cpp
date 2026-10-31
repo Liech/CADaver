@@ -68,7 +68,6 @@ void AssetContextMenuFactory::render(const std::shared_ptr<const Asset>& asset)
         auto menu = create(asset);
         if (menu)
         {
-            menu->setAssetGuid(asset->getGuid());
             menu->render(*asset);
         }
 

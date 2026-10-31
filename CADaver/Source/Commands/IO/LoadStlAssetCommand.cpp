@@ -82,7 +82,6 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
     asset->setName(name);
     asset->setTriangulation(std::move(triangulation));
     database.getProject().addAsset(asset);
-    database.getProject().setSelectedAssetGuid(asset->getGuid());
 
     if (recordUndo)
     {

@@ -91,7 +91,6 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, 
     bar.addProgress(1);
 
     database.getProject().addAsset(asset);
-    database.getProject().setSelectedAssetGuid(asset->getGuid());
 
     if (recordUndo)
     {

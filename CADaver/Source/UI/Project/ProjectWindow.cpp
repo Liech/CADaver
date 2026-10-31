@@ -107,12 +107,8 @@ void ProjectWindow::render(const Project& project)
                     ImGui::TableNextRow();
 
                     ImGui::TableSetColumnIndex(0);
-                    bool        isSelected = (selectedAssetGuid == asset->getGuid());
-                    std::string label      = asset->getName() + "##" + asset->getGuid().toString();
-                    if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
-                    {
-                        selectedAssetGuid = asset->getGuid();
-                    }
+                    std::string label = asset->getName() + "##" + asset->getGuid().toString();
+                    ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
 
                     if (contextMenuFactory)
                     {

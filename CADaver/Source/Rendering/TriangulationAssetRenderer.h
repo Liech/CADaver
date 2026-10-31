@@ -24,7 +24,7 @@ class TriangulationAssetRenderer : public AssetRenderer
     virtual ~TriangulationAssetRenderer();
 
     virtual void setAsset(const std::shared_ptr<const Asset>& asset) override;
-    virtual void render(Renderer& renderer, bool isSelected = false) override;
+    virtual void render(Renderer& renderer) override;
 
     void rebuildVertices();
 

@@ -96,7 +96,6 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istrea
     voxelAsset->setAABB(CADacomb::AABB3(glm::dvec3(0.0), glm::dvec3(static_cast<double>(dimension))));
 
     database.getProject().addAsset(voxelAsset);
-    database.getProject().setSelectedAssetGuid(voxelAsset->getGuid());
 
     if (recordUndo)
     {
@@ -167,7 +166,6 @@ TEST_CASE("GenerateLandscapeCommand/ExecuteSuccess")
     auto           asset = database.getProject().getAsset(guid);
     REQUIRE(asset != nullptr);
     CHECK(asset->getName() == "TestTerrain");
-    CHECK(database.getProject().getSelectedAssetGuid() == guid);
     CHECK(database.getUndoStack().canUndo());
 }
 

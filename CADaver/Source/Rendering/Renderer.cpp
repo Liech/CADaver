@@ -77,16 +77,14 @@ void Renderer::render(const Vulcant::Toolkit::SceneData& newSceneData)
     setSceneData(newSceneData);
     clear();
 
-    const auto& project           = gatedDatabase.get().getProject();
-    const auto& selectedAssetGuid = project.getSelectedAssetGuid();
+    const auto& project = gatedDatabase.get().getProject();
     pruneRenderers(project.getAssets());
 
     for (const auto& asset : project.getAssets())
     {
         if (asset)
         {
-            bool isSelected = (!selectedAssetGuid.toString().empty() && asset->getGuid() == selectedAssetGuid);
-            renderAsset(asset, isSelected);
+            renderAsset(asset);
         }
     }
 
@@ -98,7 +96,7 @@ void Renderer::clear()
     recordClearPass();
 }
 
-void Renderer::renderAsset(const std::shared_ptr<const Asset>& asset, bool isSelected)
+void Renderer::renderAsset(const std::shared_ptr<const Asset>& asset)
 {
     if (!asset)
     {
@@ -118,7 +116,7 @@ void Renderer::renderAsset(const std::shared_ptr<const Asset>& asset, bool isSel
 
     if (it != renderers.end() && it->second)
     {
-        it->second->render(*this, isSelected);
+        it->second->render(*this);
     }
 }
 

@@ -52,7 +52,7 @@ void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
     lastRevision = asset->getRevision();
 }
 
-void VoxelAssetRenderer::render(Renderer& renderer, bool isSelected)
+void VoxelAssetRenderer::render(Renderer& renderer)
 {
     if (!asset)
     {

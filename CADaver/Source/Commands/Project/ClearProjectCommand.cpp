@@ -41,14 +41,13 @@ std::string ClearProjectCommand::getDescription() const
 
 nlohmann::json ClearProjectCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
-    auto           assets  = database.getProject().getAssets();
-    CADacomb::GUID selGuid = database.getProject().getSelectedAssetGuid();
+    auto assets = database.getProject().getAssets();
 
     database.getProject().clear();
 
     if (recordUndo && !assets.empty())
     {
-        database.getUndoStack().push(std::make_unique<ClearProjectUndoRecord>(assets, selGuid));
+        database.getUndoStack().push(std::make_unique<ClearProjectUndoRecord>(assets));
     }
 
     return {

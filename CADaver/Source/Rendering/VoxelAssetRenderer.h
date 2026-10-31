@@ -28,7 +28,7 @@ class VoxelAssetRenderer : public AssetRenderer
     virtual ~VoxelAssetRenderer();
 
     virtual void setAsset(const std::shared_ptr<const Asset>& asset) override;
-    virtual void render(Renderer& renderer, bool isSelected = false) override;
+    virtual void render(Renderer& renderer) override;
 
     void rebuildMesh(Renderer& renderer);
 

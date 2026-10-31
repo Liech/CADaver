@@ -33,7 +33,7 @@ void TriangulationAssetContextMenu::render(const Asset& asset)
         {
             if (stlToSvoModal)
             {
-                stlToSvoModal->open(getAssetGuid(), triAsset->getName());
+                stlToSvoModal->open(triAsset->getGuid(), triAsset->getName());
             }
         }
         ImGui::EndMenu();
@@ -66,28 +66,20 @@ void TriangulationAssetContextMenu::save(const TriangulationAsset& asset)
             savePath += ".stl";
         }
 
-        CADacomb::GUID targetGuid = getAssetGuid();
-        if (targetGuid.toString().empty())
-        {
-            targetGuid = GatedDatabase::getInstance().get().getProject().getSelectedAssetGuid();
-        }
-
-        if (!targetGuid.toString().empty())
-        {
-            Defer::getInstance().defer(
-              [targetGuid, savePath]()
-              {
-                  auto fileStream = std::make_shared<std::ofstream>(savePath, std::ios::binary);
-                  GatedDatabase::getInstance().executeAsync(
-                    {
-                      {      "type",        "SaveStlAsset" },
-                      {   "version",                     1 },
-                      { "assetGuid", targetGuid.toString() }
-                  },
-                    false,
-                    nullptr,
-                    fileStream);
-              });
-        }
+        CADacomb::GUID targetGuid = asset.getGuid();
+        Defer::getInstance().defer(
+          [targetGuid, savePath]()
+          {
+              auto fileStream = std::make_shared<std::ofstream>(savePath, std::ios::binary);
+              GatedDatabase::getInstance().executeAsync(
+                {
+                  {      "type",        "SaveStlAsset" },
+                  {   "version",                     1 },
+                  { "assetGuid", targetGuid.toString() }
+              },
+                false,
+                nullptr,
+                fileStream);
+          });
     }
 }

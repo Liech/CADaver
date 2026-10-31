@@ -72,7 +72,7 @@ void TriangulationAssetRenderer::rebuildVertices()
     }
 }
 
-void TriangulationAssetRenderer::render(Renderer& renderer, bool isSelected)
+void TriangulationAssetRenderer::render(Renderer& renderer)
 {
     if (!asset)
     {

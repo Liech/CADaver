@@ -314,7 +314,6 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
                         for (const auto& orig : abductedAssets)
                         {
                             database.getProject().addAsset(orig);
-                            database.getProject().setSelectedAssetGuid(orig->getGuid());
                         }
                     }
                     else
@@ -322,7 +321,6 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
                         for (const auto& newAsset : newAssets)
                         {
                             database.getProject().addAsset(newAsset);
-                            database.getProject().setSelectedAssetGuid(newAsset->getGuid());
                             if (recordUndo)
                             {
                                 if (!abductedAssets.empty())

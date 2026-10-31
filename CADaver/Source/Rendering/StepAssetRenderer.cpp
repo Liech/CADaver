@@ -72,7 +72,7 @@ void StepAssetRenderer::rebuildVertices()
     }
 }
 
-void StepAssetRenderer::render(Renderer& renderer, bool isSelected)
+void StepAssetRenderer::render(Renderer& renderer)
 {
     if (!asset)
     {
