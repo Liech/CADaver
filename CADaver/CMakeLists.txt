@@ -50,65 +50,6 @@ set(Rendering_Files
 )
 source_group("Source/Rendering" FILES ${Rendering_Files})
 
-set(Command_Files
-    "Source/Commands/RULES.md"
-)
-source_group("Source/Commands" FILES ${Command_Files})
-
-set(Command_Converter_Files
-    "Source/Commands/Converter/ConvertCadToStlCommand.h"
-    "Source/Commands/Converter/ConvertCadToStlCommand.cpp"
-    "Source/Commands/Converter/ConvertCadToSvoCommand.h"
-    "Source/Commands/Converter/ConvertCadToSvoCommand.cpp"
-    "Source/Commands/Converter/ConvertStlToSvoCommand.h"
-    "Source/Commands/Converter/ConvertStlToSvoCommand.cpp"
-    "Source/Commands/Converter/ConvertSvoToStlCommand.h"
-    "Source/Commands/Converter/ConvertSvoToStlCommand.cpp"
-)
-source_group("Source/Commands/Converter" FILES ${Command_Converter_Files})
-
-set(Command_Generator_Files
-    "Source/Commands/Generator/GenerateLandscapeCommand.h"
-    "Source/Commands/Generator/GenerateLandscapeCommand.cpp"
-)
-source_group("Source/Commands/Generator" FILES ${Command_Generator_Files})
-
-set(Command_IO_Files
-    "Source/Commands/IO/LoadStepAssetCommand.h"
-    "Source/Commands/IO/LoadStepAssetCommand.cpp"
-    "Source/Commands/IO/LoadStlAssetCommand.h"
-    "Source/Commands/IO/LoadStlAssetCommand.cpp"
-    "Source/Commands/IO/LoadSvoAssetCommand.h"
-    "Source/Commands/IO/LoadSvoAssetCommand.cpp"
-    "Source/Commands/IO/SaveStepAssetCommand.h"
-    "Source/Commands/IO/SaveStepAssetCommand.cpp"
-    "Source/Commands/IO/SaveStlAssetCommand.h"
-    "Source/Commands/IO/SaveStlAssetCommand.cpp"
-    "Source/Commands/IO/SaveVoxelAssetCommand.h"
-    "Source/Commands/IO/SaveVoxelAssetCommand.cpp"
-)
-source_group("Source/Commands/IO" FILES ${Command_IO_Files})
-
-set(Command_Project_Files
-    "Source/Commands/Project/ClearProjectCommand.h"
-    "Source/Commands/Project/ClearProjectCommand.cpp"
-    "Source/Commands/Project/RemoveAssetCommand.h"
-    "Source/Commands/Project/RemoveAssetCommand.cpp"
-)
-source_group("Source/Commands/Project" FILES ${Command_Project_Files})
-
-set(Command_Preferences_Files
-    "Source/Commands/Preferences/UpdateCameraPreferencesCommand.h"
-    "Source/Commands/Preferences/UpdateCameraPreferencesCommand.cpp"
-    "Source/Commands/Preferences/UpdateUIPreferencesCommand.h"
-    "Source/Commands/Preferences/UpdateUIPreferencesCommand.cpp"
-    "Source/Commands/Preferences/UpdateRenderPreferencesCommand.h"
-    "Source/Commands/Preferences/UpdateRenderPreferencesCommand.cpp"
-    "Source/Commands/Preferences/UpdateSVOPreferencesCommand.h"
-    "Source/Commands/Preferences/UpdateSVOPreferencesCommand.cpp"
-)
-source_group("Source/Commands/Preferences" FILES ${Command_Preferences_Files})
-
 set(UI_About_Files
     "Source/UI/About/AboutWindow.h"
     "Source/UI/About/AboutWindow.cpp"
@@ -211,12 +152,6 @@ set(ALL_FILES
     ${UI_Converter_Files}
     ${UI_ContextMenu_Files}
     ${UI_Project_Files}
-    ${Command_Files}
-    ${Command_Converter_Files}
-    ${Command_Generator_Files}
-    ${Command_IO_Files}
-    ${Command_Project_Files}
-    ${Command_Preferences_Files}
 )
 
 add_executable(CadaverExe ${ALL_FILES})

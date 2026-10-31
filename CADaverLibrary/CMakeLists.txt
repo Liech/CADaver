@@ -19,6 +19,65 @@ set(Conversion_Files
 )
 source_group("Source/Conversion" FILES ${Conversion_Files})
 
+set(Command_Files
+    "Source/CADaverLibrary/Commands/RULES.md"
+)
+source_group("Source/Commands" FILES ${Command_Files})
+
+set(Command_Conversion_Files
+    "Source/CADaverLibrary/Commands/Conversion/ConvertCadToStlCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertCadToStlCommand.cpp"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertCadToSvoCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertCadToSvoCommand.cpp"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertStlToSvoCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertStlToSvoCommand.cpp"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlCommand.cpp"
+)
+source_group("Source/Commands/Conversion" FILES ${Command_Conversion_Files})
+
+set(Command_Generator_Files
+    "Source/CADaverLibrary/Commands/Generator/GenerateLandscapeCommand.h"
+    "Source/CADaverLibrary/Commands/Generator/GenerateLandscapeCommand.cpp"
+)
+source_group("Source/Commands/Generator" FILES ${Command_Generator_Files})
+
+set(Command_IO_Files
+    "Source/CADaverLibrary/Commands/IO/LoadStepAssetCommand.h"
+    "Source/CADaverLibrary/Commands/IO/LoadStepAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/IO/LoadStlAssetCommand.h"
+    "Source/CADaverLibrary/Commands/IO/LoadStlAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/IO/LoadSvoAssetCommand.h"
+    "Source/CADaverLibrary/Commands/IO/LoadSvoAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/IO/SaveStepAssetCommand.h"
+    "Source/CADaverLibrary/Commands/IO/SaveStepAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/IO/SaveStlAssetCommand.h"
+    "Source/CADaverLibrary/Commands/IO/SaveStlAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/IO/SaveVoxelAssetCommand.h"
+    "Source/CADaverLibrary/Commands/IO/SaveVoxelAssetCommand.cpp"
+)
+source_group("Source/Commands/IO" FILES ${Command_IO_Files})
+
+set(Command_Project_Files
+    "Source/CADaverLibrary/Commands/Project/ClearProjectCommand.h"
+    "Source/CADaverLibrary/Commands/Project/ClearProjectCommand.cpp"
+    "Source/CADaverLibrary/Commands/Project/RemoveAssetCommand.h"
+    "Source/CADaverLibrary/Commands/Project/RemoveAssetCommand.cpp"
+)
+source_group("Source/Commands/Project" FILES ${Command_Project_Files})
+
+set(Command_Preferences_Files
+    "Source/CADaverLibrary/Commands/Preferences/UpdateCameraPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateCameraPreferencesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateUIPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateUIPreferencesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateRenderPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateRenderPreferencesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateSVOPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateSVOPreferencesCommand.cpp"
+)
+source_group("Source/Commands/Preferences" FILES ${Command_Preferences_Files})
+
 set(Database_Preferences_Files
     "Source/CADaverLibrary/Database/Preferences/Preferences.h"
     "Source/CADaverLibrary/Database/Preferences/Preferences.cpp"
@@ -74,6 +133,12 @@ source_group("Source/Database/Asset" FILES ${Database_Asset_Files})
 set(ALL_FILES
     ${Source_Files}
     ${Conversion_Files}
+    ${Command_Files}
+    ${Command_Conversion_Files}
+    ${Command_Generator_Files}
+    ${Command_IO_Files}
+    ${Command_Project_Files}
+    ${Command_Preferences_Files}
     ${Database_Preferences_Files}
     ${Database_Files}
     ${Database_Asset_Files}
