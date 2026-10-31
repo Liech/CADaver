@@ -11,15 +11,11 @@
 #include "Vulcant/Toolkit/Camera.h"
 #include "Vulcant/Toolkit/SceneData.h"
 
-ViewCubeWidget::ViewCubeWidget()
-{
-}
+ViewCubeWidget::ViewCubeWidget() {}
 
-ViewCubeWidget::~ViewCubeWidget()
-{
-}
+ViewCubeWidget::~ViewCubeWidget() {}
 
-void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& resolution, const std::function<void()>& onHomePressed)
+void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& resolution, const std::function<void()>& onHomePressed, const std::function<void(bool)>& onOrthographicChanged)
 {
     if (!camera || resolution.x <= 0 || resolution.y <= 0)
     {
@@ -151,7 +147,14 @@ void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& 
         bool projClicked = ImGui::Button("##ProjButton", ImVec2(24.0f * scale, 24.0f * scale));
         if (projClicked)
         {
-            camera->setOrthographic(!isOrtho);
+            if (onOrthographicChanged)
+            {
+                onOrthographicChanged(!isOrtho);
+            }
+            else
+            {
+                camera->setOrthographic(!isOrtho);
+            }
         }
         bool projHovered = ImGui::IsItemHovered();
         if (projHovered)
@@ -284,33 +287,6 @@ void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& 
 
     ImGui::PopStyleVar();
 
-    // Track mouse interaction on the ViewCube to distinguish pure clicks from drags
-    bool mouseInCube = ImGui::IsMouseHoveringRect(ImVec2(posX, posY), ImVec2(posX + cubeSize, posY + cubeSize));
-
-    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && mouseInCube)
-    {
-        isCubeInteracting = true;
-        isDraggingCube    = false;
-        initialUp         = camera->getUp();
-        mouseClickPos     = ImGui::GetMousePos();
-    }
-
-    if (isCubeInteracting && ImGui::IsMouseDown(ImGuiMouseButton_Left))
-    {
-        ImVec2 curPos   = ImGui::GetMousePos();
-        float  dragDist = std::hypot(curPos.x - mouseClickPos.x, curPos.y - mouseClickPos.y);
-        if (dragDist > 5.0f * scale)
-        {
-            isDraggingCube = true;
-        }
-    }
-
-    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-    {
-        isCubeInteracting = false;
-        isDraggingCube    = false;
-    }
-
     // Render ViewCube itself
     auto      scene      = camera->getScene();
     glm::mat4 viewMatrix = scene.viewMatrix;
@@ -321,30 +297,14 @@ void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& 
 
     if (viewMatrix != origMatrix)
     {
-        // Suppress micro-drag while mouse is pressed down before reaching intentional drag threshold
-        if (isCubeInteracting && !isDraggingCube)
-        {
-            return;
-        }
-
         glm::mat4  invView    = glm::inverse(viewMatrix);
         glm::dvec3 newForward = glm::dvec3(invView[2]);
+        glm::dvec3 newUp      = glm::dvec3(invView[1]);
 
-        if (glm::length(newForward) > 1e-6)
+        if (glm::length(newForward) > 1e-6 && glm::length(newUp) > 1e-6)
         {
-            glm::dvec3 dir   = glm::normalize(newForward);
-            glm::dvec3 refUp = (glm::length(initialUp) > 1e-4) ? initialUp : camera->getUp();
-            glm::dvec3 newUp = getNearestAxisAlignedUp(dir, refUp);
-
-            camera->setUp(newUp);
-            camera->setEye(target + dir * dist);
-        }
-    }
-    else
-    {
-        if (!isCubeInteracting)
-        {
-            initialUp = camera->getUp();
+            camera->setEye(target + glm::normalize(newForward) * dist);
+            camera->setUp(glm::normalize(newUp));
         }
     }
 }
@@ -369,7 +329,6 @@ void ViewCubeWidget::rollCamera(Vulcant::Toolkit::Camera* camera, double angle)
     glm::dvec3 newUp = glm::normalize(glm::dvec3(rot * glm::dvec4(camera->getUp(), 0.0)));
 
     camera->setUp(newUp);
-    camera->setEye(eye);
 }
 
 void ViewCubeWidget::rotateAroundTarget(Vulcant::Toolkit::Camera* camera, double angle, const glm::dvec3& axis)
@@ -392,33 +351,6 @@ void ViewCubeWidget::rotateAroundTarget(Vulcant::Toolkit::Camera* camera, double
     glm::dvec3 newToEye = glm::dvec3(rot * glm::dvec4(toEye, 0.0));
     glm::dvec3 newUp    = glm::normalize(glm::dvec3(rot * glm::dvec4(camera->getUp(), 0.0)));
 
-    camera->setUp(newUp);
     camera->setEye(target + newToEye);
-}
-
-glm::dvec3 ViewCubeWidget::getNearestAxisAlignedUp(const glm::dvec3& dir, const glm::dvec3& currentUp) const
-{
-    const glm::dvec3 cardinalAxes[6] = { glm::dvec3(1.0, 0.0, 0.0),  glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 1.0, 0.0),
-                                         glm::dvec3(0.0, -1.0, 0.0), glm::dvec3(0.0, 0.0, 1.0),  glm::dvec3(0.0, 0.0, -1.0) };
-
-    glm::dvec3 bestUp(0.0, 1.0, 0.0);
-    double     maxDot = -2.0;
-
-    for (int i = 0; i < 6; i++)
-    {
-        const glm::dvec3& axis = cardinalAxes[i];
-        double            d    = glm::dot(axis, dir);
-        if (std::abs(d) < 0.99)
-        {
-            glm::dvec3 proj      = glm::normalize(axis - d * dir);
-            double     alignment = glm::dot(proj, currentUp);
-            if (alignment > maxDot)
-            {
-                maxDot = alignment;
-                bestUp = proj;
-            }
-        }
-    }
-
-    return bestUp;
+    camera->setUp(newUp);
 }

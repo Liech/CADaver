@@ -16,19 +16,13 @@ class ViewCubeWidget
     ViewCubeWidget();
     virtual ~ViewCubeWidget();
 
-    void render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& resolution, const std::function<void()>& onHomePressed);
+    void render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& resolution, const std::function<void()>& onHomePressed, const std::function<void(bool)>& onOrthographicChanged = nullptr);
 
   private:
-    void       rollCamera(Vulcant::Toolkit::Camera* camera, double angle);
-    void       rotateAroundTarget(Vulcant::Toolkit::Camera* camera, double angle, const glm::dvec3& axis);
-    glm::dvec3 getNearestAxisAlignedUp(const glm::dvec3& dir, const glm::dvec3& currentUp) const;
+    void rollCamera(Vulcant::Toolkit::Camera* camera, double angle);
+    void rotateAroundTarget(Vulcant::Toolkit::Camera* camera, double angle, const glm::dvec3& axis);
 
     float baseCubeSize  = 110.0f;
     float baseMargin    = 28.0f;
     float baseArrowDist = 54.0f;
-
-    bool       isCubeInteracting = false;
-    bool       isDraggingCube    = false;
-    ImVec2     mouseClickPos     = ImVec2(0.0f, 0.0f);
-    glm::dvec3 initialUp         = glm::dvec3(0.0, 1.0, 0.0);
 };

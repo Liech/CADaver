@@ -79,19 +79,21 @@ CameraController& ViewController::getCameraController()
     return *cameraController;
 }
 
-void ViewController::renderViewCube(const glm::ivec2& resolution, const Project& project)
+void ViewController::renderViewCube(const glm::ivec2& resolution, const Project& project, const std::function<void(bool)>& onOrthographicChanged)
 {
     if (viewCubeWidget && cameraController && cameraController->getCamera())
     {
-        viewCubeWidget->render(cameraController->getCamera(),
-                               resolution,
-                               [this, &project]()
-                               {
-                                   if (cameraController)
-                                   {
-                                       cameraController->frameOnProject(project);
-                                   }
-                               });
+        viewCubeWidget->render(
+          cameraController->getCamera(),
+          resolution,
+          [this, &project]()
+          {
+              if (cameraController)
+              {
+                  cameraController->frameOnProject(project);
+              }
+          },
+          onOrthographicChanged);
     }
 }
 

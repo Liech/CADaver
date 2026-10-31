@@ -2,6 +2,7 @@
 
 #include "Vulcant/Toolkit/SceneData.h"
 
+#include <functional>
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -42,7 +43,7 @@ class ViewController
     Vulcant::Toolkit::SceneData getSceneData() const;
     CameraController&           getCameraController();
 
-    void renderViewCube(const glm::ivec2& resolution, const Project& project);
+    void renderViewCube(const glm::ivec2& resolution, const Project& project, const std::function<void(bool)>& onOrthographicChanged = nullptr);
 
   private:
     std::unique_ptr<CameraController> cameraController;

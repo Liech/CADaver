@@ -183,7 +183,27 @@ void Cadaver::renderImGui()
 
     if (viewController)
     {
-        viewController->renderViewCube(resolution, project);
+        viewController->renderViewCube(resolution,
+                                       project,
+                                       [this](bool ortho)
+                                       {
+                                           CameraPreferences prefs = gatedDatabase.get().getPreferences().getCameraPreferences();
+                                           prefs.setOrthographic(ortho);
+                                           auto json = prefs.toJson();
+                                           defer.defer(
+                                             [this, json]()
+                                             {
+                                                 gatedDatabase.execute({
+                                                   {        "type", "UpdateCameraPreferences" },
+                                                   {     "version",                         1 },
+                                                   { "preferences",                      json }
+                                                 });
+                                             });
+                                           if (viewController && viewController->getCamera())
+                                           {
+                                               viewController->getCamera()->setOrthographic(ortho);
+                                           }
+                                       });
     }
 
     if (projectWindow)
