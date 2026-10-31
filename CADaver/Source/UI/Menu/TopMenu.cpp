@@ -1,6 +1,7 @@
 #include "UI/Menu/TopMenu.h"
 
 #include "Database/Preferences/Preferences.h"
+#include "Execution/GatedDatabase.h"
 #include "UI/About/AboutWindow.h"
 #include "UI/Commands/CommandsWindow.h"
 #include "UI/Generator/LandscapeGeneratorWindow.h"
@@ -19,15 +20,15 @@ TopMenu::TopMenu()
 
 TopMenu::~TopMenu() {}
 
-void TopMenu::render(bool& quitRequested)
+void TopMenu::render(GatedDatabase& gatedDatabase, bool& quitRequested)
 {
     if (ImGui::BeginMainMenuBar())
     {
         if (preferencesWindow)
         {
-            fileMenu.render(*preferencesWindow, quitRequested);
+            fileMenu.render(gatedDatabase, *preferencesWindow, quitRequested);
         }
-        editMenu.render();
+        editMenu.render(gatedDatabase);
         if (landscapeGeneratorWindow)
         {
             createMenu.render(*landscapeGeneratorWindow);
@@ -56,11 +57,11 @@ void TopMenu::render(bool& quitRequested)
     }
 }
 
-void TopMenu::renderWindows(const Preferences& preferences, Vulcant::Toolkit::Camera* camera)
+void TopMenu::renderWindows(GatedDatabase& gatedDatabase, Vulcant::Toolkit::Camera* camera)
 {
     if (preferencesWindow)
     {
-        preferencesWindow->render(preferences, camera);
+        preferencesWindow->render(gatedDatabase, camera);
     }
     if (aboutWindow)
     {
@@ -68,11 +69,11 @@ void TopMenu::renderWindows(const Preferences& preferences, Vulcant::Toolkit::Ca
     }
     if (commandsWindow)
     {
-        commandsWindow->render();
+        commandsWindow->render(gatedDatabase);
     }
     if (landscapeGeneratorWindow)
     {
-        landscapeGeneratorWindow->render();
+        landscapeGeneratorWindow->render(gatedDatabase);
     }
 }
 

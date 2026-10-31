@@ -53,16 +53,13 @@ void UpdateUIPreferencesCommand::setInput(const nlohmann::json& json)
     preferencesData = json.at("preferences");
 }
 
-nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto& uiPreferences = database.getPreferences().getUIPreferences();
     auto  prevJson      = uiPreferences.toJson();
     uiPreferences.fromJson(preferencesData);
 
-    if (recordUndo)
-    {
-        UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("UI", prevJson, preferencesData));
-    }
+    UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("UI", prevJson, preferencesData));
 
     return {
         {    "type",    getType() },

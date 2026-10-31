@@ -1,6 +1,7 @@
 #pragma once
 
 class Asset;
+class GatedDatabase;
 
 // Abstract base class for asset context menus rendered in the UI.
 class AssetContextMenu
@@ -9,5 +10,5 @@ class AssetContextMenu
     AssetContextMenu();
     virtual ~AssetContextMenu();
 
-    virtual void render(const Asset& asset) = 0;
+    virtual void render(GatedDatabase& gatedDatabase, const Asset& asset) = 0;
 };

@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-class CommandFactory;
+class GatedDatabase;
 
 // UI window presenting available commands and their syntax documentation.
 class CommandsWindow
@@ -13,13 +13,13 @@ class CommandsWindow
     CommandsWindow();
     virtual ~CommandsWindow();
 
-    void render();
+    void render(const GatedDatabase& gatedDatabase);
 
     bool isOpen() const;
     void setOpen(bool open);
 
   private:
-    void loadData();
+    void loadData(const GatedDatabase& gatedDatabase);
 
     std::vector<std::pair<std::string, std::string>> entries;
     int                                              selectedIndex = 0;

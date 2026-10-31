@@ -59,7 +59,7 @@ void SaveStlAssetCommand::setInput(const nlohmann::json& json)
     assetGuid = json.value("assetGuid", "");
 }
 
-nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream*, std::ostream* outputStream, bool)
+nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream*, std::ostream* outputStream)
 {
     CADacomb::ProgressBar bar(1, "Saving STL asset");
 

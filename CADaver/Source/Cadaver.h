@@ -45,6 +45,7 @@ class Cadaver
     void onKey(const Vulcant::VulcantInputValue& key);
 
     Vulcant::VulcantDevice&                 device;
+    GatedDatabase                           gatedDatabase;
     std::unique_ptr<Vulcant::VulcantWindow> window;
     std::unique_ptr<Renderer>               renderer;
     std::unique_ptr<ViewController>         viewController;

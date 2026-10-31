@@ -19,7 +19,7 @@ void SvoToStlConversionModal::open(const CADacomb::GUID& assetGuid, const std::s
     shouldOpenPopup = true;
 }
 
-void SvoToStlConversionModal::render()
+void SvoToStlConversionModal::render(GatedDatabase& gatedDatabase)
 {
     if (shouldOpenPopup)
     {
@@ -41,7 +41,7 @@ void SvoToStlConversionModal::render()
 
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {
-            executeConversion();
+            executeConversion(gatedDatabase);
             ImGui::CloseCurrentPopup();
         }
         ImGui::SetItemDefaultFocus();
@@ -54,23 +54,21 @@ void SvoToStlConversionModal::render()
     }
 }
 
-void SvoToStlConversionModal::executeConversion()
+void SvoToStlConversionModal::executeConversion(GatedDatabase& gatedDatabase)
 {
     CADacomb::GUID guid      = targetAssetGuid;
     int            depth     = targetDepth;
     bool           delOrigin = deleteOrigin;
 
     Defer::getInstance().defer(
-      [guid, depth, delOrigin]()
+      [&gatedDatabase, guid, depth, delOrigin]()
       {
-          GatedDatabase::getInstance().executeAsync(
-            {
-              {         "type", "ConvertSvoToStl" },
-              {      "version",                 1 },
-              {    "assetGuid",   guid.toString() },
-              {  "targetDepth",             depth },
-              { "deleteOrigin",         delOrigin }
-          },
-            true);
+          gatedDatabase.executeAsync({
+            {         "type", "ConvertSvoToStl" },
+            {      "version",                 1 },
+            {    "assetGuid",   guid.toString() },
+            {  "targetDepth",             depth },
+            { "deleteOrigin",         delOrigin }
+          });
       });
 }

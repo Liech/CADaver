@@ -13,7 +13,7 @@ FileMenu::FileMenu() {}
 
 FileMenu::~FileMenu() {}
 
-void FileMenu::render(PreferencesWindow& preferencesWindow, bool& quitRequested)
+void FileMenu::render(GatedDatabase& gatedDatabase, PreferencesWindow& preferencesWindow, bool& quitRequested)
 {
     if (ImGui::BeginMenu("File"))
     {
@@ -21,15 +21,15 @@ void FileMenu::render(PreferencesWindow& preferencesWindow, bool& quitRequested)
         {
             if (ImGui::MenuItem("STL..."))
             {
-                openStlFileDialog();
+                openStlFileDialog(gatedDatabase);
             }
             if (ImGui::MenuItem("STEP..."))
             {
-                openStepFileDialog();
+                openStepFileDialog(gatedDatabase);
             }
             if (ImGui::MenuItem("SVO..."))
             {
-                openSvoFileDialog();
+                openSvoFileDialog(gatedDatabase);
             }
             ImGui::EndMenu();
         }
@@ -50,7 +50,7 @@ void FileMenu::render(PreferencesWindow& preferencesWindow, bool& quitRequested)
     }
 }
 
-void FileMenu::openStlFileDialog()
+void FileMenu::openStlFileDialog(GatedDatabase& gatedDatabase)
 {
     Library::LoadFileDialog dialog;
     dialog.addFilter("STL File", { "stl" });
@@ -62,22 +62,21 @@ void FileMenu::openStlFileDialog()
         std::string fileName = std::filesystem::path(path).filename().string();
 
         Defer::getInstance().defer(
-          [path, fileName]()
+          [&gatedDatabase, path, fileName]()
           {
               auto fileStream = std::make_shared<std::ifstream>(path, std::ios::binary);
-              GatedDatabase::getInstance().executeAsync(
+              gatedDatabase.executeAsync(
                 {
                   {    "type", "LoadStlAsset" },
                   { "version",              1 },
                   {    "name",       fileName }
               },
-                true,
                 fileStream);
           });
     }
 }
 
-void FileMenu::openStepFileDialog()
+void FileMenu::openStepFileDialog(GatedDatabase& gatedDatabase)
 {
     Library::LoadFileDialog dialog;
     dialog.addFilter("STEP File", { "step", "stp" });
@@ -89,21 +88,19 @@ void FileMenu::openStepFileDialog()
         std::string fileName = std::filesystem::path(path).filename().string();
 
         Defer::getInstance().defer(
-          [path, fileName]()
+          [&gatedDatabase, path, fileName]()
           {
-              GatedDatabase::getInstance().executeAsync(
-                {
-                  {     "type", "LoadStepAsset" },
-                  {  "version",               1 },
-                  {     "name",        fileName },
-                  { "filePath",            path }
-              },
-                true);
+              gatedDatabase.executeAsync({
+                {     "type", "LoadStepAsset" },
+                {  "version",               1 },
+                {     "name",        fileName },
+                { "filePath",            path }
+              });
           });
     }
 }
 
-void FileMenu::openSvoFileDialog()
+void FileMenu::openSvoFileDialog(GatedDatabase& gatedDatabase)
 {
     Library::LoadFileDialog dialog;
     dialog.addFilter("SVO File", { "cadacombsvo", "svo" });
@@ -115,16 +112,15 @@ void FileMenu::openSvoFileDialog()
         std::string fileName = std::filesystem::path(path).filename().string();
 
         Defer::getInstance().defer(
-          [path, fileName]()
+          [&gatedDatabase, path, fileName]()
           {
               auto fileStream = std::make_shared<std::ifstream>(path, std::ios::binary);
-              GatedDatabase::getInstance().executeAsync(
+              gatedDatabase.executeAsync(
                 {
                   {    "type", "LoadSvoAsset" },
                   { "version",              1 },
                   {    "name",       fileName }
               },
-                true,
                 fileStream);
           });
     }

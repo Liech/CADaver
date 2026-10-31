@@ -14,7 +14,7 @@ CadAssetContextMenu::CadAssetContextMenu() {}
 
 CadAssetContextMenu::~CadAssetContextMenu() {}
 
-void CadAssetContextMenu::render(const Asset& asset)
+void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& asset)
 {
     auto cadAsset = dynamic_cast<const CadAsset*>(&asset);
     if (!cadAsset)
@@ -24,7 +24,7 @@ void CadAssetContextMenu::render(const Asset& asset)
 
     if (ImGui::MenuItem("Save"))
     {
-        save(*cadAsset);
+        save(gatedDatabase, *cadAsset);
     }
 
     if (ImGui::BeginMenu("Converter"))
@@ -57,7 +57,7 @@ void CadAssetContextMenu::setCadToSvoModal(CadToSvoConversionModal* modal)
     cadToSvoModal = modal;
 }
 
-void CadAssetContextMenu::save(const CadAsset& asset)
+void CadAssetContextMenu::save(GatedDatabase& gatedDatabase, const CadAsset& asset)
 {
     Library::SaveFileDialog dialog;
     dialog.addFilter("STEP File", { "step", "stp" });
@@ -81,9 +81,9 @@ void CadAssetContextMenu::save(const CadAsset& asset)
 
         CADacomb::GUID targetGuid = asset.getGuid();
         Defer::getInstance().defer(
-          [targetGuid, savePath]()
+          [&gatedDatabase, targetGuid, savePath]()
           {
-              GatedDatabase::getInstance().executeAsync({
+              gatedDatabase.executeAsync({
                 {      "type",       "SaveStepAsset" },
                 {   "version",                     1 },
                 { "assetGuid", targetGuid.toString() },

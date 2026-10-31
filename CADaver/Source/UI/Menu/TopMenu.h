@@ -13,8 +13,8 @@ namespace Vulcant::Toolkit
 
 class AboutWindow;
 class CommandsWindow;
+class GatedDatabase;
 class LandscapeGeneratorWindow;
-class Preferences;
 class PreferencesWindow;
 
 // Coordinates the main top menu bar by hosting File, Edit, Create, and Help menus and their dialog windows.
@@ -24,8 +24,8 @@ class TopMenu
     TopMenu();
     virtual ~TopMenu();
 
-    void render(bool& quitRequested);
-    void renderWindows(const Preferences& preferences, Vulcant::Toolkit::Camera* camera = nullptr);
+    void render(GatedDatabase& gatedDatabase, bool& quitRequested);
+    void renderWindows(GatedDatabase& gatedDatabase, Vulcant::Toolkit::Camera* camera = nullptr);
 
     PreferencesWindow*        getPreferencesWindow() const;
     AboutWindow*              getAboutWindow() const;

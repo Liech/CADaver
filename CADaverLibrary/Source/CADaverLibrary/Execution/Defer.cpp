@@ -1,7 +1,5 @@
 #include "Execution/Defer.h"
 
-#include "Execution/GatedDatabase.h"
-
 Defer::Defer() {}
 
 Defer::~Defer() {}
@@ -26,12 +24,6 @@ void Defer::process()
         toExecute.swap(tasks);
     }
 
-    if (toExecute.empty())
-    {
-        return;
-    }
-
-    GatedDatabase::getInstance().unlock();
     for (const auto& task : toExecute)
     {
         if (task)
@@ -39,5 +31,4 @@ void Defer::process()
             task();
         }
     }
-    GatedDatabase::getInstance().lock();
 }

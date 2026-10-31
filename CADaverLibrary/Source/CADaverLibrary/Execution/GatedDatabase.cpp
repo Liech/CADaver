@@ -15,12 +15,6 @@ GatedDatabase::GatedDatabase() {}
 
 GatedDatabase::~GatedDatabase() {}
 
-GatedDatabase& GatedDatabase::getInstance()
-{
-    static GatedDatabase instance;
-    return instance;
-}
-
 const Database& GatedDatabase::get() const
 {
     return database;
@@ -36,31 +30,8 @@ const CommandFactory& GatedDatabase::getCommandFactory() const
     return commandFactory;
 }
 
-void GatedDatabase::lock()
+nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istream* inputStream, std::ostream* outputStream)
 {
-    if (locked)
-    {
-        throw std::runtime_error("GatedDatabase: Database is already locked.");
-    }
-    locked = true;
-}
-
-void GatedDatabase::unlock()
-{
-    if (!locked)
-    {
-        throw std::runtime_error("GatedDatabase: Database is already unlocked.");
-    }
-    locked = false;
-}
-
-nlohmann::json GatedDatabase::execute(const nlohmann::json& command, bool recordUndo, std::istream* inputStream, std::ostream* outputStream)
-{
-    if (locked)
-    {
-        throw std::runtime_error("GatedDatabase: Database is locked. Operations must be deferred to onLogic via Defer.");
-    }
-
     if (recursionLock)
     {
         nlohmann::json result = {
@@ -81,11 +52,6 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, bool record
     {
         commandType    = command.at("type").get<std::string>();
         commandVersion = command.at("version").get<int>();
-
-        if (command.contains("recordUndo"))
-        {
-            recordUndo = command.at("recordUndo").get<bool>();
-        }
 
         auto cmd = commandFactory.create(commandType);
         if (!cmd)
@@ -114,7 +80,7 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, bool record
         }
 
         recursionLock         = true;
-        nlohmann::json result = cmd->execute(database, inputStream, outputStream, recordUndo);
+        nlohmann::json result = cmd->execute(database, inputStream, outputStream);
         recursionLock         = false;
         assert(result.at("type").get<std::string>() == cmd->getType());
         log("OUT: " + result.dump(4));
@@ -133,29 +99,6 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, bool record
         log("OUT: " + result.dump(4));
         return result;
     }
-}
-
-std::string GatedDatabase::execute(const std::string& commandString, bool recordUndo, std::istream* inputStream, std::ostream* outputStream)
-{
-    nlohmann::json parsedCommand;
-    try
-    {
-        parsedCommand = nlohmann::json::parse(commandString);
-    }
-    catch (const nlohmann::json::parse_error& e)
-    {
-        nlohmann::json errorResult = {
-            {    "type",                                      "Error" },
-            { "command",                                           "" },
-            { "version",                                            0 },
-            {  "status",                             "JsonParseError" },
-            {   "error", std::string("JSON parse error: ") + e.what() }
-        };
-        return errorResult.dump();
-    }
-
-    nlohmann::json result = execute(parsedCommand, recordUndo, inputStream, outputStream);
-    return result.dump();
 }
 
 void GatedDatabase::log(const std::string& msg)
@@ -178,18 +121,8 @@ void GatedDatabase::cancelAllTasks()
     }
 }
 
-std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& command, bool recordUndo, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
+std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& command, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
 {
-    if (locked)
-    {
-        throw std::runtime_error("GatedDatabase: Database is locked. Operations must be deferred to onLogic via Defer.");
-    }
-
-    if (command.contains("recordUndo"))
-    {
-        recordUndo = command.at("recordUndo").get<bool>();
-    }
-
     std::string commandType = command.value("type", "Unknown");
     auto        cmd         = commandFactory.create(commandType);
     if (!cmd)
@@ -272,7 +205,7 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
 
           try
           {
-              result  = sharedCmd->execute(isolatedDb, inputStream.get(), outputStream.get(), false);
+              result  = sharedCmd->execute(isolatedDb, inputStream.get(), outputStream.get());
               success = (result.value("status", "") == "Success");
           }
           catch (const std::exception& e)
@@ -362,29 +295,4 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
     progressAsset->setFuture(sharedFut);
 
     return callerFuture;
-}
-
-std::future<std::string> GatedDatabase::executeAsync(const std::string& commandString, bool recordUndo, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
-{
-    nlohmann::json parsedCommand;
-    try
-    {
-        parsedCommand = nlohmann::json::parse(commandString);
-    }
-    catch (const nlohmann::json::parse_error& e)
-    {
-        std::promise<std::string> p;
-        nlohmann::json            err = {
-            {    "type",                                      "Error" },
-            { "command",                                           "" },
-            { "version",                                            0 },
-            {  "status",                             "JsonParseError" },
-            {   "error", std::string("JSON parse error: ") + e.what() }
-        };
-        p.set_value(err.dump());
-        return p.get_future();
-    }
-
-    auto fut = executeAsync(parsedCommand, recordUndo, std::move(inputStream), std::move(outputStream));
-    return std::async(std::launch::deferred, [f = std::move(fut)]() mutable { return f.get().dump(); });
 }

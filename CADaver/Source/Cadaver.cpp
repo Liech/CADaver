@@ -81,12 +81,12 @@ void Cadaver::changeResolution(const glm::ivec2& newResolution)
         renderer->setResolution(resolution);
     }
 
-    auto cameraPrefs          = GatedDatabase::getInstance().get().getPreferences().getCameraPreferences().toJson();
+    auto cameraPrefs          = gatedDatabase.get().getPreferences().getCameraPreferences().toJson();
     cameraPrefs["resolution"] = { resolution.x, resolution.y };
     Defer::getInstance().defer(
-      [cameraPrefs]()
+      [this, cameraPrefs]()
       {
-          GatedDatabase::getInstance().execute({
+          gatedDatabase.execute({
             {        "type", "UpdateCameraPreferences" },
             {     "version",                         1 },
             { "preferences",               cameraPrefs }
@@ -113,7 +113,7 @@ void Cadaver::onLogic(double delta)
         viewController->tick(delta);
     }
 
-    const auto& project = GatedDatabase::getInstance().get().getProject();
+    const auto& project = gatedDatabase.get().getProject();
     if (lastAssetCount != project.getAssetCount())
     {
         lastAssetCount = project.getAssetCount();
@@ -167,16 +167,16 @@ void Cadaver::prepare()
 {
     registerCommands();
 
-    renderer = std::make_unique<Renderer>(device, *window, resolution, GatedDatabase::getInstance());
+    renderer = std::make_unique<Renderer>(device, *window, resolution, gatedDatabase);
 
-    const auto& preferences = GatedDatabase::getInstance().get().getPreferences();
+    const auto& preferences = gatedDatabase.get().getPreferences();
 
     projectWindow = std::make_unique<ProjectWindow>();
     topMenu       = std::make_unique<TopMenu>();
     if (topMenu->getPreferencesWindow())
     {
         topMenu->getPreferencesWindow()->getUIPreferencesView().apply(preferences.getUIPreferences());
-        topMenu->getPreferencesWindow()->load();
+        topMenu->getPreferencesWindow()->load(gatedDatabase);
     }
 
     viewController = std::make_unique<ViewController>();
@@ -185,7 +185,7 @@ void Cadaver::prepare()
 
 void Cadaver::registerCommands()
 {
-    auto& factory = GatedDatabase::getInstance().getCommandFactory();
+    auto& factory = gatedDatabase.getCommandFactory();
     factory.registerCommand("RemoveAsset", []() { return std::make_unique<RemoveAssetCommand>(); });
     factory.registerCommand("ClearProject", []() { return std::make_unique<ClearProjectCommand>(); });
     factory.registerCommand("ConvertCadToStl", []() { return std::make_unique<ConvertCadToStlCommand>(); });
@@ -216,18 +216,18 @@ void Cadaver::renderImGui()
 
     renderer->beginUiFrame();
 
-    const auto& database    = GatedDatabase::getInstance().get();
+    const auto& database    = gatedDatabase.get();
     const auto& project     = database.getProject();
     const auto& preferences = database.getPreferences();
 
     if (topMenu)
     {
-        topMenu->render(quitRequested);
+        topMenu->render(gatedDatabase, quitRequested);
 
         auto* prefWin = topMenu->getPreferencesWindow();
         if (prefWin && viewController)
         {
-            topMenu->renderWindows(preferences, viewController->getCamera());
+            topMenu->renderWindows(gatedDatabase, viewController->getCamera());
 
             if (prefWin->isResetRequested())
             {
@@ -242,13 +242,13 @@ void Cadaver::renderImGui()
         }
         else
         {
-            topMenu->renderWindows(preferences);
+            topMenu->renderWindows(gatedDatabase);
         }
     }
 
     if (projectWindow)
     {
-        projectWindow->render(project);
+        projectWindow->render(gatedDatabase);
     }
 
     if (viewController)

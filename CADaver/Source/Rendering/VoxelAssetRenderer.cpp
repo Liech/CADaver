@@ -1,9 +1,7 @@
 #include "VoxelAssetRenderer.h"
 
 #include "Database/Asset/VoxelAsset.h"
-#include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/SVOPreferences.h"
-#include "Execution/GatedDatabase.h"
 #include "Rendering/Renderer.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
@@ -41,7 +39,7 @@ void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
         return;
     }
 
-    const auto& svoPrefs = GatedDatabase::getInstance().get().getPreferences().getSVOPreferences();
+    const auto& svoPrefs = renderer.getSVOPreferences();
     lastChunkSize        = svoPrefs.getChunkSize();
     lastVertexCapacity   = svoPrefs.getVertexCapacity();
 
@@ -59,7 +57,7 @@ void VoxelAssetRenderer::render(Renderer& renderer)
         return;
     }
 
-    const auto& svoPrefs = GatedDatabase::getInstance().get().getPreferences().getSVOPreferences();
+    const auto& svoPrefs = renderer.getSVOPreferences();
     if (dirty || asset->getRevision() != lastRevision || !lodMesh || lastChunkSize != svoPrefs.getChunkSize() || lastVertexCapacity != svoPrefs.getVertexCapacity())
     {
         rebuildMesh(renderer);

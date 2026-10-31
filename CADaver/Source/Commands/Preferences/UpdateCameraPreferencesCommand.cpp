@@ -57,16 +57,13 @@ void UpdateCameraPreferencesCommand::setInput(const nlohmann::json& json)
     preferencesData = json.at("preferences");
 }
 
-nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto& cameraPreferences = database.getPreferences().getCameraPreferences();
     auto  prevJson          = cameraPreferences.toJson();
     cameraPreferences.fromJson(preferencesData);
 
-    if (recordUndo)
-    {
-        UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("Camera", prevJson, preferencesData));
-    }
+    UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("Camera", prevJson, preferencesData));
 
     return {
         {    "type",    getType() },

@@ -39,7 +39,7 @@ std::string RedoCommand::getDescription() const
            "}";
 }
 
-nlohmann::json RedoCommand::execute(Database& database, std::istream*, std::ostream*, bool)
+nlohmann::json RedoCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     if (!UndoStack::getInstance().canRedo())
     {

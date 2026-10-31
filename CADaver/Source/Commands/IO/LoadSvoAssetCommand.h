@@ -18,7 +18,7 @@ class LoadSvoAssetCommand : public Command
     virtual std::string getDescription() const override;
 
     virtual void           setInput(const nlohmann::json& json) override;
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
+    virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
 
     const std::string& getName() const;
     void               setName(const std::string& newName);

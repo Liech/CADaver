@@ -228,6 +228,11 @@ Vulcant::VulcantImage& Renderer::getResult() const
     return *colorImage;
 }
 
+const SVOPreferences& Renderer::getSVOPreferences() const
+{
+    return gatedDatabase.get().getPreferences().getSVOPreferences();
+}
+
 void Renderer::recordClearPass()
 {
     if (!colorImage || !depthImage || !normalImage)

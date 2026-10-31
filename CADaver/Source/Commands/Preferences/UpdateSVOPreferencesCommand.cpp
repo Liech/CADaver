@@ -61,16 +61,13 @@ void UpdateSVOPreferencesCommand::setInput(const nlohmann::json& json)
     preferencesData = json.at("preferences");
 }
 
-nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto& svoPreferences = database.getPreferences().getSVOPreferences();
     auto  prevJson       = svoPreferences.toJson();
     svoPreferences.fromJson(preferencesData);
 
-    if (recordUndo)
-    {
-        UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("SVO", prevJson, preferencesData));
-    }
+    UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("SVO", prevJson, preferencesData));
 
     return {
         {    "type",    getType() },

@@ -1,5 +1,6 @@
 #pragma once
 
+class GatedDatabase;
 class PreferencesWindow;
 
 // Renders the main file menu and delegates file open operations to GatedDatabase commands.
@@ -9,10 +10,10 @@ class FileMenu
     FileMenu();
     virtual ~FileMenu();
 
-    void render(PreferencesWindow& preferencesWindow, bool& quitRequested);
+    void render(GatedDatabase& gatedDatabase, PreferencesWindow& preferencesWindow, bool& quitRequested);
 
   private:
-    void openStlFileDialog();
-    void openStepFileDialog();
-    void openSvoFileDialog();
+    void openStlFileDialog(GatedDatabase& gatedDatabase);
+    void openStepFileDialog(GatedDatabase& gatedDatabase);
+    void openSvoFileDialog(GatedDatabase& gatedDatabase);
 };

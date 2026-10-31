@@ -14,5 +14,5 @@ class ClearProjectCommand : public Command
     virtual int         getVersion() const override;
     virtual std::string getDescription() const override;
 
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
+    virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
 };

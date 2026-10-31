@@ -54,14 +54,14 @@ int LandscapeGeneratorWindow::getResolution() const
     return resolution;
 }
 
-void LandscapeGeneratorWindow::startGenerate()
+void LandscapeGeneratorWindow::startGenerate(GatedDatabase& gatedDatabase)
 {
     auto        config = getConfig();
     uint32_t    dim    = static_cast<uint32_t>(resolution);
     std::string name   = assetName;
 
     Defer::getInstance().defer(
-      [config, dim, name]()
+      [&gatedDatabase, config, dim, name]()
       {
           nlohmann::json cmdJson = {
               {            "type",    "GenerateLandscape" },
@@ -80,11 +80,11 @@ void LandscapeGeneratorWindow::startGenerate()
               {   "caveThreshold",   config.caveThreshold },
               {  "solidThreshold",  config.solidThreshold }
           };
-          GatedDatabase::getInstance().executeAsync(cmdJson, true);
+          gatedDatabase.executeAsync(cmdJson);
       });
 }
 
-void LandscapeGeneratorWindow::render()
+void LandscapeGeneratorWindow::render(GatedDatabase& gatedDatabase)
 {
     if (!openState)
     {
@@ -123,7 +123,7 @@ void LandscapeGeneratorWindow::render()
 
         if (ImGui::Button("Generate Landscape", ImVec2(180.0f, 0.0f)))
         {
-            startGenerate();
+            startGenerate(gatedDatabase);
         }
     }
     ImGui::End();

@@ -55,7 +55,7 @@ void RemoveAssetCommand::setInput(const nlohmann::json& json)
     assetGuid = json.value("assetGuid", "");
 }
 
-nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto asset = database.getProject().getAsset(assetGuid);
     if (!asset)
@@ -70,10 +70,7 @@ nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, st
 
     database.getProject().removeAsset(assetGuid);
 
-    if (recordUndo)
-    {
-        UndoStack::getInstance().push(std::make_unique<RemoveAssetUndoRecord>(asset));
-    }
+    UndoStack::getInstance().push(std::make_unique<RemoveAssetUndoRecord>(asset));
 
     return {
         {      "type",            getType() },

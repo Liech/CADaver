@@ -73,7 +73,7 @@ void ConvertStlToSvoCommand::setInput(const nlohmann::json& json)
     deleteOrigin = json.value("deleteOrigin", false);
 }
 
-nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     CADacomb::ProgressBar bar(1, "Converting STL to SVO");
 
@@ -111,17 +111,13 @@ nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*
     if (deleteOrigin)
     {
         database.getProject().removeAsset(assetGuid);
-        if (recordUndo)
-        {
-            UndoStack::getInstance().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, svoAsset));
-        }
+
+        UndoStack::getInstance().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, svoAsset));
     }
     else
     {
-        if (recordUndo)
-        {
-            UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(svoAsset));
-        }
+
+        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(svoAsset));
     }
 
     return createResponse("Success",

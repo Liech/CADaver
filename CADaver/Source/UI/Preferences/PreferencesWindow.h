@@ -13,6 +13,7 @@ namespace Vulcant::Toolkit
     class Camera;
 }
 
+class GatedDatabase;
 class Preferences;
 
 // Renders the preferences dialog window composed of UI, Camera, and Render tabs using ImGui.
@@ -22,9 +23,9 @@ class PreferencesWindow
     PreferencesWindow();
     virtual ~PreferencesWindow();
 
-    void render(const Preferences& preferences, Vulcant::Toolkit::Camera* camera = nullptr);
+    void render(GatedDatabase& gatedDatabase, Vulcant::Toolkit::Camera* camera = nullptr);
 
-    void load(const std::string& filepath = "preferences.json");
+    void load(GatedDatabase& gatedDatabase, const std::string& filepath = "preferences.json");
     void save(const Preferences& preferences, const std::string& filepath = "preferences.json") const;
 
     bool isOpen() const;

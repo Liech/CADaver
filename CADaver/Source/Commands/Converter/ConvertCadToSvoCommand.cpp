@@ -77,7 +77,7 @@ void ConvertCadToSvoCommand::setInput(const nlohmann::json& json)
     deleteOrigin = json.value("deleteOrigin", false);
 }
 
-nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     CADacomb::ProgressBar bar(1, "Converting CAD to SVO");
 
@@ -115,17 +115,13 @@ nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*
     if (deleteOrigin)
     {
         database.getProject().removeAsset(assetGuid);
-        if (recordUndo)
-        {
-            UndoStack::getInstance().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, svoAsset));
-        }
+
+        UndoStack::getInstance().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, svoAsset));
     }
     else
     {
-        if (recordUndo)
-        {
-            UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(svoAsset));
-        }
+
+        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(svoAsset));
     }
 
     return createResponse("Success",

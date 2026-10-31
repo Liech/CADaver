@@ -1,8 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include "CADacomb/Util/GUID.h"
 
 #include <string>
+
+class GatedDatabase;
 
 // Modal dialog for converting a volumetric SVO asset to a blocky triangulation STL asset.
 class SvoToStlConversionModal
@@ -12,10 +14,10 @@ class SvoToStlConversionModal
     virtual ~SvoToStlConversionModal();
 
     void open(const CADacomb::GUID& assetGuid, const std::string& assetName, int maxDepth = 6);
-    void render();
+    void render(GatedDatabase& gatedDatabase);
 
   private:
-    void executeConversion();
+    void executeConversion(GatedDatabase& gatedDatabase);
 
     std::string    targetAssetName;
     CADacomb::GUID targetAssetGuid;

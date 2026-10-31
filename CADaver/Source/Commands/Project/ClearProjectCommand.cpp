@@ -40,13 +40,13 @@ std::string ClearProjectCommand::getDescription() const
            "}";
 }
 
-nlohmann::json ClearProjectCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json ClearProjectCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto assets = database.getProject().getAssets();
 
     database.getProject().clear();
 
-    if (recordUndo && !assets.empty())
+    if (!assets.empty())
     {
         UndoStack::getInstance().push(std::make_unique<ClearProjectUndoRecord>(assets));
     }

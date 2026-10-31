@@ -26,8 +26,9 @@ void ProjectWindow::setWidth(float newWidth)
     width = newWidth;
 }
 
-void ProjectWindow::render(const Project& project)
+void ProjectWindow::render(GatedDatabase& gatedDatabase)
 {
+    const auto&          project  = gatedDatabase.get().getProject();
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
 
@@ -112,7 +113,7 @@ void ProjectWindow::render(const Project& project)
 
                     if (contextMenuFactory)
                     {
-                        contextMenuFactory->render(asset);
+                        contextMenuFactory->render(gatedDatabase, asset);
                     }
 
                     ImGui::TableSetColumnIndex(1);
@@ -124,11 +125,11 @@ void ProjectWindow::render(const Project& project)
 
         if (contextMenuFactory)
         {
-            contextMenuFactory->renderCloseModal();
-            contextMenuFactory->renderConversionModals();
+            contextMenuFactory->renderCloseModal(gatedDatabase);
+            contextMenuFactory->renderConversionModals(gatedDatabase);
         }
 
-        renderClearModal();
+        renderClearModal(gatedDatabase);
         renderErrorModal();
     }
     ImGui::End();
@@ -150,7 +151,7 @@ void ProjectWindow::renderMenuBar(const Project& project)
     }
 }
 
-void ProjectWindow::renderClearModal()
+void ProjectWindow::renderClearModal(GatedDatabase& gatedDatabase)
 {
     if (openClearModal)
     {
@@ -169,14 +170,12 @@ void ProjectWindow::renderClearModal()
         if (ImGui::Button("Yes", ImVec2(120.0f, 0.0f)))
         {
             Defer::getInstance().defer(
-              []()
+              [&gatedDatabase]()
               {
-                  GatedDatabase::getInstance().execute(
-                    {
-                      {    "type", "ClearProject" },
-                      { "version",              1 }
-                  },
-                    true);
+                  gatedDatabase.execute({
+                    {    "type", "ClearProject" },
+                    { "version",              1 }
+                  });
               });
             ImGui::CloseCurrentPopup();
         }

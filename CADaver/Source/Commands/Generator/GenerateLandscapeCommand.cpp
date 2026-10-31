@@ -96,7 +96,7 @@ void GenerateLandscapeCommand::setInput(const nlohmann::json& json)
     config.solidThreshold  = json.value("solidThreshold", 0.0);
 }
 
-nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto svo = CADacomb::SVOLandscapeGenerator::generateSVO<bool>(dimension, config, glm::dvec3(0.0), true, false, 32, CADacomb::MostPrevalentExceptMergeStrategy<bool, false>::instance());
 
@@ -115,10 +115,7 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istrea
 
     database.getProject().addAsset(voxelAsset);
 
-    if (recordUndo)
-    {
-        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(voxelAsset));
-    }
+    UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(voxelAsset));
 
     return createResponse("Success",
                           {
@@ -174,7 +171,7 @@ TEST_CASE("GenerateLandscapeCommand/ExecuteSuccess")
     config.seed = 42;
 
     GenerateLandscapeCommand cmd(config, 16, "TestTerrain");
-    nlohmann::json           result = cmd.execute(database, nullptr, nullptr, true);
+    nlohmann::json           result = cmd.execute(database);
 
     CHECK(result.at("status").get<std::string>() == "Success");
     std::string guidStr = result.at("assetGuid").get<std::string>();
@@ -193,7 +190,7 @@ TEST_CASE("GenerateLandscapeCommand/UndoRedo")
     CADacomb::LandscapeConfig config;
 
     GenerateLandscapeCommand cmd(config, 16, "UndoTerrain");
-    nlohmann::json           result  = cmd.execute(database, nullptr, nullptr, true);
+    nlohmann::json           result  = cmd.execute(database);
     std::string              guidStr = result.at("assetGuid").get<std::string>();
     CADacomb::GUID           guid(guidStr);
 

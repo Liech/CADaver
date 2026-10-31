@@ -10,7 +10,7 @@ EditMenu::EditMenu() {}
 
 EditMenu::~EditMenu() {}
 
-void EditMenu::render()
+void EditMenu::render(GatedDatabase& gatedDatabase)
 {
     const auto& undoStack = UndoStack::getInstance();
 
@@ -18,21 +18,21 @@ void EditMenu::render()
     {
         if (ImGui::MenuItem("Undo", "Ctrl+Z", false, undoStack.canUndo()))
         {
-            triggerUndo();
+            triggerUndo(gatedDatabase);
         }
 
         if (ImGui::MenuItem("Redo", "Ctrl+Y", false, undoStack.canRedo()))
         {
-            triggerRedo();
+            triggerRedo(gatedDatabase);
         }
 
         ImGui::EndMenu();
     }
 
-    handleShortcuts(undoStack);
+    handleShortcuts(gatedDatabase, undoStack);
 }
 
-void EditMenu::handleShortcuts(const UndoStack& undoStack)
+void EditMenu::handleShortcuts(GatedDatabase& gatedDatabase, const UndoStack& undoStack)
 {
     if (!ImGui::GetIO().KeyCtrl || ImGui::GetIO().WantTextInput)
     {
@@ -45,14 +45,14 @@ void EditMenu::handleShortcuts(const UndoStack& undoStack)
         {
             if (undoStack.canRedo())
             {
-                triggerRedo();
+                triggerRedo(gatedDatabase);
             }
         }
         else
         {
             if (undoStack.canUndo())
             {
-                triggerUndo();
+                triggerUndo(gatedDatabase);
             }
         }
     }
@@ -60,29 +60,29 @@ void EditMenu::handleShortcuts(const UndoStack& undoStack)
     {
         if (undoStack.canRedo())
         {
-            triggerRedo();
+            triggerRedo(gatedDatabase);
         }
     }
 }
 
-void EditMenu::triggerUndo()
+void EditMenu::triggerUndo(GatedDatabase& gatedDatabase)
 {
     Defer::getInstance().defer(
-      []()
+      [&gatedDatabase]()
       {
-          GatedDatabase::getInstance().execute({
+          gatedDatabase.execute({
             {    "type", "Undo" },
             { "version",      1 }
           });
       });
 }
 
-void EditMenu::triggerRedo()
+void EditMenu::triggerRedo(GatedDatabase& gatedDatabase)
 {
     Defer::getInstance().defer(
-      []()
+      [&gatedDatabase]()
       {
-          GatedDatabase::getInstance().execute({
+          gatedDatabase.execute({
             {    "type", "Redo" },
             { "version",      1 }
           });

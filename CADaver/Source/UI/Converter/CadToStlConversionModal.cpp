@@ -18,7 +18,7 @@ void CadToStlConversionModal::open(const CADacomb::GUID& assetGuid, const std::s
     shouldOpenPopup = true;
 }
 
-void CadToStlConversionModal::render()
+void CadToStlConversionModal::render(GatedDatabase& gatedDatabase)
 {
     if (shouldOpenPopup)
     {
@@ -44,7 +44,7 @@ void CadToStlConversionModal::render()
 
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {
-            executeConversion();
+            executeConversion(gatedDatabase);
             ImGui::CloseCurrentPopup();
         }
         ImGui::SetItemDefaultFocus();
@@ -57,23 +57,21 @@ void CadToStlConversionModal::render()
     }
 }
 
-void CadToStlConversionModal::executeConversion()
+void CadToStlConversionModal::executeConversion(GatedDatabase& gatedDatabase)
 {
     CADacomb::GUID guid      = targetAssetGuid;
     double         prec      = precision;
     bool           delOrigin = deleteOrigin;
 
     Defer::getInstance().defer(
-      [guid, prec, delOrigin]()
+      [&gatedDatabase, guid, prec, delOrigin]()
       {
-          GatedDatabase::getInstance().executeAsync(
-            {
-              {         "type", "ConvertCadToStl" },
-              {      "version",                 1 },
-              {    "assetGuid",   guid.toString() },
-              {    "precision",              prec },
-              { "deleteOrigin",         delOrigin }
-          },
-            true);
+          gatedDatabase.executeAsync({
+            {         "type", "ConvertCadToStl" },
+            {      "version",                 1 },
+            {    "assetGuid",   guid.toString() },
+            {    "precision",              prec },
+            { "deleteOrigin",         delOrigin }
+          });
       });
 }

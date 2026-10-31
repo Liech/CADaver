@@ -63,7 +63,7 @@ void LoadStepAssetCommand::setInput(const nlohmann::json& json)
     filePath = json.at("filePath").get<std::string>();
 }
 
-nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
+nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     CADacomb::ProgressBar bar(1, "Loading STEP asset");
 
@@ -87,10 +87,7 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, 
 
     database.getProject().addAsset(asset);
 
-    if (recordUndo)
-    {
-        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
-    }
+    UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
 
     return createResponse("Success",
                           {

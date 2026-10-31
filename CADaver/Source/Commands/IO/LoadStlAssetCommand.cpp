@@ -59,7 +59,7 @@ void LoadStlAssetCommand::setInput(const nlohmann::json& json)
     name = json.at("name").get<std::string>();
 }
 
-nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*, bool recordUndo)
+nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*)
 {
     CADacomb::ProgressBar bar(1, "Loading STL asset");
 
@@ -89,10 +89,7 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
     asset->setTriangulation(std::move(triangulation));
     database.getProject().addAsset(asset);
 
-    if (recordUndo)
-    {
-        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
-    }
+    UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
 
     return createResponse("Success",
                           {

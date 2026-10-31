@@ -65,7 +65,7 @@ void SaveStepAssetCommand::setInput(const nlohmann::json& json)
     assetGuid = json.value("assetGuid", "");
 }
 
-nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool)
+nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     CADacomb::ProgressBar bar(1, "Saving STEP asset");
 

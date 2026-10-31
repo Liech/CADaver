@@ -13,5 +13,5 @@ class RedoCommand : public Command
     int         getVersion() const override;
     std::string getDescription() const override;
 
-    nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
+    nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
 };

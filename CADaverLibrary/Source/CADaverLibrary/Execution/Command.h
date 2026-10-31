@@ -24,7 +24,7 @@ class Command
     virtual std::vector<CADacomb::GUID> getRequiredAssets() const;
 
     virtual void           setInput(const nlohmann::json& json);
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) = 0;
+    virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) = 0;
 
   protected:
     nlohmann::json createResponse(const std::string& status, const nlohmann::json& payload = nlohmann::json::object()) const;

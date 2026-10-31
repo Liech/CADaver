@@ -13,7 +13,7 @@ PreferencesWindow::PreferencesWindow() {}
 
 PreferencesWindow::~PreferencesWindow() {}
 
-void PreferencesWindow::load(const std::string& filepath)
+void PreferencesWindow::load(GatedDatabase& gatedDatabase, const std::string& filepath)
 {
     std::ifstream file(filepath);
     if (!file.is_open())
@@ -32,24 +32,24 @@ void PreferencesWindow::load(const std::string& filepath)
         uiPreferencesView.apply(loadedPrefs.getUIPreferences());
 
         Defer::getInstance().defer(
-          [loadedPrefs]()
+          [&gatedDatabase, loadedPrefs]()
           {
-              GatedDatabase::getInstance().execute({
+              gatedDatabase.execute({
                 {        "type",                   "UpdateUIPreferences" },
                 {     "version",                                       1 },
                 { "preferences", loadedPrefs.getUIPreferences().toJson() }
               });
-              GatedDatabase::getInstance().execute({
+              gatedDatabase.execute({
                 {        "type",                   "UpdateCameraPreferences" },
                 {     "version",                                           1 },
                 { "preferences", loadedPrefs.getCameraPreferences().toJson() }
               });
-              GatedDatabase::getInstance().execute({
+              gatedDatabase.execute({
                 {        "type",                   "UpdateRenderPreferences" },
                 {     "version",                                           1 },
                 { "preferences", loadedPrefs.getRenderPreferences().toJson() }
               });
-              GatedDatabase::getInstance().execute({
+              gatedDatabase.execute({
                 {        "type",                   "UpdateSVOPreferences" },
                 {     "version",                                        1 },
                 { "preferences", loadedPrefs.getSVOPreferences().toJson() }
@@ -72,14 +72,14 @@ void PreferencesWindow::save(const Preferences& preferences, const std::string& 
     file << preferences.toJson().dump(4);
 }
 
-void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit::Camera* camera)
+void PreferencesWindow::render(GatedDatabase& gatedDatabase, Vulcant::Toolkit::Camera* camera)
 {
     if (!openState)
     {
         return;
     }
 
-    Preferences workingPreferences = preferences;
+    Preferences workingPreferences = gatedDatabase.get().getPreferences();
 
     ImGui::SetNextWindowSize(ImVec2(480.0f, 420.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Preferences", &openState))
@@ -95,15 +95,13 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                     modified  = true;
                     auto json = workingPreferences.getUIPreferences().toJson();
                     Defer::getInstance().defer(
-                      [json]()
+                      [&gatedDatabase, json]()
                       {
-                          GatedDatabase::getInstance().execute(
-                            {
-                              {        "type", "UpdateUIPreferences" },
-                              {     "version",                     1 },
-                              { "preferences",                  json }
-                          },
-                            true);
+                          gatedDatabase.execute({
+                            {        "type", "UpdateUIPreferences" },
+                            {     "version",                     1 },
+                            { "preferences",                  json }
+                          });
                       });
                 }
                 ImGui::EndTabItem();
@@ -116,15 +114,13 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                     modified  = true;
                     auto json = workingPreferences.getCameraPreferences().toJson();
                     Defer::getInstance().defer(
-                      [json]()
+                      [&gatedDatabase, json]()
                       {
-                          GatedDatabase::getInstance().execute(
-                            {
-                              {        "type", "UpdateCameraPreferences" },
-                              {     "version",                         1 },
-                              { "preferences",                      json }
-                          },
-                            true);
+                          gatedDatabase.execute({
+                            {        "type", "UpdateCameraPreferences" },
+                            {     "version",                         1 },
+                            { "preferences",                      json }
+                          });
                       });
                 }
                 if (workingPreferences.getCameraPreferences().isResetRequested())
@@ -142,15 +138,13 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                     modified  = true;
                     auto json = workingPreferences.getRenderPreferences().toJson();
                     Defer::getInstance().defer(
-                      [json]()
+                      [&gatedDatabase, json]()
                       {
-                          GatedDatabase::getInstance().execute(
-                            {
-                              {        "type", "UpdateRenderPreferences" },
-                              {     "version",                         1 },
-                              { "preferences",                      json }
-                          },
-                            true);
+                          gatedDatabase.execute({
+                            {        "type", "UpdateRenderPreferences" },
+                            {     "version",                         1 },
+                            { "preferences",                      json }
+                          });
                       });
                 }
                 ImGui::EndTabItem();
@@ -163,15 +157,13 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
                     modified  = true;
                     auto json = workingPreferences.getSVOPreferences().toJson();
                     Defer::getInstance().defer(
-                      [json]()
+                      [&gatedDatabase, json]()
                       {
-                          GatedDatabase::getInstance().execute(
-                            {
-                              {        "type", "UpdateSVOPreferences" },
-                              {     "version",                      1 },
-                              { "preferences",                   json }
-                          },
-                            true);
+                          gatedDatabase.execute({
+                            {        "type", "UpdateSVOPreferences" },
+                            {     "version",                      1 },
+                            { "preferences",                   json }
+                          });
                       });
                 }
                 ImGui::EndTabItem();
@@ -180,7 +172,7 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
             if (ImGui::BeginTabItem("Undo"))
             {
                 const auto& undoStack = UndoStack::getInstance();
-                if (undoPreferencesView.render(undoStack))
+                if (undoPreferencesView.render(gatedDatabase, undoStack))
                 {
                     modified = true;
                 }

@@ -14,7 +14,7 @@ TriangulationAssetContextMenu::TriangulationAssetContextMenu() {}
 
 TriangulationAssetContextMenu::~TriangulationAssetContextMenu() {}
 
-void TriangulationAssetContextMenu::render(const Asset& asset)
+void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& asset)
 {
     auto triAsset = dynamic_cast<const TriangulationAsset*>(&asset);
     if (!triAsset)
@@ -24,7 +24,7 @@ void TriangulationAssetContextMenu::render(const Asset& asset)
 
     if (ImGui::MenuItem("Save"))
     {
-        save(*triAsset);
+        save(gatedDatabase, *triAsset);
     }
 
     if (ImGui::BeginMenu("Converter"))
@@ -45,7 +45,7 @@ void TriangulationAssetContextMenu::setStlToSvoModal(StlToSvoConversionModal* mo
     stlToSvoModal = modal;
 }
 
-void TriangulationAssetContextMenu::save(const TriangulationAsset& asset)
+void TriangulationAssetContextMenu::save(GatedDatabase& gatedDatabase, const TriangulationAsset& asset)
 {
     Library::SaveFileDialog dialog;
     dialog.addFilter("STL File", { "stl" });
@@ -68,16 +68,15 @@ void TriangulationAssetContextMenu::save(const TriangulationAsset& asset)
 
         CADacomb::GUID targetGuid = asset.getGuid();
         Defer::getInstance().defer(
-          [targetGuid, savePath]()
+          [&gatedDatabase, targetGuid, savePath]()
           {
               auto fileStream = std::make_shared<std::ofstream>(savePath, std::ios::binary);
-              GatedDatabase::getInstance().executeAsync(
+              gatedDatabase.executeAsync(
                 {
                   {      "type",        "SaveStlAsset" },
                   {   "version",                     1 },
                   { "assetGuid", targetGuid.toString() }
               },
-                false,
                 nullptr,
                 fileStream);
           });

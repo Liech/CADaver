@@ -3,8 +3,9 @@
 #include "AssetContextMenu.h"
 
 class Asset;
-class VoxelAsset;
+class GatedDatabase;
 class SvoToStlConversionModal;
+class VoxelAsset;
 
 // Context menu for voxel assets providing SVO save and conversion operations.
 class VoxelAssetContextMenu : public AssetContextMenu
@@ -13,12 +14,12 @@ class VoxelAssetContextMenu : public AssetContextMenu
     VoxelAssetContextMenu();
     virtual ~VoxelAssetContextMenu();
 
-    void render(const Asset& asset) override;
+    void render(GatedDatabase& gatedDatabase, const Asset& asset) override;
 
     void setSvoToStlModal(SvoToStlConversionModal* modal);
 
   private:
-    void save(const VoxelAsset& asset);
+    void save(GatedDatabase& gatedDatabase, const VoxelAsset& asset);
 
     SvoToStlConversionModal* svoToStlModal = nullptr;
 };

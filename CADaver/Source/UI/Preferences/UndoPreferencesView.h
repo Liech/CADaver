@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <string>
 
+class GatedDatabase;
 class UndoStack;
 
 // Renders the undo/redo history and capacity metrics inside the Preferences dialog.
@@ -12,7 +13,7 @@ class UndoPreferencesView
     UndoPreferencesView();
     virtual ~UndoPreferencesView();
 
-    bool render(const UndoStack& undoStack);
+    bool render(GatedDatabase& gatedDatabase, const UndoStack& undoStack);
 
   private:
     std::string formatByteSize(size_t bytes) const;

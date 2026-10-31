@@ -3,8 +3,9 @@
 #include <memory>
 #include <string>
 
-class Project;
 class AssetContextMenuFactory;
+class GatedDatabase;
+class Project;
 
 // UI window displaying the project assets and providing context operations.
 class ProjectWindow
@@ -13,14 +14,14 @@ class ProjectWindow
     ProjectWindow();
     virtual ~ProjectWindow();
 
-    void render(const Project& project);
+    void render(GatedDatabase& gatedDatabase);
 
     float getWidth() const;
     void  setWidth(float width);
 
   private:
     void renderMenuBar(const Project& project);
-    void renderClearModal();
+    void renderClearModal(GatedDatabase& gatedDatabase);
     void renderErrorModal();
 
     std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;

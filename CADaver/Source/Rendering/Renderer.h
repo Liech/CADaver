@@ -13,6 +13,7 @@
 class Asset;
 class AssetRenderer;
 class GatedDatabase;
+class SVOPreferences;
 
 namespace Vulcant
 {
@@ -46,6 +47,7 @@ class Renderer
     Vulcant::VulcantImage&                        getDepth() const;
     Vulcant::VulcantImage&                        getNormal() const;
     Vulcant::VulcantImage&                        getResult() const;
+    const SVOPreferences&                         getSVOPreferences() const;
 
   private:
     void setSceneData(const Vulcant::Toolkit::SceneData& sceneData);

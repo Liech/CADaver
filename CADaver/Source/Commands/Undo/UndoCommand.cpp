@@ -39,7 +39,7 @@ std::string UndoCommand::getDescription() const
            "}";
 }
 
-nlohmann::json UndoCommand::execute(Database& database, std::istream*, std::ostream*, bool)
+nlohmann::json UndoCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     if (!UndoStack::getInstance().canUndo())
     {

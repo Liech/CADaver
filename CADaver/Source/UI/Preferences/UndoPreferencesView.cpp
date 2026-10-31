@@ -12,7 +12,7 @@ UndoPreferencesView::UndoPreferencesView() {}
 
 UndoPreferencesView::~UndoPreferencesView() {}
 
-bool UndoPreferencesView::render(const UndoStack& undoStack)
+bool UndoPreferencesView::render(GatedDatabase& gatedDatabase, const UndoStack& undoStack)
 {
     bool modified = false;
 
@@ -41,9 +41,9 @@ bool UndoPreferencesView::render(const UndoStack& undoStack)
     if (ImGui::Button("Undo"))
     {
         Defer::getInstance().defer(
-          []()
+          [&gatedDatabase]()
           {
-              GatedDatabase::getInstance().execute({
+              gatedDatabase.execute({
                 {    "type", "Undo" },
                 { "version",      1 }
               });
@@ -57,9 +57,9 @@ bool UndoPreferencesView::render(const UndoStack& undoStack)
     if (ImGui::Button("Redo"))
     {
         Defer::getInstance().defer(
-          []()
+          [&gatedDatabase]()
           {
-              GatedDatabase::getInstance().execute({
+              gatedDatabase.execute({
                 {    "type", "Redo" },
                 { "version",      1 }
               });

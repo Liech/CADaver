@@ -55,7 +55,7 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
     return nullptr;
 }
 
-void AssetContextMenuFactory::render(const std::shared_ptr<const Asset>& asset)
+void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, const std::shared_ptr<const Asset>& asset)
 {
     if (!asset)
     {
@@ -68,7 +68,7 @@ void AssetContextMenuFactory::render(const std::shared_ptr<const Asset>& asset)
         auto menu = create(asset);
         if (menu)
         {
-            menu->render(*asset);
+            menu->render(gatedDatabase, *asset);
         }
 
         ImGui::Separator();
@@ -83,7 +83,7 @@ void AssetContextMenuFactory::render(const std::shared_ptr<const Asset>& asset)
     }
 }
 
-void AssetContextMenuFactory::renderCloseModal()
+void AssetContextMenuFactory::renderCloseModal(GatedDatabase& gatedDatabase)
 {
     if (openCloseModal)
     {
@@ -102,15 +102,13 @@ void AssetContextMenuFactory::renderCloseModal()
         {
             CADacomb::GUID targetGuid = closeTargetGuid;
             Defer::getInstance().defer(
-              [targetGuid]()
+              [&gatedDatabase, targetGuid]()
               {
-                  GatedDatabase::getInstance().execute(
-                    {
-                      {      "type",         "RemoveAsset" },
-                      {   "version",                     1 },
-                      { "assetGuid", targetGuid.toString() }
-                  },
-                    true);
+                  gatedDatabase.execute({
+                    {      "type",         "RemoveAsset" },
+                    {   "version",                     1 },
+                    { "assetGuid", targetGuid.toString() }
+                  });
               });
             ImGui::CloseCurrentPopup();
         }
@@ -124,22 +122,22 @@ void AssetContextMenuFactory::renderCloseModal()
     }
 }
 
-void AssetContextMenuFactory::renderConversionModals()
+void AssetContextMenuFactory::renderConversionModals(GatedDatabase& gatedDatabase)
 {
     if (cadToStlModal)
     {
-        cadToStlModal->render();
+        cadToStlModal->render(gatedDatabase);
     }
     if (cadToSvoModal)
     {
-        cadToSvoModal->render();
+        cadToSvoModal->render(gatedDatabase);
     }
     if (stlToSvoModal)
     {
-        stlToSvoModal->render();
+        stlToSvoModal->render(gatedDatabase);
     }
     if (svoToStlModal)
     {
-        svoToStlModal->render();
+        svoToStlModal->render(gatedDatabase);
     }
 }

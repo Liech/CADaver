@@ -5,6 +5,8 @@
 
 #include <string>
 
+class GatedDatabase;
+
 // Window for configuring and generating volumetric landscapes asynchronously with progress feedback.
 class LandscapeGeneratorWindow
 {
@@ -12,8 +14,8 @@ class LandscapeGeneratorWindow
     LandscapeGeneratorWindow();
     virtual ~LandscapeGeneratorWindow();
 
-    void render();
-    void startGenerate();
+    void render(GatedDatabase& gatedDatabase);
+    void startGenerate(GatedDatabase& gatedDatabase);
 
     void open();
     void close();

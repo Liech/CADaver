@@ -19,7 +19,7 @@ class ConvertStlToSvoCommand : public Command
     virtual std::vector<CADacomb::GUID> getRequiredAssets() const override;
 
     virtual void           setInput(const nlohmann::json& json) override;
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
+    virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
 
     const CADacomb::GUID& getAssetGuid() const;
     void                  setAssetGuid(const CADacomb::GUID& newGuid);

@@ -59,7 +59,7 @@ void LoadSvoAssetCommand::setInput(const nlohmann::json& json)
     name = json.at("name").get<std::string>();
 }
 
-nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*, bool recordUndo)
+nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*)
 {
     CADacomb::ProgressBar bar(1, "Loading SVO asset");
 
@@ -96,10 +96,7 @@ nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* in
     asset->setAABB(bounds);
     database.getProject().addAsset(asset);
 
-    if (recordUndo)
-    {
-        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
-    }
+    UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
 
     return createResponse("Success",
                           {

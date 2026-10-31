@@ -15,7 +15,7 @@ VoxelAssetContextMenu::VoxelAssetContextMenu() {}
 
 VoxelAssetContextMenu::~VoxelAssetContextMenu() {}
 
-void VoxelAssetContextMenu::render(const Asset& asset)
+void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& asset)
 {
     auto voxelAsset = dynamic_cast<const VoxelAsset*>(&asset);
     if (!voxelAsset)
@@ -25,7 +25,7 @@ void VoxelAssetContextMenu::render(const Asset& asset)
 
     if (ImGui::MenuItem("Save"))
     {
-        save(*voxelAsset);
+        save(gatedDatabase, *voxelAsset);
     }
 
     if (ImGui::BeginMenu("Converter"))
@@ -57,7 +57,7 @@ void VoxelAssetContextMenu::setSvoToStlModal(SvoToStlConversionModal* modal)
     svoToStlModal = modal;
 }
 
-void VoxelAssetContextMenu::save(const VoxelAsset& asset)
+void VoxelAssetContextMenu::save(GatedDatabase& gatedDatabase, const VoxelAsset& asset)
 {
     Library::SaveFileDialog dialog;
     dialog.addFilter("SVO File", { "cadacombsvo", "svo" });
@@ -81,16 +81,15 @@ void VoxelAssetContextMenu::save(const VoxelAsset& asset)
 
         CADacomb::GUID targetGuid = asset.getGuid();
         Defer::getInstance().defer(
-          [targetGuid, savePath]()
+          [&gatedDatabase, targetGuid, savePath]()
           {
               auto fileStream = std::make_shared<std::ofstream>(savePath, std::ios::binary);
-              GatedDatabase::getInstance().executeAsync(
+              gatedDatabase.executeAsync(
                 {
                   {      "type",      "SaveVoxelAsset" },
                   {   "version",                     1 },
                   { "assetGuid", targetGuid.toString() }
               },
-                false,
                 nullptr,
                 fileStream);
           });

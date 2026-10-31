@@ -20,16 +20,16 @@ void CommandsWindow::setOpen(bool openState)
 {
     if (openState)
     {
-        loadData();
+        loaded = false;
     }
     open = openState;
 }
 
-void CommandsWindow::loadData()
+void CommandsWindow::loadData(const GatedDatabase& gatedDatabase)
 {
     entries.clear();
 
-    auto commands = GatedDatabase::getInstance().getCommandFactory().getAllCommands();
+    auto commands = gatedDatabase.getCommandFactory().getAllCommands();
 
     for (const auto& command : commands)
     {
@@ -49,7 +49,7 @@ void CommandsWindow::loadData()
     loaded = true;
 }
 
-void CommandsWindow::render()
+void CommandsWindow::render(const GatedDatabase& gatedDatabase)
 {
     if (!open)
     {
@@ -58,7 +58,7 @@ void CommandsWindow::render()
 
     if (!loaded)
     {
-        loadData();
+        loadData(gatedDatabase);
     }
 
     ImGui::SetNextWindowSize(ImVec2(800.0f, 520.0f), ImGuiCond_FirstUseEver);

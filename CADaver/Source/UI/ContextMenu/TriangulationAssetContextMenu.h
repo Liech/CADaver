@@ -3,8 +3,9 @@
 #include "AssetContextMenu.h"
 
 class Asset;
-class TriangulationAsset;
+class GatedDatabase;
 class StlToSvoConversionModal;
+class TriangulationAsset;
 
 // Context menu for triangulation assets providing STL save and conversion operations.
 class TriangulationAssetContextMenu : public AssetContextMenu
@@ -13,12 +14,12 @@ class TriangulationAssetContextMenu : public AssetContextMenu
     TriangulationAssetContextMenu();
     virtual ~TriangulationAssetContextMenu();
 
-    void render(const Asset& asset) override;
+    void render(GatedDatabase& gatedDatabase, const Asset& asset) override;
 
     void setStlToSvoModal(StlToSvoConversionModal* modal);
 
   private:
-    void save(const TriangulationAsset& asset);
+    void save(GatedDatabase& gatedDatabase, const TriangulationAsset& asset);
 
     StlToSvoConversionModal* stlToSvoModal = nullptr;
 };
