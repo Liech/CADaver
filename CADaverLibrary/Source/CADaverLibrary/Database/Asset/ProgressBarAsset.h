@@ -13,15 +13,21 @@
 class ProgressBarAsset : public Asset
 {
   public:
-    ProgressBarAsset(const std::string& name, const CADacomb::GUID& taskGuid, const std::string& operationName, const std::vector<std::shared_ptr<Asset>>& abductedAssets);
+    ProgressBarAsset();
     virtual ~ProgressBarAsset();
 
+    std::string getType() const override;
+
     const CADacomb::GUID& getTaskGuid() const;
-    const std::string&    getOperationName() const;
+    void                  setTaskGuid(const CADacomb::GUID& taskGuid);
+
+    const std::string& getOperationName() const;
+    void               setOperationName(const std::string& operationName);
 
     float getProgress() const;
 
     std::vector<std::shared_ptr<const Asset>> getAbductedAssets() const;
+    void                                      setAbductedAssets(const std::vector<std::shared_ptr<Asset>>& abductedAssets);
 
     std::shared_future<nlohmann::json> getFuture() const;
     void                               setFuture(const std::shared_future<nlohmann::json>& newFuture);
@@ -30,7 +36,7 @@ class ProgressBarAsset : public Asset
 
     void cancel() const;
 
-    virtual size_t getSizeInBytes() const override;
+    size_t getSizeInBytes() const override;
 
   private:
     CADacomb::GUID                      taskGuid;

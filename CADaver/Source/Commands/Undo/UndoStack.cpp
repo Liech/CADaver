@@ -135,7 +135,8 @@ TEST_CASE("UndoStack/PushUndoRedo")
     REQUIRE_FALSE(stack.canUndo());
     REQUIRE_FALSE(stack.canRedo());
 
-    auto asset = std::make_shared<TriangulationAsset>("Test");
+    auto asset = std::make_shared<TriangulationAsset>();
+    asset->setName("Test");
     database.getProject().addAsset(asset);
     stack.push(std::make_unique<AddAssetUndoRecord>(asset));
 
@@ -162,7 +163,8 @@ TEST_CASE("UndoStack/PruneMaxSteps")
 
     for (size_t i = 0; i < 5; i++)
     {
-        auto asset = std::make_shared<TriangulationAsset>("Asset" + std::to_string(i));
+        auto asset = std::make_shared<TriangulationAsset>();
+        asset->setName("Asset" + std::to_string(i));
         stack.push(std::make_unique<AddAssetUndoRecord>(asset, i));
     }
 
@@ -172,7 +174,8 @@ TEST_CASE("UndoStack/PruneMaxSteps")
 TEST_CASE("UndoStack/MemoryCapacityTracking")
 {
     UndoStack stack;
-    auto      asset = std::make_shared<TriangulationAsset>("Asset");
+    auto      asset = std::make_shared<TriangulationAsset>();
+    asset->setName("Asset");
     stack.push(std::make_unique<AddAssetUndoRecord>(asset, 0));
 
     REQUIRE(stack.getTotalMemoryBytes() > 0);

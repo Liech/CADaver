@@ -225,7 +225,11 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
         taskName = command["name"].get<std::string>() + " (" + cmd->getType() + ")";
     }
 
-    auto progressAsset = std::make_shared<ProgressBarAsset>(taskName, taskGuid, cmd->getType(), abductedAssets);
+    auto progressAsset = std::make_shared<ProgressBarAsset>();
+    progressAsset->setName(taskName);
+    progressAsset->setTaskGuid(taskGuid);
+    progressAsset->setOperationName(cmd->getType());
+    progressAsset->setAbductedAssets(abductedAssets);
     database.getProject().addAsset(progressAsset);
 
     {

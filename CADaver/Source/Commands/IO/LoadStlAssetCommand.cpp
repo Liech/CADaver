@@ -78,7 +78,9 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
 
     bar.addProgress(1);
 
-    auto asset = std::make_shared<TriangulationAsset>(name, std::move(triangulation));
+    auto asset = std::make_shared<TriangulationAsset>();
+    asset->setName(name);
+    asset->setTriangulation(std::move(triangulation));
     database.getProject().addAsset(asset);
     database.getProject().setSelectedAssetGuid(asset->getGuid());
 

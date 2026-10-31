@@ -1,17 +1,13 @@
 #include "Database/Asset/TriangulationAsset.h"
 
-TriangulationAsset::TriangulationAsset(const std::string& nameInput)
-  : Asset(nameInput, "Triangulation")
-{
-}
-
-TriangulationAsset::TriangulationAsset(const std::string& nameInput, std::unique_ptr<CADacomb::Triangulation> tri)
-  : Asset(nameInput, "Triangulation")
-  , triangulation(std::move(tri))
-{
-}
+TriangulationAsset::TriangulationAsset() {}
 
 TriangulationAsset::~TriangulationAsset() {}
+
+std::string TriangulationAsset::getType() const
+{
+    return "Triangulation";
+}
 
 const CADacomb::Triangulation* TriangulationAsset::getTriangulation() const
 {
@@ -60,7 +56,9 @@ size_t TriangulationAsset::getSizeInBytes() const
 
 TEST_CASE("TriangulationAsset/getSizeInBytes")
 {
-    TriangulationAsset asset("TestAsset");
+    TriangulationAsset asset;
+    asset.setName("TestAsset");
+    CHECK(asset.getType() == "Triangulation");
     REQUIRE(asset.getSizeInBytes() >= sizeof(TriangulationAsset));
 
     auto tri = std::make_unique<CADacomb::Triangulation>();

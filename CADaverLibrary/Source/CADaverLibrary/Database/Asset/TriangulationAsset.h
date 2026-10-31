@@ -11,9 +11,10 @@
 class TriangulationAsset : public Asset
 {
   public:
-    TriangulationAsset(const std::string& name);
-    TriangulationAsset(const std::string& name, std::unique_ptr<CADacomb::Triangulation> triangulation);
+    TriangulationAsset();
     virtual ~TriangulationAsset();
+
+    std::string getType() const override;
 
     const CADacomb::Triangulation* getTriangulation() const;
     CADacomb::Triangulation*       getTriangulation();

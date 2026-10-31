@@ -90,7 +90,7 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, 
         });
     }
 
-    std::string targetPath = filePath.empty() ? cadAsset->getFilePath() : filePath;
+    std::string targetPath = filePath;
     if (targetPath.empty())
     {
         targetPath = cadAsset->getName() + ".step";

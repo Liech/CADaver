@@ -16,15 +16,10 @@ namespace CADacomb::CAD
 class CadAsset : public Asset
 {
   public:
-    CadAsset(const std::string& name);
-    CadAsset(const std::string& name, const std::string& filePath);
-    CadAsset(const std::string& name, std::shared_ptr<CADacomb::CAD::Shape> cadShape);
+    CadAsset();
     virtual ~CadAsset();
 
-    bool loadFromFile(const std::string& filePath);
-
-    const std::string& getFilePath() const;
-    void               setFilePath(const std::string& path);
+    std::string getType() const override;
 
     const CADacomb::CAD::Shape* getCadShape() const;
     CADacomb::CAD::Shape*       getCadShape();
@@ -42,7 +37,6 @@ class CadAsset : public Asset
   private:
     void triangulateShape();
 
-    std::string                              filePath;
     std::shared_ptr<CADacomb::CAD::Shape>    cadShape;
     std::unique_ptr<CADacomb::Triangulation> triangulation;
     glm::vec3                                meshColor = glm::vec3(0.68f, 0.78f, 0.90f);

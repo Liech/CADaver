@@ -1,5 +1,6 @@
 #include "Commands/IO/LoadStepAssetCommand.h"
 
+#include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Database/Asset/CadAsset.h"
@@ -59,8 +60,13 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, 
 {
     CADacomb::ProgressBar bar(1, "Loading STEP asset");
 
-    auto asset = std::make_shared<CadAsset>(name, filePath);
-    if (!asset || bar.isCanceled())
+    CADacomb::CAD::KernelSm                            kernel;
+    std::vector<std::unique_ptr<CADacomb::CAD::Shape>> shapes;
+    try
+    {
+        shapes = kernel.loadStepFile(filePath);
+    }
+    catch (...)
     {
         return createResponse("LoadFailed",
                               {
@@ -68,6 +74,19 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, 
                                 {      "name", name }
         });
     }
+
+    if (shapes.empty() || !shapes[0] || bar.isCanceled())
+    {
+        return createResponse("LoadFailed",
+                              {
+                                { "assetGuid",   "" },
+                                {      "name", name }
+        });
+    }
+
+    auto asset = std::make_shared<CadAsset>();
+    asset->setName(name);
+    asset->setCadShape(std::move(shapes[0]));
 
     bar.addProgress(1);
 

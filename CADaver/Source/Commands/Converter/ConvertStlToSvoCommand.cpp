@@ -3,9 +3,9 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Commands/Undo/ReplaceAssetUndoRecord.h"
+#include "Conversion/AssetConverter.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Asset/VoxelAsset.h"
-#include "Database/AssetConverter.h"
 #include "Database/Database.h"
 
 ConvertStlToSvoCommand::ConvertStlToSvoCommand() {}

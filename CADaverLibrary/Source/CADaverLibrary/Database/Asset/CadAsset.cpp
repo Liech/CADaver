@@ -4,51 +4,13 @@
 #include "CADacomb/CAD/Interface/TessellationOptions.h"
 #include "CADacomb/CAD/Sm/KernelSm.h"
 
-CadAsset::CadAsset(const std::string& nameInput)
-  : Asset(nameInput, "Cad")
-{
-}
-
-CadAsset::CadAsset(const std::string& nameInput, const std::string& filePathInput)
-  : Asset(nameInput, "Cad")
-{
-    loadFromFile(filePathInput);
-}
-
-CadAsset::CadAsset(const std::string& nameInput, std::shared_ptr<CADacomb::CAD::Shape> cadShapeInput)
-  : Asset(nameInput, "Cad")
-  , cadShape(std::move(cadShapeInput))
-{
-    triangulateShape();
-}
+CadAsset::CadAsset() {}
 
 CadAsset::~CadAsset() {}
 
-bool CadAsset::loadFromFile(const std::string& path)
+std::string CadAsset::getType() const
 {
-    filePath = path;
-
-    CADacomb::CAD::KernelSm kernel;
-    auto                    shapes = kernel.loadStepFile(filePath);
-    if (shapes.empty() || !shapes[0])
-    {
-        return false;
-    }
-
-    cadShape = std::move(shapes[0]);
-    triangulateShape();
-    return true;
-}
-
-const std::string& CadAsset::getFilePath() const
-{
-    return filePath;
-}
-
-void CadAsset::setFilePath(const std::string& path)
-{
-    filePath = path;
-    markModified();
+    return "Cad";
 }
 
 const CADacomb::CAD::Shape* CadAsset::getCadShape() const
@@ -98,7 +60,6 @@ size_t CadAsset::getSizeInBytes() const
 {
     size_t size = sizeof(CadAsset);
     size += getName().capacity();
-    size += filePath.capacity();
 
     if (triangulation)
     {
@@ -136,7 +97,9 @@ void CadAsset::triangulateShape()
 
 TEST_CASE("CadAsset/getSizeInBytes")
 {
-    CadAsset asset("TestCad");
+    CadAsset asset;
+    asset.setName("TestCad");
+    CHECK(asset.getType() == "Cad");
     REQUIRE(asset.getSizeInBytes() >= sizeof(CadAsset));
 }
 #endif

@@ -108,23 +108,8 @@ std::shared_ptr<Asset> Project::getSelectedAsset()
 }
 
 #ifdef ISTESTPROJECT
+#include "Database/Asset/TriangulationAsset.h"
 #include <catch2/catch_test_macros.hpp>
-
-class MockAsset : public Asset
-{
-  public:
-    MockAsset(const std::string& name)
-      : Asset(name, "Triangulation")
-    {
-    }
-
-    virtual ~MockAsset() {}
-
-    size_t getSizeInBytes() const override
-    {
-        return 64;
-    }
-};
 
 TEST_CASE("Project/AddAndGetAssetByGuid")
 {
@@ -132,8 +117,9 @@ TEST_CASE("Project/AddAndGetAssetByGuid")
     CHECK(project.getAssetCount() == 0);
     CHECK(project.getSelectedAsset() == nullptr);
 
-    auto           asset = std::make_shared<MockAsset>("Cube");
-    CADacomb::GUID guid  = asset->getGuid();
+    auto asset = std::make_shared<TriangulationAsset>();
+    asset->setName("Cube");
+    CADacomb::GUID guid = asset->getGuid();
     CHECK_FALSE(guid.toString().empty());
 
     project.addAsset(asset);
@@ -147,8 +133,10 @@ TEST_CASE("Project/AddAndGetAssetByGuid")
 TEST_CASE("Project/RemoveAssetByGuid")
 {
     Project project;
-    auto    asset1 = std::make_shared<MockAsset>("A");
-    auto    asset2 = std::make_shared<MockAsset>("B");
+    auto    asset1 = std::make_shared<TriangulationAsset>();
+    asset1->setName("A");
+    auto asset2 = std::make_shared<TriangulationAsset>();
+    asset2->setName("B");
 
     project.addAsset(asset1);
     project.addAsset(asset2);

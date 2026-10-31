@@ -90,7 +90,10 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istrea
         });
     }
 
-    auto voxelAsset = std::make_shared<VoxelAsset>(assetName, std::move(svo), CADacomb::AABB3(glm::dvec3(0.0), glm::dvec3(static_cast<double>(dimension))));
+    auto voxelAsset = std::make_shared<VoxelAsset>();
+    voxelAsset->setName(assetName);
+    voxelAsset->setSVO(std::move(svo));
+    voxelAsset->setAABB(CADacomb::AABB3(glm::dvec3(0.0), glm::dvec3(static_cast<double>(dimension))));
 
     database.getProject().addAsset(voxelAsset);
     database.getProject().setSelectedAssetGuid(voxelAsset->getGuid());

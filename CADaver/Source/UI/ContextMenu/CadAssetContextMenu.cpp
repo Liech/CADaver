@@ -3,9 +3,9 @@
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/CadAsset.h"
-#include "UI/Dialog/SaveFileDialog.h"
 #include "UI/Converter/CadToStlConversionModal.h"
 #include "UI/Converter/CadToSvoConversionModal.h"
+#include "UI/Dialog/SaveFileDialog.h"
 
 #include <filesystem>
 #include <imgui.h>
@@ -67,21 +67,12 @@ void CadAssetContextMenu::save(const CadAsset& asset)
     Library::SaveFileDialog dialog;
     dialog.addFilter("STEP File", { "step", "stp" });
 
-    if (!asset.getFilePath().empty())
+    std::string defaultName = asset.getName();
+    if (std::filesystem::path(defaultName).extension().empty())
     {
-        std::filesystem::path existingPath(asset.getFilePath());
-        dialog.setDefaultPath(existingPath.parent_path().string());
-        dialog.setSaveFileName(existingPath.filename().string());
+        defaultName += ".step";
     }
-    else
-    {
-        std::string defaultName = asset.getName();
-        if (std::filesystem::path(defaultName).extension().empty())
-        {
-            defaultName += ".step";
-        }
-        dialog.setSaveFileName(defaultName);
-    }
+    dialog.setSaveFileName(defaultName);
 
     dialog.execute();
 

@@ -13,6 +13,12 @@ set(Source_Files
 )
 source_group("Source" FILES ${Source_Files})
 
+set(Conversion_Files
+    "Source/CADaverLibrary/Conversion/AssetConverter.h"
+    "Source/CADaverLibrary/Conversion/AssetConverter.cpp"
+)
+source_group("Source/Conversion" FILES ${Conversion_Files})
+
 set(Database_Preferences_Files
     "Source/CADaverLibrary/Database/Preferences/Preferences.h"
     "Source/CADaverLibrary/Database/Preferences/Preferences.cpp"
@@ -32,8 +38,6 @@ set(Database_Files
     "Source/CADaverLibrary/Database/Project.cpp"
     "Source/CADaverLibrary/Database/Asset.h"
     "Source/CADaverLibrary/Database/Asset.cpp"
-    "Source/CADaverLibrary/Database/AssetConverter.h"
-    "Source/CADaverLibrary/Database/AssetConverter.cpp"
 )
 source_group("Source/Database" FILES ${Database_Files})
 
@@ -51,6 +55,7 @@ source_group("Source/Database/Asset" FILES ${Database_Asset_Files})
 
 set(ALL_FILES
     ${Source_Files}
+    ${Conversion_Files}
     ${Database_Preferences_Files}
     ${Database_Files}
     ${Database_Asset_Files}

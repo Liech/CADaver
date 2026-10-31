@@ -4,24 +4,35 @@
 
 #include <chrono>
 
-ProgressBarAsset::ProgressBarAsset(const std::string& name, const CADacomb::GUID& taskGuid, const std::string& operationName, const std::vector<std::shared_ptr<Asset>>& abductedAssets)
-  : Asset(name, "Progress")
-  , taskGuid(taskGuid)
-  , operationName(operationName)
-  , abductedAssets(abductedAssets)
-{
-}
+ProgressBarAsset::ProgressBarAsset() {}
 
 ProgressBarAsset::~ProgressBarAsset() {}
+
+std::string ProgressBarAsset::getType() const
+{
+    return "Progress";
+}
 
 const CADacomb::GUID& ProgressBarAsset::getTaskGuid() const
 {
     return taskGuid;
 }
 
+void ProgressBarAsset::setTaskGuid(const CADacomb::GUID& newTaskGuid)
+{
+    taskGuid = newTaskGuid;
+    markModified();
+}
+
 const std::string& ProgressBarAsset::getOperationName() const
 {
     return operationName;
+}
+
+void ProgressBarAsset::setOperationName(const std::string& newOperationName)
+{
+    operationName = newOperationName;
+    markModified();
 }
 
 float ProgressBarAsset::getProgress() const
@@ -42,6 +53,12 @@ float ProgressBarAsset::getProgress() const
 std::vector<std::shared_ptr<const Asset>> ProgressBarAsset::getAbductedAssets() const
 {
     return std::vector<std::shared_ptr<const Asset>>(abductedAssets.begin(), abductedAssets.end());
+}
+
+void ProgressBarAsset::setAbductedAssets(const std::vector<std::shared_ptr<Asset>>& newAbductedAssets)
+{
+    abductedAssets = newAbductedAssets;
+    markModified();
 }
 
 std::shared_future<nlohmann::json> ProgressBarAsset::getFuture() const
@@ -88,7 +105,10 @@ size_t ProgressBarAsset::getSizeInBytes() const
 TEST_CASE("ProgressBarAsset/ConstructionAndState")
 {
     CADacomb::GUID   taskGuid = CADacomb::GUID::random();
-    ProgressBarAsset asset("Task", taskGuid, "Convert", {});
+    ProgressBarAsset asset;
+    asset.setName("Task");
+    asset.setTaskGuid(taskGuid);
+    asset.setOperationName("Convert");
 
     CHECK(asset.getName() == "Task");
     CHECK(asset.getTaskGuid() == taskGuid);

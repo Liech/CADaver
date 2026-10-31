@@ -1,8 +1,5 @@
-#include "AssetConverter.h"
+#include "Conversion/AssetConverter.h"
 
-#include "Asset/CadAsset.h"
-#include "Asset/TriangulationAsset.h"
-#include "Asset/VoxelAsset.h"
 #include "CADacomb/CAD/Interface/TessellationOptions.h"
 #include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Triangle/Triangulation.h"
@@ -11,6 +8,9 @@
 #include "CADacomb/Volume/SVO/Blocky/SVOBlockyTriangulation.h"
 #include "CADacomb/Volume/SVO/SVO.h"
 #include "CADacomb/Volume/SVO/SVOVoxelizer.h"
+#include "Database/Asset/CadAsset.h"
+#include "Database/Asset/TriangulationAsset.h"
+#include "Database/Asset/VoxelAsset.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -59,7 +59,10 @@ std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& ass
     }
     std::string newName = baseName + ".stl";
 
-    return std::make_shared<TriangulationAsset>(newName, std::move(newTri));
+    auto resultAsset = std::make_shared<TriangulationAsset>();
+    resultAsset->setName(newName);
+    resultAsset->setTriangulation(std::move(newTri));
+    return resultAsset;
 }
 
 std::shared_ptr<VoxelAsset> AssetConverter::cadToSvo(const CadAsset& asset, double precision, uint32_t dimension)
@@ -114,7 +117,11 @@ std::shared_ptr<VoxelAsset> AssetConverter::stlToSvo(const TriangulationAsset& a
     }
     std::string newName = baseName + ".cadacombsvo";
 
-    return std::make_shared<VoxelAsset>(newName, "", std::move(svo), bounds);
+    auto resultAsset = std::make_shared<VoxelAsset>();
+    resultAsset->setName(newName);
+    resultAsset->setSVO(std::move(svo));
+    resultAsset->setAABB(bounds);
+    return resultAsset;
 }
 
 std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlBlocky(const VoxelAsset& asset, int targetDepth)
@@ -149,5 +156,8 @@ std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlBlocky(const VoxelAs
     }
     std::string newName = baseName + "_blocky.stl";
 
-    return std::make_shared<TriangulationAsset>(newName, std::move(triangulation));
+    auto resultAsset = std::make_shared<TriangulationAsset>();
+    resultAsset->setName(newName);
+    resultAsset->setTriangulation(std::move(triangulation));
+    return resultAsset;
 }

@@ -11,10 +11,10 @@
 class VoxelAsset : public Asset
 {
   public:
-    VoxelAsset(const std::string& name);
-    VoxelAsset(const std::string& name, std::unique_ptr<CADacomb::SVO<bool>> svo, const CADacomb::AABB3& aabb = CADacomb::AABB3());
-    VoxelAsset(const std::string& name, const std::string& filePath, std::unique_ptr<CADacomb::SVO<bool>> svo, const CADacomb::AABB3& aabb = CADacomb::AABB3());
+    VoxelAsset();
     virtual ~VoxelAsset();
+
+    std::string getType() const override;
 
     const CADacomb::SVO<bool>* getSVO() const;
     CADacomb::SVO<bool>*       getSVO();
@@ -23,13 +23,9 @@ class VoxelAsset : public Asset
     const CADacomb::AABB3& getAABB() const;
     void                   setAABB(const CADacomb::AABB3& aabb);
 
-    const std::string& getFilePath() const;
-    void               setFilePath(const std::string& path);
-
     size_t getSizeInBytes() const override;
 
   private:
     std::unique_ptr<CADacomb::SVO<bool>> svo;
     CADacomb::AABB3                      aabb;
-    std::string                          filePath;
 };

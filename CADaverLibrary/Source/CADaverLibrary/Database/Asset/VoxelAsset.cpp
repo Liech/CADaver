@@ -1,26 +1,13 @@
 #include "Database/Asset/VoxelAsset.h"
 
-VoxelAsset::VoxelAsset(const std::string& nameInput)
-  : Asset(nameInput, "Voxel")
-{
-}
-
-VoxelAsset::VoxelAsset(const std::string& nameInput, std::unique_ptr<CADacomb::SVO<bool>> svoInput, const CADacomb::AABB3& aabbInput)
-  : Asset(nameInput, "Voxel")
-  , svo(std::move(svoInput))
-  , aabb(aabbInput)
-{
-}
-
-VoxelAsset::VoxelAsset(const std::string& nameInput, const std::string& filePathInput, std::unique_ptr<CADacomb::SVO<bool>> svoInput, const CADacomb::AABB3& aabbInput)
-  : Asset(nameInput, "Voxel")
-  , svo(std::move(svoInput))
-  , aabb(aabbInput)
-  , filePath(filePathInput)
-{
-}
+VoxelAsset::VoxelAsset() {}
 
 VoxelAsset::~VoxelAsset() {}
+
+std::string VoxelAsset::getType() const
+{
+    return "Voxel";
+}
 
 const CADacomb::SVO<bool>* VoxelAsset::getSVO() const
 {
@@ -49,22 +36,10 @@ void VoxelAsset::setAABB(const CADacomb::AABB3& newAABB)
     markModified();
 }
 
-const std::string& VoxelAsset::getFilePath() const
-{
-    return filePath;
-}
-
-void VoxelAsset::setFilePath(const std::string& path)
-{
-    filePath = path;
-    markModified();
-}
-
 size_t VoxelAsset::getSizeInBytes() const
 {
     size_t size = sizeof(VoxelAsset);
     size += getName().capacity();
-    size += filePath.capacity();
 
     if (svo)
     {
@@ -82,7 +57,9 @@ size_t VoxelAsset::getSizeInBytes() const
 
 TEST_CASE("VoxelAsset/getSizeInBytes")
 {
-    VoxelAsset asset("TestVoxel");
+    VoxelAsset asset;
+    asset.setName("TestVoxel");
+    CHECK(asset.getType() == "Voxel");
     REQUIRE(asset.getSizeInBytes() >= sizeof(VoxelAsset));
 
     auto svo = std::make_unique<CADacomb::SVO<bool>>(16, false);

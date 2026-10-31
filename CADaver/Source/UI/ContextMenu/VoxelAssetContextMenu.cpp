@@ -4,8 +4,8 @@
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/VoxelAsset.h"
-#include "UI/Dialog/SaveFileDialog.h"
 #include "UI/Converter/SvoToStlConversionModal.h"
+#include "UI/Dialog/SaveFileDialog.h"
 
 #include <filesystem>
 #include <fstream>
@@ -70,21 +70,12 @@ void VoxelAssetContextMenu::save(const VoxelAsset& asset)
     Library::SaveFileDialog dialog;
     dialog.addFilter("SVO File", { "cadacombsvo", "svo" });
 
-    if (!asset.getFilePath().empty())
+    std::string defaultName = asset.getName();
+    if (std::filesystem::path(defaultName).extension().empty())
     {
-        std::filesystem::path existingPath(asset.getFilePath());
-        dialog.setDefaultPath(existingPath.parent_path().string());
-        dialog.setSaveFileName(existingPath.filename().string());
+        defaultName += ".cadacombsvo";
     }
-    else
-    {
-        std::string defaultName = asset.getName();
-        if (std::filesystem::path(defaultName).extension().empty())
-        {
-            defaultName += ".cadacombsvo";
-        }
-        dialog.setSaveFileName(defaultName);
-    }
+    dialog.setSaveFileName(defaultName);
 
     dialog.execute();
 
