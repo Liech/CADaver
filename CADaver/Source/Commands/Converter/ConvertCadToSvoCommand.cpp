@@ -5,9 +5,6 @@
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
-#include "Undo/AddAssetUndoRecord.h"
-#include "Undo/ReplaceAssetUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 ConvertCadToSvoCommand::ConvertCadToSvoCommand() {}
 
@@ -111,23 +108,61 @@ nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*
     bar.addProgress(1);
 
     database.getProject().addAsset(svoAsset);
+    createdAsset = svoAsset;
 
     if (deleteOrigin)
     {
+        originAsset = baseAsset;
         database.getProject().removeAsset(assetGuid);
-
-        UndoStack::getInstance().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, svoAsset));
-    }
-    else
-    {
-
-        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(svoAsset));
     }
 
     return createResponse("Success",
                           {
                             { "assetGuid", svoAsset->getGuid().toString() }
     });
+}
+
+bool ConvertCadToSvoCommand::isUndoable() const
+{
+    return createdAsset != nullptr;
+}
+
+void ConvertCadToSvoCommand::undo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().removeAsset(createdAsset->getGuid());
+    }
+    if (deleteOrigin && originAsset)
+    {
+        database.getProject().addAsset(originAsset);
+    }
+}
+
+void ConvertCadToSvoCommand::redo(Database& database)
+{
+    if (deleteOrigin && originAsset)
+    {
+        database.getProject().removeAsset(originAsset->getGuid());
+    }
+    if (createdAsset)
+    {
+        database.getProject().addAsset(createdAsset);
+    }
+}
+
+size_t ConvertCadToSvoCommand::getUndoSize() const
+{
+    size_t size = sizeof(ConvertCadToSvoCommand);
+    if (originAsset)
+    {
+        size += originAsset->getSizeInBytes();
+    }
+    if (createdAsset)
+    {
+        size += createdAsset->getSizeInBytes();
+    }
+    return size;
 }
 
 const CADacomb::GUID& ConvertCadToSvoCommand::getAssetGuid() const

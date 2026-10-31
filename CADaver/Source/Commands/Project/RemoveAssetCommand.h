@@ -3,6 +3,10 @@
 #include "CADacomb/Util/GUID.h"
 #include "Execution/Command.h"
 
+#include <memory>
+
+class Asset;
+
 // Command to remove an asset from the project by GUID.
 class RemoveAssetCommand : public Command
 {
@@ -19,9 +23,15 @@ class RemoveAssetCommand : public Command
     virtual void           setInput(const nlohmann::json& json) override;
     virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
 
+    virtual bool   isUndoable() const override;
+    virtual void   undo(Database& database) override;
+    virtual void   redo(Database& database) override;
+    virtual size_t getUndoSize() const override;
+
     const CADacomb::GUID& getAssetGuid() const;
     void                  setAssetGuid(const CADacomb::GUID& guid);
 
   private:
-    CADacomb::GUID assetGuid;
+    CADacomb::GUID         assetGuid;
+    std::shared_ptr<Asset> removedAsset;
 };

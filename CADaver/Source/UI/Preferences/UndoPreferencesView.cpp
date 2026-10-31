@@ -1,9 +1,8 @@
 #include "UI/Preferences/UndoPreferencesView.h"
 
 #include "Execution/Defer.h"
-#include "Execution/GatedDatabase.h"
-#include "Undo/UndoRecord.h"
-#include "Undo/UndoStack.h"
+#include "Execution/UndoContainer.h"
+#include "Execution/UndoStack.h"
 
 #include <cstdio>
 #include <imgui.h>
@@ -12,7 +11,7 @@ UndoPreferencesView::UndoPreferencesView() {}
 
 UndoPreferencesView::~UndoPreferencesView() {}
 
-bool UndoPreferencesView::render(GatedDatabase& gatedDatabase, const UndoStack& undoStack)
+bool UndoPreferencesView::render(UndoStack& undoStack)
 {
     bool modified = false;
 
@@ -40,14 +39,7 @@ bool UndoPreferencesView::render(GatedDatabase& gatedDatabase, const UndoStack& 
     ImGui::BeginDisabled(!undoStack.canUndo());
     if (ImGui::Button("Undo"))
     {
-        Defer::getInstance().defer(
-          [&gatedDatabase]()
-          {
-              gatedDatabase.execute({
-                {    "type", "Undo" },
-                { "version",      1 }
-              });
-          });
+        Defer::getInstance().defer([&undoStack]() { undoStack.undo(); });
         modified = true;
     }
     ImGui::EndDisabled();
@@ -56,14 +48,7 @@ bool UndoPreferencesView::render(GatedDatabase& gatedDatabase, const UndoStack& 
     ImGui::BeginDisabled(!undoStack.canRedo());
     if (ImGui::Button("Redo"))
     {
-        Defer::getInstance().defer(
-          [&gatedDatabase]()
-          {
-              gatedDatabase.execute({
-                {    "type", "Redo" },
-                { "version",      1 }
-              });
-          });
+        Defer::getInstance().defer([&undoStack]() { undoStack.redo(); });
         modified = true;
     }
     ImGui::EndDisabled();
@@ -89,19 +74,19 @@ bool UndoPreferencesView::render(GatedDatabase& gatedDatabase, const UndoStack& 
 
                 for (size_t i = undoHistory.size(); i > 0; i--)
                 {
-                    size_t      idx    = i - 1;
-                    const auto& record = undoHistory[idx];
-                    if (record)
+                    size_t      idx     = i - 1;
+                    const auto& command = undoHistory[idx];
+                    if (command)
                     {
                         ImGui::TableNextRow();
                         ImGui::TableSetColumnIndex(0);
                         ImGui::Text("%zu", idx + 1);
 
                         ImGui::TableSetColumnIndex(1);
-                        ImGui::TextUnformatted(record->getDescription().c_str());
+                        ImGui::TextUnformatted(command->getType().c_str());
 
                         ImGui::TableSetColumnIndex(2);
-                        std::string sizeStr = formatByteSize(record->getSizeInBytes());
+                        std::string sizeStr = formatByteSize(command->getUndoSize());
                         ImGui::TextUnformatted(sizeStr.c_str());
                     }
                 }
@@ -128,19 +113,19 @@ bool UndoPreferencesView::render(GatedDatabase& gatedDatabase, const UndoStack& 
 
                 for (size_t i = redoHistory.size(); i > 0; i--)
                 {
-                    size_t      idx    = i - 1;
-                    const auto& record = redoHistory[idx];
-                    if (record)
+                    size_t      idx     = i - 1;
+                    const auto& command = redoHistory[idx];
+                    if (command)
                     {
                         ImGui::TableNextRow();
                         ImGui::TableSetColumnIndex(0);
                         ImGui::Text("%zu", idx + 1);
 
                         ImGui::TableSetColumnIndex(1);
-                        ImGui::TextUnformatted(record->getDescription().c_str());
+                        ImGui::TextUnformatted(command->getType().c_str());
 
                         ImGui::TableSetColumnIndex(2);
-                        std::string sizeStr = formatByteSize(record->getSizeInBytes());
+                        std::string sizeStr = formatByteSize(command->getUndoSize());
                         ImGui::TextUnformatted(sizeStr.c_str());
                     }
                 }

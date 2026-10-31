@@ -1,8 +1,7 @@
 #include "Commands/Project/ClearProjectCommand.h"
 
+#include "Database/Asset.h"
 #include "Database/Database.h"
-#include "Undo/ClearProjectUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 ClearProjectCommand::ClearProjectCommand() {}
 
@@ -42,18 +41,46 @@ std::string ClearProjectCommand::getDescription() const
 
 nlohmann::json ClearProjectCommand::execute(Database& database, std::istream*, std::ostream*)
 {
-    auto assets = database.getProject().getAssets();
+    clearedAssets = database.getProject().getAssets();
 
     database.getProject().clear();
-
-    if (!assets.empty())
-    {
-        UndoStack::getInstance().push(std::make_unique<ClearProjectUndoRecord>(assets));
-    }
 
     return {
         {    "type",    getType() },
         { "version", getVersion() },
         {  "status",    "Success" }
     };
+}
+
+bool ClearProjectCommand::isUndoable() const
+{
+    return !clearedAssets.empty();
+}
+
+void ClearProjectCommand::undo(Database& database)
+{
+    auto& project = database.getProject();
+    project.clear();
+    for (const auto& asset : clearedAssets)
+    {
+        project.addAsset(asset);
+    }
+}
+
+void ClearProjectCommand::redo(Database& database)
+{
+    database.getProject().clear();
+}
+
+size_t ClearProjectCommand::getUndoSize() const
+{
+    size_t size = sizeof(ClearProjectCommand);
+    for (const auto& asset : clearedAssets)
+    {
+        if (asset)
+        {
+            size += asset->getSizeInBytes();
+        }
+    }
+    return size;
 }

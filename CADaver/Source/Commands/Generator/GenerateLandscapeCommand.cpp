@@ -4,8 +4,6 @@
 #include "CADacomb/Volume/SVO/Generator/SVOLandscapeGenerator.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
-#include "Undo/AddAssetUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 GenerateLandscapeCommand::GenerateLandscapeCommand() {}
 
@@ -114,13 +112,38 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istrea
     voxelAsset->setAABB(CADacomb::AABB3(glm::dvec3(0.0), glm::dvec3(static_cast<double>(dimension))));
 
     database.getProject().addAsset(voxelAsset);
-
-    UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(voxelAsset));
+    createdAsset = voxelAsset;
 
     return createResponse("Success",
                           {
                             { "assetGuid", voxelAsset->getGuid().toString() }
     });
+}
+
+bool GenerateLandscapeCommand::isUndoable() const
+{
+    return createdAsset != nullptr;
+}
+
+void GenerateLandscapeCommand::undo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().removeAsset(createdAsset->getGuid());
+    }
+}
+
+void GenerateLandscapeCommand::redo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().addAsset(createdAsset);
+    }
+}
+
+size_t GenerateLandscapeCommand::getUndoSize() const
+{
+    return sizeof(GenerateLandscapeCommand) + (createdAsset ? createdAsset->getSizeInBytes() : 0);
 }
 
 const CADacomb::LandscapeConfig& GenerateLandscapeCommand::getConfig() const
@@ -181,7 +204,7 @@ TEST_CASE("GenerateLandscapeCommand/ExecuteSuccess")
     auto           asset = database.getProject().getAsset(guid);
     REQUIRE(asset != nullptr);
     CHECK(asset->getName() == "TestTerrain");
-    CHECK(UndoStack::getInstance().canUndo());
+    CHECK(cmd.isUndoable());
 }
 
 TEST_CASE("GenerateLandscapeCommand/UndoRedo")
@@ -196,10 +219,10 @@ TEST_CASE("GenerateLandscapeCommand/UndoRedo")
 
     REQUIRE(database.getProject().hasAsset(guid));
 
-    UndoStack::getInstance().undo(database);
+    cmd.undo(database);
     CHECK_FALSE(database.getProject().hasAsset(guid));
 
-    UndoStack::getInstance().redo(database);
+    cmd.redo(database);
     CHECK(database.getProject().hasAsset(guid));
 }
 #endif

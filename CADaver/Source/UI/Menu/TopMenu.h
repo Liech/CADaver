@@ -16,6 +16,7 @@ class CommandsWindow;
 class GatedDatabase;
 class LandscapeGeneratorWindow;
 class PreferencesWindow;
+class UndoStack;
 
 // Coordinates the main top menu bar by hosting File, Edit, Create, and Help menus and their dialog windows.
 class TopMenu
@@ -24,8 +25,8 @@ class TopMenu
     TopMenu();
     virtual ~TopMenu();
 
-    void render(GatedDatabase& gatedDatabase, bool& quitRequested);
-    void renderWindows(GatedDatabase& gatedDatabase, Vulcant::Toolkit::Camera* camera = nullptr);
+    void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& quitRequested);
+    void renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera = nullptr);
 
     PreferencesWindow*        getPreferencesWindow() const;
     AboutWindow*              getAboutWindow() const;

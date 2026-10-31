@@ -27,8 +27,6 @@
 #include "UI/Menu/TopMenu.h"
 #include "UI/Preferences/PreferencesWindow.h"
 #include "UI/Project/ProjectWindow.h"
-#include "Undo/RedoCommand.h"
-#include "Undo/UndoCommand.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantInput.h"
 #include "Vulcant/Interface/VulcantInputValue.h"
@@ -57,6 +55,7 @@ void Cadaver::run()
 
 Cadaver::Cadaver(Vulcant::VulcantDevice& deviceInput, const glm::ivec2& res)
   : device(deviceInput)
+  , undoStack(gatedDatabase)
   , resolution(res)
 {
     window = device.createWindow(resolution, "CADaver");
@@ -199,8 +198,6 @@ void Cadaver::registerCommands()
     factory.registerCommand("SaveStepAsset", []() { return std::make_unique<SaveStepAssetCommand>(); });
     factory.registerCommand("LoadSvoAsset", []() { return std::make_unique<LoadSvoAssetCommand>(); });
     factory.registerCommand("SaveVoxelAsset", []() { return std::make_unique<SaveVoxelAssetCommand>(); });
-    factory.registerCommand("Undo", []() { return std::make_unique<UndoCommand>(); });
-    factory.registerCommand("Redo", []() { return std::make_unique<RedoCommand>(); });
     factory.registerCommand("UpdateCameraPreferences", []() { return std::make_unique<UpdateCameraPreferencesCommand>(); });
     factory.registerCommand("UpdateUIPreferences", []() { return std::make_unique<UpdateUIPreferencesCommand>(); });
     factory.registerCommand("UpdateRenderPreferences", []() { return std::make_unique<UpdateRenderPreferencesCommand>(); });
@@ -222,12 +219,12 @@ void Cadaver::renderImGui()
 
     if (topMenu)
     {
-        topMenu->render(gatedDatabase, quitRequested);
+        topMenu->render(gatedDatabase, undoStack, quitRequested);
 
         auto* prefWin = topMenu->getPreferencesWindow();
         if (prefWin && viewController)
         {
-            topMenu->renderWindows(gatedDatabase, viewController->getCamera());
+            topMenu->renderWindows(gatedDatabase, undoStack, viewController->getCamera());
 
             if (prefWin->isResetRequested())
             {
@@ -242,7 +239,7 @@ void Cadaver::renderImGui()
         }
         else
         {
-            topMenu->renderWindows(gatedDatabase);
+            topMenu->renderWindows(gatedDatabase, undoStack);
         }
     }
 

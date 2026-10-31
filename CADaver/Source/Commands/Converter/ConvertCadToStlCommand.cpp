@@ -5,9 +5,6 @@
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
-#include "Undo/AddAssetUndoRecord.h"
-#include "Undo/ReplaceAssetUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 ConvertCadToStlCommand::ConvertCadToStlCommand() {}
 
@@ -107,23 +104,61 @@ nlohmann::json ConvertCadToStlCommand::execute(Database& database, std::istream*
     bar.addProgress(1);
 
     database.getProject().addAsset(stlAsset);
+    createdAsset = stlAsset;
 
     if (deleteOrigin)
     {
+        originAsset = baseAsset;
         database.getProject().removeAsset(assetGuid);
-
-        UndoStack::getInstance().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, stlAsset));
-    }
-    else
-    {
-
-        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(stlAsset));
     }
 
     return createResponse("Success",
                           {
                             { "assetGuid", stlAsset->getGuid().toString() }
     });
+}
+
+bool ConvertCadToStlCommand::isUndoable() const
+{
+    return createdAsset != nullptr;
+}
+
+void ConvertCadToStlCommand::undo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().removeAsset(createdAsset->getGuid());
+    }
+    if (deleteOrigin && originAsset)
+    {
+        database.getProject().addAsset(originAsset);
+    }
+}
+
+void ConvertCadToStlCommand::redo(Database& database)
+{
+    if (deleteOrigin && originAsset)
+    {
+        database.getProject().removeAsset(originAsset->getGuid());
+    }
+    if (createdAsset)
+    {
+        database.getProject().addAsset(createdAsset);
+    }
+}
+
+size_t ConvertCadToStlCommand::getUndoSize() const
+{
+    size_t size = sizeof(ConvertCadToStlCommand);
+    if (originAsset)
+    {
+        size += originAsset->getSizeInBytes();
+    }
+    if (createdAsset)
+    {
+        size += createdAsset->getSizeInBytes();
+    }
+    return size;
 }
 
 const CADacomb::GUID& ConvertCadToStlCommand::getAssetGuid() const

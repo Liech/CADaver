@@ -1,8 +1,7 @@
 #include "UI/Menu/EditMenu.h"
 
 #include "Execution/Defer.h"
-#include "Execution/GatedDatabase.h"
-#include "Undo/UndoStack.h"
+#include "Execution/UndoStack.h"
 
 #include <imgui.h>
 
@@ -10,29 +9,27 @@ EditMenu::EditMenu() {}
 
 EditMenu::~EditMenu() {}
 
-void EditMenu::render(GatedDatabase& gatedDatabase)
+void EditMenu::render(UndoStack& undoStack)
 {
-    const auto& undoStack = UndoStack::getInstance();
-
     if (ImGui::BeginMenu("Edit"))
     {
         if (ImGui::MenuItem("Undo", "Ctrl+Z", false, undoStack.canUndo()))
         {
-            triggerUndo(gatedDatabase);
+            triggerUndo(undoStack);
         }
 
         if (ImGui::MenuItem("Redo", "Ctrl+Y", false, undoStack.canRedo()))
         {
-            triggerRedo(gatedDatabase);
+            triggerRedo(undoStack);
         }
 
         ImGui::EndMenu();
     }
 
-    handleShortcuts(gatedDatabase, undoStack);
+    handleShortcuts(undoStack);
 }
 
-void EditMenu::handleShortcuts(GatedDatabase& gatedDatabase, const UndoStack& undoStack)
+void EditMenu::handleShortcuts(UndoStack& undoStack)
 {
     if (!ImGui::GetIO().KeyCtrl || ImGui::GetIO().WantTextInput)
     {
@@ -45,14 +42,14 @@ void EditMenu::handleShortcuts(GatedDatabase& gatedDatabase, const UndoStack& un
         {
             if (undoStack.canRedo())
             {
-                triggerRedo(gatedDatabase);
+                triggerRedo(undoStack);
             }
         }
         else
         {
             if (undoStack.canUndo())
             {
-                triggerUndo(gatedDatabase);
+                triggerUndo(undoStack);
             }
         }
     }
@@ -60,31 +57,17 @@ void EditMenu::handleShortcuts(GatedDatabase& gatedDatabase, const UndoStack& un
     {
         if (undoStack.canRedo())
         {
-            triggerRedo(gatedDatabase);
+            triggerRedo(undoStack);
         }
     }
 }
 
-void EditMenu::triggerUndo(GatedDatabase& gatedDatabase)
+void EditMenu::triggerUndo(UndoStack& undoStack)
 {
-    Defer::getInstance().defer(
-      [&gatedDatabase]()
-      {
-          gatedDatabase.execute({
-            {    "type", "Undo" },
-            { "version",      1 }
-          });
-      });
+    Defer::getInstance().defer([&undoStack]() { undoStack.undo(); });
 }
 
-void EditMenu::triggerRedo(GatedDatabase& gatedDatabase)
+void EditMenu::triggerRedo(UndoStack& undoStack)
 {
-    Defer::getInstance().defer(
-      [&gatedDatabase]()
-      {
-          gatedDatabase.execute({
-            {    "type", "Redo" },
-            { "version",      1 }
-          });
-      });
+    Defer::getInstance().defer([&undoStack]() { undoStack.redo(); });
 }

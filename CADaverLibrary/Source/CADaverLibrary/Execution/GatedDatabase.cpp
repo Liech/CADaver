@@ -4,6 +4,7 @@
 #include "Database/Asset/ProgressBarAsset.h"
 #include "Execution/Command.h"
 #include "Execution/Defer.h"
+#include "Execution/UndoContainer.h"
 
 #include <algorithm>
 #include <cassert>
@@ -28,6 +29,11 @@ CommandFactory& GatedDatabase::getCommandFactory()
 const CommandFactory& GatedDatabase::getCommandFactory() const
 {
     return commandFactory;
+}
+
+void GatedDatabase::setUndoCallback(std::function<void(std::unique_ptr<UndoContainer>)> callback)
+{
+    undoCallback = std::move(callback);
 }
 
 nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istream* inputStream, std::ostream* outputStream)
@@ -69,20 +75,14 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
 
         cmd->setInput(command);
 
-        if (hasActiveTasks() && (commandType == "Undo" || commandType == "Redo"))
-        {
-            cancelAllTasks();
-            while (hasActiveTasks())
-            {
-                Defer::getInstance().process();
-                std::this_thread::yield();
-            }
-        }
-
         recursionLock         = true;
         nlohmann::json result = cmd->execute(database, inputStream, outputStream);
         recursionLock         = false;
         assert(result.at("type").get<std::string>() == cmd->getType());
+        if (undoCallback && result.value("status", "") == "Success" && cmd->isUndoable())
+        {
+            undoCallback(std::make_unique<UndoContainer>(std::move(cmd)));
+        }
         log("OUT: " + result.dump(4));
         return result;
     }
@@ -99,6 +99,42 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
         log("OUT: " + result.dump(4));
         return result;
     }
+}
+
+void GatedDatabase::undo(UndoContainer& container)
+{
+    log("UNDO: " + container.getType());
+    if (hasActiveTasks())
+    {
+        cancelAllTasks();
+        while (hasActiveTasks())
+        {
+            Defer::getInstance().process();
+            std::this_thread::yield();
+        }
+    }
+
+    recursionLock = true;
+    container.undo(database);
+    recursionLock = false;
+}
+
+void GatedDatabase::redo(UndoContainer& container)
+{
+    log("REDO: " + container.getType());
+    if (hasActiveTasks())
+    {
+        cancelAllTasks();
+        while (hasActiveTasks())
+        {
+            Defer::getInstance().process();
+            std::this_thread::yield();
+        }
+    }
+
+    recursionLock = true;
+    container.redo(database);
+    recursionLock = false;
 }
 
 void GatedDatabase::log(const std::string& msg)
@@ -123,6 +159,7 @@ void GatedDatabase::cancelAllTasks()
 
 std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& command, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
 {
+    log("IN: " + command.dump(4));
     std::string commandType = command.value("type", "Unknown");
     auto        cmd         = commandFactory.create(commandType);
     if (!cmd)
@@ -134,6 +171,7 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
             { "status", "UnknownCommand" },
             { "error", "Unknown command type" }
         };
+        log("OUT: " + result.dump(4));
         p.set_value(result);
         return p.get_future();
     }
@@ -187,10 +225,10 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
     auto                        callerPromise = std::make_shared<std::promise<nlohmann::json>>();
     std::future<nlohmann::json> callerFuture  = callerPromise->get_future();
 
-    std::shared_ptr<Command> sharedCmd = std::move(cmd);
+    auto cmdHolder = std::make_shared<std::unique_ptr<Command>>(std::move(cmd));
 
     std::thread worker(
-      [this, taskGuid, progressAsset, abductedAssets, sharedCmd, inputStream, outputStream, promise, callerPromise]()
+      [this, taskGuid, progressAsset, abductedAssets, cmdHolder, inputStream, outputStream, promise, callerPromise]()
       {
           CADacomb::ProgressBar::setThreadGuid(taskGuid);
 
@@ -205,16 +243,16 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
 
           try
           {
-              result  = sharedCmd->execute(isolatedDb, inputStream.get(), outputStream.get());
+              result  = (*cmdHolder)->execute(isolatedDb, inputStream.get(), outputStream.get());
               success = (result.value("status", "") == "Success");
           }
           catch (const std::exception& e)
           {
               result = {
-                  {    "type",    sharedCmd->getType() },
-                  { "version", sharedCmd->getVersion() },
-                  {  "status",             "Exception" },
-                  {   "error",                e.what() }
+                  {    "type",    (*cmdHolder)->getType() },
+                  { "version", (*cmdHolder)->getVersion() },
+                  {  "status",                "Exception" },
+                  {   "error",                   e.what() }
               };
           }
 
@@ -224,50 +262,29 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
               success          = false;
           }
 
-          std::vector<std::shared_ptr<Asset>> newAssets;
+          std::vector<std::shared_ptr<Asset>> resultAssets;
           if (success)
           {
-              for (const auto& asset : isolatedDb.getProject().getAssets())
-              {
-                  bool isOriginal = false;
-                  for (const auto& orig : abductedAssets)
-                  {
-                      if (asset->getGuid() == orig->getGuid())
-                      {
-                          isOriginal = true;
-                          break;
-                      }
-                  }
-                  if (!isOriginal)
-                  {
-                      newAssets.push_back(asset);
-                  }
-              }
+              resultAssets = isolatedDb.getProject().getAssets();
           }
 
           promise->set_value(result);
           callerPromise->set_value(result);
 
           Defer::getInstance().defer(
-            [this, taskGuid, progressAsset, abductedAssets, newAssets, success]()
+            [this, taskGuid, progressAsset, abductedAssets, resultAssets, cmdHolder, result, success]()
             {
                 database.getProject().removeAsset(progressAsset->getGuid());
 
                 if (success)
                 {
-                    if (newAssets.empty())
+                    for (const auto& asset : resultAssets)
                     {
-                        for (const auto& orig : abductedAssets)
-                        {
-                            database.getProject().addAsset(orig);
-                        }
+                        database.getProject().addAsset(asset);
                     }
-                    else
+                    if (undoCallback && *cmdHolder && (*cmdHolder)->isUndoable())
                     {
-                        for (const auto& newAsset : newAssets)
-                        {
-                            database.getProject().addAsset(newAsset);
-                        }
+                        undoCallback(std::make_unique<UndoContainer>(std::move(*cmdHolder)));
                     }
                 }
                 else
@@ -277,6 +294,8 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
                         database.getProject().addAsset(orig);
                     }
                 }
+
+                log("OUT: " + result.dump(4));
 
                 {
                     std::lock_guard<std::mutex> lock(tasksMutex);

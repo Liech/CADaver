@@ -1,8 +1,6 @@
 #include "Commands/Preferences/UpdateRenderPreferencesCommand.h"
 
 #include "Database/Database.h"
-#include "Undo/PreferencesUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 UpdateRenderPreferencesCommand::UpdateRenderPreferencesCommand() {}
 
@@ -57,16 +55,35 @@ void UpdateRenderPreferencesCommand::setInput(const nlohmann::json& json)
 nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto& renderPreferences = database.getPreferences().getRenderPreferences();
-    auto  prevJson          = renderPreferences.toJson();
+    previousPreferences     = renderPreferences;
     renderPreferences.fromJson(preferencesData);
-
-    UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("Render", prevJson, preferencesData));
+    newPreferences = renderPreferences;
 
     return {
         {    "type",    getType() },
         { "version", getVersion() },
         {  "status",    "Success" }
     };
+}
+
+bool UpdateRenderPreferencesCommand::isUndoable() const
+{
+    return true;
+}
+
+void UpdateRenderPreferencesCommand::undo(Database& database)
+{
+    database.getPreferences().getRenderPreferences() = previousPreferences;
+}
+
+void UpdateRenderPreferencesCommand::redo(Database& database)
+{
+    database.getPreferences().getRenderPreferences() = newPreferences;
+}
+
+size_t UpdateRenderPreferencesCommand::getUndoSize() const
+{
+    return sizeof(UpdateRenderPreferencesCommand) + preferencesData.dump().capacity();
 }
 
 const nlohmann::json& UpdateRenderPreferencesCommand::getPreferencesData() const

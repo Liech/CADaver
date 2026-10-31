@@ -20,7 +20,7 @@ TopMenu::TopMenu()
 
 TopMenu::~TopMenu() {}
 
-void TopMenu::render(GatedDatabase& gatedDatabase, bool& quitRequested)
+void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& quitRequested)
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -28,7 +28,7 @@ void TopMenu::render(GatedDatabase& gatedDatabase, bool& quitRequested)
         {
             fileMenu.render(gatedDatabase, *preferencesWindow, quitRequested);
         }
-        editMenu.render(gatedDatabase);
+        editMenu.render(undoStack);
         if (landscapeGeneratorWindow)
         {
             createMenu.render(*landscapeGeneratorWindow);
@@ -57,11 +57,11 @@ void TopMenu::render(GatedDatabase& gatedDatabase, bool& quitRequested)
     }
 }
 
-void TopMenu::renderWindows(GatedDatabase& gatedDatabase, Vulcant::Toolkit::Camera* camera)
+void TopMenu::renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera)
 {
     if (preferencesWindow)
     {
-        preferencesWindow->render(gatedDatabase, camera);
+        preferencesWindow->render(gatedDatabase, undoStack, camera);
     }
     if (aboutWindow)
     {

@@ -1,8 +1,7 @@
 #include "Commands/Project/RemoveAssetCommand.h"
 
+#include "Database/Asset.h"
 #include "Database/Database.h"
-#include "Undo/RemoveAssetUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 RemoveAssetCommand::RemoveAssetCommand() {}
 
@@ -57,8 +56,8 @@ void RemoveAssetCommand::setInput(const nlohmann::json& json)
 
 nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, std::ostream*)
 {
-    auto asset = database.getProject().getAsset(assetGuid);
-    if (!asset)
+    removedAsset = database.getProject().getAsset(assetGuid);
+    if (!removedAsset)
     {
         return {
             {      "type",            getType() },
@@ -70,14 +69,38 @@ nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, st
 
     database.getProject().removeAsset(assetGuid);
 
-    UndoStack::getInstance().push(std::make_unique<RemoveAssetUndoRecord>(asset));
-
     return {
         {      "type",            getType() },
         {   "version",         getVersion() },
         {    "status",            "Success" },
         { "assetGuid", assetGuid.toString() }
     };
+}
+
+bool RemoveAssetCommand::isUndoable() const
+{
+    return removedAsset != nullptr;
+}
+
+void RemoveAssetCommand::undo(Database& database)
+{
+    if (removedAsset)
+    {
+        database.getProject().addAsset(removedAsset);
+    }
+}
+
+void RemoveAssetCommand::redo(Database& database)
+{
+    if (removedAsset)
+    {
+        database.getProject().removeAsset(removedAsset->getGuid());
+    }
+}
+
+size_t RemoveAssetCommand::getUndoSize() const
+{
+    return sizeof(RemoveAssetCommand) + (removedAsset ? removedAsset->getSizeInBytes() : 0);
 }
 
 const CADacomb::GUID& RemoveAssetCommand::getAssetGuid() const

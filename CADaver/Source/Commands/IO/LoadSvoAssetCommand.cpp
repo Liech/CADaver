@@ -4,8 +4,6 @@
 #include "CADacomb/Volume/SVO/SVOFile.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
-#include "Undo/AddAssetUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 LoadSvoAssetCommand::LoadSvoAssetCommand() {}
 
@@ -95,14 +93,39 @@ nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* in
     asset->setSVO(std::move(svo));
     asset->setAABB(bounds);
     database.getProject().addAsset(asset);
-
-    UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
+    createdAsset = asset;
 
     return createResponse("Success",
                           {
                             { "assetGuid", asset->getGuid().toString() },
                             {      "name",                        name }
     });
+}
+
+bool LoadSvoAssetCommand::isUndoable() const
+{
+    return createdAsset != nullptr;
+}
+
+void LoadSvoAssetCommand::undo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().removeAsset(createdAsset->getGuid());
+    }
+}
+
+void LoadSvoAssetCommand::redo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().addAsset(createdAsset);
+    }
+}
+
+size_t LoadSvoAssetCommand::getUndoSize() const
+{
+    return sizeof(LoadSvoAssetCommand) + (createdAsset ? createdAsset->getSizeInBytes() : 0);
 }
 
 const std::string& LoadSvoAssetCommand::getName() const

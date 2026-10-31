@@ -4,8 +4,6 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
-#include "Undo/AddAssetUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 LoadStepAssetCommand::LoadStepAssetCommand() {}
 
@@ -86,14 +84,39 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, 
     bar.addProgress(1);
 
     database.getProject().addAsset(asset);
-
-    UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
+    createdAsset = asset;
 
     return createResponse("Success",
                           {
                             { "assetGuid", asset->getGuid().toString() },
                             {      "name",                        name }
     });
+}
+
+bool LoadStepAssetCommand::isUndoable() const
+{
+    return createdAsset != nullptr;
+}
+
+void LoadStepAssetCommand::undo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().removeAsset(createdAsset->getGuid());
+    }
+}
+
+void LoadStepAssetCommand::redo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().addAsset(createdAsset);
+    }
+}
+
+size_t LoadStepAssetCommand::getUndoSize() const
+{
+    return sizeof(LoadStepAssetCommand) + (createdAsset ? createdAsset->getSizeInBytes() : 0);
 }
 
 const std::string& LoadStepAssetCommand::getName() const

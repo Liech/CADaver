@@ -3,7 +3,7 @@
 #include "Database/Preferences/Preferences.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
-#include "Undo/UndoStack.h"
+#include "Execution/UndoStack.h"
 
 #include <fstream>
 #include <imgui.h>
@@ -72,7 +72,7 @@ void PreferencesWindow::save(const Preferences& preferences, const std::string& 
     file << preferences.toJson().dump(4);
 }
 
-void PreferencesWindow::render(GatedDatabase& gatedDatabase, Vulcant::Toolkit::Camera* camera)
+void PreferencesWindow::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera)
 {
     if (!openState)
     {
@@ -171,8 +171,7 @@ void PreferencesWindow::render(GatedDatabase& gatedDatabase, Vulcant::Toolkit::C
 
             if (ImGui::BeginTabItem("Undo"))
             {
-                const auto& undoStack = UndoStack::getInstance();
-                if (undoPreferencesView.render(gatedDatabase, undoStack))
+                if (undoPreferencesView.render(undoStack))
                 {
                     modified = true;
                 }

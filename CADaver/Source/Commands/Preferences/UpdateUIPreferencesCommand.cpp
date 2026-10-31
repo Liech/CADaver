@@ -1,8 +1,6 @@
 #include "Commands/Preferences/UpdateUIPreferencesCommand.h"
 
 #include "Database/Database.h"
-#include "Undo/PreferencesUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 UpdateUIPreferencesCommand::UpdateUIPreferencesCommand() {}
 
@@ -56,16 +54,35 @@ void UpdateUIPreferencesCommand::setInput(const nlohmann::json& json)
 nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto& uiPreferences = database.getPreferences().getUIPreferences();
-    auto  prevJson      = uiPreferences.toJson();
+    previousPreferences = uiPreferences;
     uiPreferences.fromJson(preferencesData);
-
-    UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("UI", prevJson, preferencesData));
+    newPreferences = uiPreferences;
 
     return {
         {    "type",    getType() },
         { "version", getVersion() },
         {  "status",    "Success" }
     };
+}
+
+bool UpdateUIPreferencesCommand::isUndoable() const
+{
+    return true;
+}
+
+void UpdateUIPreferencesCommand::undo(Database& database)
+{
+    database.getPreferences().getUIPreferences() = previousPreferences;
+}
+
+void UpdateUIPreferencesCommand::redo(Database& database)
+{
+    database.getPreferences().getUIPreferences() = newPreferences;
+}
+
+size_t UpdateUIPreferencesCommand::getUndoSize() const
+{
+    return sizeof(UpdateUIPreferencesCommand) + preferencesData.dump().capacity();
 }
 
 const nlohmann::json& UpdateUIPreferencesCommand::getPreferencesData() const

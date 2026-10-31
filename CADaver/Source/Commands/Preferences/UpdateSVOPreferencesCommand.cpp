@@ -1,8 +1,6 @@
 #include "Commands/Preferences/UpdateSVOPreferencesCommand.h"
 
 #include "Database/Database.h"
-#include "Undo/PreferencesUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 UpdateSVOPreferencesCommand::UpdateSVOPreferencesCommand() {}
 
@@ -64,16 +62,35 @@ void UpdateSVOPreferencesCommand::setInput(const nlohmann::json& json)
 nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
 {
     auto& svoPreferences = database.getPreferences().getSVOPreferences();
-    auto  prevJson       = svoPreferences.toJson();
+    previousPreferences  = svoPreferences;
     svoPreferences.fromJson(preferencesData);
-
-    UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("SVO", prevJson, preferencesData));
+    newPreferences = svoPreferences;
 
     return {
         {    "type",    getType() },
         { "version", getVersion() },
         {  "status",    "Success" }
     };
+}
+
+bool UpdateSVOPreferencesCommand::isUndoable() const
+{
+    return true;
+}
+
+void UpdateSVOPreferencesCommand::undo(Database& database)
+{
+    database.getPreferences().getSVOPreferences() = previousPreferences;
+}
+
+void UpdateSVOPreferencesCommand::redo(Database& database)
+{
+    database.getPreferences().getSVOPreferences() = newPreferences;
+}
+
+size_t UpdateSVOPreferencesCommand::getUndoSize() const
+{
+    return sizeof(UpdateSVOPreferencesCommand) + preferencesData.dump().capacity();
 }
 
 const nlohmann::json& UpdateSVOPreferencesCommand::getPreferencesData() const

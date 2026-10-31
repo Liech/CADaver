@@ -4,8 +4,6 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
-#include "Undo/AddAssetUndoRecord.h"
-#include "Undo/UndoStack.h"
 
 LoadStlAssetCommand::LoadStlAssetCommand() {}
 
@@ -88,14 +86,39 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
     asset->setName(name);
     asset->setTriangulation(std::move(triangulation));
     database.getProject().addAsset(asset);
-
-    UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
+    createdAsset = asset;
 
     return createResponse("Success",
                           {
                             { "assetGuid", asset->getGuid().toString() },
                             {      "name",                        name }
     });
+}
+
+bool LoadStlAssetCommand::isUndoable() const
+{
+    return createdAsset != nullptr;
+}
+
+void LoadStlAssetCommand::undo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().removeAsset(createdAsset->getGuid());
+    }
+}
+
+void LoadStlAssetCommand::redo(Database& database)
+{
+    if (createdAsset)
+    {
+        database.getProject().addAsset(createdAsset);
+    }
+}
+
+size_t LoadStlAssetCommand::getUndoSize() const
+{
+    return sizeof(LoadStlAssetCommand) + (createdAsset ? createdAsset->getSizeInBytes() : 0);
 }
 
 const std::string& LoadStlAssetCommand::getName() const

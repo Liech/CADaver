@@ -1,6 +1,5 @@
 #pragma once
 
-class GatedDatabase;
 class UndoStack;
 
 // Renders the Edit main menu containing Undo and Redo items with shortcuts.
@@ -10,10 +9,10 @@ class EditMenu
     EditMenu();
     virtual ~EditMenu();
 
-    void render(GatedDatabase& gatedDatabase);
+    void render(UndoStack& undoStack);
 
   private:
-    void handleShortcuts(GatedDatabase& gatedDatabase, const UndoStack& undoStack);
-    void triggerUndo(GatedDatabase& gatedDatabase);
-    void triggerRedo(GatedDatabase& gatedDatabase);
+    void handleShortcuts(UndoStack& undoStack);
+    void triggerUndo(UndoStack& undoStack);
+    void triggerRedo(UndoStack& undoStack);
 };

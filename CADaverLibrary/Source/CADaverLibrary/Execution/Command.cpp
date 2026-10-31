@@ -11,6 +11,20 @@ std::vector<CADacomb::GUID> Command::getRequiredAssets() const
 
 void Command::setInput(const nlohmann::json&) {}
 
+bool Command::isUndoable() const
+{
+    return false;
+}
+
+void Command::undo(Database&) {}
+
+void Command::redo(Database&) {}
+
+size_t Command::getUndoSize() const
+{
+    return sizeof(Command);
+}
+
 nlohmann::json Command::createResponse(const std::string& status, const nlohmann::json& payload) const
 {
     nlohmann::json result = {
