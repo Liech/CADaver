@@ -162,6 +162,7 @@ target_link_libraries(CadaverExe
     nlohmann_json::nlohmann_json
     CADacombRender
     CadaverLibrary
+    CadaverUI
     nfd::nfd
     Vulcant::Vulcant
     VulcantToolkit
