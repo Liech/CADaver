@@ -4,20 +4,12 @@
 #include "UI/Menu/EditMenu.h"
 #include "UI/Menu/FileMenu.h"
 
-#include <memory>
-
-namespace Vulcant::Toolkit
-{
-    class Camera;
-}
-
 class Defer;
 class GatedDatabase;
-class PreferencesWindow;
 class UndoStack;
 class Windows;
 
-// Coordinates the main top menu bar by hosting File, Edit, Create, and Help menus and their dialog windows.
+// Coordinates the main top menu bar by hosting File, Edit, Create, and Help menus.
 class TopMenu
 {
   public:
@@ -25,13 +17,9 @@ class TopMenu
     virtual ~TopMenu();
 
     void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Windows& windows, bool& quitRequested);
-    void renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Vulcant::Toolkit::Camera* camera = nullptr);
-
-    PreferencesWindow* getPreferencesWindow() const;
 
   private:
-    FileMenu                           fileMenu;
-    EditMenu                           editMenu;
-    CreateMenu                         createMenu;
-    std::unique_ptr<PreferencesWindow> preferencesWindow;
+    FileMenu   fileMenu;
+    EditMenu   editMenu;
+    CreateMenu createMenu;
 };

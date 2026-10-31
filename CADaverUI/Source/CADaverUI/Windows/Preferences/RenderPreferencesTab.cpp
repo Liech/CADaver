@@ -1,16 +1,26 @@
-#include "RenderPreferencesView.h"
+#include "Windows/Preferences/RenderPreferencesTab.h"
 
+#include "Database/Database.h"
+#include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
+#include "Execution/Defer.h"
+#include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
 
-RenderPreferencesView::RenderPreferencesView() {}
+RenderPreferencesTab::RenderPreferencesTab() {}
 
-RenderPreferencesView::~RenderPreferencesView() {}
+RenderPreferencesTab::~RenderPreferencesTab() {}
 
-bool RenderPreferencesView::render(RenderPreferences& preferences)
+std::string RenderPreferencesTab::getTitle() const
 {
-    bool modified = false;
+    return "Render";
+}
+
+bool RenderPreferencesTab::render(GatedDatabase& database, Defer& defer)
+{
+    RenderPreferences preferences = database.get().getPreferences().getRenderPreferences();
+    bool              modified    = false;
 
     ImGui::Text("Mesh Display");
     ImGui::Separator();
@@ -62,5 +72,29 @@ bool RenderPreferencesView::render(RenderPreferences& preferences)
         modified = true;
     }
 
+    if (modified)
+    {
+        auto json = preferences.toJson();
+        defer.defer(
+          [&database, json]()
+          {
+              database.execute({
+                {        "type", "UpdateRenderPreferences" },
+                {     "version",                         1 },
+                { "preferences",                      json }
+              });
+          });
+    }
+
     return modified;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("RenderPreferencesTab/GetTitle")
+{
+    RenderPreferencesTab tab;
+    CHECK(tab.getTitle() == "Render");
+}
+#endif

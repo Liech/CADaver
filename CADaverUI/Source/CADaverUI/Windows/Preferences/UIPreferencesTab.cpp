@@ -1,14 +1,23 @@
-#include "UIPreferencesView.h"
+#include "Windows/Preferences/UIPreferencesTab.h"
 
+#include "Database/Database.h"
+#include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/UIPreferences.h"
+#include "Execution/Defer.h"
+#include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
 
-UIPreferencesView::UIPreferencesView() {}
+UIPreferencesTab::UIPreferencesTab() {}
 
-UIPreferencesView::~UIPreferencesView() {}
+UIPreferencesTab::~UIPreferencesTab() {}
 
-void UIPreferencesView::apply(const UIPreferences& preferences)
+std::string UIPreferencesTab::getTitle() const
+{
+    return "UI";
+}
+
+void UIPreferencesTab::apply(const UIPreferences& preferences)
 {
     ImGuiIO& io        = ImGui::GetIO();
     io.FontGlobalScale = preferences.getUiScale();
@@ -27,9 +36,10 @@ void UIPreferencesView::apply(const UIPreferences& preferences)
     }
 }
 
-bool UIPreferencesView::render(UIPreferences& preferences)
+bool UIPreferencesTab::render(GatedDatabase& database, Defer& defer)
 {
-    bool modified = false;
+    UIPreferences preferences = database.get().getPreferences().getUIPreferences();
+    bool          modified    = false;
 
     ImGui::Text("Interface Appearance");
     ImGui::Separator();
@@ -80,5 +90,29 @@ bool UIPreferencesView::render(UIPreferences& preferences)
         modified = true;
     }
 
+    if (modified)
+    {
+        auto json = preferences.toJson();
+        defer.defer(
+          [&database, json]()
+          {
+              database.execute({
+                {        "type", "UpdateUIPreferences" },
+                {     "version",                     1 },
+                { "preferences",                  json }
+              });
+          });
+    }
+
     return modified;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("UIPreferencesTab/GetTitle")
+{
+    UIPreferencesTab tab;
+    CHECK(tab.getTitle() == "UI");
+}
+#endif

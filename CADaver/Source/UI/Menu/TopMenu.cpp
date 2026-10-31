@@ -1,18 +1,12 @@
 #include "UI/Menu/TopMenu.h"
 
-#include "Database/Preferences/Preferences.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
-#include "UI/Preferences/PreferencesWindow.h"
-#include "Vulcant/Toolkit/Camera.h"
 #include "Windows/Windows.h"
 
 #include <imgui.h>
 
-TopMenu::TopMenu()
-  : preferencesWindow(std::make_unique<PreferencesWindow>())
-{
-}
+TopMenu::TopMenu() {}
 
 TopMenu::~TopMenu() {}
 
@@ -21,10 +15,7 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& 
     (void)gatedDatabase;
     if (ImGui::BeginMainMenuBar())
     {
-        if (preferencesWindow)
-        {
-            fileMenu.render(windows, *preferencesWindow, quitRequested);
-        }
+        fileMenu.render(windows, quitRequested);
         editMenu.render(undoStack, defer);
         createMenu.render(windows);
 
@@ -49,25 +40,11 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& 
     }
 }
 
-void TopMenu::renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Vulcant::Toolkit::Camera* camera)
-{
-    if (preferencesWindow)
-    {
-        preferencesWindow->render(gatedDatabase, undoStack, defer, camera);
-    }
-}
-
-PreferencesWindow* TopMenu::getPreferencesWindow() const
-{
-    return preferencesWindow.get();
-}
-
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("TopMenu/Construction")
 {
     TopMenu topMenu;
-    CHECK(topMenu.getPreferencesWindow() != nullptr);
 }
 #endif

@@ -1,6 +1,5 @@
 #include "UI/Menu/FileMenu.h"
 
-#include "UI/Preferences/PreferencesWindow.h"
 #include "Windows/Windows.h"
 
 #include <imgui.h>
@@ -9,7 +8,7 @@ FileMenu::FileMenu() {}
 
 FileMenu::~FileMenu() {}
 
-void FileMenu::render(Windows& windows, PreferencesWindow& preferencesWindow, bool& quitRequested)
+void FileMenu::render(Windows& windows, bool& quitRequested)
 {
     if (ImGui::BeginMenu("File"))
     {
@@ -33,7 +32,7 @@ void FileMenu::render(Windows& windows, PreferencesWindow& preferencesWindow, bo
         ImGui::Separator();
         if (ImGui::MenuItem("Preferences..."))
         {
-            preferencesWindow.setOpen(true);
+            windows.open("PreferencesWindow");
         }
 
         ImGui::Separator();

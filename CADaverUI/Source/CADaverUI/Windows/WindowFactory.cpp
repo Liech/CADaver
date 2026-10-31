@@ -14,6 +14,7 @@
 #include "Windows/IO/SaveStepAssetWindow.h"
 #include "Windows/IO/SaveStlAssetWindow.h"
 #include "Windows/IO/SaveVoxelAssetWindow.h"
+#include "Windows/Preferences/PreferencesWindow.h"
 #include "Windows/Project/ClearProjectModal.h"
 #include "Windows/Project/RemoveAssetModal.h"
 #include "Windows/Project/TaskNotificationModal.h"
@@ -84,6 +85,7 @@ void WindowFactory::registerWindows()
     registerWindow("SaveVoxelAssetWindow", []() { return std::make_shared<SaveVoxelAssetWindow>(); });
     registerWindow("ClearProjectModal", []() { return std::make_shared<ClearProjectModal>(); });
     registerWindow("RemoveAssetModal", []() { return std::make_shared<RemoveAssetModal>(); });
+    registerWindow("PreferencesWindow", []() { return std::make_shared<PreferencesWindow>(); });
     registerWindow("TaskNotificationModal", []() { return std::make_shared<TaskNotificationModal>(); });
 }
 
@@ -109,8 +111,9 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("SaveStlAssetWindow") != nullptr);
     CHECK(factory.create("SaveVoxelAssetWindow") != nullptr);
     CHECK(factory.create("ClearProjectModal") != nullptr);
+    CHECK(factory.create("PreferencesWindow") != nullptr);
     CHECK(factory.create("RemoveAssetModal") != nullptr);
     CHECK(factory.create("TaskNotificationModal") != nullptr);
-    CHECK(factory.getAllWindows().size() == 17);
+    CHECK(factory.getAllWindows().size() == 18);
 }
 #endif

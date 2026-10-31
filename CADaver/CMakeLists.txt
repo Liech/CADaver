@@ -18,22 +18,6 @@ set(Source_Files
 )
 source_group("Source" FILES ${Source_Files})
 
-set(UI_Preferences_Files
-    "Source/UI/Preferences/PreferencesWindow.h"
-    "Source/UI/Preferences/PreferencesWindow.cpp"
-    "Source/UI/Preferences/UIPreferencesView.h"
-    "Source/UI/Preferences/UIPreferencesView.cpp"
-    "Source/UI/Preferences/CameraPreferencesView.h"
-    "Source/UI/Preferences/CameraPreferencesView.cpp"
-    "Source/UI/Preferences/RenderPreferencesView.h"
-    "Source/UI/Preferences/RenderPreferencesView.cpp"
-    "Source/UI/Preferences/SVOPreferencesView.h"
-    "Source/UI/Preferences/SVOPreferencesView.cpp"
-    "Source/UI/Preferences/UndoPreferencesView.h"
-    "Source/UI/Preferences/UndoPreferencesView.cpp"
-)
-source_group("Source/UI/Preferences" FILES ${UI_Preferences_Files})
-
 set(Rendering_Files
     "Source/Rendering/Renderer.h"
     "Source/Rendering/Renderer.cpp"
@@ -103,7 +87,6 @@ set(ALL_FILES
     ${Camera_Files}
     ${Rendering_Files}
     ${UI_Menu_Files}
-    ${UI_Preferences_Files}
     ${UI_Component_Files}
     ${UI_ContextMenu_Files}
     ${UI_Project_Files}

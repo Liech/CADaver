@@ -13,7 +13,7 @@ nlohmann::json CameraPreferences::toJson() const
     jsonObject["fov"]                 = fov;
     jsonObject["nearPlane"]           = nearPlane;
     jsonObject["farPlane"]            = farPlane;
-    jsonObject["resolution"]          = { resolution.x, resolution.y };
+    jsonObject["orthographic"]        = orthographic;
     return jsonObject;
 }
 
@@ -26,9 +26,10 @@ void CameraPreferences::fromJson(const nlohmann::json& jsonObject)
     nearPlane           = jsonObject.at("nearPlane").get<float>();
     farPlane            = jsonObject.at("farPlane").get<float>();
 
-    const auto& resArray = jsonObject.at("resolution");
-    resolution.x         = resArray.at(0).get<float>();
-    resolution.y         = resArray.at(1).get<float>();
+    if (jsonObject.contains("orthographic"))
+    {
+        orthographic = jsonObject.at("orthographic").get<bool>();
+    }
 }
 
 int CameraPreferences::getCameraMode() const
@@ -91,29 +92,14 @@ void CameraPreferences::setFarPlane(float farVal)
     farPlane = farVal;
 }
 
-const glm::vec2& CameraPreferences::getResolution() const
+bool CameraPreferences::isOrthographic() const
 {
-    return resolution;
+    return orthographic;
 }
 
-void CameraPreferences::setResolution(const glm::vec2& res)
+void CameraPreferences::setOrthographic(bool orthographicInput)
 {
-    resolution = res;
-}
-
-bool CameraPreferences::isResetRequested() const
-{
-    return resetRequested;
-}
-
-void CameraPreferences::requestReset()
-{
-    resetRequested = true;
-}
-
-void CameraPreferences::clearResetRequested()
-{
-    resetRequested = false;
+    orthographic = orthographicInput;
 }
 
 bool CameraPreferences::hasModeChangeRequest() const
@@ -137,3 +123,29 @@ void CameraPreferences::clearModeChangeRequest()
 {
     modeChangeRequested = false;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("CameraPreferences/Serialization")
+{
+    CameraPreferences prefs;
+    prefs.setCameraMode(1);
+    prefs.setCameraSpeed(12.5f);
+    prefs.setRotationSensitivity(0.01);
+    prefs.setFov(1.2f);
+    prefs.setNearPlane(0.1f);
+    prefs.setFarPlane(1000.0f);
+    prefs.setOrthographic(true);
+
+    nlohmann::json json = prefs.toJson();
+    CHECK(json["orthographic"] == true);
+    CHECK(json["cameraMode"] == 1);
+
+    CameraPreferences loaded;
+    loaded.fromJson(json);
+    CHECK(loaded.isOrthographic() == true);
+    CHECK(loaded.getCameraMode() == 1);
+    CHECK(loaded.getCameraSpeed() == 12.5f);
+}
+#endif

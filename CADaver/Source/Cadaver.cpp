@@ -24,7 +24,6 @@
 #include "Database/Preferences/UIPreferences.h"
 #include "Rendering/Renderer.h"
 #include "UI/Menu/TopMenu.h"
-#include "UI/Preferences/PreferencesWindow.h"
 #include "UI/Project/ProjectWindow.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantInput.h"
@@ -34,6 +33,7 @@
 #include "Vulcant/Toolkit/SceneData.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "Vulcant/Wrapper/Window.h"
+#include "Windows/Preferences/PreferencesWindow.h"
 
 #include <imgui.h>
 
@@ -175,11 +175,9 @@ void Cadaver::prepare()
 
     projectWindow = std::make_unique<ProjectWindow>();
     topMenu       = std::make_unique<TopMenu>();
-    if (topMenu->getPreferencesWindow())
-    {
-        topMenu->getPreferencesWindow()->getUIPreferencesView().apply(preferences.getUIPreferences());
-        topMenu->getPreferencesWindow()->load(gatedDatabase, defer);
-    }
+
+    PreferencesWindow preferencesWindow;
+    preferencesWindow.load(gatedDatabase, defer);
 
     viewController = std::make_unique<ViewController>();
     viewController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
@@ -224,25 +222,17 @@ void Cadaver::renderImGui()
     {
         topMenu->render(gatedDatabase, undoStack, defer, windows, quitRequested);
 
-        auto* prefWin = topMenu->getPreferencesWindow();
-        if (prefWin && viewController)
+        if (viewController)
         {
-            topMenu->renderWindows(gatedDatabase, undoStack, defer, viewController->getCamera());
-
-            if (prefWin->isResetRequested())
-            {
-                viewController->reset(preferences.getCameraPreferences(), project);
-                prefWin->clearResetRequested();
-            }
-
             if (preferences.getCameraPreferences().getCameraMode() != viewController->getMode())
             {
                 viewController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
             }
-        }
-        else
-        {
-            topMenu->renderWindows(gatedDatabase, undoStack, defer);
+
+            if (viewController->getCamera() && viewController->getCamera()->isOrthographic() != preferences.getCameraPreferences().isOrthographic())
+            {
+                viewController->getCamera()->setOrthographic(preferences.getCameraPreferences().isOrthographic());
+            }
         }
     }
 

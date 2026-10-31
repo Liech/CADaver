@@ -48,7 +48,7 @@ void CameraController::setMode(int mode, Vulcant::VulcantWindow& window, const C
     camera->setAspect(aspect);
     camera->setTranslationSensitivity(speed);
     camera->setRotationSensitivity(rotSpeed);
-    camera->setOrthographic(wasOrtho);
+    camera->setOrthographic(camPrefs.isOrthographic());
 }
 
 int CameraController::getMode() const

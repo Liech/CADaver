@@ -81,6 +81,24 @@ set(Windows_IO_Files
 )
 source_group("Source/Windows/IO" FILES ${Windows_IO_Files})
 
+set(Windows_Preferences_Files
+    "Source/CADaverUI/Windows/Preferences/PreferenceTab.h"
+    "Source/CADaverUI/Windows/Preferences/PreferenceTab.cpp"
+    "Source/CADaverUI/Windows/Preferences/PreferenceTabFactory.h"
+    "Source/CADaverUI/Windows/Preferences/PreferenceTabFactory.cpp"
+    "Source/CADaverUI/Windows/Preferences/PreferencesWindow.h"
+    "Source/CADaverUI/Windows/Preferences/PreferencesWindow.cpp"
+    "Source/CADaverUI/Windows/Preferences/UIPreferencesTab.h"
+    "Source/CADaverUI/Windows/Preferences/UIPreferencesTab.cpp"
+    "Source/CADaverUI/Windows/Preferences/CameraPreferencesTab.h"
+    "Source/CADaverUI/Windows/Preferences/CameraPreferencesTab.cpp"
+    "Source/CADaverUI/Windows/Preferences/RenderPreferencesTab.h"
+    "Source/CADaverUI/Windows/Preferences/RenderPreferencesTab.cpp"
+    "Source/CADaverUI/Windows/Preferences/SVOPreferencesTab.h"
+    "Source/CADaverUI/Windows/Preferences/SVOPreferencesTab.cpp"
+)
+source_group("Source/Windows/Preferences" FILES ${Windows_Preferences_Files})
+
 set(Windows_Project_Files
     "Source/CADaverUI/Windows/Project/ClearProjectModal.h"
     "Source/CADaverUI/Windows/Project/ClearProjectModal.cpp"
@@ -99,6 +117,7 @@ set(ALL_FILES
     ${Windows_Conversion_Files}
     ${Windows_Generator_Files}
     ${Windows_IO_Files}
+    ${Windows_Preferences_Files}
     ${Windows_Project_Files}
 )
 
