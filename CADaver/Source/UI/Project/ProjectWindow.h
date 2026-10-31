@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
 
 class AssetContextMenuFactory;
 class GatedDatabase;
@@ -21,13 +20,8 @@ class ProjectWindow
     void  setWidth(float width);
 
   private:
-    void renderMenuBar(const Project& project);
-    void renderClearModal(GatedDatabase& gatedDatabase);
-    void renderErrorModal();
+    void renderMenuBar(const Project& project, WindowContainer& windowContainer);
 
     std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;
-    std::string                              errorMessage;
-    float                                    width          = 300.0f;
-    bool                                     openClearModal = false;
-    bool                                     openErrorModal = false;
+    float                                    width = 300.0f;
 };

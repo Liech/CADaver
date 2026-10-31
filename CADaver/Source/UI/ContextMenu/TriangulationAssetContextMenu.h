@@ -4,7 +4,6 @@
 
 class Asset;
 class GatedDatabase;
-class TriangulationAsset;
 class WindowContainer;
 
 // Context menu for triangulation assets providing STL save and conversion operations.
@@ -15,7 +14,4 @@ class TriangulationAssetContextMenu : public AssetContextMenu
     virtual ~TriangulationAssetContextMenu();
 
     void render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset) override;
-
-  private:
-    void save(GatedDatabase& gatedDatabase, const TriangulationAsset& asset);
 };

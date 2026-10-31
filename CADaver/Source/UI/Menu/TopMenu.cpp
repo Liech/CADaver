@@ -17,11 +17,12 @@ TopMenu::~TopMenu() {}
 
 void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, WindowContainer& windowContainer, bool& quitRequested)
 {
+    (void)gatedDatabase;
     if (ImGui::BeginMainMenuBar())
     {
         if (preferencesWindow)
         {
-            fileMenu.render(gatedDatabase, *preferencesWindow, quitRequested);
+            fileMenu.render(windowContainer, *preferencesWindow, quitRequested);
         }
         editMenu.render(undoStack);
         createMenu.render(windowContainer);

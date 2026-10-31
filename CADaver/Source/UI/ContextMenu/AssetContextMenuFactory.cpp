@@ -3,11 +3,11 @@
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Asset/VoxelAsset.h"
-#include "Execution/Defer.h"
-#include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/CadAssetContextMenu.h"
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 #include "UI/ContextMenu/VoxelAssetContextMenu.h"
+#include "Windows/Project/RemoveAssetModal.h"
+#include "Windows/WindowContainer.h"
 
 #include <imgui.h>
 
@@ -57,50 +57,14 @@ void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, WindowContain
         ImGui::Separator();
         if (ImGui::MenuItem("Close"))
         {
-            closeTargetGuid = asset->getGuid();
-            closeTargetName = asset->getName();
-            openCloseModal  = true;
+            windowContainer.open("RemoveAssetModal");
+            auto modal = std::dynamic_pointer_cast<RemoveAssetModal>(windowContainer.get("RemoveAssetModal"));
+            if (modal)
+            {
+                modal->setTargetAsset(asset->getGuid());
+            }
         }
 
-        ImGui::EndPopup();
-    }
-}
-
-void AssetContextMenuFactory::renderCloseModal(GatedDatabase& gatedDatabase)
-{
-    if (openCloseModal)
-    {
-        ImGui::OpenPopup("Close Asset##Modal");
-        openCloseModal = false;
-    }
-
-    if (ImGui::BeginPopupModal("Close Asset##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-        ImGui::Text("Are you sure you want to close '%s'?", closeTargetName.c_str());
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        if (ImGui::Button("Yes", ImVec2(120.0f, 0.0f)))
-        {
-            CADacomb::GUID targetGuid = closeTargetGuid;
-            Defer::getInstance().defer(
-              [&gatedDatabase, targetGuid]()
-              {
-                  gatedDatabase.execute({
-                    {      "type",         "RemoveAsset" },
-                    {   "version",                     1 },
-                    { "assetGuid", targetGuid.toString() }
-                  });
-              });
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::SetItemDefaultFocus();
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
-        {
-            ImGui::CloseCurrentPopup();
-        }
         ImGui::EndPopup();
     }
 }

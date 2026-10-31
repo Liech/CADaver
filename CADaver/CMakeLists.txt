@@ -98,16 +98,7 @@ set(Camera_Files
 )
 source_group("Source/Camera" FILES ${Camera_Files})
 
-set(UI_Dialog_Files
-    "Source/UI/Dialog/LoadFileDialog.cpp"
-    "Source/UI/Dialog/LoadFileDialog.h"
-    "Source/UI/Dialog/SaveFileDialog.cpp"
-    "Source/UI/Dialog/SaveFileDialog.h"
-)
-source_group("Source/UI/Dialog" FILES ${UI_Dialog_Files})
-
 set(ALL_FILES
-    ${UI_Dialog_Files}
     ${Source_Files}
     ${Camera_Files}
     ${Rendering_Files}

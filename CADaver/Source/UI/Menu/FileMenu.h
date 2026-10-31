@@ -1,19 +1,14 @@
 #pragma once
 
-class GatedDatabase;
 class PreferencesWindow;
+class WindowContainer;
 
-// Renders the main file menu and delegates file open operations to GatedDatabase commands.
+// Renders the main file menu and opens file load and preferences windows.
 class FileMenu
 {
   public:
     FileMenu();
     virtual ~FileMenu();
 
-    void render(GatedDatabase& gatedDatabase, PreferencesWindow& preferencesWindow, bool& quitRequested);
-
-  private:
-    void openStlFileDialog(GatedDatabase& gatedDatabase);
-    void openStepFileDialog(GatedDatabase& gatedDatabase);
-    void openSvoFileDialog(GatedDatabase& gatedDatabase);
+    void render(WindowContainer& windowContainer, PreferencesWindow& preferencesWindow, bool& quitRequested);
 };

@@ -8,6 +8,7 @@ project(CADaverUITest)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(imgui REQUIRED)
+find_package(nfd CONFIG REQUIRED)
 
 set(Source_Files
     "Source/CADaverUI/testMain.cpp"
@@ -21,6 +22,14 @@ set(Component_Files
     "Source/CADaverUI/Component/VoxelResolutionComboBox.cpp"
 )
 source_group("Source/Component" FILES ${Component_Files})
+
+set(Dialog_Files
+    "Source/CADaverUI/Dialog/LoadFileDialog.h"
+    "Source/CADaverUI/Dialog/LoadFileDialog.cpp"
+    "Source/CADaverUI/Dialog/SaveFileDialog.h"
+    "Source/CADaverUI/Dialog/SaveFileDialog.cpp"
+)
+source_group("Source/Dialog" FILES ${Dialog_Files})
 
 set(Windows_Files
     "Source/CADaverUI/Windows/Window.h"
@@ -60,13 +69,42 @@ set(Windows_Generator_Files
 )
 source_group("Source/Windows/Generator" FILES ${Windows_Generator_Files})
 
+set(Windows_IO_Files
+    "Source/CADaverUI/Windows/IO/LoadStepAssetWindow.h"
+    "Source/CADaverUI/Windows/IO/LoadStepAssetWindow.cpp"
+    "Source/CADaverUI/Windows/IO/LoadStlAssetWindow.h"
+    "Source/CADaverUI/Windows/IO/LoadStlAssetWindow.cpp"
+    "Source/CADaverUI/Windows/IO/LoadSvoAssetWindow.h"
+    "Source/CADaverUI/Windows/IO/LoadSvoAssetWindow.cpp"
+    "Source/CADaverUI/Windows/IO/SaveStepAssetWindow.h"
+    "Source/CADaverUI/Windows/IO/SaveStepAssetWindow.cpp"
+    "Source/CADaverUI/Windows/IO/SaveStlAssetWindow.h"
+    "Source/CADaverUI/Windows/IO/SaveStlAssetWindow.cpp"
+    "Source/CADaverUI/Windows/IO/SaveVoxelAssetWindow.h"
+    "Source/CADaverUI/Windows/IO/SaveVoxelAssetWindow.cpp"
+)
+source_group("Source/Windows/IO" FILES ${Windows_IO_Files})
+
+set(Windows_Project_Files
+    "Source/CADaverUI/Windows/Project/ClearProjectModal.h"
+    "Source/CADaverUI/Windows/Project/ClearProjectModal.cpp"
+    "Source/CADaverUI/Windows/Project/RemoveAssetModal.h"
+    "Source/CADaverUI/Windows/Project/RemoveAssetModal.cpp"
+    "Source/CADaverUI/Windows/Project/TaskNotificationModal.h"
+    "Source/CADaverUI/Windows/Project/TaskNotificationModal.cpp"
+)
+source_group("Source/Windows/Project" FILES ${Windows_Project_Files})
+
 set(ALL_FILES
     ${Source_Files}
     ${Component_Files}
+    ${Dialog_Files}
     ${Windows_Files}
     ${Windows_About_Files}
     ${Windows_Conversion_Files}
     ${Windows_Generator_Files}
+    ${Windows_IO_Files}
+    ${Windows_Project_Files}
 )
 
 ############################################################################
@@ -84,6 +122,7 @@ target_link_libraries(CadaverUITest PRIVATE
     glm::glm
     nlohmann_json::nlohmann_json
     imgui::imgui
+    nfd::nfd
 )
 
 target_link_libraries(CadaverUI PUBLIC
@@ -91,6 +130,7 @@ target_link_libraries(CadaverUI PUBLIC
     glm::glm
     nlohmann_json::nlohmann_json
     imgui::imgui
+    nfd::nfd
 )
 
 target_include_directories(CadaverUI PUBLIC

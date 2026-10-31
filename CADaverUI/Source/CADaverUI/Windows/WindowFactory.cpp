@@ -8,6 +8,15 @@
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
 #include "Windows/Generator/LandscapeGeneratorWindow.h"
+#include "Windows/IO/LoadStepAssetWindow.h"
+#include "Windows/IO/LoadStlAssetWindow.h"
+#include "Windows/IO/LoadSvoAssetWindow.h"
+#include "Windows/IO/SaveStepAssetWindow.h"
+#include "Windows/IO/SaveStlAssetWindow.h"
+#include "Windows/IO/SaveVoxelAssetWindow.h"
+#include "Windows/Project/ClearProjectModal.h"
+#include "Windows/Project/RemoveAssetModal.h"
+#include "Windows/Project/TaskNotificationModal.h"
 #include "Windows/Window.h"
 
 #include <algorithm>
@@ -67,6 +76,15 @@ void WindowFactory::registerWindows()
     registerWindow("StlToSvoConversionModal", []() { return std::make_shared<StlToSvoConversionModal>(); });
     registerWindow("SvoToStlConversionModal", []() { return std::make_shared<SvoToStlConversionModal>(); });
     registerWindow("LandscapeGeneratorWindow", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
+    registerWindow("LoadStepAssetWindow", []() { return std::make_shared<LoadStepAssetWindow>(); });
+    registerWindow("LoadStlAssetWindow", []() { return std::make_shared<LoadStlAssetWindow>(); });
+    registerWindow("LoadSvoAssetWindow", []() { return std::make_shared<LoadSvoAssetWindow>(); });
+    registerWindow("SaveStepAssetWindow", []() { return std::make_shared<SaveStepAssetWindow>(); });
+    registerWindow("SaveStlAssetWindow", []() { return std::make_shared<SaveStlAssetWindow>(); });
+    registerWindow("SaveVoxelAssetWindow", []() { return std::make_shared<SaveVoxelAssetWindow>(); });
+    registerWindow("ClearProjectModal", []() { return std::make_shared<ClearProjectModal>(); });
+    registerWindow("RemoveAssetModal", []() { return std::make_shared<RemoveAssetModal>(); });
+    registerWindow("TaskNotificationModal", []() { return std::make_shared<TaskNotificationModal>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -84,6 +102,15 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("StlToSvoConversionModal") != nullptr);
     CHECK(factory.create("SvoToStlConversionModal") != nullptr);
     CHECK(factory.create("LandscapeGeneratorWindow") != nullptr);
-    CHECK(factory.getAllWindows().size() == 8);
+    CHECK(factory.create("LoadStepAssetWindow") != nullptr);
+    CHECK(factory.create("LoadStlAssetWindow") != nullptr);
+    CHECK(factory.create("LoadSvoAssetWindow") != nullptr);
+    CHECK(factory.create("SaveStepAssetWindow") != nullptr);
+    CHECK(factory.create("SaveStlAssetWindow") != nullptr);
+    CHECK(factory.create("SaveVoxelAssetWindow") != nullptr);
+    CHECK(factory.create("ClearProjectModal") != nullptr);
+    CHECK(factory.create("RemoveAssetModal") != nullptr);
+    CHECK(factory.create("TaskNotificationModal") != nullptr);
+    CHECK(factory.getAllWindows().size() == 17);
 }
 #endif

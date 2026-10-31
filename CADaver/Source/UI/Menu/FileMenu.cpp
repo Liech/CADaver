@@ -1,19 +1,15 @@
 #include "UI/Menu/FileMenu.h"
 
-#include "Execution/Defer.h"
-#include "Execution/GatedDatabase.h"
-#include "UI/Dialog/LoadFileDialog.h"
 #include "UI/Preferences/PreferencesWindow.h"
+#include "Windows/WindowContainer.h"
 
-#include <filesystem>
-#include <fstream>
 #include <imgui.h>
 
 FileMenu::FileMenu() {}
 
 FileMenu::~FileMenu() {}
 
-void FileMenu::render(GatedDatabase& gatedDatabase, PreferencesWindow& preferencesWindow, bool& quitRequested)
+void FileMenu::render(WindowContainer& windowContainer, PreferencesWindow& preferencesWindow, bool& quitRequested)
 {
     if (ImGui::BeginMenu("File"))
     {
@@ -21,15 +17,15 @@ void FileMenu::render(GatedDatabase& gatedDatabase, PreferencesWindow& preferenc
         {
             if (ImGui::MenuItem("STL..."))
             {
-                openStlFileDialog(gatedDatabase);
+                windowContainer.open("LoadStlAssetWindow");
             }
             if (ImGui::MenuItem("STEP..."))
             {
-                openStepFileDialog(gatedDatabase);
+                windowContainer.open("LoadStepAssetWindow");
             }
             if (ImGui::MenuItem("SVO..."))
             {
-                openSvoFileDialog(gatedDatabase);
+                windowContainer.open("LoadSvoAssetWindow");
             }
             ImGui::EndMenu();
         }
@@ -47,81 +43,5 @@ void FileMenu::render(GatedDatabase& gatedDatabase, PreferencesWindow& preferenc
         }
 
         ImGui::EndMenu();
-    }
-}
-
-void FileMenu::openStlFileDialog(GatedDatabase& gatedDatabase)
-{
-    Library::LoadFileDialog dialog;
-    dialog.addFilter("STL File", { "stl" });
-    dialog.execute();
-
-    if (!dialog.isCancled() && !dialog.getResultPath().empty())
-    {
-        std::string path     = dialog.getResultPath();
-        std::string fileName = std::filesystem::path(path).filename().string();
-
-        Defer::getInstance().defer(
-          [&gatedDatabase, path, fileName]()
-          {
-              auto fileStream = std::make_shared<std::ifstream>(path, std::ios::binary);
-              gatedDatabase.executeAsync(
-                {
-                  {    "type", "LoadStlAsset" },
-                  { "version",              1 },
-                  {    "name",       fileName }
-              },
-                fileStream);
-          });
-    }
-}
-
-void FileMenu::openStepFileDialog(GatedDatabase& gatedDatabase)
-{
-    Library::LoadFileDialog dialog;
-    dialog.addFilter("STEP File", { "step", "stp" });
-    dialog.execute();
-
-    if (!dialog.isCancled() && !dialog.getResultPath().empty())
-    {
-        std::string path     = dialog.getResultPath();
-        std::string fileName = std::filesystem::path(path).filename().string();
-
-        Defer::getInstance().defer(
-          [&gatedDatabase, path, fileName]()
-          {
-              gatedDatabase.executeAsync({
-                {     "type", "LoadStepAsset" },
-                {  "version",               1 },
-                {     "name",        fileName },
-                { "filePath",            path }
-              });
-          });
-    }
-}
-
-void FileMenu::openSvoFileDialog(GatedDatabase& gatedDatabase)
-{
-    Library::LoadFileDialog dialog;
-    dialog.addFilter("SVO File", { "cadacombsvo", "svo" });
-    dialog.execute();
-
-    if (!dialog.isCancled() && !dialog.getResultPath().empty())
-    {
-        std::string path     = dialog.getResultPath();
-        std::string fileName = std::filesystem::path(path).filename().string();
-
-        Defer::getInstance().defer(
-          [&gatedDatabase, path, fileName]()
-          {
-              auto fileStream = std::make_shared<std::ifstream>(path, std::ios::binary);
-              gatedDatabase.executeAsync(
-                {
-                  {    "type", "LoadSvoAsset" },
-                  { "version",              1 },
-                  {    "name",       fileName }
-              },
-                fileStream);
-          });
     }
 }

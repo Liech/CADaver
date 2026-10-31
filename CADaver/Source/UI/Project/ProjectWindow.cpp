@@ -3,9 +3,10 @@
 #include "Database/Asset.h"
 #include "Database/Asset/ProgressBarAsset.h"
 #include "Database/Project.h"
-#include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenuFactory.h"
+#include "Windows/Project/TaskNotificationModal.h"
+#include "Windows/WindowContainer.h"
 
 #include <imgui.h>
 
@@ -43,7 +44,7 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
     {
         width = ImGui::GetWindowWidth();
 
-        renderMenuBar(project);
+        renderMenuBar(project, windowContainer);
 
         if (project.getAssetCount() == 0)
         {
@@ -82,8 +83,12 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
                                 if (ImGui::MenuItem("Cancel"))
                                 {
                                     progressAsset->cancel();
-                                    errorMessage   = "Operation '" + progressAsset->getOperationName() + "' was canceled.";
-                                    openErrorModal = true;
+                                    windowContainer.open("TaskNotificationModal");
+                                    auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windowContainer.get("TaskNotificationModal"));
+                                    if (modal)
+                                    {
+                                        modal->setMessage("Operation '" + progressAsset->getOperationName() + "' was canceled.");
+                                    }
                                 }
                                 ImGui::EndPopup();
                             }
@@ -94,8 +99,12 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
                                 std::string st  = res.value("status", "");
                                 if (!st.empty() && st != "Success" && st != "Canceled")
                                 {
-                                    errorMessage   = "Operation '" + progressAsset->getOperationName() + "' failed: " + res.value("error", st);
-                                    openErrorModal = true;
+                                    windowContainer.open("TaskNotificationModal");
+                                    auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windowContainer.get("TaskNotificationModal"));
+                                    if (modal)
+                                    {
+                                        modal->setMessage("Operation '" + progressAsset->getOperationName() + "' failed: " + res.value("error", st));
+                                    }
                                 }
                             }
 
@@ -122,19 +131,11 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
                 ImGui::EndTable();
             }
         }
-
-        if (contextMenuFactory)
-        {
-            contextMenuFactory->renderCloseModal(gatedDatabase);
-        }
-
-        renderClearModal(gatedDatabase);
-        renderErrorModal();
     }
     ImGui::End();
 }
 
-void ProjectWindow::renderMenuBar(const Project& project)
+void ProjectWindow::renderMenuBar(const Project& project, WindowContainer& windowContainer)
 {
     if (ImGui::BeginMenuBar())
     {
@@ -142,72 +143,10 @@ void ProjectWindow::renderMenuBar(const Project& project)
         {
             if (ImGui::MenuItem("Clear Project...", nullptr, false, project.getAssetCount() > 0))
             {
-                openClearModal = true;
+                windowContainer.open("ClearProjectModal");
             }
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
-    }
-}
-
-void ProjectWindow::renderClearModal(GatedDatabase& gatedDatabase)
-{
-    if (openClearModal)
-    {
-        ImGui::OpenPopup("Clear Project##Modal");
-        openClearModal = false;
-    }
-
-    if (ImGui::BeginPopupModal("Clear Project##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-        ImGui::Text("Are you sure you want to clear the project?");
-        ImGui::TextDisabled("All assets will be removed from the project.");
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        if (ImGui::Button("Yes", ImVec2(120.0f, 0.0f)))
-        {
-            Defer::getInstance().defer(
-              [&gatedDatabase]()
-              {
-                  gatedDatabase.execute({
-                    {    "type", "ClearProject" },
-                    { "version",              1 }
-                  });
-              });
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::SetItemDefaultFocus();
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
-        {
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndPopup();
-    }
-}
-
-void ProjectWindow::renderErrorModal()
-{
-    if (openErrorModal)
-    {
-        ImGui::OpenPopup("Task Notification##Modal");
-        openErrorModal = false;
-    }
-
-    if (ImGui::BeginPopupModal("Task Notification##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-        ImGui::TextUnformatted(errorMessage.c_str());
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        if (ImGui::Button("OK", ImVec2(120.0f, 0.0f)))
-        {
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
     }
 }
