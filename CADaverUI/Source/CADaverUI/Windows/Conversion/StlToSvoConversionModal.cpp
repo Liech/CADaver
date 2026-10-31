@@ -1,24 +1,66 @@
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 
+#include "Database/Database.h"
+#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
 
-StlToSvoConversionModal::StlToSvoConversionModal() {}
+StlToSvoConversionModal::StlToSvoConversionModal()
+  : assetComboBox("Triangulation")
+{
+}
 
 StlToSvoConversionModal::~StlToSvoConversionModal() {}
 
-void StlToSvoConversionModal::open(const CADacomb::GUID& assetGuid, const std::string& assetName)
+std::string StlToSvoConversionModal::getType() const
 {
-    targetAssetGuid = assetGuid;
-    targetAssetName = assetName;
+    return "StlToSvoConversionModal";
+}
+
+std::string StlToSvoConversionModal::getDescription() const
+{
+    return "Window: StlToSvoConversionModal\n"
+           "Title: Convert to SVO\n"
+           "Purpose: Modal dialog for voxelizing a triangulated STL mesh asset into a Sparse Voxel Octree (SVO) volumetric asset.\n\n"
+           "Parameters:\n"
+           "  - Target Asset: Triangulation asset from the project to voxelize\n"
+           "  - Voxel Resolution: Cubic SVO grid resolution (16, 32, 64, 128, 256, 512, default: 64)\n"
+           "  - Delete original STL asset: Removes the source triangulation asset upon successful conversion\n\n"
+           "Dispatched Command: ConvertStlToSvo (async)";
+}
+
+bool StlToSvoConversionModal::isOpen() const
+{
+    return openState;
+}
+
+void StlToSvoConversionModal::open()
+{
     deleteOrigin    = false;
+    openState       = true;
     shouldOpenPopup = true;
 }
 
-void StlToSvoConversionModal::render(GatedDatabase& gatedDatabase)
+void StlToSvoConversionModal::close()
 {
+    openState       = false;
+    shouldOpenPopup = false;
+}
+
+void StlToSvoConversionModal::setTargetAsset(const CADacomb::GUID& assetGuid)
+{
+    assetComboBox.setSelectedGuid(assetGuid);
+}
+
+void StlToSvoConversionModal::render()
+{
+    if (!openState || !gatedDatabase)
+    {
+        return;
+    }
+
     if (shouldOpenPopup)
     {
         ImGui::OpenPopup("Convert to SVO##StlModal");
@@ -27,7 +69,8 @@ void StlToSvoConversionModal::render(GatedDatabase& gatedDatabase)
 
     if (ImGui::BeginPopupModal("Convert to SVO##StlModal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("Converting: %s", targetAssetName.c_str());
+        const auto& project = gatedDatabase->get().getProject();
+        assetComboBox.render(project);
         ImGui::Spacing();
 
         resolutionComboBox.render();
@@ -37,31 +80,47 @@ void StlToSvoConversionModal::render(GatedDatabase& gatedDatabase)
         ImGui::Separator();
         ImGui::Spacing();
 
+        bool hasTarget = project.hasAsset(assetComboBox.getSelectedGuid());
+        ImGui::BeginDisabled(!hasTarget);
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {
-            executeConversion(gatedDatabase);
+            executeConversion();
+            close();
             ImGui::CloseCurrentPopup();
         }
+        ImGui::EndDisabled();
+
         ImGui::SetItemDefaultFocus();
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
+            close();
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
     }
+    else if (!shouldOpenPopup)
+    {
+        openState = false;
+    }
 }
 
-void StlToSvoConversionModal::executeConversion(GatedDatabase& gatedDatabase)
+void StlToSvoConversionModal::executeConversion()
 {
-    CADacomb::GUID guid      = targetAssetGuid;
+    if (!gatedDatabase || !defer)
+    {
+        return;
+    }
+
+    GatedDatabase* db        = gatedDatabase;
+    CADacomb::GUID guid      = assetComboBox.getSelectedGuid();
     uint32_t       dim       = static_cast<uint32_t>(resolutionComboBox.getResolution());
     bool           delOrigin = deleteOrigin;
 
-    Defer::getInstance().defer(
-      [&gatedDatabase, guid, dim, delOrigin]()
+    defer->defer(
+      [db, guid, dim, delOrigin]()
       {
-          gatedDatabase.executeAsync({
+          db->executeAsync({
             {         "type", "ConvertStlToSvo" },
             {      "version",                 1 },
             {    "assetGuid",   guid.toString() },

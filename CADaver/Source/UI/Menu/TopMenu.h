@@ -17,6 +17,7 @@ class GatedDatabase;
 class LandscapeGeneratorWindow;
 class PreferencesWindow;
 class UndoStack;
+class WindowsWindow;
 
 // Coordinates the main top menu bar by hosting File, Edit, Create, and Help menus and their dialog windows.
 class TopMenu
@@ -31,6 +32,7 @@ class TopMenu
     PreferencesWindow*        getPreferencesWindow() const;
     AboutWindow*              getAboutWindow() const;
     CommandsWindow*           getCommandsWindow() const;
+    WindowsWindow*            getWindowsWindow() const;
     LandscapeGeneratorWindow* getLandscapeGeneratorWindow() const;
 
   private:
@@ -40,5 +42,6 @@ class TopMenu
     std::unique_ptr<PreferencesWindow>        preferencesWindow;
     std::unique_ptr<AboutWindow>              aboutWindow;
     std::unique_ptr<CommandsWindow>           commandsWindow;
+    std::unique_ptr<WindowsWindow>            windowsWindow;
     std::unique_ptr<LandscapeGeneratorWindow> landscapeGeneratorWindow;
 };

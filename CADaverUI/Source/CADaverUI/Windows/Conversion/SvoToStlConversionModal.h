@@ -1,28 +1,37 @@
 #pragma once
 
 #include "CADacomb/Util/GUID.h"
+#include "Component/AssetComboBox.h"
+#include "Windows/Window.h"
 
 #include <string>
 
-class GatedDatabase;
+class Project;
 
 // Modal dialog for converting a volumetric SVO asset to a blocky triangulation STL asset.
-class SvoToStlConversionModal
+class SvoToStlConversionModal : public Window
 {
   public:
     SvoToStlConversionModal();
     virtual ~SvoToStlConversionModal();
 
-    void open(const CADacomb::GUID& assetGuid, const std::string& assetName, int maxDepth = 6);
-    void render(GatedDatabase& gatedDatabase);
+    virtual std::string getType() const override;
+    virtual std::string getDescription() const override;
+    virtual void        render() override;
+    virtual bool        isOpen() const override;
+    virtual void        open() override;
+    virtual void        close() override;
+
+    void setTargetAsset(const CADacomb::GUID& assetGuid);
 
   private:
-    void executeConversion(GatedDatabase& gatedDatabase);
+    void executeConversion();
+    void updateMaxDepthFromSelectedAsset(const Project& project, bool resetTargetToMax);
 
-    std::string    targetAssetName;
-    CADacomb::GUID targetAssetGuid;
-    int            targetDepth     = -1;
-    int            maxTreeDepth    = 6;
-    bool           deleteOrigin    = false;
-    bool           shouldOpenPopup = false;
+    AssetComboBox assetComboBox;
+    int           targetDepth     = 6;
+    int           maxTreeDepth    = 6;
+    bool          deleteOrigin    = false;
+    bool          openState       = false;
+    bool          shouldOpenPopup = false;
 };

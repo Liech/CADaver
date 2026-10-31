@@ -1,6 +1,6 @@
 #include "UI/Menu/CreateMenu.h"
 
-#include "UI/Generator/LandscapeGeneratorWindow.h"
+#include "Windows/Generator/LandscapeGeneratorWindow.h"
 
 #include <imgui.h>
 
@@ -14,7 +14,7 @@ void CreateMenu::render(LandscapeGeneratorWindow& landscapeGeneratorWindow)
     {
         if (ImGui::MenuItem("Landscape..."))
         {
-            landscapeGeneratorWindow.setOpen(true);
+            landscapeGeneratorWindow.open();
         }
 
         ImGui::EndMenu();

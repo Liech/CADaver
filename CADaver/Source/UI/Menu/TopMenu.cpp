@@ -1,12 +1,14 @@
 #include "UI/Menu/TopMenu.h"
 
 #include "Database/Preferences/Preferences.h"
+#include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/About/AboutWindow.h"
 #include "UI/Commands/CommandsWindow.h"
-#include "UI/Generator/LandscapeGeneratorWindow.h"
 #include "UI/Preferences/PreferencesWindow.h"
+#include "UI/Windows/WindowsWindow.h"
 #include "Vulcant/Toolkit/Camera.h"
+#include "Windows/Generator/LandscapeGeneratorWindow.h"
 
 #include <imgui.h>
 
@@ -14,6 +16,7 @@ TopMenu::TopMenu()
   : preferencesWindow(std::make_unique<PreferencesWindow>())
   , aboutWindow(std::make_unique<AboutWindow>())
   , commandsWindow(std::make_unique<CommandsWindow>())
+  , windowsWindow(std::make_unique<WindowsWindow>())
   , landscapeGeneratorWindow(std::make_unique<LandscapeGeneratorWindow>())
 {
 }
@@ -50,6 +53,13 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& q
                     commandsWindow->setOpen(true);
                 }
             }
+            if (ImGui::MenuItem("Windows"))
+            {
+                if (windowsWindow)
+                {
+                    windowsWindow->setOpen(true);
+                }
+            }
             ImGui::EndMenu();
         }
 
@@ -71,9 +81,14 @@ void TopMenu::renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, 
     {
         commandsWindow->render(gatedDatabase);
     }
+    if (windowsWindow)
+    {
+        windowsWindow->render();
+    }
     if (landscapeGeneratorWindow)
     {
-        landscapeGeneratorWindow->render(gatedDatabase);
+        landscapeGeneratorWindow->setInput(gatedDatabase, Defer::getInstance());
+        landscapeGeneratorWindow->render();
     }
 }
 
@@ -90,6 +105,11 @@ AboutWindow* TopMenu::getAboutWindow() const
 CommandsWindow* TopMenu::getCommandsWindow() const
 {
     return commandsWindow.get();
+}
+
+WindowsWindow* TopMenu::getWindowsWindow() const
+{
+    return windowsWindow.get();
 }
 
 LandscapeGeneratorWindow* TopMenu::getLandscapeGeneratorWindow() const

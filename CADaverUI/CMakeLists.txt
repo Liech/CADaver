@@ -15,6 +15,8 @@ set(Source_Files
 source_group("Source" FILES ${Source_Files})
 
 set(Component_Files
+    "Source/CADaverUI/Component/AssetComboBox.h"
+    "Source/CADaverUI/Component/AssetComboBox.cpp"
     "Source/CADaverUI/Component/VoxelResolutionComboBox.h"
     "Source/CADaverUI/Component/VoxelResolutionComboBox.cpp"
 )
@@ -40,11 +42,18 @@ set(Windows_Conversion_Files
 )
 source_group("Source/Windows/Conversion" FILES ${Windows_Conversion_Files})
 
+set(Windows_Generator_Files
+    "Source/CADaverUI/Windows/Generator/LandscapeGeneratorWindow.h"
+    "Source/CADaverUI/Windows/Generator/LandscapeGeneratorWindow.cpp"
+)
+source_group("Source/Windows/Generator" FILES ${Windows_Generator_Files})
+
 set(ALL_FILES
     ${Source_Files}
     ${Component_Files}
     ${Windows_Files}
     ${Windows_Conversion_Files}
+    ${Windows_Generator_Files}
 )
 
 ############################################################################

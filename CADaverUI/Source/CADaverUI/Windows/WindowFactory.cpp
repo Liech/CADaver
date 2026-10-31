@@ -1,10 +1,18 @@
 #include "Windows/WindowFactory.h"
 
+#include "Windows/Conversion/CadToStlConversionModal.h"
+#include "Windows/Conversion/CadToSvoConversionModal.h"
+#include "Windows/Conversion/StlToSvoConversionModal.h"
+#include "Windows/Conversion/SvoToStlConversionModal.h"
+#include "Windows/Generator/LandscapeGeneratorWindow.h"
 #include "Windows/Window.h"
 
 #include <algorithm>
 
-WindowFactory::WindowFactory() {}
+WindowFactory::WindowFactory()
+{
+    registerWindows();
+}
 
 WindowFactory::~WindowFactory() {}
 
@@ -46,13 +54,27 @@ void WindowFactory::registerWindow(const std::string& name, std::function<std::s
     creators[name] = std::move(creator);
 }
 
+void WindowFactory::registerWindows()
+{
+    registerWindow("CadToStlConversionModal", []() { return std::make_shared<CadToStlConversionModal>(); });
+    registerWindow("CadToSvoConversionModal", []() { return std::make_shared<CadToSvoConversionModal>(); });
+    registerWindow("StlToSvoConversionModal", []() { return std::make_shared<StlToSvoConversionModal>(); });
+    registerWindow("SvoToStlConversionModal", []() { return std::make_shared<SvoToStlConversionModal>(); });
+    registerWindow("LandscapeGeneratorWindow", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
+}
+
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("WindowFactory/CreateUnknownType")
+TEST_CASE("WindowFactory/DefaultRegisteredWindows")
 {
     WindowFactory factory;
     CHECK(factory.create("UnknownWindow") == nullptr);
-    CHECK(factory.getAllWindows().empty());
+    CHECK(factory.create("CadToStlConversionModal") != nullptr);
+    CHECK(factory.create("CadToSvoConversionModal") != nullptr);
+    CHECK(factory.create("StlToSvoConversionModal") != nullptr);
+    CHECK(factory.create("SvoToStlConversionModal") != nullptr);
+    CHECK(factory.create("LandscapeGeneratorWindow") != nullptr);
+    CHECK(factory.getAllWindows().size() == 5);
 }
 #endif

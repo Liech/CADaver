@@ -124,20 +124,25 @@ void AssetContextMenuFactory::renderCloseModal(GatedDatabase& gatedDatabase)
 
 void AssetContextMenuFactory::renderConversionModals(GatedDatabase& gatedDatabase)
 {
+    auto& defer = Defer::getInstance();
     if (cadToStlModal)
     {
-        cadToStlModal->render(gatedDatabase);
+        cadToStlModal->setInput(gatedDatabase, defer);
+        cadToStlModal->render();
     }
     if (cadToSvoModal)
     {
-        cadToSvoModal->render(gatedDatabase);
+        cadToSvoModal->setInput(gatedDatabase, defer);
+        cadToSvoModal->render();
     }
     if (stlToSvoModal)
     {
-        stlToSvoModal->render(gatedDatabase);
+        stlToSvoModal->setInput(gatedDatabase, defer);
+        stlToSvoModal->render();
     }
     if (svoToStlModal)
     {
-        svoToStlModal->render(gatedDatabase);
+        svoToStlModal->setInput(gatedDatabase, defer);
+        svoToStlModal->render();
     }
 }

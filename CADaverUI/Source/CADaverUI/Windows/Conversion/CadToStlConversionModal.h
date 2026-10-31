@@ -1,27 +1,33 @@
 #pragma once
 
 #include "CADacomb/Util/GUID.h"
+#include "Component/AssetComboBox.h"
+#include "Windows/Window.h"
 
 #include <string>
 
-class GatedDatabase;
-
 // Modal dialog for converting a CAD asset to an STL triangulation asset.
-class CadToStlConversionModal
+class CadToStlConversionModal : public Window
 {
   public:
     CadToStlConversionModal();
     virtual ~CadToStlConversionModal();
 
-    void open(const CADacomb::GUID& assetGuid, const std::string& assetName);
-    void render(GatedDatabase& gatedDatabase);
+    virtual std::string getType() const override;
+    virtual std::string getDescription() const override;
+    virtual void        render() override;
+    virtual bool        isOpen() const override;
+    virtual void        open() override;
+    virtual void        close() override;
+
+    void setTargetAsset(const CADacomb::GUID& assetGuid);
 
   private:
-    void executeConversion(GatedDatabase& gatedDatabase);
+    void executeConversion();
 
-    std::string    targetAssetName;
-    CADacomb::GUID targetAssetGuid;
-    double         precision       = 0.1;
-    bool           deleteOrigin    = false;
-    bool           shouldOpenPopup = false;
+    AssetComboBox assetComboBox;
+    double        precision       = 0.1;
+    bool          deleteOrigin    = false;
+    bool          openState       = false;
+    bool          shouldOpenPopup = false;
 };

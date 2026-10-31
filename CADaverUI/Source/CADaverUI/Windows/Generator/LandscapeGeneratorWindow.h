@@ -2,32 +2,28 @@
 
 #include "CADacomb/Volume/SVO/Generator/LandscapeConfig.h"
 #include "Component/VoxelResolutionComboBox.h"
+#include "Windows/Window.h"
 
 #include <string>
 
-class GatedDatabase;
-
-// Window for configuring and generating volumetric landscapes asynchronously with progress feedback.
-class LandscapeGeneratorWindow
+// Window for configuring and generating volumetric landscapes asynchronously.
+class LandscapeGeneratorWindow : public Window
 {
   public:
     LandscapeGeneratorWindow();
     virtual ~LandscapeGeneratorWindow();
 
-    void render(GatedDatabase& gatedDatabase);
-    void startGenerate(GatedDatabase& gatedDatabase);
-
-    void open();
-    void close();
-    bool isOpen() const;
-    void setOpen(bool open);
-
-    bool isGenerating() const;
-
-    CADacomb::LandscapeConfig getConfig() const;
-    int                       getResolution() const;
+    virtual std::string getType() const override;
+    virtual std::string getDescription() const override;
+    virtual void        render() override;
+    virtual bool        isOpen() const override;
+    virtual void        open() override;
+    virtual void        close() override;
 
   private:
+    void                      startGenerate();
+    CADacomb::LandscapeConfig buildConfig() const;
+
     VoxelResolutionComboBox resolutionComboBox;
 
     int         resolution    = 64;

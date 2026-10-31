@@ -33,14 +33,16 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& asse
         {
             if (cadToStlModal)
             {
-                cadToStlModal->open(cadAsset->getGuid(), cadAsset->getName());
+                cadToStlModal->setTargetAsset(cadAsset->getGuid());
+                cadToStlModal->open();
             }
         }
         if (ImGui::MenuItem("SVO..."))
         {
             if (cadToSvoModal)
             {
-                cadToSvoModal->open(cadAsset->getGuid(), cadAsset->getName());
+                cadToSvoModal->setTargetAsset(cadAsset->getGuid());
+                cadToSvoModal->open();
             }
         }
         ImGui::EndMenu();

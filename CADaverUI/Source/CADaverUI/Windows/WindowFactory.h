@@ -21,6 +21,8 @@ class WindowFactory
     void registerWindow(const std::string& name, std::function<std::shared_ptr<Window>()> creator);
 
   private:
+    void registerWindows();
+
     std::unordered_map<std::string, std::function<std::shared_ptr<Window>()>> creators;
     std::vector<std::string>                                                  registeredOrder;
 };

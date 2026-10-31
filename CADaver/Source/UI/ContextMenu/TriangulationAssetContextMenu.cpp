@@ -33,7 +33,8 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, const A
         {
             if (stlToSvoModal)
             {
-                stlToSvoModal->open(triAsset->getGuid(), triAsset->getName());
+                stlToSvoModal->setTargetAsset(triAsset->getGuid());
+                stlToSvoModal->open();
             }
         }
         ImGui::EndMenu();

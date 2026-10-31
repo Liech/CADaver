@@ -1,4 +1,4 @@
-#include "UI/Generator/LandscapeGeneratorWindow.h"
+#include "Windows/Generator/LandscapeGeneratorWindow.h"
 
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
@@ -11,6 +11,28 @@ LandscapeGeneratorWindow::LandscapeGeneratorWindow()
 }
 
 LandscapeGeneratorWindow::~LandscapeGeneratorWindow() {}
+
+std::string LandscapeGeneratorWindow::getType() const
+{
+    return "LandscapeGeneratorWindow";
+}
+
+std::string LandscapeGeneratorWindow::getDescription() const
+{
+    return "Window: LandscapeGeneratorWindow\n"
+           "Title: Landscape Generator\n"
+           "Purpose: Configures procedural noise parameters and generates a volumetric SVO terrain asset asynchronously.\n\n"
+           "Parameters:\n"
+           "  - Asset Name: Name of the generated VoxelAsset (default: \"Landscape\")\n"
+           "  - Voxel Resolution: Cubic SVO grid resolution (16, 32, 64, 128, 256, 512)\n"
+           "  - Octaves: Number of fractal noise octaves (1 to 8)\n"
+           "  - Frequency: Base terrain noise frequency (0.01 to 0.2)\n"
+           "  - Base Height: Normalized terrain base height ratio (0.1 to 0.9)\n"
+           "  - Seed: Random number generator seed\n"
+           "  - Carve Caves: Enables 3D cave carving inside the terrain volume\n"
+           "  - Cave Threshold: Density threshold for cave carving (0.01 to 0.3)\n\n"
+           "Dispatched Command: GenerateLandscape (async)";
+}
 
 void LandscapeGeneratorWindow::open()
 {
@@ -27,17 +49,7 @@ bool LandscapeGeneratorWindow::isOpen() const
     return openState;
 }
 
-void LandscapeGeneratorWindow::setOpen(bool open)
-{
-    openState = open;
-}
-
-bool LandscapeGeneratorWindow::isGenerating() const
-{
-    return false;
-}
-
-CADacomb::LandscapeConfig LandscapeGeneratorWindow::getConfig() const
+CADacomb::LandscapeConfig LandscapeGeneratorWindow::buildConfig() const
 {
     CADacomb::LandscapeConfig config;
     config.seed            = static_cast<uint32_t>(seed);
@@ -49,19 +61,20 @@ CADacomb::LandscapeConfig LandscapeGeneratorWindow::getConfig() const
     return config;
 }
 
-int LandscapeGeneratorWindow::getResolution() const
+void LandscapeGeneratorWindow::startGenerate()
 {
-    return resolution;
-}
+    if (!gatedDatabase || !defer)
+    {
+        return;
+    }
 
-void LandscapeGeneratorWindow::startGenerate(GatedDatabase& gatedDatabase)
-{
-    auto        config = getConfig();
-    uint32_t    dim    = static_cast<uint32_t>(resolution);
-    std::string name   = assetName;
+    GatedDatabase* db     = gatedDatabase;
+    auto           config = buildConfig();
+    uint32_t       dim    = static_cast<uint32_t>(resolution);
+    std::string    name   = assetName;
 
-    Defer::getInstance().defer(
-      [&gatedDatabase, config, dim, name]()
+    defer->defer(
+      [db, config, dim, name]()
       {
           nlohmann::json cmdJson = {
               {            "type",    "GenerateLandscape" },
@@ -80,13 +93,13 @@ void LandscapeGeneratorWindow::startGenerate(GatedDatabase& gatedDatabase)
               {   "caveThreshold",   config.caveThreshold },
               {  "solidThreshold",  config.solidThreshold }
           };
-          gatedDatabase.executeAsync(cmdJson);
+          db->executeAsync(cmdJson);
       });
 }
 
-void LandscapeGeneratorWindow::render(GatedDatabase& gatedDatabase)
+void LandscapeGeneratorWindow::render()
 {
-    if (!openState)
+    if (!openState || !gatedDatabase)
     {
         return;
     }
@@ -104,7 +117,7 @@ void LandscapeGeneratorWindow::render(GatedDatabase& gatedDatabase)
 
         if (resolutionComboBox.render())
         {
-            resolution = resolutionComboBox.getResolution();
+            resolution = static_cast<int>(resolutionComboBox.getResolution());
         }
 
         ImGui::SliderInt("Octaves", &octaves, 1, 8);
@@ -123,38 +136,27 @@ void LandscapeGeneratorWindow::render(GatedDatabase& gatedDatabase)
 
         if (ImGui::Button("Generate Landscape", ImVec2(180.0f, 0.0f)))
         {
-            startGenerate(gatedDatabase);
+            startGenerate();
+            close();
         }
     }
     ImGui::End();
 }
 
 #ifdef ISTESTPROJECT
-#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("LandscapeGeneratorWindow/InitialState")
 {
     LandscapeGeneratorWindow window;
+    CHECK(window.getType() == "LandscapeGeneratorWindow");
+    CHECK_FALSE(window.getDescription().empty());
     CHECK_FALSE(window.isOpen());
-    CHECK_FALSE(window.isGenerating());
-    CHECK(window.getResolution() == 64);
 
     window.open();
     CHECK(window.isOpen());
 
     window.close();
     CHECK_FALSE(window.isOpen());
-}
-
-TEST_CASE("LandscapeGeneratorWindow/ConfigValues")
-{
-    LandscapeGeneratorWindow window;
-    auto                     config = window.getConfig();
-    CHECK(config.seed == 1337);
-    CHECK(config.octaves == 4);
-    CHECK(config.frequency == Catch::Approx(0.05));
-    CHECK(config.baseHeightRatio == Catch::Approx(0.4));
-    CHECK_FALSE(config.enableCaves);
 }
 #endif

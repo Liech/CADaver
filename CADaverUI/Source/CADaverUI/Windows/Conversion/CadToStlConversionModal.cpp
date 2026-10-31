@@ -1,25 +1,67 @@
 #include "Windows/Conversion/CadToStlConversionModal.h"
 
+#include "Database/Database.h"
+#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
 
-CadToStlConversionModal::CadToStlConversionModal() {}
+CadToStlConversionModal::CadToStlConversionModal()
+  : assetComboBox("Cad")
+{
+}
 
 CadToStlConversionModal::~CadToStlConversionModal() {}
 
-void CadToStlConversionModal::open(const CADacomb::GUID& assetGuid, const std::string& assetName)
+std::string CadToStlConversionModal::getType() const
 {
-    targetAssetGuid = assetGuid;
-    targetAssetName = assetName;
+    return "CadToStlConversionModal";
+}
+
+std::string CadToStlConversionModal::getDescription() const
+{
+    return "Window: CadToStlConversionModal\n"
+           "Title: Convert to STL\n"
+           "Purpose: Modal dialog for tessellating a STEP/CAD boundary-representation asset into a triangulated STL mesh asset.\n\n"
+           "Parameters:\n"
+           "  - Target Asset: CAD asset from the project to convert\n"
+           "  - Tessellation Precision: Linear deflection tolerance for surface triangulation (0.001 to 1.0, default: 0.1)\n"
+           "  - Delete original CAD asset: Removes the source CAD asset upon successful conversion\n\n"
+           "Dispatched Command: ConvertCadToStl (async)";
+}
+
+bool CadToStlConversionModal::isOpen() const
+{
+    return openState;
+}
+
+void CadToStlConversionModal::open()
+{
     precision       = 0.1;
     deleteOrigin    = false;
+    openState       = true;
     shouldOpenPopup = true;
 }
 
-void CadToStlConversionModal::render(GatedDatabase& gatedDatabase)
+void CadToStlConversionModal::close()
 {
+    openState       = false;
+    shouldOpenPopup = false;
+}
+
+void CadToStlConversionModal::setTargetAsset(const CADacomb::GUID& assetGuid)
+{
+    assetComboBox.setSelectedGuid(assetGuid);
+}
+
+void CadToStlConversionModal::render()
+{
+    if (!openState || !gatedDatabase)
+    {
+        return;
+    }
+
     if (shouldOpenPopup)
     {
         ImGui::OpenPopup("Convert to STL##Modal");
@@ -28,7 +70,8 @@ void CadToStlConversionModal::render(GatedDatabase& gatedDatabase)
 
     if (ImGui::BeginPopupModal("Convert to STL##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("Converting: %s", targetAssetName.c_str());
+        const auto& project = gatedDatabase->get().getProject();
+        assetComboBox.render(project);
         ImGui::Spacing();
 
         float p = static_cast<float>(precision);
@@ -42,31 +85,47 @@ void CadToStlConversionModal::render(GatedDatabase& gatedDatabase)
         ImGui::Separator();
         ImGui::Spacing();
 
+        bool hasTarget = project.hasAsset(assetComboBox.getSelectedGuid());
+        ImGui::BeginDisabled(!hasTarget);
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {
-            executeConversion(gatedDatabase);
+            executeConversion();
+            close();
             ImGui::CloseCurrentPopup();
         }
+        ImGui::EndDisabled();
+
         ImGui::SetItemDefaultFocus();
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f)))
         {
+            close();
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
     }
+    else if (!shouldOpenPopup)
+    {
+        openState = false;
+    }
 }
 
-void CadToStlConversionModal::executeConversion(GatedDatabase& gatedDatabase)
+void CadToStlConversionModal::executeConversion()
 {
-    CADacomb::GUID guid      = targetAssetGuid;
+    if (!gatedDatabase || !defer)
+    {
+        return;
+    }
+
+    GatedDatabase* db        = gatedDatabase;
+    CADacomb::GUID guid      = assetComboBox.getSelectedGuid();
     double         prec      = precision;
     bool           delOrigin = deleteOrigin;
 
-    Defer::getInstance().defer(
-      [&gatedDatabase, guid, prec, delOrigin]()
+    defer->defer(
+      [db, guid, prec, delOrigin]()
       {
-          gatedDatabase.executeAsync({
+          db->executeAsync({
             {         "type", "ConvertCadToStl" },
             {      "version",                 1 },
             {    "assetGuid",   guid.toString() },

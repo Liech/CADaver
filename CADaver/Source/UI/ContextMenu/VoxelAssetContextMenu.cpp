@@ -34,18 +34,8 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, const Asset& as
         {
             if (svoToStlModal)
             {
-                int      maxDepth = 6;
-                uint32_t dim      = voxelAsset->getSVO().getDimension();
-                uint32_t d        = 0;
-                while ((1u << d) < dim)
-                {
-                    d++;
-                }
-                if (d > 0)
-                {
-                    maxDepth = static_cast<int>(d);
-                }
-                svoToStlModal->open(voxelAsset->getGuid(), voxelAsset->getName(), maxDepth);
+                svoToStlModal->setTargetAsset(voxelAsset->getGuid());
+                svoToStlModal->open();
             }
         }
         ImGui::EndMenu();
