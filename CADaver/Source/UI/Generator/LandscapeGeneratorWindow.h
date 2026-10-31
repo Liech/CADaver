@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CADacomb/Volume/SVO/Generator/LandscapeConfig.h"
-#include "UI/Component/VoxelResolutionComboBox.h"
+#include "Component/VoxelResolutionComboBox.h"
 
 #include <string>
 

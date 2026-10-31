@@ -1,38 +1,43 @@
-#include "UI/Converter/StlToSvoConversionModal.h"
+#include "Windows/Conversion/CadToStlConversionModal.h"
 
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
 
-StlToSvoConversionModal::StlToSvoConversionModal() {}
+CadToStlConversionModal::CadToStlConversionModal() {}
 
-StlToSvoConversionModal::~StlToSvoConversionModal() {}
+CadToStlConversionModal::~CadToStlConversionModal() {}
 
-void StlToSvoConversionModal::open(const CADacomb::GUID& assetGuid, const std::string& assetName)
+void CadToStlConversionModal::open(const CADacomb::GUID& assetGuid, const std::string& assetName)
 {
     targetAssetGuid = assetGuid;
     targetAssetName = assetName;
+    precision       = 0.1;
     deleteOrigin    = false;
     shouldOpenPopup = true;
 }
 
-void StlToSvoConversionModal::render(GatedDatabase& gatedDatabase)
+void CadToStlConversionModal::render(GatedDatabase& gatedDatabase)
 {
     if (shouldOpenPopup)
     {
-        ImGui::OpenPopup("Convert to SVO##StlModal");
+        ImGui::OpenPopup("Convert to STL##Modal");
         shouldOpenPopup = false;
     }
 
-    if (ImGui::BeginPopupModal("Convert to SVO##StlModal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::BeginPopupModal("Convert to STL##Modal", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::Text("Converting: %s", targetAssetName.c_str());
         ImGui::Spacing();
 
-        resolutionComboBox.render();
+        float p = static_cast<float>(precision);
+        if (ImGui::SliderFloat("Tessellation Precision", &p, 0.001f, 1.0f, "%.3f", ImGuiSliderFlags_Logarithmic))
+        {
+            precision = static_cast<double>(p);
+        }
 
-        ImGui::Checkbox("Delete original STL asset", &deleteOrigin);
+        ImGui::Checkbox("Delete original CAD asset", &deleteOrigin);
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
@@ -52,20 +57,20 @@ void StlToSvoConversionModal::render(GatedDatabase& gatedDatabase)
     }
 }
 
-void StlToSvoConversionModal::executeConversion(GatedDatabase& gatedDatabase)
+void CadToStlConversionModal::executeConversion(GatedDatabase& gatedDatabase)
 {
     CADacomb::GUID guid      = targetAssetGuid;
-    uint32_t       dim       = static_cast<uint32_t>(resolutionComboBox.getResolution());
+    double         prec      = precision;
     bool           delOrigin = deleteOrigin;
 
     Defer::getInstance().defer(
-      [&gatedDatabase, guid, dim, delOrigin]()
+      [&gatedDatabase, guid, prec, delOrigin]()
       {
           gatedDatabase.executeAsync({
-            {         "type", "ConvertStlToSvo" },
+            {         "type", "ConvertCadToStl" },
             {      "version",                 1 },
             {    "assetGuid",   guid.toString() },
-            {    "dimension",               dim },
+            {    "precision",              prec },
             { "deleteOrigin",         delOrigin }
           });
       });

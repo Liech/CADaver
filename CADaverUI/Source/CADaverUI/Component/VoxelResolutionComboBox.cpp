@@ -1,4 +1,4 @@
-#include "VoxelResolutionComboBox.h"
+#include "Component/VoxelResolutionComboBox.h"
 
 #include <imgui.h>
 

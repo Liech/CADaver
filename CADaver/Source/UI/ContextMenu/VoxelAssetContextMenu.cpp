@@ -4,8 +4,8 @@
 #include "Database/Asset/VoxelAsset.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
-#include "UI/Converter/SvoToStlConversionModal.h"
 #include "UI/Dialog/SaveFileDialog.h"
+#include "Windows/Conversion/SvoToStlConversionModal.h"
 
 #include <filesystem>
 #include <fstream>

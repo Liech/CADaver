@@ -14,6 +14,12 @@ set(Source_Files
 )
 source_group("Source" FILES ${Source_Files})
 
+set(Component_Files
+    "Source/CADaverUI/Component/VoxelResolutionComboBox.h"
+    "Source/CADaverUI/Component/VoxelResolutionComboBox.cpp"
+)
+source_group("Source/Component" FILES ${Component_Files})
+
 set(Windows_Files
     "Source/CADaverUI/Windows/Window.h"
     "Source/CADaverUI/Windows/Window.cpp"
@@ -22,9 +28,23 @@ set(Windows_Files
 )
 source_group("Source/Windows" FILES ${Windows_Files})
 
+set(Windows_Conversion_Files
+    "Source/CADaverUI/Windows/Conversion/CadToStlConversionModal.h"
+    "Source/CADaverUI/Windows/Conversion/CadToStlConversionModal.cpp"
+    "Source/CADaverUI/Windows/Conversion/CadToSvoConversionModal.h"
+    "Source/CADaverUI/Windows/Conversion/CadToSvoConversionModal.cpp"
+    "Source/CADaverUI/Windows/Conversion/StlToSvoConversionModal.h"
+    "Source/CADaverUI/Windows/Conversion/StlToSvoConversionModal.cpp"
+    "Source/CADaverUI/Windows/Conversion/SvoToStlConversionModal.h"
+    "Source/CADaverUI/Windows/Conversion/SvoToStlConversionModal.cpp"
+)
+source_group("Source/Windows/Conversion" FILES ${Windows_Conversion_Files})
+
 set(ALL_FILES
     ${Source_Files}
+    ${Component_Files}
     ${Windows_Files}
+    ${Windows_Conversion_Files}
 )
 
 ############################################################################

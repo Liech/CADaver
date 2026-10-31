@@ -1,18 +1,18 @@
 #pragma once
 
 #include "CADacomb/Util/GUID.h"
-#include "UI/Component/VoxelResolutionComboBox.h"
+#include "Component/VoxelResolutionComboBox.h"
 
 #include <string>
 
 class GatedDatabase;
 
-// Modal dialog for converting a CAD asset to a volumetric SVO asset.
-class CadToSvoConversionModal
+// Modal dialog for converting a triangulation STL asset to a volumetric SVO asset.
+class StlToSvoConversionModal
 {
   public:
-    CadToSvoConversionModal();
-    virtual ~CadToSvoConversionModal();
+    StlToSvoConversionModal();
+    virtual ~StlToSvoConversionModal();
 
     void open(const CADacomb::GUID& assetGuid, const std::string& assetName);
     void render(GatedDatabase& gatedDatabase);
@@ -23,7 +23,6 @@ class CadToSvoConversionModal
     VoxelResolutionComboBox resolutionComboBox;
     std::string             targetAssetName;
     CADacomb::GUID          targetAssetGuid;
-    double                  precision       = 0.1;
     bool                    deleteOrigin    = false;
     bool                    shouldOpenPopup = false;
 };

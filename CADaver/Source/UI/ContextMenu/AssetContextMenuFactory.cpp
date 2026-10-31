@@ -8,10 +8,10 @@
 #include "UI/ContextMenu/CadAssetContextMenu.h"
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 #include "UI/ContextMenu/VoxelAssetContextMenu.h"
-#include "UI/Converter/CadToStlConversionModal.h"
-#include "UI/Converter/CadToSvoConversionModal.h"
-#include "UI/Converter/StlToSvoConversionModal.h"
-#include "UI/Converter/SvoToStlConversionModal.h"
+#include "Windows/Conversion/CadToStlConversionModal.h"
+#include "Windows/Conversion/CadToSvoConversionModal.h"
+#include "Windows/Conversion/StlToSvoConversionModal.h"
+#include "Windows/Conversion/SvoToStlConversionModal.h"
 
 #include <imgui.h>
 
