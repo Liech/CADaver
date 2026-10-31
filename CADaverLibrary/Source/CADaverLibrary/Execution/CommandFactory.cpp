@@ -1,5 +1,7 @@
 #include "Execution/CommandFactory.h"
 
+#include "Commands/Component/AddNoteCommand.h"
+#include "Commands/Component/RemoveComponentCommand.h"
 #include "Commands/Conversion/ConvertCadToStlCommand.h"
 #include "Commands/Conversion/ConvertCadToSvoCommand.h"
 #include "Commands/Conversion/ConvertStlToSvoCommand.h"
@@ -67,6 +69,8 @@ void CommandFactory::registerCommand(const std::string& name, std::function<std:
 
 void CommandFactory::registerCommands()
 {
+    registerCommand("AddNote", []() { return std::make_unique<AddNoteCommand>(); });
+    registerCommand("RemoveComponent", []() { return std::make_unique<RemoveComponentCommand>(); });
     registerCommand("RemoveAsset", []() { return std::make_unique<RemoveAssetCommand>(); });
     registerCommand("ClearProject", []() { return std::make_unique<ClearProjectCommand>(); });
     registerCommand("ConvertCadToStl", []() { return std::make_unique<ConvertCadToStlCommand>(); });
@@ -110,6 +114,8 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("UpdateUIPreferences") != nullptr);
     CHECK(factory.create("UpdateRenderPreferences") != nullptr);
     CHECK(factory.create("UpdateSVOPreferences") != nullptr);
-    CHECK(factory.getAllCommands().size() == 17);
+    CHECK(factory.create("AddNote") != nullptr);
+    CHECK(factory.create("RemoveComponent") != nullptr);
+    CHECK(factory.getAllCommands().size() == 19);
 }
 #endif

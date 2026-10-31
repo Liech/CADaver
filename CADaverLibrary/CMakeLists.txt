@@ -66,6 +66,14 @@ set(Command_Project_Files
 )
 source_group("Source/Commands/Project" FILES ${Command_Project_Files})
 
+set(Command_Component_Files
+    "Source/CADaverLibrary/Commands/Component/AddNoteCommand.h"
+    "Source/CADaverLibrary/Commands/Component/AddNoteCommand.cpp"
+    "Source/CADaverLibrary/Commands/Component/RemoveComponentCommand.h"
+    "Source/CADaverLibrary/Commands/Component/RemoveComponentCommand.cpp"
+)
+source_group("Source/Commands/Component" FILES ${Command_Component_Files})
+
 set(Command_Preferences_Files
     "Source/CADaverLibrary/Commands/Preferences/UpdateCameraPreferencesCommand.h"
     "Source/CADaverLibrary/Commands/Preferences/UpdateCameraPreferencesCommand.cpp"
@@ -99,6 +107,10 @@ set(Database_Files
     "Source/CADaverLibrary/Database/Project.cpp"
     "Source/CADaverLibrary/Database/Asset.h"
     "Source/CADaverLibrary/Database/Asset.cpp"
+    "Source/CADaverLibrary/Database/AssetComponent.h"
+    "Source/CADaverLibrary/Database/AssetComponent.cpp"
+    "Source/CADaverLibrary/Database/Component/TextNoteComponent.h"
+    "Source/CADaverLibrary/Database/Component/TextNoteComponent.cpp"
 )
 source_group("Source/Database" FILES ${Database_Files})
 
@@ -138,6 +150,7 @@ set(ALL_FILES
     ${Command_Generator_Files}
     ${Command_IO_Files}
     ${Command_Project_Files}
+    ${Command_Component_Files}
     ${Command_Preferences_Files}
     ${Database_Preferences_Files}
     ${Database_Files}

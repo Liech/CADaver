@@ -11,9 +11,13 @@
 #include "Vulcant/Toolkit/Camera.h"
 #include "Vulcant/Toolkit/SceneData.h"
 
-ViewCubeWidget::ViewCubeWidget() {}
+ViewCubeWidget::ViewCubeWidget()
+{
+}
 
-ViewCubeWidget::~ViewCubeWidget() {}
+ViewCubeWidget::~ViewCubeWidget()
+{
+}
 
 void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& resolution, const std::function<void()>& onHomePressed)
 {
@@ -47,7 +51,7 @@ void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& 
     }
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav |
-                                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+                                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     ImU32 normColor  = IM_COL32(180, 180, 180, 180);
     ImU32 hoverColor = IM_COL32(255, 255, 255, 255);
@@ -312,7 +316,7 @@ void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& 
     glm::mat4 viewMatrix = scene.viewMatrix;
     glm::mat4 origMatrix = viewMatrix;
 
-    ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
+    ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
     ImGuizmo::ViewManipulate(glm::value_ptr(viewMatrix), static_cast<float>(dist), ImVec2(posX, posY), ImVec2(cubeSize, cubeSize), 0x10101010);
 
     if (viewMatrix != origMatrix)

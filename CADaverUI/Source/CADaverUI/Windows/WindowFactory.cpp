@@ -3,6 +3,7 @@
 #include "Windows/About/AboutWindow.h"
 #include "Windows/About/CommandsInfoWindow.h"
 #include "Windows/About/WindowsInfoWindow.h"
+#include "Windows/Asset/TextNoteEditWindow.h"
 #include "Windows/Conversion/CadToStlConversionModal.h"
 #include "Windows/Conversion/CadToSvoConversionModal.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
@@ -87,6 +88,7 @@ void WindowFactory::registerWindows()
     registerWindow("RemoveAssetModal", []() { return std::make_shared<RemoveAssetModal>(); });
     registerWindow("PreferencesWindow", []() { return std::make_shared<PreferencesWindow>(); });
     registerWindow("TaskNotificationModal", []() { return std::make_shared<TaskNotificationModal>(); });
+    registerWindow("TextNoteEditWindow", []() { return std::make_shared<TextNoteEditWindow>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -114,6 +116,7 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("PreferencesWindow") != nullptr);
     CHECK(factory.create("RemoveAssetModal") != nullptr);
     CHECK(factory.create("TaskNotificationModal") != nullptr);
-    CHECK(factory.getAllWindows().size() == 18);
+    CHECK(factory.create("TextNoteEditWindow") != nullptr);
+    CHECK(factory.getAllWindows().size() == 19);
 }
 #endif

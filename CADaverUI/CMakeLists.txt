@@ -99,6 +99,12 @@ set(Windows_Preferences_Files
 )
 source_group("Source/Windows/Preferences" FILES ${Windows_Preferences_Files})
 
+set(Windows_Asset_Files
+    "Source/CADaverUI/Windows/Asset/TextNoteEditWindow.h"
+    "Source/CADaverUI/Windows/Asset/TextNoteEditWindow.cpp"
+)
+source_group("Source/Windows/Asset" FILES ${Windows_Asset_Files})
+
 set(Windows_Project_Files
     "Source/CADaverUI/Windows/Project/ClearProjectModal.h"
     "Source/CADaverUI/Windows/Project/ClearProjectModal.cpp"
@@ -118,6 +124,7 @@ set(ALL_FILES
     ${Windows_Generator_Files}
     ${Windows_IO_Files}
     ${Windows_Preferences_Files}
+    ${Windows_Asset_Files}
     ${Windows_Project_Files}
 )
 

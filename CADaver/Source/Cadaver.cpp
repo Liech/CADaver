@@ -181,15 +181,15 @@ void Cadaver::renderImGui()
         }
     }
 
+    if (viewController)
+    {
+        viewController->renderViewCube(resolution, project);
+    }
+
     if (projectWindow)
     {
         projectWindow->render(gatedDatabase, windows);
     }
 
     windows.render();
-
-    if (viewController)
-    {
-        viewController->renderViewCube(resolution, project);
-    }
 }
