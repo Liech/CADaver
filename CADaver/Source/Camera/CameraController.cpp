@@ -20,7 +20,6 @@ CameraController::~CameraController() {}
 
 void CameraController::setMode(int mode, Vulcant::VulcantWindow& window, const CameraPreferences& camPrefs, const glm::ivec2& resolution)
 {
-    bool       wasOrtho = camera ? camera->isOrthographic() : false;
     glm::dvec3 eye      = camera ? camera->getEye() : glm::dvec3(0.0, 3.0, 5.0);
     glm::dvec3 target   = camera ? camera->getTarget() : glm::dvec3(0.0, 0.0, 0.0);
     glm::dvec3 up       = camera ? camera->getUp() : glm::dvec3(0.0, 1.0, 0.0);

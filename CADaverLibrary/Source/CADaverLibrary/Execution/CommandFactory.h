@@ -21,6 +21,8 @@ class CommandFactory
     void registerCommand(const std::string& name, std::function<std::unique_ptr<Command>()> creator);
 
   private:
+    void registerCommands();
+
     std::unordered_map<std::string, std::function<std::unique_ptr<Command>()>> creators;
     std::vector<std::string>                                                   registeredOrder;
 };

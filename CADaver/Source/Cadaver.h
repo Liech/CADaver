@@ -42,7 +42,6 @@ class Cadaver
     void onResize(const glm::ivec2& newResolution);
 
     void prepare();
-    void registerCommands();
     void renderImGui();
 
     void onKey(const Vulcant::VulcantInputValue& key);

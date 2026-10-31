@@ -6,7 +6,6 @@ find_package(glm REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui REQUIRED)
 find_package(imguizmo CONFIG REQUIRED)
-find_package(nfd CONFIG REQUIRED)
 if(NOT TARGET Vulcant::Vulcant)
     find_package(Vulcant CONFIG REQUIRED)
 endif()
@@ -37,8 +36,6 @@ source_group("Source/Rendering" FILES ${Rendering_Files})
 set(UI_Component_Files
     "Source/UI/Component/ViewCubeWidget.h"
     "Source/UI/Component/ViewCubeWidget.cpp"
-    "Source/UI/Component/ModalProgressBar.h"
-    "Source/UI/Component/ModalProgressBar.cpp"
 )
 source_group("Source/UI/Component" FILES ${UI_Component_Files})
 
@@ -101,7 +98,6 @@ target_link_libraries(CadaverExe
     CADacombRender
     CadaverLibrary
     CadaverUI
-    nfd::nfd
     Vulcant::Vulcant
     VulcantToolkit
     imgui::imgui
