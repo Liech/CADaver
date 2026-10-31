@@ -16,8 +16,8 @@ class TriangulationAsset : public Asset
 
     std::string getType() const override;
 
-    const CADacomb::Triangulation* getTriangulation() const;
-    CADacomb::Triangulation*       getTriangulation();
+    const CADacomb::Triangulation& getTriangulation() const;
+    CADacomb::Triangulation&       getTriangulation();
     void                           setTriangulation(std::unique_ptr<CADacomb::Triangulation> tri);
 
     const glm::vec3& getMeshColor() const;

@@ -59,11 +59,6 @@ void CadAssetContextMenu::setCadToSvoModal(CadToSvoConversionModal* modal)
 
 void CadAssetContextMenu::save(const CadAsset& asset)
 {
-    if (!asset.getCadShape())
-    {
-        return;
-    }
-
     Library::SaveFileDialog dialog;
     dialog.addFilter("STEP File", { "step", "stp" });
 

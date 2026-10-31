@@ -70,18 +70,12 @@ nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream*, s
         return createResponse("NotTriangulationAsset");
     }
 
-    auto* tri = triAsset->getTriangulation();
-    if (!tri)
-    {
-        return createResponse("NoTriangulation");
-    }
-
     if (!outputStream || bar.isCanceled())
     {
         return createResponse("NoOutputStream");
     }
 
-    tri->saveAsSTL(*outputStream);
+    triAsset->getTriangulation().saveAsSTL(*outputStream);
     bar.addProgress(1);
 
     return createResponse("Success");

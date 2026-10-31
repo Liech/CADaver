@@ -34,19 +34,16 @@ void VoxelAssetContextMenu::render(const Asset& asset)
         {
             if (svoToStlModal)
             {
-                int maxDepth = 6;
-                if (voxelAsset->getSVO())
+                int      maxDepth = 6;
+                uint32_t dim      = voxelAsset->getSVO().getDimension();
+                uint32_t d        = 0;
+                while ((1u << d) < dim)
                 {
-                    uint32_t dim = voxelAsset->getSVO()->getDimension();
-                    uint32_t d   = 0;
-                    while ((1u << d) < dim)
-                    {
-                        d++;
-                    }
-                    if (d > 0)
-                    {
-                        maxDepth = static_cast<int>(d);
-                    }
+                    d++;
+                }
+                if (d > 0)
+                {
+                    maxDepth = static_cast<int>(d);
                 }
                 svoToStlModal->open(getAssetGuid(), voxelAsset->getName(), maxDepth);
             }
@@ -62,11 +59,6 @@ void VoxelAssetContextMenu::setSvoToStlModal(SvoToStlConversionModal* modal)
 
 void VoxelAssetContextMenu::save(const VoxelAsset& asset)
 {
-    if (!asset.getSVO())
-    {
-        return;
-    }
-
     Library::SaveFileDialog dialog;
     dialog.addFilter("SVO File", { "cadacombsvo", "svo" });
 

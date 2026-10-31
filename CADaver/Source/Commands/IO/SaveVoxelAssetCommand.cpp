@@ -71,17 +71,12 @@ nlohmann::json SaveVoxelAssetCommand::execute(Database& database, std::istream*,
         return createResponse("NotVoxelAsset");
     }
 
-    if (!voxelAsset->getSVO())
-    {
-        return createResponse("NoSVO");
-    }
-
     if (!outputStream || bar.isCanceled())
     {
         return createResponse("NoOutputStream");
     }
 
-    CADacomb::SVOFile::save(*outputStream, *voxelAsset->getSVO(), voxelAsset->getAABB());
+    CADacomb::SVOFile::save(*outputStream, voxelAsset->getSVO(), voxelAsset->getAABB());
     bar.addProgress(1);
 
     return createResponse("Success");

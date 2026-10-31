@@ -34,7 +34,7 @@ void VoxelAssetRenderer::setAsset(const std::shared_ptr<const Asset>& newAsset)
 
 void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
 {
-    if (!asset || !asset->getSVO())
+    if (!asset)
     {
         lodMesh.reset();
         dirty = false;
@@ -46,7 +46,7 @@ void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
     lastVertexCapacity   = svoPrefs.getVertexCapacity();
 
     lodMesh =
-      std::make_unique<CADacomb::Render::SVOLODMesh<bool>>(renderer.getDevice(), *asset->getSVO(), asset->getAABB(), static_cast<size_t>(lastVertexCapacity), static_cast<uint32_t>(lastChunkSize));
+      std::make_unique<CADacomb::Render::SVOLODMesh<bool>>(renderer.getDevice(), asset->getSVO(), asset->getAABB(), static_cast<size_t>(lastVertexCapacity), static_cast<uint32_t>(lastChunkSize));
 
     dirty        = false;
     lastRevision = asset->getRevision();
@@ -54,7 +54,7 @@ void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
 
 void VoxelAssetRenderer::render(Renderer& renderer, bool isSelected)
 {
-    if (!asset || !asset->getSVO())
+    if (!asset)
     {
         return;
     }

@@ -16,8 +16,8 @@ class VoxelAsset : public Asset
 
     std::string getType() const override;
 
-    const CADacomb::SVO<bool>* getSVO() const;
-    CADacomb::SVO<bool>*       getSVO();
+    const CADacomb::SVO<bool>& getSVO() const;
+    CADacomb::SVO<bool>&       getSVO();
     void                       setSVO(std::unique_ptr<CADacomb::SVO<bool>> svo);
 
     const CADacomb::AABB3& getAABB() const;

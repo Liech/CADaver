@@ -9,14 +9,14 @@ std::string VoxelAsset::getType() const
     return "Voxel";
 }
 
-const CADacomb::SVO<bool>* VoxelAsset::getSVO() const
+const CADacomb::SVO<bool>& VoxelAsset::getSVO() const
 {
-    return svo.get();
+    return *svo;
 }
 
-CADacomb::SVO<bool>* VoxelAsset::getSVO()
+CADacomb::SVO<bool>& VoxelAsset::getSVO()
 {
-    return svo.get();
+    return *svo;
 }
 
 void VoxelAsset::setSVO(std::unique_ptr<CADacomb::SVO<bool>> newSvo)

@@ -4,7 +4,10 @@
 #include "CADacomb/CAD/Interface/TessellationOptions.h"
 #include "CADacomb/CAD/Sm/KernelSm.h"
 
-CadAsset::CadAsset() {}
+CadAsset::CadAsset()
+  : triangulation(std::make_unique<CADacomb::Triangulation>())
+{
+}
 
 CadAsset::~CadAsset() {}
 
@@ -13,14 +16,14 @@ std::string CadAsset::getType() const
     return "Cad";
 }
 
-const CADacomb::CAD::Shape* CadAsset::getCadShape() const
+const CADacomb::CAD::Shape& CadAsset::getCadShape() const
 {
-    return cadShape.get();
+    return *cadShape;
 }
 
-CADacomb::CAD::Shape* CadAsset::getCadShape()
+CADacomb::CAD::Shape& CadAsset::getCadShape()
 {
-    return cadShape.get();
+    return *cadShape;
 }
 
 void CadAsset::setCadShape(std::shared_ptr<CADacomb::CAD::Shape> shape)
@@ -29,14 +32,14 @@ void CadAsset::setCadShape(std::shared_ptr<CADacomb::CAD::Shape> shape)
     triangulateShape();
 }
 
-const CADacomb::Triangulation* CadAsset::getTriangulation() const
+const CADacomb::Triangulation& CadAsset::getTriangulation() const
 {
-    return triangulation.get();
+    return *triangulation;
 }
 
-CADacomb::Triangulation* CadAsset::getTriangulation()
+CADacomb::Triangulation& CadAsset::getTriangulation()
 {
-    return triangulation.get();
+    return *triangulation;
 }
 
 void CadAsset::setTriangulation(std::unique_ptr<CADacomb::Triangulation> tri)

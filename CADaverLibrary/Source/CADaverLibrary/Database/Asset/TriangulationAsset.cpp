@@ -1,6 +1,9 @@
 #include "Database/Asset/TriangulationAsset.h"
 
-TriangulationAsset::TriangulationAsset() {}
+TriangulationAsset::TriangulationAsset()
+  : triangulation(std::make_unique<CADacomb::Triangulation>())
+{
+}
 
 TriangulationAsset::~TriangulationAsset() {}
 
@@ -9,14 +12,14 @@ std::string TriangulationAsset::getType() const
     return "Triangulation";
 }
 
-const CADacomb::Triangulation* TriangulationAsset::getTriangulation() const
+const CADacomb::Triangulation& TriangulationAsset::getTriangulation() const
 {
-    return triangulation.get();
+    return *triangulation;
 }
 
-CADacomb::Triangulation* TriangulationAsset::getTriangulation()
+CADacomb::Triangulation& TriangulationAsset::getTriangulation()
 {
-    return triangulation.get();
+    return *triangulation;
 }
 
 void TriangulationAsset::setTriangulation(std::unique_ptr<CADacomb::Triangulation> tri)

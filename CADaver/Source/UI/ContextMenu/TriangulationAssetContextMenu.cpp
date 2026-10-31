@@ -3,8 +3,8 @@
 #include "Commands/Defer.h"
 #include "Commands/GatedDatabase.h"
 #include "Database/Asset/TriangulationAsset.h"
-#include "UI/Dialog/SaveFileDialog.h"
 #include "UI/Converter/StlToSvoConversionModal.h"
+#include "UI/Dialog/SaveFileDialog.h"
 
 #include <filesystem>
 #include <fstream>
@@ -47,11 +47,6 @@ void TriangulationAssetContextMenu::setStlToSvoModal(StlToSvoConversionModal* mo
 
 void TriangulationAssetContextMenu::save(const TriangulationAsset& asset)
 {
-    if (!asset.getTriangulation())
-    {
-        return;
-    }
-
     Library::SaveFileDialog dialog;
     dialog.addFilter("STL File", { "stl" });
 

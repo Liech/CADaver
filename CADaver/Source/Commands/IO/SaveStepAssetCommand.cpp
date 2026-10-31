@@ -81,15 +81,6 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, 
         });
     }
 
-    auto* shape = cadAsset->getCadShape();
-    if (!shape)
-    {
-        return createResponse("NoShape",
-                              {
-                                { "filePath", filePath }
-        });
-    }
-
     std::string targetPath = filePath;
     if (targetPath.empty())
     {
@@ -99,7 +90,7 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, 
     try
     {
         CADacomb::CAD::KernelSm kernel;
-        kernel.saveStepFile(*shape, targetPath, cadAsset->getName());
+        kernel.saveStepFile(cadAsset->getCadShape(), targetPath, cadAsset->getName());
     }
     catch (...)
     {

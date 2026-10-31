@@ -21,12 +21,12 @@ class CadAsset : public Asset
 
     std::string getType() const override;
 
-    const CADacomb::CAD::Shape* getCadShape() const;
-    CADacomb::CAD::Shape*       getCadShape();
+    const CADacomb::CAD::Shape& getCadShape() const;
+    CADacomb::CAD::Shape&       getCadShape();
     void                        setCadShape(std::shared_ptr<CADacomb::CAD::Shape> shape);
 
-    const CADacomb::Triangulation* getTriangulation() const;
-    CADacomb::Triangulation*       getTriangulation();
+    const CADacomb::Triangulation& getTriangulation() const;
+    CADacomb::Triangulation&       getTriangulation();
     void                           setTriangulation(std::unique_ptr<CADacomb::Triangulation> tri);
 
     const glm::vec3& getMeshColor() const;
