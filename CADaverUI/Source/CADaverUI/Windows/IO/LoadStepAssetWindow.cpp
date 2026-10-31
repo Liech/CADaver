@@ -1,6 +1,6 @@
 #include "Windows/IO/LoadStepAssetWindow.h"
 
-#include "Dialog/LoadFileDialog.h"
+#include "Component/LoadFileDialog.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 

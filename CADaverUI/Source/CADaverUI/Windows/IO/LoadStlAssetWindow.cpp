@@ -1,6 +1,6 @@
 #include "Windows/IO/LoadStlAssetWindow.h"
 
-#include "Dialog/LoadFileDialog.h"
+#include "Component/LoadFileDialog.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 

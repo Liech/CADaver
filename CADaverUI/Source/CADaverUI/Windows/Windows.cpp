@@ -1,4 +1,4 @@
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include "Windows/Window.h"
 #include "Windows/WindowFactory.h"
@@ -6,16 +6,16 @@
 #include <imgui.h>
 #include <vector>
 
-WindowContainer::WindowContainer() {}
+Windows::Windows() {}
 
-WindowContainer::~WindowContainer() {}
+Windows::~Windows() {}
 
-void WindowContainer::setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput)
+void Windows::setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput)
 {
     gatedDatabase = &gatedDatabaseInput;
     defer         = &deferInput;
 
-    for (auto& pair : windows)
+    for (auto& pair : windowMap)
     {
         if (pair.second)
         {
@@ -24,10 +24,10 @@ void WindowContainer::setInput(GatedDatabase& gatedDatabaseInput, Defer& deferIn
     }
 }
 
-void WindowContainer::open(const std::string& type)
+void Windows::open(const std::string& type)
 {
-    auto it = windows.find(type);
-    if (it == windows.end() || !it->second)
+    auto it = windowMap.find(type);
+    if (it == windowMap.end() || !it->second)
     {
         WindowFactory factory;
         auto          created = factory.create(type);
@@ -39,41 +39,41 @@ void WindowContainer::open(const std::string& type)
         {
             created->setInput(*gatedDatabase, *defer, *this);
         }
-        windows[type] = created;
-        it            = windows.find(type);
+        windowMap[type] = created;
+        it              = windowMap.find(type);
     }
 
     it->second->open();
 }
 
-void WindowContainer::remove(const std::string& type)
+void Windows::remove(const std::string& type)
 {
-    auto it = windows.find(type);
-    if (it != windows.end())
+    auto it = windowMap.find(type);
+    if (it != windowMap.end())
     {
         if (it->second)
         {
             it->second->close();
         }
-        windows.erase(it);
+        windowMap.erase(it);
     }
 }
 
-std::shared_ptr<Window> WindowContainer::get(const std::string& type) const
+std::shared_ptr<Window> Windows::get(const std::string& type) const
 {
-    auto it = windows.find(type);
-    if (it != windows.end())
+    auto it = windowMap.find(type);
+    if (it != windowMap.end())
     {
         return it->second;
     }
     return nullptr;
 }
 
-void WindowContainer::render()
+void Windows::render()
 {
     std::vector<std::string> keys;
-    keys.reserve(windows.size());
-    for (const auto& pair : windows)
+    keys.reserve(windowMap.size());
+    for (const auto& pair : windowMap)
     {
         keys.push_back(pair.first);
     }
@@ -82,8 +82,8 @@ void WindowContainer::render()
 
     for (const auto& key : keys)
     {
-        auto it = windows.find(key);
-        if (it == windows.end() || !it->second)
+        auto it = windowMap.find(key);
+        if (it == windowMap.end() || !it->second)
         {
             closedTypes.push_back(key);
             continue;
@@ -109,14 +109,14 @@ void WindowContainer::render()
 
     for (const auto& type : closedTypes)
     {
-        windows.erase(type);
+        windowMap.erase(type);
     }
 }
 
-std::set<std::string> WindowContainer::getOpen() const
+std::set<std::string> Windows::getOpen() const
 {
     std::set<std::string> openTypes;
-    for (const auto& pair : windows)
+    for (const auto& pair : windowMap)
     {
         if (pair.second && pair.second->isOpen())
         {
@@ -129,9 +129,9 @@ std::set<std::string> WindowContainer::getOpen() const
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("WindowContainer/OpenAndRemove")
+TEST_CASE("Windows/OpenAndRemove")
 {
-    WindowContainer container;
+    Windows container;
     CHECK(container.getOpen().empty());
     CHECK(container.get("LandscapeGeneratorWindow") == nullptr);
 

@@ -4,7 +4,7 @@
 
 class Asset;
 class GatedDatabase;
-class WindowContainer;
+class Windows;
 
 // Context menu for CAD assets providing STEP save and conversion operations.
 class CadAssetContextMenu : public AssetContextMenu
@@ -13,5 +13,5 @@ class CadAssetContextMenu : public AssetContextMenu
     CadAssetContextMenu();
     virtual ~CadAssetContextMenu();
 
-    void render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset) override;
+    void render(GatedDatabase& gatedDatabase, Windows& windows, const Asset& asset) override;
 };

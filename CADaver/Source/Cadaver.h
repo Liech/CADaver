@@ -3,7 +3,7 @@
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include <cstdint>
 #include <glm/glm.hpp>
@@ -51,7 +51,7 @@ class Cadaver
     Defer                                   defer;
     GatedDatabase                           gatedDatabase;
     UndoStack                               undoStack;
-    WindowContainer                         windowContainer;
+    Windows                                 windows;
     std::unique_ptr<Vulcant::VulcantWindow> window;
     std::unique_ptr<Renderer>               renderer;
     std::unique_ptr<ViewController>         viewController;

@@ -4,7 +4,7 @@
 #include "Windows/Conversion/CadToStlConversionModal.h"
 #include "Windows/Conversion/CadToSvoConversionModal.h"
 #include "Windows/IO/SaveStepAssetWindow.h"
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include <imgui.h>
 #include <memory>
@@ -13,7 +13,7 @@ CadAssetContextMenu::CadAssetContextMenu() {}
 
 CadAssetContextMenu::~CadAssetContextMenu() {}
 
-void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset)
+void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows, const Asset& asset)
 {
     (void)gatedDatabase;
     auto cadAsset = dynamic_cast<const CadAsset*>(&asset);
@@ -24,8 +24,8 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer& 
 
     if (ImGui::MenuItem("Save..."))
     {
-        windowContainer.open("SaveStepAssetWindow");
-        auto window = std::dynamic_pointer_cast<SaveStepAssetWindow>(windowContainer.get("SaveStepAssetWindow"));
+        windows.open("SaveStepAssetWindow");
+        auto window = std::dynamic_pointer_cast<SaveStepAssetWindow>(windows.get("SaveStepAssetWindow"));
         if (window)
         {
             window->setTargetAsset(cadAsset->getGuid());
@@ -36,8 +36,8 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer& 
     {
         if (ImGui::MenuItem("STL..."))
         {
-            windowContainer.open("CadToStlConversionModal");
-            auto modal = std::dynamic_pointer_cast<CadToStlConversionModal>(windowContainer.get("CadToStlConversionModal"));
+            windows.open("CadToStlConversionModal");
+            auto modal = std::dynamic_pointer_cast<CadToStlConversionModal>(windows.get("CadToStlConversionModal"));
             if (modal)
             {
                 modal->setTargetAsset(cadAsset->getGuid());
@@ -45,8 +45,8 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer& 
         }
         if (ImGui::MenuItem("SVO..."))
         {
-            windowContainer.open("CadToSvoConversionModal");
-            auto modal = std::dynamic_pointer_cast<CadToSvoConversionModal>(windowContainer.get("CadToSvoConversionModal"));
+            windows.open("CadToSvoConversionModal");
+            auto modal = std::dynamic_pointer_cast<CadToSvoConversionModal>(windows.get("CadToSvoConversionModal"));
             if (modal)
             {
                 modal->setTargetAsset(cadAsset->getGuid());

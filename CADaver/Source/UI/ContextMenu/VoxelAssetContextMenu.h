@@ -4,7 +4,7 @@
 
 class Asset;
 class GatedDatabase;
-class WindowContainer;
+class Windows;
 
 // Context menu for voxel assets providing SVO save and conversion operations.
 class VoxelAssetContextMenu : public AssetContextMenu
@@ -13,5 +13,5 @@ class VoxelAssetContextMenu : public AssetContextMenu
     VoxelAssetContextMenu();
     virtual ~VoxelAssetContextMenu();
 
-    void render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset) override;
+    void render(GatedDatabase& gatedDatabase, Windows& windows, const Asset& asset) override;
 };

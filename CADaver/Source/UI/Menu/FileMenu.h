@@ -1,7 +1,7 @@
 #pragma once
 
 class PreferencesWindow;
-class WindowContainer;
+class Windows;
 
 // Renders the main file menu and opens file load and preferences windows.
 class FileMenu
@@ -10,5 +10,5 @@ class FileMenu
     FileMenu();
     virtual ~FileMenu();
 
-    void render(WindowContainer& windowContainer, PreferencesWindow& preferencesWindow, bool& quitRequested);
+    void render(Windows& windows, PreferencesWindow& preferencesWindow, bool& quitRequested);
 };

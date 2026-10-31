@@ -4,11 +4,11 @@ Window::Window() {}
 
 Window::~Window() {}
 
-void Window::setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput, WindowContainer& windowContainerInput)
+void Window::setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput, Windows& windowsInput)
 {
-    gatedDatabase   = &gatedDatabaseInput;
-    defer           = &deferInput;
-    windowContainer = &windowContainerInput;
+    gatedDatabase = &gatedDatabaseInput;
+    defer         = &deferInput;
+    windows       = &windowsInput;
 }
 
 bool Window::isOpen() const

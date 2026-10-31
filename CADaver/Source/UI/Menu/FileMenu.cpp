@@ -1,7 +1,7 @@
 #include "UI/Menu/FileMenu.h"
 
 #include "UI/Preferences/PreferencesWindow.h"
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include <imgui.h>
 
@@ -9,7 +9,7 @@ FileMenu::FileMenu() {}
 
 FileMenu::~FileMenu() {}
 
-void FileMenu::render(WindowContainer& windowContainer, PreferencesWindow& preferencesWindow, bool& quitRequested)
+void FileMenu::render(Windows& windows, PreferencesWindow& preferencesWindow, bool& quitRequested)
 {
     if (ImGui::BeginMenu("File"))
     {
@@ -17,15 +17,15 @@ void FileMenu::render(WindowContainer& windowContainer, PreferencesWindow& prefe
         {
             if (ImGui::MenuItem("STL..."))
             {
-                windowContainer.open("LoadStlAssetWindow");
+                windows.open("LoadStlAssetWindow");
             }
             if (ImGui::MenuItem("STEP..."))
             {
-                windowContainer.open("LoadStepAssetWindow");
+                windows.open("LoadStepAssetWindow");
             }
             if (ImGui::MenuItem("SVO..."))
             {
-                windowContainer.open("LoadSvoAssetWindow");
+                windows.open("LoadSvoAssetWindow");
             }
             ImGui::EndMenu();
         }

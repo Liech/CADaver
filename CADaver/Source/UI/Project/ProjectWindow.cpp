@@ -6,7 +6,7 @@
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenuFactory.h"
 #include "Windows/Project/TaskNotificationModal.h"
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include <imgui.h>
 
@@ -27,7 +27,7 @@ void ProjectWindow::setWidth(float newWidth)
     width = newWidth;
 }
 
-void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer)
+void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
 {
     const auto&          project  = gatedDatabase.get().getProject();
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -44,7 +44,7 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
     {
         width = ImGui::GetWindowWidth();
 
-        renderMenuBar(project, windowContainer);
+        renderMenuBar(project, windows);
 
         if (project.getAssetCount() == 0)
         {
@@ -83,8 +83,8 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
                                 if (ImGui::MenuItem("Cancel"))
                                 {
                                     progressAsset->cancel();
-                                    windowContainer.open("TaskNotificationModal");
-                                    auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windowContainer.get("TaskNotificationModal"));
+                                    windows.open("TaskNotificationModal");
+                                    auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotificationModal"));
                                     if (modal)
                                     {
                                         modal->setMessage("Operation '" + progressAsset->getOperationName() + "' was canceled.");
@@ -99,8 +99,8 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
                                 std::string st  = res.value("status", "");
                                 if (!st.empty() && st != "Success" && st != "Canceled")
                                 {
-                                    windowContainer.open("TaskNotificationModal");
-                                    auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windowContainer.get("TaskNotificationModal"));
+                                    windows.open("TaskNotificationModal");
+                                    auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotificationModal"));
                                     if (modal)
                                     {
                                         modal->setMessage("Operation '" + progressAsset->getOperationName() + "' failed: " + res.value("error", st));
@@ -122,7 +122,7 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
 
                     if (contextMenuFactory)
                     {
-                        contextMenuFactory->render(gatedDatabase, windowContainer, asset);
+                        contextMenuFactory->render(gatedDatabase, windows, asset);
                     }
 
                     ImGui::TableSetColumnIndex(1);
@@ -135,7 +135,7 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, WindowContainer& window
     ImGui::End();
 }
 
-void ProjectWindow::renderMenuBar(const Project& project, WindowContainer& windowContainer)
+void ProjectWindow::renderMenuBar(const Project& project, Windows& windows)
 {
     if (ImGui::BeginMenuBar())
     {
@@ -143,7 +143,7 @@ void ProjectWindow::renderMenuBar(const Project& project, WindowContainer& windo
         {
             if (ImGui::MenuItem("Clear Project...", nullptr, false, project.getAssetCount() > 0))
             {
-                windowContainer.open("ClearProjectModal");
+                windows.open("ClearProjectModal");
             }
             ImGui::EndMenu();
         }

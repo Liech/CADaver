@@ -1,4 +1,4 @@
-#include "Windows/About/CommandsWindow.h"
+#include "Windows/About/CommandsInfoWindow.h"
 
 #include "Execution/Command.h"
 #include "Execution/CommandFactory.h"
@@ -7,18 +7,18 @@
 #include <algorithm>
 #include <imgui.h>
 
-CommandsWindow::CommandsWindow() {}
+CommandsInfoWindow::CommandsInfoWindow() {}
 
-CommandsWindow::~CommandsWindow() {}
+CommandsInfoWindow::~CommandsInfoWindow() {}
 
-std::string CommandsWindow::getType() const
+std::string CommandsInfoWindow::getType() const
 {
-    return "CommandsWindow";
+    return "CommandsInfoWindow";
 }
 
-std::string CommandsWindow::getDescription() const
+std::string CommandsInfoWindow::getDescription() const
 {
-    return "Window: CommandsWindow\n"
+    return "Window: CommandsInfoWindow\n"
            "Title: Commands\n"
            "Purpose: Interactive reference browser displaying all commands registered in GatedDatabase's CommandFactory along with their JSON input/output schemas and stream requirements.\n\n"
            "Parameters:\n"
@@ -27,7 +27,7 @@ std::string CommandsWindow::getDescription() const
            "Dispatched Command: None (read-only documentation window)";
 }
 
-void CommandsWindow::loadData()
+void CommandsInfoWindow::loadData()
 {
     entries.clear();
 
@@ -56,7 +56,7 @@ void CommandsWindow::loadData()
     loaded = true;
 }
 
-void CommandsWindow::render()
+void CommandsInfoWindow::render()
 {
     if (!openState || !gatedDatabase)
     {

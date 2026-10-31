@@ -4,7 +4,7 @@
 
 class Defer;
 class GatedDatabase;
-class WindowContainer;
+class Windows;
 
 // Base class for UI windows managed by the application.
 class Window
@@ -13,7 +13,7 @@ class Window
     Window();
     virtual ~Window();
 
-    void setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput, WindowContainer& windowContainerInput);
+    void setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput, Windows& windowsInput);
 
     virtual std::string getType() const        = 0;
     virtual std::string getDescription() const = 0;
@@ -25,10 +25,10 @@ class Window
     bool consumeFocus();
 
   protected:
-    GatedDatabase*   gatedDatabase   = nullptr;
-    Defer*           defer           = nullptr;
-    WindowContainer* windowContainer = nullptr;
-    bool             openState       = false;
+    GatedDatabase* gatedDatabase = nullptr;
+    Defer*         defer         = nullptr;
+    Windows*       windows       = nullptr;
+    bool           openState     = false;
 
   private:
     bool shouldFocus = false;

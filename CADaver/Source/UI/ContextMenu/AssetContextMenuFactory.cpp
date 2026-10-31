@@ -7,7 +7,7 @@
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 #include "UI/ContextMenu/VoxelAssetContextMenu.h"
 #include "Windows/Project/RemoveAssetModal.h"
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include <imgui.h>
 
@@ -38,7 +38,7 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
     return nullptr;
 }
 
-void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const std::shared_ptr<const Asset>& asset)
+void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, Windows& windows, const std::shared_ptr<const Asset>& asset)
 {
     if (!asset)
     {
@@ -51,14 +51,14 @@ void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, WindowContain
         auto menu = create(asset);
         if (menu)
         {
-            menu->render(gatedDatabase, windowContainer, *asset);
+            menu->render(gatedDatabase, windows, *asset);
         }
 
         ImGui::Separator();
         if (ImGui::MenuItem("Close"))
         {
-            windowContainer.open("RemoveAssetModal");
-            auto modal = std::dynamic_pointer_cast<RemoveAssetModal>(windowContainer.get("RemoveAssetModal"));
+            windows.open("RemoveAssetModal");
+            auto modal = std::dynamic_pointer_cast<RemoveAssetModal>(windows.get("RemoveAssetModal"));
             if (modal)
             {
                 modal->setTargetAsset(asset->getGuid());

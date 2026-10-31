@@ -3,7 +3,7 @@
 #include "Database/Asset/TriangulationAsset.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/IO/SaveStlAssetWindow.h"
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include <imgui.h>
 #include <memory>
@@ -12,7 +12,7 @@ TriangulationAssetContextMenu::TriangulationAssetContextMenu() {}
 
 TriangulationAssetContextMenu::~TriangulationAssetContextMenu() {}
 
-void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset)
+void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows, const Asset& asset)
 {
     (void)gatedDatabase;
     auto triAsset = dynamic_cast<const TriangulationAsset*>(&asset);
@@ -23,8 +23,8 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowC
 
     if (ImGui::MenuItem("Save..."))
     {
-        windowContainer.open("SaveStlAssetWindow");
-        auto window = std::dynamic_pointer_cast<SaveStlAssetWindow>(windowContainer.get("SaveStlAssetWindow"));
+        windows.open("SaveStlAssetWindow");
+        auto window = std::dynamic_pointer_cast<SaveStlAssetWindow>(windows.get("SaveStlAssetWindow"));
         if (window)
         {
             window->setTargetAsset(triAsset->getGuid());
@@ -35,8 +35,8 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowC
     {
         if (ImGui::MenuItem("SVO..."))
         {
-            windowContainer.open("StlToSvoConversionModal");
-            auto modal = std::dynamic_pointer_cast<StlToSvoConversionModal>(windowContainer.get("StlToSvoConversionModal"));
+            windows.open("StlToSvoConversionModal");
+            auto modal = std::dynamic_pointer_cast<StlToSvoConversionModal>(windows.get("StlToSvoConversionModal"));
             if (modal)
             {
                 modal->setTargetAsset(triAsset->getGuid());

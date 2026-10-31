@@ -1,33 +1,38 @@
-#include "Dialog/LoadFileDialog.h"
+#include "Component/SaveFileDialog.h"
 
 #include <algorithm>
 #include <nfd.h>
 
-LoadFileDialog::LoadFileDialog() {}
+SaveFileDialog::SaveFileDialog() {}
 
-LoadFileDialog::~LoadFileDialog() {}
+SaveFileDialog::~SaveFileDialog() {}
 
-void LoadFileDialog::addFilter(const std::string& text, const std::vector<std::string>& suffixes)
+void SaveFileDialog::addFilter(const std::string& text, const std::vector<std::string>& suffixes)
 {
     filter.push_back(std::make_pair(text, suffixes));
 }
 
-void LoadFileDialog::setDefaultPath(const std::string& path)
+void SaveFileDialog::setSaveFileName(const std::string& text)
+{
+    name = text;
+}
+
+void SaveFileDialog::setDefaultPath(const std::string& path)
 {
     defaultPath = path;
 }
 
-bool LoadFileDialog::isCanceled() const
+bool SaveFileDialog::isCanceled() const
 {
     return cancel;
 }
 
-std::string LoadFileDialog::getResultPath() const
+std::string SaveFileDialog::getResultPath() const
 {
     return resultPath;
 }
 
-void LoadFileDialog::execute()
+void SaveFileDialog::execute()
 {
     NFD_Init();
     nfdchar_t*                   outPath = nullptr;
@@ -56,11 +61,11 @@ void LoadFileDialog::execute()
     nfdresult_t result;
     if (!nfdFilters.empty())
     {
-        result = NFD_OpenDialog(&outPath, nfdFilters.data(), static_cast<nfdfiltersize_t>(filterCount), defaultPath.c_str());
+        result = NFD_SaveDialog(&outPath, nfdFilters.data(), static_cast<nfdfiltersize_t>(filterCount), defaultPath.c_str(), name.c_str());
     }
     else
     {
-        result = NFD_OpenDialog(&outPath, nullptr, 0, defaultPath.c_str());
+        result = NFD_SaveDialog(&outPath, nullptr, 0, defaultPath.c_str(), name.c_str());
     }
 
     if (result == NFD_OKAY)

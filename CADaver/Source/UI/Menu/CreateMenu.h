@@ -1,6 +1,6 @@
 #pragma once
 
-class WindowContainer;
+class Windows;
 
 // Renders the main Create top menu and delegates opening creation windows.
 class CreateMenu
@@ -9,5 +9,5 @@ class CreateMenu
     CreateMenu();
     virtual ~CreateMenu();
 
-    void render(WindowContainer& windowContainer);
+    void render(Windows& windows);
 };

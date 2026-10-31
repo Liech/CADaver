@@ -3,7 +3,7 @@
 #include "Database/Asset/VoxelAsset.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
 #include "Windows/IO/SaveVoxelAssetWindow.h"
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include <imgui.h>
 #include <memory>
@@ -12,7 +12,7 @@ VoxelAssetContextMenu::VoxelAssetContextMenu() {}
 
 VoxelAssetContextMenu::~VoxelAssetContextMenu() {}
 
-void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer, const Asset& asset)
+void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows, const Asset& asset)
 {
     (void)gatedDatabase;
     auto voxelAsset = dynamic_cast<const VoxelAsset*>(&asset);
@@ -23,8 +23,8 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer
 
     if (ImGui::MenuItem("Save..."))
     {
-        windowContainer.open("SaveVoxelAssetWindow");
-        auto window = std::dynamic_pointer_cast<SaveVoxelAssetWindow>(windowContainer.get("SaveVoxelAssetWindow"));
+        windows.open("SaveVoxelAssetWindow");
+        auto window = std::dynamic_pointer_cast<SaveVoxelAssetWindow>(windows.get("SaveVoxelAssetWindow"));
         if (window)
         {
             window->setTargetAsset(voxelAsset->getGuid());
@@ -35,8 +35,8 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, WindowContainer
     {
         if (ImGui::MenuItem("STL (Blocky)..."))
         {
-            windowContainer.open("SvoToStlConversionModal");
-            auto modal = std::dynamic_pointer_cast<SvoToStlConversionModal>(windowContainer.get("SvoToStlConversionModal"));
+            windows.open("SvoToStlConversionModal");
+            auto modal = std::dynamic_pointer_cast<SvoToStlConversionModal>(windows.get("SvoToStlConversionModal"));
             if (modal)
             {
                 modal->setTargetAsset(voxelAsset->getGuid());

@@ -5,7 +5,7 @@
 #include "Execution/GatedDatabase.h"
 #include "UI/Preferences/PreferencesWindow.h"
 #include "Vulcant/Toolkit/Camera.h"
-#include "Windows/WindowContainer.h"
+#include "Windows/Windows.h"
 
 #include <imgui.h>
 
@@ -16,31 +16,31 @@ TopMenu::TopMenu()
 
 TopMenu::~TopMenu() {}
 
-void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, WindowContainer& windowContainer, bool& quitRequested)
+void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Windows& windows, bool& quitRequested)
 {
     (void)gatedDatabase;
     if (ImGui::BeginMainMenuBar())
     {
         if (preferencesWindow)
         {
-            fileMenu.render(windowContainer, *preferencesWindow, quitRequested);
+            fileMenu.render(windows, *preferencesWindow, quitRequested);
         }
         editMenu.render(undoStack, defer);
-        createMenu.render(windowContainer);
+        createMenu.render(windows);
 
         if (ImGui::BeginMenu("Help"))
         {
             if (ImGui::MenuItem("About CADaver"))
             {
-                windowContainer.open("AboutWindow");
+                windows.open("AboutWindow");
             }
             if (ImGui::MenuItem("Commands"))
             {
-                windowContainer.open("CommandsWindow");
+                windows.open("CommandsInfoWindow");
             }
             if (ImGui::MenuItem("Windows"))
             {
-                windowContainer.open("WindowsWindow");
+                windows.open("WindowsInfoWindow");
             }
             ImGui::EndMenu();
         }

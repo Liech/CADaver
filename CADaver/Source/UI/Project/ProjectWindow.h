@@ -5,7 +5,7 @@
 class AssetContextMenuFactory;
 class GatedDatabase;
 class Project;
-class WindowContainer;
+class Windows;
 
 // UI window displaying the project assets and providing context operations.
 class ProjectWindow
@@ -14,13 +14,13 @@ class ProjectWindow
     ProjectWindow();
     virtual ~ProjectWindow();
 
-    void render(GatedDatabase& gatedDatabase, WindowContainer& windowContainer);
+    void render(GatedDatabase& gatedDatabase, Windows& windows);
 
     float getWidth() const;
     void  setWidth(float width);
 
   private:
-    void renderMenuBar(const Project& project, WindowContainer& windowContainer);
+    void renderMenuBar(const Project& project, Windows& windows);
 
     std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;
     float                                    width = 300.0f;

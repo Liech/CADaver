@@ -18,24 +18,20 @@ source_group("Source" FILES ${Source_Files})
 set(Component_Files
     "Source/CADaverUI/Component/AssetComboBox.h"
     "Source/CADaverUI/Component/AssetComboBox.cpp"
+    "Source/CADaverUI/Component/LoadFileDialog.h"
+    "Source/CADaverUI/Component/LoadFileDialog.cpp"
+    "Source/CADaverUI/Component/SaveFileDialog.h"
+    "Source/CADaverUI/Component/SaveFileDialog.cpp"
     "Source/CADaverUI/Component/VoxelResolutionComboBox.h"
     "Source/CADaverUI/Component/VoxelResolutionComboBox.cpp"
 )
 source_group("Source/Component" FILES ${Component_Files})
 
-set(Dialog_Files
-    "Source/CADaverUI/Dialog/LoadFileDialog.h"
-    "Source/CADaverUI/Dialog/LoadFileDialog.cpp"
-    "Source/CADaverUI/Dialog/SaveFileDialog.h"
-    "Source/CADaverUI/Dialog/SaveFileDialog.cpp"
-)
-source_group("Source/Dialog" FILES ${Dialog_Files})
-
 set(Windows_Files
     "Source/CADaverUI/Windows/Window.h"
     "Source/CADaverUI/Windows/Window.cpp"
-    "Source/CADaverUI/Windows/WindowContainer.h"
-    "Source/CADaverUI/Windows/WindowContainer.cpp"
+    "Source/CADaverUI/Windows/Windows.h"
+    "Source/CADaverUI/Windows/Windows.cpp"
     "Source/CADaverUI/Windows/WindowFactory.h"
     "Source/CADaverUI/Windows/WindowFactory.cpp"
 )
@@ -44,10 +40,10 @@ source_group("Source/Windows" FILES ${Windows_Files})
 set(Windows_About_Files
     "Source/CADaverUI/Windows/About/AboutWindow.h"
     "Source/CADaverUI/Windows/About/AboutWindow.cpp"
-    "Source/CADaverUI/Windows/About/CommandsWindow.h"
-    "Source/CADaverUI/Windows/About/CommandsWindow.cpp"
-    "Source/CADaverUI/Windows/About/WindowsWindow.h"
-    "Source/CADaverUI/Windows/About/WindowsWindow.cpp"
+    "Source/CADaverUI/Windows/About/CommandsInfoWindow.h"
+    "Source/CADaverUI/Windows/About/CommandsInfoWindow.cpp"
+    "Source/CADaverUI/Windows/About/WindowsInfoWindow.h"
+    "Source/CADaverUI/Windows/About/WindowsInfoWindow.cpp"
 )
 source_group("Source/Windows/About" FILES ${Windows_About_Files})
 
@@ -98,7 +94,6 @@ source_group("Source/Windows/Project" FILES ${Windows_Project_Files})
 set(ALL_FILES
     ${Source_Files}
     ${Component_Files}
-    ${Dialog_Files}
     ${Windows_Files}
     ${Windows_About_Files}
     ${Windows_Conversion_Files}

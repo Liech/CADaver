@@ -10,11 +10,11 @@ class GatedDatabase;
 class Window;
 
 // Container managing active Window instances by type name.
-class WindowContainer
+class Windows
 {
   public:
-    WindowContainer();
-    virtual ~WindowContainer();
+    Windows();
+    virtual ~Windows();
 
     void setInput(GatedDatabase& gatedDatabaseInput, Defer& deferInput);
 
@@ -27,7 +27,7 @@ class WindowContainer
     std::set<std::string> getOpen() const;
 
   private:
-    std::map<std::string, std::shared_ptr<Window>> windows;
+    std::map<std::string, std::shared_ptr<Window>> windowMap;
     GatedDatabase*                                 gatedDatabase = nullptr;
     Defer*                                         defer         = nullptr;
 };

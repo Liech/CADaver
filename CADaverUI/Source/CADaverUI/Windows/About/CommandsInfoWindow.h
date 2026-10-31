@@ -6,12 +6,12 @@
 #include <utility>
 #include <vector>
 
-// UI window presenting available windows from WindowFactory and their descriptions.
-class WindowsWindow : public Window
+// UI window presenting available commands and their syntax documentation.
+class CommandsInfoWindow : public Window
 {
   public:
-    WindowsWindow();
-    virtual ~WindowsWindow();
+    CommandsInfoWindow();
+    virtual ~CommandsInfoWindow();
 
     virtual std::string getType() const override;
     virtual std::string getDescription() const override;

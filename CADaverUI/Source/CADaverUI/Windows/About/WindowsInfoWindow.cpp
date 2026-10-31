@@ -1,24 +1,24 @@
-#include "Windows/About/WindowsWindow.h"
+#include "Windows/About/WindowsInfoWindow.h"
 
 #include "Windows/Window.h"
-#include "Windows/WindowContainer.h"
 #include "Windows/WindowFactory.h"
+#include "Windows/Windows.h"
 
 #include <algorithm>
 #include <imgui.h>
 
-WindowsWindow::WindowsWindow() {}
+WindowsInfoWindow::WindowsInfoWindow() {}
 
-WindowsWindow::~WindowsWindow() {}
+WindowsInfoWindow::~WindowsInfoWindow() {}
 
-std::string WindowsWindow::getType() const
+std::string WindowsInfoWindow::getType() const
 {
-    return "WindowsWindow";
+    return "WindowsInfoWindow";
 }
 
-std::string WindowsWindow::getDescription() const
+std::string WindowsInfoWindow::getDescription() const
 {
-    return "Window: WindowsWindow\n"
+    return "Window: WindowsInfoWindow\n"
            "Title: Windows\n"
            "Purpose: Interactive reference browser displaying all UI windows registered in WindowFactory along with their purpose, parameters, and dispatched commands.\n\n"
            "Parameters:\n"
@@ -27,14 +27,14 @@ std::string WindowsWindow::getDescription() const
            "Dispatched Command: None (read-only documentation window)";
 }
 
-void WindowsWindow::loadData()
+void WindowsInfoWindow::loadData()
 {
     entries.clear();
 
     WindowFactory factory;
-    auto          windows = factory.getAllWindows();
+    auto          windowList = factory.getAllWindows();
 
-    for (const auto& win : windows)
+    for (const auto& win : windowList)
     {
         if (win)
         {
@@ -52,7 +52,7 @@ void WindowsWindow::loadData()
     loaded = true;
 }
 
-void WindowsWindow::render()
+void WindowsInfoWindow::render()
 {
     if (!openState)
     {
@@ -83,9 +83,9 @@ void WindowsWindow::render()
         ImGui::BeginChild("ContentPane", ImVec2(0.0f, 0.0f), true, ImGuiWindowFlags_HorizontalScrollbar);
         if (selectedIndex >= 0 && selectedIndex < static_cast<int>(entries.size()))
         {
-            if (windowContainer && ImGui::Button("Open", ImVec2(120.0f, 0.0f)))
+            if (windows && ImGui::Button("Open", ImVec2(120.0f, 0.0f)))
             {
-                windowContainer->open(entries[selectedIndex].first);
+                windows->open(entries[selectedIndex].first);
             }
             ImGui::Spacing();
             ImGui::Separator();
