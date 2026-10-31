@@ -1,8 +1,8 @@
 #include "UI/Menu/EditMenu.h"
 
-#include "Commands/Defer.h"
-#include "Commands/GatedDatabase.h"
 #include "Commands/Undo/UndoStack.h"
+#include "Execution/Defer.h"
+#include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
 
@@ -12,7 +12,7 @@ EditMenu::~EditMenu() {}
 
 void EditMenu::render()
 {
-    const auto& undoStack = GatedDatabase::getInstance().get().getUndoStack();
+    const auto& undoStack = UndoStack::getInstance();
 
     if (ImGui::BeginMenu("Edit"))
     {

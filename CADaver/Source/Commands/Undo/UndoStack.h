@@ -14,6 +14,8 @@ class UndoStack
     UndoStack();
     virtual ~UndoStack();
 
+    static UndoStack& getInstance();
+
     void push(std::unique_ptr<UndoRecord> record);
 
     bool canUndo() const;

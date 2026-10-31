@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Commands/Command.h"
+#include "Execution/Command.h"
 
 // Command to update camera preferences (FOV, clip planes, resolution, sensitivity, mode).
 class UpdateCameraPreferencesCommand : public Command

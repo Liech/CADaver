@@ -34,12 +34,26 @@ set(Database_Preferences_Files
 source_group("Source/Database/Preferences" FILES ${Database_Preferences_Files})
 
 set(Database_Files
+    "Source/CADaverLibrary/Database/Database.h"
+    "Source/CADaverLibrary/Database/Database.cpp"
     "Source/CADaverLibrary/Database/Project.h"
     "Source/CADaverLibrary/Database/Project.cpp"
     "Source/CADaverLibrary/Database/Asset.h"
     "Source/CADaverLibrary/Database/Asset.cpp"
 )
 source_group("Source/Database" FILES ${Database_Files})
+
+set(Execution_Files
+    "Source/CADaverLibrary/Execution/Command.h"
+    "Source/CADaverLibrary/Execution/Command.cpp"
+    "Source/CADaverLibrary/Execution/CommandFactory.h"
+    "Source/CADaverLibrary/Execution/CommandFactory.cpp"
+    "Source/CADaverLibrary/Execution/Defer.h"
+    "Source/CADaverLibrary/Execution/Defer.cpp"
+    "Source/CADaverLibrary/Execution/GatedDatabase.h"
+    "Source/CADaverLibrary/Execution/GatedDatabase.cpp"
+)
+source_group("Source/Execution" FILES ${Execution_Files})
 
 set(Database_Asset_Files
     "Source/CADaverLibrary/Database/Asset/CadAsset.h"
@@ -59,6 +73,7 @@ set(ALL_FILES
     ${Database_Preferences_Files}
     ${Database_Files}
     ${Database_Asset_Files}
+    ${Execution_Files}
 )
 
 ############################################################################

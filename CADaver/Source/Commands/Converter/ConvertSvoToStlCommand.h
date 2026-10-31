@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CADacomb/Util/GUID.h"
-#include "Commands/Command.h"
+#include "Execution/Command.h"
 
 // Command to convert a volumetric SVO asset to a blocky triangulation STL asset.
 class ConvertSvoToStlCommand : public Command

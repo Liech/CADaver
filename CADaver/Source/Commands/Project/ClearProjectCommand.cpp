@@ -1,6 +1,7 @@
 #include "Commands/Project/ClearProjectCommand.h"
 
 #include "Commands/Undo/ClearProjectUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
 
 ClearProjectCommand::ClearProjectCommand() {}
@@ -47,7 +48,7 @@ nlohmann::json ClearProjectCommand::execute(Database& database, std::istream*, s
 
     if (recordUndo && !assets.empty())
     {
-        database.getUndoStack().push(std::make_unique<ClearProjectUndoRecord>(assets));
+        UndoStack::getInstance().push(std::make_unique<ClearProjectUndoRecord>(assets));
     }
 
     return {

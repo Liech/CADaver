@@ -1,6 +1,7 @@
 #include "Commands/Preferences/UpdateRenderPreferencesCommand.h"
 
 #include "Commands/Undo/PreferencesUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
 
 UpdateRenderPreferencesCommand::UpdateRenderPreferencesCommand() {}
@@ -56,7 +57,7 @@ nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database, std::
 
     if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<PreferencesUndoRecord>("Render", prevJson, preferencesData));
+        UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("Render", prevJson, preferencesData));
     }
 
     return {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Commands/GatedDatabase.h"
+#include "Execution/GatedDatabase.h"
 
 #include <cstdint>
 #include <glm/glm.hpp>
@@ -39,6 +39,7 @@ class Cadaver
     void onResize(const glm::ivec2& newResolution);
 
     void prepare();
+    void registerCommands();
     void renderImGui();
 
     void onKey(const Vulcant::VulcantInputValue& key);

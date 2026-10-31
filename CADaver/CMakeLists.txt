@@ -34,12 +34,6 @@ set(UI_Preferences_Files
 )
 source_group("Source/UI/Preferences" FILES ${UI_Preferences_Files})
 
-set(Database_Files
-    "Source/Database/Database.h"
-    "Source/Database/Database.cpp"
-)
-source_group("Source/Database" FILES ${Database_Files})
-
 set(Rendering_Files
     "Source/Rendering/Renderer.h"
     "Source/Rendering/Renderer.cpp"
@@ -58,14 +52,6 @@ source_group("Source/Rendering" FILES ${Rendering_Files})
 
 set(Command_Files
     "Source/Commands/RULES.md"
-    "Source/Commands/Command.h"
-    "Source/Commands/Command.cpp"
-    "Source/Commands/CommandFactory.h"
-    "Source/Commands/CommandFactory.cpp"
-    "Source/Commands/GatedDatabase.h"
-    "Source/Commands/GatedDatabase.cpp"
-    "Source/Commands/Defer.h"
-    "Source/Commands/Defer.cpp"
 )
 source_group("Source/Commands" FILES ${Command_Files})
 
@@ -237,7 +223,6 @@ set(ALL_FILES
     ${UI_Dialog_Files}
     ${Source_Files}
     ${Camera_Files}
-    ${Database_Files}
     ${Rendering_Files}
     ${UI_Menu_Files}
     ${UI_Preferences_Files}

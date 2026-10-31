@@ -1,7 +1,8 @@
 #include "CommandsWindow.h"
 
-#include "Commands/Command.h"
-#include "Commands/CommandFactory.h"
+#include "Execution/Command.h"
+#include "Execution/CommandFactory.h"
+#include "Execution/GatedDatabase.h"
 
 #include <algorithm>
 #include <imgui.h>
@@ -28,8 +29,7 @@ void CommandsWindow::loadData()
 {
     entries.clear();
 
-    CommandFactory factory;
-    auto           commands = factory.getAllCommands();
+    auto commands = GatedDatabase::getInstance().getCommandFactory().getAllCommands();
 
     for (const auto& command : commands)
     {

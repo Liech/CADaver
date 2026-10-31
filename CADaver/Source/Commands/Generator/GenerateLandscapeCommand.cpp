@@ -3,6 +3,7 @@
 #include "CADacomb/Volume/MergeStrategy/MostPrevalentExceptMergeStrategy.h"
 #include "CADacomb/Volume/SVO/Generator/SVOLandscapeGenerator.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
 
@@ -99,7 +100,7 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istrea
 
     if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(voxelAsset));
+        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(voxelAsset));
     }
 
     return createResponse("Success",
@@ -166,7 +167,7 @@ TEST_CASE("GenerateLandscapeCommand/ExecuteSuccess")
     auto           asset = database.getProject().getAsset(guid);
     REQUIRE(asset != nullptr);
     CHECK(asset->getName() == "TestTerrain");
-    CHECK(database.getUndoStack().canUndo());
+    CHECK(UndoStack::getInstance().canUndo());
 }
 
 TEST_CASE("GenerateLandscapeCommand/UndoRedo")
@@ -181,10 +182,10 @@ TEST_CASE("GenerateLandscapeCommand/UndoRedo")
 
     REQUIRE(database.getProject().hasAsset(guid));
 
-    database.getUndoStack().undo(database);
+    UndoStack::getInstance().undo(database);
     CHECK_FALSE(database.getProject().hasAsset(guid));
 
-    database.getUndoStack().redo(database);
+    UndoStack::getInstance().redo(database);
     CHECK(database.getProject().hasAsset(guid));
 }
 #endif

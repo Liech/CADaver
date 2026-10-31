@@ -1,11 +1,30 @@
 #include "Cadaver.h"
 
 #include "Camera/ViewController.h"
-#include "Commands/Defer.h"
+#include "Commands/Converter/ConvertCadToStlCommand.h"
+#include "Commands/Converter/ConvertCadToSvoCommand.h"
+#include "Commands/Converter/ConvertStlToSvoCommand.h"
+#include "Commands/Converter/ConvertSvoToStlCommand.h"
+#include "Commands/Generator/GenerateLandscapeCommand.h"
+#include "Commands/IO/LoadStepAssetCommand.h"
+#include "Commands/IO/LoadStlAssetCommand.h"
+#include "Commands/IO/LoadSvoAssetCommand.h"
+#include "Commands/IO/SaveStepAssetCommand.h"
+#include "Commands/IO/SaveStlAssetCommand.h"
+#include "Commands/IO/SaveVoxelAssetCommand.h"
+#include "Commands/Preferences/UpdateCameraPreferencesCommand.h"
+#include "Commands/Preferences/UpdateRenderPreferencesCommand.h"
+#include "Commands/Preferences/UpdateSVOPreferencesCommand.h"
+#include "Commands/Preferences/UpdateUIPreferencesCommand.h"
+#include "Commands/Project/ClearProjectCommand.h"
+#include "Commands/Project/RemoveAssetCommand.h"
+#include "Commands/Undo/RedoCommand.h"
+#include "Commands/Undo/UndoCommand.h"
 #include "Database/Preferences/CameraPreferences.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Database/Preferences/UIPreferences.h"
+#include "Execution/Defer.h"
 #include "Rendering/Renderer.h"
 #include "UI/Menu/TopMenu.h"
 #include "UI/Preferences/PreferencesWindow.h"
@@ -146,6 +165,8 @@ void Cadaver::onKey(const Vulcant::VulcantInputValue& key)
 
 void Cadaver::prepare()
 {
+    registerCommands();
+
     renderer = std::make_unique<Renderer>(device, *window, resolution, GatedDatabase::getInstance());
 
     const auto& preferences = GatedDatabase::getInstance().get().getPreferences();
@@ -159,6 +180,39 @@ void Cadaver::prepare()
 
     viewController = std::make_unique<ViewController>();
     viewController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
+}
+
+void Cadaver::registerCommands()
+{
+    auto& factory = GatedDatabase::getInstance().getCommandFactory();
+    factory.registerCommand("RemoveAsset", [](const nlohmann::json& json) { return std::make_unique<RemoveAssetCommand>(json); }, []() { return std::make_unique<RemoveAssetCommand>(); });
+    factory.registerCommand("ClearProject", [](const nlohmann::json& json) { return std::make_unique<ClearProjectCommand>(json); }, []() { return std::make_unique<ClearProjectCommand>(); });
+    factory.registerCommand("ConvertCadToStl", [](const nlohmann::json& json) { return std::make_unique<ConvertCadToStlCommand>(json); }, []() { return std::make_unique<ConvertCadToStlCommand>(); });
+    factory.registerCommand("ConvertCadToSvo", [](const nlohmann::json& json) { return std::make_unique<ConvertCadToSvoCommand>(json); }, []() { return std::make_unique<ConvertCadToSvoCommand>(); });
+    factory.registerCommand("ConvertStlToSvo", [](const nlohmann::json& json) { return std::make_unique<ConvertStlToSvoCommand>(json); }, []() { return std::make_unique<ConvertStlToSvoCommand>(); });
+    factory.registerCommand("ConvertSvoToStl", [](const nlohmann::json& json) { return std::make_unique<ConvertSvoToStlCommand>(json); }, []() { return std::make_unique<ConvertSvoToStlCommand>(); });
+    factory.registerCommand(
+      "GenerateLandscape", [](const nlohmann::json& json) { return std::make_unique<GenerateLandscapeCommand>(json); }, []() { return std::make_unique<GenerateLandscapeCommand>(); });
+    factory.registerCommand("LoadStlAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStlAssetCommand>(json); }, []() { return std::make_unique<LoadStlAssetCommand>(); });
+    factory.registerCommand("SaveStlAsset", [](const nlohmann::json& json) { return std::make_unique<SaveStlAssetCommand>(json); }, []() { return std::make_unique<SaveStlAssetCommand>(); });
+    factory.registerCommand("LoadStepAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStepAssetCommand>(json); }, []() { return std::make_unique<LoadStepAssetCommand>(); });
+    factory.registerCommand("SaveStepAsset", [](const nlohmann::json& json) { return std::make_unique<SaveStepAssetCommand>(json); }, []() { return std::make_unique<SaveStepAssetCommand>(); });
+    factory.registerCommand("LoadSvoAsset", [](const nlohmann::json& json) { return std::make_unique<LoadSvoAssetCommand>(json); }, []() { return std::make_unique<LoadSvoAssetCommand>(); });
+    factory.registerCommand("SaveVoxelAsset", [](const nlohmann::json& json) { return std::make_unique<SaveVoxelAssetCommand>(json); }, []() { return std::make_unique<SaveVoxelAssetCommand>(); });
+    factory.registerCommand("Undo", [](const nlohmann::json& json) { return std::make_unique<UndoCommand>(json); }, []() { return std::make_unique<UndoCommand>(); });
+    factory.registerCommand("Redo", [](const nlohmann::json& json) { return std::make_unique<RedoCommand>(json); }, []() { return std::make_unique<RedoCommand>(); });
+    factory.registerCommand(
+      "UpdateCameraPreferences",
+      [](const nlohmann::json& json) { return std::make_unique<UpdateCameraPreferencesCommand>(json); },
+      []() { return std::make_unique<UpdateCameraPreferencesCommand>(); });
+    factory.registerCommand(
+      "UpdateUIPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateUIPreferencesCommand>(json); }, []() { return std::make_unique<UpdateUIPreferencesCommand>(); });
+    factory.registerCommand(
+      "UpdateRenderPreferences",
+      [](const nlohmann::json& json) { return std::make_unique<UpdateRenderPreferencesCommand>(json); },
+      []() { return std::make_unique<UpdateRenderPreferencesCommand>(); });
+    factory.registerCommand(
+      "UpdateSVOPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateSVOPreferencesCommand>(json); }, []() { return std::make_unique<UpdateSVOPreferencesCommand>(); });
 }
 
 void Cadaver::renderImGui()

@@ -1,7 +1,7 @@
 #include "UI/Menu/FileMenu.h"
 
-#include "Commands/Defer.h"
-#include "Commands/GatedDatabase.h"
+#include "Execution/Defer.h"
+#include "Execution/GatedDatabase.h"
 #include "UI/Dialog/LoadFileDialog.h"
 #include "UI/Preferences/PreferencesWindow.h"
 

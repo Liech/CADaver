@@ -3,6 +3,7 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
 #include "Commands/Undo/ReplaceAssetUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Conversion/AssetConverter.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
@@ -105,14 +106,14 @@ nlohmann::json ConvertCadToStlCommand::execute(Database& database, std::istream*
         database.getProject().removeAsset(assetGuid);
         if (recordUndo)
         {
-            database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, stlAsset));
+            UndoStack::getInstance().push(std::make_unique<ReplaceAssetUndoRecord>(baseAsset, stlAsset));
         }
     }
     else
     {
         if (recordUndo)
         {
-            database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(stlAsset));
+            UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(stlAsset));
         }
     }
 

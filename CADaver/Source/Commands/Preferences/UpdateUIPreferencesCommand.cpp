@@ -1,6 +1,7 @@
 #include "Commands/Preferences/UpdateUIPreferencesCommand.h"
 
 #include "Commands/Undo/PreferencesUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
 
 UpdateUIPreferencesCommand::UpdateUIPreferencesCommand() {}
@@ -55,7 +56,7 @@ nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istr
 
     if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<PreferencesUndoRecord>("UI", prevJson, preferencesData));
+        UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("UI", prevJson, preferencesData));
     }
 
     return {

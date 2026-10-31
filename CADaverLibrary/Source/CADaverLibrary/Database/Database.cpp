@@ -1,4 +1,4 @@
-#include "Database.h"
+#include "Database/Database.h"
 
 Database::Database()
 {
@@ -27,12 +27,12 @@ const Preferences& Database::getPreferences() const
     return preferences;
 }
 
-UndoStack& Database::getUndoStack()
-{
-    return undoStack;
-}
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
 
-const UndoStack& Database::getUndoStack() const
+TEST_CASE("Database/DefaultState")
 {
-    return undoStack;
+    Database db;
+    CHECK(db.getProject().getAssetCount() == 0);
 }
+#endif

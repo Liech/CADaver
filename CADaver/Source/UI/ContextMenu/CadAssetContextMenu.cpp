@@ -1,8 +1,8 @@
 #include "CadAssetContextMenu.h"
 
-#include "Commands/Defer.h"
-#include "Commands/GatedDatabase.h"
 #include "Database/Asset/CadAsset.h"
+#include "Execution/Defer.h"
+#include "Execution/GatedDatabase.h"
 #include "UI/Converter/CadToStlConversionModal.h"
 #include "UI/Converter/CadToSvoConversionModal.h"
 #include "UI/Dialog/SaveFileDialog.h"

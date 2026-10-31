@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Commands/Command.h"
+#include "Execution/Command.h"
 
 // Command to update UI preferences (theme, UI scale, background color).
 class UpdateUIPreferencesCommand : public Command

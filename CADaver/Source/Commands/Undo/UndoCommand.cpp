@@ -1,5 +1,6 @@
 #include "Commands/Undo/UndoCommand.h"
 
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
 
 UndoCommand::UndoCommand() {}
@@ -40,24 +41,24 @@ std::string UndoCommand::getDescription() const
 
 nlohmann::json UndoCommand::execute(Database& database, std::istream*, std::ostream*, bool)
 {
-    if (!database.getUndoStack().canUndo())
+    if (!UndoStack::getInstance().canUndo())
     {
         return {
-            {    "type",                         getType() },
-            { "version",                      getVersion() },
-            {  "status",                     "NotExecuted" },
-            { "canUndo",                             false },
-            { "canRedo", database.getUndoStack().canRedo() }
+            {    "type",                          getType() },
+            { "version",                       getVersion() },
+            {  "status",                      "NotExecuted" },
+            { "canUndo",                              false },
+            { "canRedo", UndoStack::getInstance().canRedo() }
         };
     }
 
-    database.getUndoStack().undo(database);
+    UndoStack::getInstance().undo(database);
 
     return {
-        {    "type",                         getType() },
-        { "version",                      getVersion() },
-        {  "status",                         "Success" },
-        { "canUndo", database.getUndoStack().canUndo() },
-        { "canRedo", database.getUndoStack().canRedo() }
+        {    "type",                          getType() },
+        { "version",                       getVersion() },
+        {  "status",                          "Success" },
+        { "canUndo", UndoStack::getInstance().canUndo() },
+        { "canRedo", UndoStack::getInstance().canRedo() }
     };
 }

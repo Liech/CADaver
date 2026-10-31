@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Commands/Command.h"
+#include "Execution/Command.h"
 
 // Command to update render preferences (mesh color, wireframe mode, wireframe color, cull mode).
 class UpdateRenderPreferencesCommand : public Command

@@ -1,8 +1,9 @@
 #include "PreferencesWindow.h"
 
-#include "Commands/Defer.h"
-#include "Commands/GatedDatabase.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Preferences/Preferences.h"
+#include "Execution/Defer.h"
+#include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
 
@@ -117,7 +118,7 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
 
             if (ImGui::BeginTabItem("Undo"))
             {
-                const auto& undoStack = GatedDatabase::getInstance().get().getUndoStack();
+                const auto& undoStack = UndoStack::getInstance();
                 if (undoPreferencesView.render(undoStack))
                 {
                     modified = true;

@@ -1,6 +1,7 @@
 #include "Commands/Preferences/UpdateSVOPreferencesCommand.h"
 
 #include "Commands/Undo/PreferencesUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
 
 UpdateSVOPreferencesCommand::UpdateSVOPreferencesCommand() {}
@@ -63,7 +64,7 @@ nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database, std::ist
 
     if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<PreferencesUndoRecord>("SVO", prevJson, preferencesData));
+        UndoStack::getInstance().push(std::make_unique<PreferencesUndoRecord>("SVO", prevJson, preferencesData));
     }
 
     return {

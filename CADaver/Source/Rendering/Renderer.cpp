@@ -2,11 +2,11 @@
 
 #include "AssetRenderFactory.h"
 #include "AssetRenderer.h"
-#include "Commands/GatedDatabase.h"
 #include "Database/Asset.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Database/Preferences/UIPreferences.h"
+#include "Execution/GatedDatabase.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 #include "Vulcant/Interface/VulcantImage.h"

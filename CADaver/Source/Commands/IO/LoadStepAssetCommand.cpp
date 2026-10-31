@@ -3,6 +3,7 @@
 #include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
 
@@ -94,7 +95,7 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, 
 
     if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(asset));
+        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
     }
 
     return createResponse("Success",

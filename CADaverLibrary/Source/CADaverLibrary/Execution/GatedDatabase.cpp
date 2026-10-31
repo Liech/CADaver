@@ -1,11 +1,9 @@
-#include "GatedDatabase.h"
+#include "Execution/GatedDatabase.h"
 
 #include "CADacomb/Util/ProgressBar.h"
-#include "Commands/Command.h"
-#include "Commands/Defer.h"
-#include "Commands/Undo/AddAssetUndoRecord.h"
-#include "Commands/Undo/ReplaceAssetUndoRecord.h"
 #include "Database/Asset/ProgressBarAsset.h"
+#include "Execution/Command.h"
+#include "Execution/Defer.h"
 
 #include <algorithm>
 #include <cassert>
@@ -26,6 +24,16 @@ GatedDatabase& GatedDatabase::getInstance()
 const Database& GatedDatabase::get() const
 {
     return database;
+}
+
+CommandFactory& GatedDatabase::getCommandFactory()
+{
+    return commandFactory;
+}
+
+const CommandFactory& GatedDatabase::getCommandFactory() const
+{
+    return commandFactory;
 }
 
 void GatedDatabase::lock()
@@ -244,7 +252,7 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
     std::shared_ptr<Command> sharedCmd = std::move(cmd);
 
     std::thread worker(
-      [this, taskGuid, progressAsset, abductedAssets, sharedCmd, recordUndo, inputStream, outputStream, promise, callerPromise]()
+      [this, taskGuid, progressAsset, abductedAssets, sharedCmd, inputStream, outputStream, promise, callerPromise]()
       {
           CADacomb::ProgressBar::setThreadGuid(taskGuid);
 
@@ -303,7 +311,7 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
           callerPromise->set_value(result);
 
           Defer::getInstance().defer(
-            [this, taskGuid, progressAsset, abductedAssets, newAssets, success, recordUndo]()
+            [this, taskGuid, progressAsset, abductedAssets, newAssets, success]()
             {
                 database.getProject().removeAsset(progressAsset->getGuid());
 
@@ -321,17 +329,6 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
                         for (const auto& newAsset : newAssets)
                         {
                             database.getProject().addAsset(newAsset);
-                            if (recordUndo)
-                            {
-                                if (!abductedAssets.empty())
-                                {
-                                    database.getUndoStack().push(std::make_unique<ReplaceAssetUndoRecord>(abductedAssets.front(), newAsset));
-                                }
-                                else
-                                {
-                                    database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(newAsset));
-                                }
-                            }
                         }
                     }
                 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Commands/Command.h"
+#include "Execution/Command.h"
 
 // Command to update SVO LOD visualization preferences.
 class UpdateSVOPreferencesCommand : public Command

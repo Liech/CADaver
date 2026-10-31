@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CADacomb/Util/GUID.h"
-#include "CommandFactory.h"
 #include "Database/Database.h"
+#include "Execution/CommandFactory.h"
 
 #include <future>
 #include <istream>
@@ -22,7 +22,9 @@ class GatedDatabase
 
     static GatedDatabase& getInstance();
 
-    const Database& get() const;
+    const Database&       get() const;
+    CommandFactory&       getCommandFactory();
+    const CommandFactory& getCommandFactory() const;
 
     void lock();
     void unlock();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CADacomb/Util/GUID.h"
-#include "Commands/Command.h"
+#include "Execution/Command.h"
 
 // Command to convert a CAD asset to a volumetric SVO asset via triangulation.
 class ConvertCadToSvoCommand : public Command

@@ -3,6 +3,7 @@
 #include "CADacomb/Triangle/Triangulation.h"
 #include "CADacomb/Util/ProgressBar.h"
 #include "Commands/Undo/AddAssetUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
 
@@ -85,7 +86,7 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* in
 
     if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<AddAssetUndoRecord>(asset));
+        UndoStack::getInstance().push(std::make_unique<AddAssetUndoRecord>(asset));
     }
 
     return createResponse("Success",

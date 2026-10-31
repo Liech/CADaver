@@ -1,6 +1,7 @@
 #include "Commands/Project/RemoveAssetCommand.h"
 
 #include "Commands/Undo/RemoveAssetUndoRecord.h"
+#include "Commands/Undo/UndoStack.h"
 #include "Database/Database.h"
 
 RemoveAssetCommand::RemoveAssetCommand() {}
@@ -66,7 +67,7 @@ nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, st
 
     if (recordUndo)
     {
-        database.getUndoStack().push(std::make_unique<RemoveAssetUndoRecord>(asset));
+        UndoStack::getInstance().push(std::make_unique<RemoveAssetUndoRecord>(asset));
     }
 
     return {

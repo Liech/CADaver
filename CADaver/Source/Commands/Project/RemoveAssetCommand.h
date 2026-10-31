@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include "CADacomb/Util/GUID.h"
-#include "Commands/Command.h"
+#include "Execution/Command.h"
 
 // Command to remove an asset from the project by GUID.
 class RemoveAssetCommand : public Command

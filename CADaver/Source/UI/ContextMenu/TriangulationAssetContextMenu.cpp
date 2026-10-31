@@ -1,8 +1,8 @@
 #include "TriangulationAssetContextMenu.h"
 
-#include "Commands/Defer.h"
-#include "Commands/GatedDatabase.h"
 #include "Database/Asset/TriangulationAsset.h"
+#include "Execution/Defer.h"
+#include "Execution/GatedDatabase.h"
 #include "UI/Converter/StlToSvoConversionModal.h"
 #include "UI/Dialog/SaveFileDialog.h"
 

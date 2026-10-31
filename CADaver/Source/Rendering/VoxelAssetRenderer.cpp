@@ -1,9 +1,9 @@
 #include "VoxelAssetRenderer.h"
 
-#include "Commands/GatedDatabase.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/SVOPreferences.h"
+#include "Execution/GatedDatabase.h"
 #include "Rendering/Renderer.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"

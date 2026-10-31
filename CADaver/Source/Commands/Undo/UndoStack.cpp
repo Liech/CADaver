@@ -6,6 +6,12 @@ UndoStack::UndoStack() {}
 
 UndoStack::~UndoStack() {}
 
+UndoStack& UndoStack::getInstance()
+{
+    static UndoStack instance;
+    return instance;
+}
+
 void UndoStack::push(std::unique_ptr<UndoRecord> record)
 {
     if (!record)

@@ -1,10 +1,10 @@
 #include "UI/ContextMenu/AssetContextMenuFactory.h"
 
-#include "Commands/Defer.h"
-#include "Commands/GatedDatabase.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Asset/VoxelAsset.h"
+#include "Execution/Defer.h"
+#include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/CadAssetContextMenu.h"
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 #include "UI/ContextMenu/VoxelAssetContextMenu.h"
