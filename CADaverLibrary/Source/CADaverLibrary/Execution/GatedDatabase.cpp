@@ -3,7 +3,6 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/ProgressBarAsset.h"
 #include "Execution/Command.h"
-#include "Execution/Defer.h"
 #include "Execution/UndoContainer.h"
 
 #include <algorithm>
@@ -34,6 +33,11 @@ const CommandFactory& GatedDatabase::getCommandFactory() const
 void GatedDatabase::setUndoCallback(std::function<void(std::unique_ptr<UndoContainer>)> callback)
 {
     undoCallback = std::move(callback);
+}
+
+void GatedDatabase::setDispatchCallback(std::function<void(std::function<void()>)> callback)
+{
+    dispatchCallback = std::move(callback);
 }
 
 nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istream* inputStream, std::ostream* outputStream)
@@ -107,11 +111,6 @@ void GatedDatabase::undo(UndoContainer& container)
     if (hasActiveTasks())
     {
         cancelAllTasks();
-        while (hasActiveTasks())
-        {
-            Defer::getInstance().process();
-            std::this_thread::yield();
-        }
     }
 
     recursionLock = true;
@@ -125,11 +124,6 @@ void GatedDatabase::redo(UndoContainer& container)
     if (hasActiveTasks())
     {
         cancelAllTasks();
-        while (hasActiveTasks())
-        {
-            Defer::getInstance().process();
-            std::this_thread::yield();
-        }
     }
 
     recursionLock = true;
@@ -271,41 +265,49 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
           promise->set_value(result);
           callerPromise->set_value(result);
 
-          Defer::getInstance().defer(
-            [this, taskGuid, progressAsset, abductedAssets, resultAssets, cmdHolder, result, success]()
-            {
-                database.getProject().removeAsset(progressAsset->getGuid());
+          auto completion = [this, taskGuid, progressAsset, abductedAssets, resultAssets, cmdHolder, result, success]()
+          {
+              database.getProject().removeAsset(progressAsset->getGuid());
 
-                if (success)
-                {
-                    for (const auto& asset : resultAssets)
-                    {
-                        database.getProject().addAsset(asset);
-                    }
-                    if (undoCallback && *cmdHolder && (*cmdHolder)->isUndoable())
-                    {
-                        undoCallback(std::make_unique<UndoContainer>(std::move(*cmdHolder)));
-                    }
-                }
-                else
-                {
-                    for (const auto& orig : abductedAssets)
-                    {
-                        database.getProject().addAsset(orig);
-                    }
-                }
+              if (success)
+              {
+                  for (const auto& asset : resultAssets)
+                  {
+                      database.getProject().addAsset(asset);
+                  }
+                  if (undoCallback && *cmdHolder && (*cmdHolder)->isUndoable())
+                  {
+                      undoCallback(std::make_unique<UndoContainer>(std::move(*cmdHolder)));
+                  }
+              }
+              else
+              {
+                  for (const auto& orig : abductedAssets)
+                  {
+                      database.getProject().addAsset(orig);
+                  }
+              }
 
-                log("OUT: " + result.dump(4));
+              log("OUT: " + result.dump(4));
 
-                {
-                    std::lock_guard<std::mutex> lock(tasksMutex);
-                    auto                        it = std::find(activeTaskGuids.begin(), activeTaskGuids.end(), taskGuid);
-                    if (it != activeTaskGuids.end())
-                    {
-                        activeTaskGuids.erase(it);
-                    }
-                }
-            });
+              {
+                  std::lock_guard<std::mutex> lock(tasksMutex);
+                  auto                        it = std::find(activeTaskGuids.begin(), activeTaskGuids.end(), taskGuid);
+                  if (it != activeTaskGuids.end())
+                  {
+                      activeTaskGuids.erase(it);
+                  }
+              }
+          };
+
+          if (dispatchCallback)
+          {
+              dispatchCallback(completion);
+          }
+          else
+          {
+              completion();
+          }
       });
 
     worker.detach();

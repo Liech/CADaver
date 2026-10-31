@@ -11,6 +11,7 @@ namespace Vulcant::Toolkit
     class Camera;
 }
 
+class Defer;
 class GatedDatabase;
 class PreferencesWindow;
 class UndoStack;
@@ -23,8 +24,8 @@ class TopMenu
     TopMenu();
     virtual ~TopMenu();
 
-    void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, WindowContainer& windowContainer, bool& quitRequested);
-    void renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera = nullptr);
+    void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, WindowContainer& windowContainer, bool& quitRequested);
+    void renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Vulcant::Toolkit::Camera* camera = nullptr);
 
     PreferencesWindow* getPreferencesWindow() const;
 

@@ -11,7 +11,7 @@ UndoPreferencesView::UndoPreferencesView() {}
 
 UndoPreferencesView::~UndoPreferencesView() {}
 
-bool UndoPreferencesView::render(UndoStack& undoStack)
+bool UndoPreferencesView::render(UndoStack& undoStack, Defer& defer)
 {
     bool modified = false;
 
@@ -39,7 +39,7 @@ bool UndoPreferencesView::render(UndoStack& undoStack)
     ImGui::BeginDisabled(!undoStack.canUndo());
     if (ImGui::Button("Undo"))
     {
-        Defer::getInstance().defer([&undoStack]() { undoStack.undo(); });
+        defer.defer([&undoStack]() { undoStack.undo(); });
         modified = true;
     }
     ImGui::EndDisabled();
@@ -48,7 +48,7 @@ bool UndoPreferencesView::render(UndoStack& undoStack)
     ImGui::BeginDisabled(!undoStack.canRedo());
     if (ImGui::Button("Redo"))
     {
-        Defer::getInstance().defer([&undoStack]() { undoStack.redo(); });
+        defer.defer([&undoStack]() { undoStack.redo(); });
         modified = true;
     }
     ImGui::EndDisabled();

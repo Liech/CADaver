@@ -9,27 +9,27 @@ EditMenu::EditMenu() {}
 
 EditMenu::~EditMenu() {}
 
-void EditMenu::render(UndoStack& undoStack)
+void EditMenu::render(UndoStack& undoStack, Defer& defer)
 {
     if (ImGui::BeginMenu("Edit"))
     {
         if (ImGui::MenuItem("Undo", "Ctrl+Z", false, undoStack.canUndo()))
         {
-            triggerUndo(undoStack);
+            triggerUndo(undoStack, defer);
         }
 
         if (ImGui::MenuItem("Redo", "Ctrl+Y", false, undoStack.canRedo()))
         {
-            triggerRedo(undoStack);
+            triggerRedo(undoStack, defer);
         }
 
         ImGui::EndMenu();
     }
 
-    handleShortcuts(undoStack);
+    handleShortcuts(undoStack, defer);
 }
 
-void EditMenu::handleShortcuts(UndoStack& undoStack)
+void EditMenu::handleShortcuts(UndoStack& undoStack, Defer& defer)
 {
     if (!ImGui::GetIO().KeyCtrl || ImGui::GetIO().WantTextInput)
     {
@@ -42,14 +42,14 @@ void EditMenu::handleShortcuts(UndoStack& undoStack)
         {
             if (undoStack.canRedo())
             {
-                triggerRedo(undoStack);
+                triggerRedo(undoStack, defer);
             }
         }
         else
         {
             if (undoStack.canUndo())
             {
-                triggerUndo(undoStack);
+                triggerUndo(undoStack, defer);
             }
         }
     }
@@ -57,17 +57,17 @@ void EditMenu::handleShortcuts(UndoStack& undoStack)
     {
         if (undoStack.canRedo())
         {
-            triggerRedo(undoStack);
+            triggerRedo(undoStack, defer);
         }
     }
 }
 
-void EditMenu::triggerUndo(UndoStack& undoStack)
+void EditMenu::triggerUndo(UndoStack& undoStack, Defer& defer)
 {
-    Defer::getInstance().defer([&undoStack]() { undoStack.undo(); });
+    defer.defer([&undoStack]() { undoStack.undo(); });
 }
 
-void EditMenu::triggerRedo(UndoStack& undoStack)
+void EditMenu::triggerRedo(UndoStack& undoStack, Defer& defer)
 {
-    Defer::getInstance().defer([&undoStack]() { undoStack.redo(); });
+    defer.defer([&undoStack]() { undoStack.redo(); });
 }

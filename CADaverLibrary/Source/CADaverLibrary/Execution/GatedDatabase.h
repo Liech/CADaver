@@ -37,6 +37,7 @@ class GatedDatabase
     void cancelAllTasks();
 
     void setUndoCallback(std::function<void(std::unique_ptr<UndoContainer>)> callback);
+    void setDispatchCallback(std::function<void(std::function<void()>)> callback);
 
   private:
     void log(const std::string& msg);
@@ -44,6 +45,7 @@ class GatedDatabase
     Database                                            database;
     CommandFactory                                      commandFactory;
     std::function<void(std::unique_ptr<UndoContainer>)> undoCallback;
+    std::function<void(std::function<void()>)>          dispatchCallback;
     mutable std::mutex                                  tasksMutex;
     std::vector<CADacomb::GUID>                         activeTaskGuids;
     bool                                                recursionLock = false;

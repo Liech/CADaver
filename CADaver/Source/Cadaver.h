@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"
 #include "Windows/WindowContainer.h"
@@ -47,6 +48,7 @@ class Cadaver
     void onKey(const Vulcant::VulcantInputValue& key);
 
     Vulcant::VulcantDevice&                 device;
+    Defer                                   defer;
     GatedDatabase                           gatedDatabase;
     UndoStack                               undoStack;
     WindowContainer                         windowContainer;

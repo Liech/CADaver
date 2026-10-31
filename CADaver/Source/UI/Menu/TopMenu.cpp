@@ -1,6 +1,7 @@
 #include "UI/Menu/TopMenu.h"
 
 #include "Database/Preferences/Preferences.h"
+#include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/Preferences/PreferencesWindow.h"
 #include "Vulcant/Toolkit/Camera.h"
@@ -15,7 +16,7 @@ TopMenu::TopMenu()
 
 TopMenu::~TopMenu() {}
 
-void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, WindowContainer& windowContainer, bool& quitRequested)
+void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, WindowContainer& windowContainer, bool& quitRequested)
 {
     (void)gatedDatabase;
     if (ImGui::BeginMainMenuBar())
@@ -24,7 +25,7 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, WindowC
         {
             fileMenu.render(windowContainer, *preferencesWindow, quitRequested);
         }
-        editMenu.render(undoStack);
+        editMenu.render(undoStack, defer);
         createMenu.render(windowContainer);
 
         if (ImGui::BeginMenu("Help"))
@@ -48,11 +49,11 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, WindowC
     }
 }
 
-void TopMenu::renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera)
+void TopMenu::renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Vulcant::Toolkit::Camera* camera)
 {
     if (preferencesWindow)
     {
-        preferencesWindow->render(gatedDatabase, undoStack, camera);
+        preferencesWindow->render(gatedDatabase, undoStack, defer, camera);
     }
 }
 

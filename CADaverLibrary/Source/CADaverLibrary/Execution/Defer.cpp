@@ -4,12 +4,6 @@ Defer::Defer() {}
 
 Defer::~Defer() {}
 
-Defer& Defer::getInstance()
-{
-    static Defer instance;
-    return instance;
-}
-
 void Defer::defer(std::function<void()> task)
 {
     std::lock_guard<std::mutex> lock(mutex);
@@ -32,3 +26,23 @@ void Defer::process()
         }
     }
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("Defer/DeferAndProcess")
+{
+    Defer deferQueue;
+    int   counter = 0;
+
+    deferQueue.defer([&counter]() { counter += 2; });
+    deferQueue.defer([&counter]() { counter += 3; });
+    CHECK(counter == 0);
+
+    deferQueue.process();
+    CHECK(counter == 5);
+
+    deferQueue.process();
+    CHECK(counter == 5);
+}
+#endif

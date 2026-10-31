@@ -22,7 +22,6 @@
 #include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Database/Preferences/UIPreferences.h"
-#include "Execution/Defer.h"
 #include "Rendering/Renderer.h"
 #include "UI/Menu/TopMenu.h"
 #include "UI/Preferences/PreferencesWindow.h"
@@ -82,7 +81,7 @@ void Cadaver::changeResolution(const glm::ivec2& newResolution)
 
     auto cameraPrefs          = gatedDatabase.get().getPreferences().getCameraPreferences().toJson();
     cameraPrefs["resolution"] = { resolution.x, resolution.y };
-    Defer::getInstance().defer(
+    defer.defer(
       [this, cameraPrefs]()
       {
           gatedDatabase.execute({
@@ -105,7 +104,7 @@ bool Cadaver::isQuitRequested() const
 
 void Cadaver::onLogic(double delta)
 {
-    Defer::getInstance().process();
+    defer.process();
 
     if (viewController)
     {
@@ -166,7 +165,9 @@ void Cadaver::prepare()
 {
     registerCommands();
 
-    windowContainer.setInput(gatedDatabase, Defer::getInstance());
+    gatedDatabase.setDispatchCallback([this](std::function<void()> task) { defer.defer(std::move(task)); });
+
+    windowContainer.setInput(gatedDatabase, defer);
 
     renderer = std::make_unique<Renderer>(device, *window, resolution, gatedDatabase);
 
@@ -177,7 +178,7 @@ void Cadaver::prepare()
     if (topMenu->getPreferencesWindow())
     {
         topMenu->getPreferencesWindow()->getUIPreferencesView().apply(preferences.getUIPreferences());
-        topMenu->getPreferencesWindow()->load(gatedDatabase);
+        topMenu->getPreferencesWindow()->load(gatedDatabase, defer);
     }
 
     viewController = std::make_unique<ViewController>();
@@ -221,12 +222,12 @@ void Cadaver::renderImGui()
 
     if (topMenu)
     {
-        topMenu->render(gatedDatabase, undoStack, windowContainer, quitRequested);
+        topMenu->render(gatedDatabase, undoStack, defer, windowContainer, quitRequested);
 
         auto* prefWin = topMenu->getPreferencesWindow();
         if (prefWin && viewController)
         {
-            topMenu->renderWindows(gatedDatabase, undoStack, viewController->getCamera());
+            topMenu->renderWindows(gatedDatabase, undoStack, defer, viewController->getCamera());
 
             if (prefWin->isResetRequested())
             {
@@ -241,7 +242,7 @@ void Cadaver::renderImGui()
         }
         else
         {
-            topMenu->renderWindows(gatedDatabase, undoStack);
+            topMenu->renderWindows(gatedDatabase, undoStack, defer);
         }
     }
 

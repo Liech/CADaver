@@ -13,7 +13,7 @@ PreferencesWindow::PreferencesWindow() {}
 
 PreferencesWindow::~PreferencesWindow() {}
 
-void PreferencesWindow::load(GatedDatabase& gatedDatabase, const std::string& filepath)
+void PreferencesWindow::load(GatedDatabase& gatedDatabase, Defer& defer, const std::string& filepath)
 {
     std::ifstream file(filepath);
     if (!file.is_open())
@@ -31,7 +31,7 @@ void PreferencesWindow::load(GatedDatabase& gatedDatabase, const std::string& fi
 
         uiPreferencesView.apply(loadedPrefs.getUIPreferences());
 
-        Defer::getInstance().defer(
+        defer.defer(
           [&gatedDatabase, loadedPrefs]()
           {
               gatedDatabase.execute({
@@ -72,7 +72,7 @@ void PreferencesWindow::save(const Preferences& preferences, const std::string& 
     file << preferences.toJson().dump(4);
 }
 
-void PreferencesWindow::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera)
+void PreferencesWindow::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Vulcant::Toolkit::Camera* camera)
 {
     if (!openState)
     {
@@ -94,7 +94,7 @@ void PreferencesWindow::render(GatedDatabase& gatedDatabase, UndoStack& undoStac
                 {
                     modified  = true;
                     auto json = workingPreferences.getUIPreferences().toJson();
-                    Defer::getInstance().defer(
+                    defer.defer(
                       [&gatedDatabase, json]()
                       {
                           gatedDatabase.execute({
@@ -113,7 +113,7 @@ void PreferencesWindow::render(GatedDatabase& gatedDatabase, UndoStack& undoStac
                 {
                     modified  = true;
                     auto json = workingPreferences.getCameraPreferences().toJson();
-                    Defer::getInstance().defer(
+                    defer.defer(
                       [&gatedDatabase, json]()
                       {
                           gatedDatabase.execute({
@@ -137,7 +137,7 @@ void PreferencesWindow::render(GatedDatabase& gatedDatabase, UndoStack& undoStac
                 {
                     modified  = true;
                     auto json = workingPreferences.getRenderPreferences().toJson();
-                    Defer::getInstance().defer(
+                    defer.defer(
                       [&gatedDatabase, json]()
                       {
                           gatedDatabase.execute({
@@ -156,7 +156,7 @@ void PreferencesWindow::render(GatedDatabase& gatedDatabase, UndoStack& undoStac
                 {
                     modified  = true;
                     auto json = workingPreferences.getSVOPreferences().toJson();
-                    Defer::getInstance().defer(
+                    defer.defer(
                       [&gatedDatabase, json]()
                       {
                           gatedDatabase.execute({
@@ -171,7 +171,7 @@ void PreferencesWindow::render(GatedDatabase& gatedDatabase, UndoStack& undoStac
 
             if (ImGui::BeginTabItem("Undo"))
             {
-                if (undoPreferencesView.render(undoStack))
+                if (undoPreferencesView.render(undoStack, defer))
                 {
                     modified = true;
                 }

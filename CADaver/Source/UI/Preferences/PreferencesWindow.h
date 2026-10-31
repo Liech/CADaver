@@ -13,6 +13,7 @@ namespace Vulcant::Toolkit
     class Camera;
 }
 
+class Defer;
 class GatedDatabase;
 class Preferences;
 class UndoStack;
@@ -24,9 +25,9 @@ class PreferencesWindow
     PreferencesWindow();
     virtual ~PreferencesWindow();
 
-    void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera = nullptr);
+    void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Vulcant::Toolkit::Camera* camera = nullptr);
 
-    void load(GatedDatabase& gatedDatabase, const std::string& filepath = "preferences.json");
+    void load(GatedDatabase& gatedDatabase, Defer& defer, const std::string& filepath = "preferences.json");
     void save(const Preferences& preferences, const std::string& filepath = "preferences.json") const;
 
     bool isOpen() const;
