@@ -1,4 +1,4 @@
-#include "UI/Windows/WindowsWindow.h"
+#include "Windows/About/WindowsWindow.h"
 
 #include "Windows/Window.h"
 #include "Windows/WindowFactory.h"
@@ -10,18 +10,36 @@ WindowsWindow::WindowsWindow() {}
 
 WindowsWindow::~WindowsWindow() {}
 
-bool WindowsWindow::isOpen() const
+std::string WindowsWindow::getType() const
 {
-    return open;
+    return "WindowsWindow";
 }
 
-void WindowsWindow::setOpen(bool openState)
+std::string WindowsWindow::getDescription() const
 {
-    if (openState)
-    {
-        loaded = false;
-    }
-    open = openState;
+    return "Window: WindowsWindow\n"
+           "Title: Windows\n"
+           "Purpose: Interactive reference browser displaying all UI windows registered in WindowFactory along with their purpose, parameters, and dispatched commands.\n\n"
+           "Parameters:\n"
+           "  - Left Pane (IndexPane): Alphabetically sorted list of registered Window types\n"
+           "  - Right Pane (ContentPane): Full window specification (title, purpose, UI controls/parameters, and dispatched commands)\n\n"
+           "Dispatched Command: None (read-only documentation window)";
+}
+
+bool WindowsWindow::isOpen() const
+{
+    return openState;
+}
+
+void WindowsWindow::open()
+{
+    loaded    = false;
+    openState = true;
+}
+
+void WindowsWindow::close()
+{
+    openState = false;
 }
 
 void WindowsWindow::loadData()
@@ -51,7 +69,7 @@ void WindowsWindow::loadData()
 
 void WindowsWindow::render()
 {
-    if (!open)
+    if (!openState)
     {
         return;
     }
@@ -62,7 +80,7 @@ void WindowsWindow::render()
     }
 
     ImGui::SetNextWindowSize(ImVec2(800.0f, 520.0f), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Windows", &open))
+    if (ImGui::Begin("Windows", &openState))
     {
         ImGui::BeginChild("IndexPane", ImVec2(240.0f, 0.0f), true);
         for (size_t i = 0; i < entries.size(); i++)

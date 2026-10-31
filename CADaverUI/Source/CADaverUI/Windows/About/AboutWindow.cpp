@@ -1,4 +1,4 @@
-#include "AboutWindow.h"
+#include "Windows/About/AboutWindow.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -10,18 +10,36 @@ AboutWindow::AboutWindow() {}
 
 AboutWindow::~AboutWindow() {}
 
-bool AboutWindow::isOpen() const
+std::string AboutWindow::getType() const
 {
-    return open;
+    return "AboutWindow";
 }
 
-void AboutWindow::setOpen(bool openState)
+std::string AboutWindow::getDescription() const
 {
-    if (openState)
-    {
-        loadData();
-    }
-    open = openState;
+    return "Window: AboutWindow\n"
+           "Title: About CADaver\n"
+           "Purpose: Displays application overview information from about.txt along with a two-pane browser of all third-party software licenses in the Licenses/ directory.\n\n"
+           "Parameters:\n"
+           "  - Left Pane (IndexPane): Selectable list of 'CADaver' and all discovered third-party license files\n"
+           "  - Right Pane (ContentPane): Scrollable full text of the selected about/license document\n\n"
+           "Dispatched Command: None (read-only informational window)";
+}
+
+bool AboutWindow::isOpen() const
+{
+    return openState;
+}
+
+void AboutWindow::open()
+{
+    loadData();
+    openState = true;
+}
+
+void AboutWindow::close()
+{
+    openState = false;
 }
 
 std::string AboutWindow::readFileContent(const std::string& filePath) const
@@ -77,7 +95,7 @@ void AboutWindow::loadData()
 
 void AboutWindow::render()
 {
-    if (!open)
+    if (!openState)
     {
         return;
     }
@@ -88,7 +106,7 @@ void AboutWindow::render()
     }
 
     ImGui::SetNextWindowSize(ImVec2(800.0f, 520.0f), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("About CADaver", &open))
+    if (ImGui::Begin("About CADaver", &openState))
     {
         ImGui::BeginChild("IndexPane", ImVec2(240.0f, 0.0f), true);
         for (size_t i = 0; i < entries.size(); i++)

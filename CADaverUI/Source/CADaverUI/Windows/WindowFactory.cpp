@@ -1,5 +1,8 @@
 #include "Windows/WindowFactory.h"
 
+#include "Windows/About/AboutWindow.h"
+#include "Windows/About/CommandsWindow.h"
+#include "Windows/About/WindowsWindow.h"
 #include "Windows/Conversion/CadToStlConversionModal.h"
 #include "Windows/Conversion/CadToSvoConversionModal.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
@@ -56,6 +59,9 @@ void WindowFactory::registerWindow(const std::string& name, std::function<std::s
 
 void WindowFactory::registerWindows()
 {
+    registerWindow("AboutWindow", []() { return std::make_shared<AboutWindow>(); });
+    registerWindow("CommandsWindow", []() { return std::make_shared<CommandsWindow>(); });
+    registerWindow("WindowsWindow", []() { return std::make_shared<WindowsWindow>(); });
     registerWindow("CadToStlConversionModal", []() { return std::make_shared<CadToStlConversionModal>(); });
     registerWindow("CadToSvoConversionModal", []() { return std::make_shared<CadToSvoConversionModal>(); });
     registerWindow("StlToSvoConversionModal", []() { return std::make_shared<StlToSvoConversionModal>(); });
@@ -70,11 +76,14 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
 {
     WindowFactory factory;
     CHECK(factory.create("UnknownWindow") == nullptr);
+    CHECK(factory.create("AboutWindow") != nullptr);
+    CHECK(factory.create("CommandsWindow") != nullptr);
+    CHECK(factory.create("WindowsWindow") != nullptr);
     CHECK(factory.create("CadToStlConversionModal") != nullptr);
     CHECK(factory.create("CadToSvoConversionModal") != nullptr);
     CHECK(factory.create("StlToSvoConversionModal") != nullptr);
     CHECK(factory.create("SvoToStlConversionModal") != nullptr);
     CHECK(factory.create("LandscapeGeneratorWindow") != nullptr);
-    CHECK(factory.getAllWindows().size() == 5);
+    CHECK(factory.getAllWindows().size() == 8);
 }
 #endif

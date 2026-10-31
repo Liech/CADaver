@@ -50,24 +50,6 @@ set(Rendering_Files
 )
 source_group("Source/Rendering" FILES ${Rendering_Files})
 
-set(UI_About_Files
-    "Source/UI/About/AboutWindow.h"
-    "Source/UI/About/AboutWindow.cpp"
-)
-source_group("Source/UI/About" FILES ${UI_About_Files})
-
-set(UI_Commands_Files
-    "Source/UI/Commands/CommandsWindow.h"
-    "Source/UI/Commands/CommandsWindow.cpp"
-)
-source_group("Source/UI/Commands" FILES ${UI_Commands_Files})
-
-set(UI_Windows_Files
-    "Source/UI/Windows/WindowsWindow.h"
-    "Source/UI/Windows/WindowsWindow.cpp"
-)
-source_group("Source/UI/Windows" FILES ${UI_Windows_Files})
-
 set(UI_Component_Files
     "Source/UI/Component/ViewCubeWidget.h"
     "Source/UI/Component/ViewCubeWidget.cpp"
@@ -131,9 +113,6 @@ set(ALL_FILES
     ${Rendering_Files}
     ${UI_Menu_Files}
     ${UI_Preferences_Files}
-    ${UI_About_Files}
-    ${UI_Commands_Files}
-    ${UI_Windows_Files}
     ${UI_Component_Files}
     ${UI_ContextMenu_Files}
     ${UI_Project_Files}

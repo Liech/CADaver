@@ -30,6 +30,16 @@ set(Windows_Files
 )
 source_group("Source/Windows" FILES ${Windows_Files})
 
+set(Windows_About_Files
+    "Source/CADaverUI/Windows/About/AboutWindow.h"
+    "Source/CADaverUI/Windows/About/AboutWindow.cpp"
+    "Source/CADaverUI/Windows/About/CommandsWindow.h"
+    "Source/CADaverUI/Windows/About/CommandsWindow.cpp"
+    "Source/CADaverUI/Windows/About/WindowsWindow.h"
+    "Source/CADaverUI/Windows/About/WindowsWindow.cpp"
+)
+source_group("Source/Windows/About" FILES ${Windows_About_Files})
+
 set(Windows_Conversion_Files
     "Source/CADaverUI/Windows/Conversion/CadToStlConversionModal.h"
     "Source/CADaverUI/Windows/Conversion/CadToStlConversionModal.cpp"
@@ -52,6 +62,7 @@ set(ALL_FILES
     ${Source_Files}
     ${Component_Files}
     ${Windows_Files}
+    ${Windows_About_Files}
     ${Windows_Conversion_Files}
     ${Windows_Generator_Files}
 )

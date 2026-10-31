@@ -3,11 +3,11 @@
 #include "Database/Preferences/Preferences.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
-#include "UI/About/AboutWindow.h"
-#include "UI/Commands/CommandsWindow.h"
 #include "UI/Preferences/PreferencesWindow.h"
-#include "UI/Windows/WindowsWindow.h"
 #include "Vulcant/Toolkit/Camera.h"
+#include "Windows/About/AboutWindow.h"
+#include "Windows/About/CommandsWindow.h"
+#include "Windows/About/WindowsWindow.h"
 #include "Windows/Generator/LandscapeGeneratorWindow.h"
 
 #include <imgui.h>
@@ -43,21 +43,21 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& q
             {
                 if (aboutWindow)
                 {
-                    aboutWindow->setOpen(true);
+                    aboutWindow->open();
                 }
             }
             if (ImGui::MenuItem("Commands"))
             {
                 if (commandsWindow)
                 {
-                    commandsWindow->setOpen(true);
+                    commandsWindow->open();
                 }
             }
             if (ImGui::MenuItem("Windows"))
             {
                 if (windowsWindow)
                 {
-                    windowsWindow->setOpen(true);
+                    windowsWindow->open();
                 }
             }
             ImGui::EndMenu();
@@ -69,25 +69,29 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, bool& q
 
 void TopMenu::renderWindows(GatedDatabase& gatedDatabase, UndoStack& undoStack, Vulcant::Toolkit::Camera* camera)
 {
+    auto& defer = Defer::getInstance();
     if (preferencesWindow)
     {
         preferencesWindow->render(gatedDatabase, undoStack, camera);
     }
     if (aboutWindow)
     {
+        aboutWindow->setInput(gatedDatabase, defer);
         aboutWindow->render();
     }
     if (commandsWindow)
     {
-        commandsWindow->render(gatedDatabase);
+        commandsWindow->setInput(gatedDatabase, defer);
+        commandsWindow->render();
     }
     if (windowsWindow)
     {
+        windowsWindow->setInput(gatedDatabase, defer);
         windowsWindow->render();
     }
     if (landscapeGeneratorWindow)
     {
-        landscapeGeneratorWindow->setInput(gatedDatabase, Defer::getInstance());
+        landscapeGeneratorWindow->setInput(gatedDatabase, defer);
         landscapeGeneratorWindow->render();
     }
 }

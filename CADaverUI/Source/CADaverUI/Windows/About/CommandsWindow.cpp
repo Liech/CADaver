@@ -1,4 +1,4 @@
-#include "CommandsWindow.h"
+#include "Windows/About/CommandsWindow.h"
 
 #include "Execution/Command.h"
 #include "Execution/CommandFactory.h"
@@ -11,25 +11,48 @@ CommandsWindow::CommandsWindow() {}
 
 CommandsWindow::~CommandsWindow() {}
 
+std::string CommandsWindow::getType() const
+{
+    return "CommandsWindow";
+}
+
+std::string CommandsWindow::getDescription() const
+{
+    return "Window: CommandsWindow\n"
+           "Title: Commands\n"
+           "Purpose: Interactive reference browser displaying all commands registered in GatedDatabase's CommandFactory along with their JSON input/output schemas and stream requirements.\n\n"
+           "Parameters:\n"
+           "  - Left Pane (IndexPane): Alphabetically sorted list of registered command types\n"
+           "  - Right Pane (ContentPane): Full command specification (version, purpose, JSON input syntax, streams, and JSON output syntax)\n\n"
+           "Dispatched Command: None (read-only documentation window)";
+}
+
 bool CommandsWindow::isOpen() const
 {
-    return open;
+    return openState;
 }
 
-void CommandsWindow::setOpen(bool openState)
+void CommandsWindow::open()
 {
-    if (openState)
-    {
-        loaded = false;
-    }
-    open = openState;
+    loaded    = false;
+    openState = true;
 }
 
-void CommandsWindow::loadData(const GatedDatabase& gatedDatabase)
+void CommandsWindow::close()
+{
+    openState = false;
+}
+
+void CommandsWindow::loadData()
 {
     entries.clear();
 
-    auto commands = gatedDatabase.getCommandFactory().getAllCommands();
+    if (!gatedDatabase)
+    {
+        return;
+    }
+
+    auto commands = gatedDatabase->getCommandFactory().getAllCommands();
 
     for (const auto& command : commands)
     {
@@ -49,20 +72,20 @@ void CommandsWindow::loadData(const GatedDatabase& gatedDatabase)
     loaded = true;
 }
 
-void CommandsWindow::render(const GatedDatabase& gatedDatabase)
+void CommandsWindow::render()
 {
-    if (!open)
+    if (!openState || !gatedDatabase)
     {
         return;
     }
 
     if (!loaded)
     {
-        loadData(gatedDatabase);
+        loadData();
     }
 
     ImGui::SetNextWindowSize(ImVec2(800.0f, 520.0f), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Commands", &open))
+    if (ImGui::Begin("Commands", &openState))
     {
         ImGui::BeginChild("IndexPane", ImVec2(240.0f, 0.0f), true);
         for (size_t i = 0; i < entries.size(); i++)
