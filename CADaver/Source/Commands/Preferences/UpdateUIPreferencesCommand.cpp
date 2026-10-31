@@ -48,6 +48,11 @@ std::string UpdateUIPreferencesCommand::getDescription() const
            "}";
 }
 
+void UpdateUIPreferencesCommand::setInput(const nlohmann::json& json)
+{
+    preferencesData = json.at("preferences");
+}
+
 nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto& uiPreferences = database.getPreferences().getUIPreferences();

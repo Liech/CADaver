@@ -66,6 +66,13 @@ std::vector<CADacomb::GUID> ConvertSvoToStlCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
+void ConvertSvoToStlCommand::setInput(const nlohmann::json& json)
+{
+    assetGuid    = json.value("assetGuid", "");
+    targetDepth  = json.value("targetDepth", -1);
+    deleteOrigin = json.value("deleteOrigin", false);
+}
+
 nlohmann::json ConvertSvoToStlCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     CADacomb::ProgressBar bar(1, "Converting SVO to STL");

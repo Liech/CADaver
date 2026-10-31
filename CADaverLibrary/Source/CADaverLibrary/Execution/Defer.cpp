@@ -32,20 +32,12 @@ void Defer::process()
     }
 
     GatedDatabase::getInstance().unlock();
-    try
+    for (const auto& task : toExecute)
     {
-        for (const auto& task : toExecute)
+        if (task)
         {
-            if (task)
-            {
-                task();
-            }
+            task();
         }
-    }
-    catch (...)
-    {
-        GatedDatabase::getInstance().lock();
-        throw;
     }
     GatedDatabase::getInstance().lock();
 }

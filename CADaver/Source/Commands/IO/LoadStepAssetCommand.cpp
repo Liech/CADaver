@@ -57,24 +57,18 @@ std::string LoadStepAssetCommand::getDescription() const
            "}";
 }
 
+void LoadStepAssetCommand::setInput(const nlohmann::json& json)
+{
+    name     = json.at("name").get<std::string>();
+    filePath = json.at("filePath").get<std::string>();
+}
+
 nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     CADacomb::ProgressBar bar(1, "Loading STEP asset");
 
     CADacomb::CAD::KernelSm                            kernel;
-    std::vector<std::unique_ptr<CADacomb::CAD::Shape>> shapes;
-    try
-    {
-        shapes = kernel.loadStepFile(filePath);
-    }
-    catch (...)
-    {
-        return createResponse("LoadFailed",
-                              {
-                                { "assetGuid",   "" },
-                                {      "name", name }
-        });
-    }
+    std::vector<std::unique_ptr<CADacomb::CAD::Shape>> shapes = kernel.loadStepFile(filePath);
 
     if (shapes.empty() || !shapes[0] || bar.isCanceled())
     {

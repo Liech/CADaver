@@ -15,9 +15,6 @@ class Preferences
     Preferences();
     virtual ~Preferences();
 
-    void load(const std::string& filepath = "preferences.json");
-    void save(const std::string& filepath = "preferences.json") const;
-
     nlohmann::json toJson() const;
     void           fromJson(const nlohmann::json& jsonObject);
 

@@ -50,6 +50,11 @@ std::string RemoveAssetCommand::getDescription() const
            "}";
 }
 
+void RemoveAssetCommand::setInput(const nlohmann::json& json)
+{
+    assetGuid = json.value("assetGuid", "");
+}
+
 nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto asset = database.getProject().getAsset(assetGuid);

@@ -1,9 +1,6 @@
 #include "Database/Database.h"
 
-Database::Database()
-{
-    preferences.load();
-}
+Database::Database() {}
 
 Database::~Database() {}
 

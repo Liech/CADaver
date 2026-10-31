@@ -9,6 +9,8 @@ std::vector<CADacomb::GUID> Command::getRequiredAssets() const
     return {};
 }
 
+void Command::setInput(const nlohmann::json&) {}
+
 nlohmann::json Command::createResponse(const std::string& status, const nlohmann::json& payload) const
 {
     nlohmann::json result = {

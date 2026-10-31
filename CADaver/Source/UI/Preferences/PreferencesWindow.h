@@ -6,6 +6,8 @@
 #include "UIPreferencesView.h"
 #include "UndoPreferencesView.h"
 
+#include <string>
+
 namespace Vulcant::Toolkit
 {
     class Camera;
@@ -21,6 +23,9 @@ class PreferencesWindow
     virtual ~PreferencesWindow();
 
     void render(const Preferences& preferences, Vulcant::Toolkit::Camera* camera = nullptr);
+
+    void load(const std::string& filepath = "preferences.json");
+    void save(const Preferences& preferences, const std::string& filepath = "preferences.json") const;
 
     bool isOpen() const;
     void setOpen(bool open);

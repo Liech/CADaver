@@ -56,6 +56,11 @@ std::string UpdateSVOPreferencesCommand::getDescription() const
            "}";
 }
 
+void UpdateSVOPreferencesCommand::setInput(const nlohmann::json& json)
+{
+    preferencesData = json.at("preferences");
+}
+
 nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto& svoPreferences = database.getPreferences().getSVOPreferences();

@@ -69,5 +69,4 @@ void PreferencesUndoRecord::applyJson(Database& database, const nlohmann::json& 
     {
         prefs.getSVOPreferences().fromJson(json);
     }
-    prefs.save();
 }

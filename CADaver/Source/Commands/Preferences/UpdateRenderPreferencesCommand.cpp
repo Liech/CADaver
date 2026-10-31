@@ -49,6 +49,11 @@ std::string UpdateRenderPreferencesCommand::getDescription() const
            "}";
 }
 
+void UpdateRenderPreferencesCommand::setInput(const nlohmann::json& json)
+{
+    preferencesData = json.at("preferences");
+}
+
 nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto& renderPreferences = database.getPreferences().getRenderPreferences();

@@ -54,6 +54,11 @@ std::string LoadStlAssetCommand::getDescription() const
            "}";
 }
 
+void LoadStlAssetCommand::setInput(const nlohmann::json& json)
+{
+    name = json.at("name").get<std::string>();
+}
+
 nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*, bool recordUndo)
 {
     CADacomb::ProgressBar bar(1, "Loading STL asset");

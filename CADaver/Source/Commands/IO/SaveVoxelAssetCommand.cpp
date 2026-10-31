@@ -55,6 +55,11 @@ std::vector<CADacomb::GUID> SaveVoxelAssetCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
+void SaveVoxelAssetCommand::setInput(const nlohmann::json& json)
+{
+    assetGuid = json.value("assetGuid", "");
+}
+
 nlohmann::json SaveVoxelAssetCommand::execute(Database& database, std::istream*, std::ostream* outputStream, bool)
 {
     CADacomb::ProgressBar bar(1, "Saving SVO asset");

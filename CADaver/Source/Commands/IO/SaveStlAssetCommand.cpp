@@ -54,6 +54,11 @@ std::vector<CADacomb::GUID> SaveStlAssetCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
+void SaveStlAssetCommand::setInput(const nlohmann::json& json)
+{
+    assetGuid = json.value("assetGuid", "");
+}
+
 nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream*, std::ostream* outputStream, bool)
 {
     CADacomb::ProgressBar bar(1, "Saving STL asset");

@@ -54,6 +54,11 @@ std::string LoadSvoAssetCommand::getDescription() const
            "}";
 }
 
+void LoadSvoAssetCommand::setInput(const nlohmann::json& json)
+{
+    name = json.at("name").get<std::string>();
+}
+
 nlohmann::json LoadSvoAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*, bool recordUndo)
 {
     CADacomb::ProgressBar bar(1, "Loading SVO asset");

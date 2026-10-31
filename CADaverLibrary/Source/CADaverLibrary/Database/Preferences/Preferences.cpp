@@ -1,40 +1,8 @@
 #include "Database/Preferences/Preferences.h"
 
-#include <fstream>
-
 Preferences::Preferences() {}
 
 Preferences::~Preferences() {}
-
-void Preferences::load(const std::string& filepath)
-{
-    std::ifstream file(filepath);
-    if (!file.is_open())
-    {
-        return;
-    }
-
-    try
-    {
-        nlohmann::json jsonObject;
-        file >> jsonObject;
-        fromJson(jsonObject);
-    }
-    catch (...)
-    {
-    }
-}
-
-void Preferences::save(const std::string& filepath) const
-{
-    std::ofstream file(filepath);
-    if (!file.is_open())
-    {
-        return;
-    }
-
-    file << toJson().dump(4);
-}
 
 nlohmann::json Preferences::toJson() const
 {

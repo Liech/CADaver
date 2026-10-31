@@ -87,7 +87,7 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, bool record
             recordUndo = command.at("recordUndo").get<bool>();
         }
 
-        auto cmd = commandFactory.create(command);
+        auto cmd = commandFactory.create(commandType);
         if (!cmd)
         {
             nlohmann::json result = {
@@ -100,6 +100,8 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, bool record
             log("OUT: " + result.dump(4));
             return result;
         }
+
+        cmd->setInput(command);
 
         if (hasActiveTasks() && (commandType == "Undo" || commandType == "Redo"))
         {
@@ -188,12 +190,13 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
         recordUndo = command.at("recordUndo").get<bool>();
     }
 
-    auto cmd = commandFactory.create(command);
+    std::string commandType = command.value("type", "Unknown");
+    auto        cmd         = commandFactory.create(commandType);
     if (!cmd)
     {
         std::promise<nlohmann::json> p;
         nlohmann::json               result = {
-            { "type", command.value("type", "Unknown") },
+            { "type", commandType },
             { "version", command.value("version", 0) },
             { "status", "UnknownCommand" },
             { "error", "Unknown command type" }
@@ -201,6 +204,8 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
         p.set_value(result);
         return p.get_future();
     }
+
+    cmd->setInput(command);
 
     auto                                requiredGuids = cmd->getRequiredAssets();
     std::vector<std::shared_ptr<Asset>> abductedAssets;

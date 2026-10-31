@@ -79,6 +79,23 @@ std::string GenerateLandscapeCommand::getDescription() const
            "}";
 }
 
+void GenerateLandscapeCommand::setInput(const nlohmann::json& json)
+{
+    dimension              = json.value("dimension", 64u);
+    assetName              = json.value("assetName", "Landscape");
+    config.seed            = json.value("seed", 1337u);
+    config.octaves         = json.value("octaves", 4);
+    config.frequency       = json.value("frequency", 0.05);
+    config.persistence     = json.value("persistence", 0.5);
+    config.lacunarity      = json.value("lacunarity", 2.0);
+    config.baseHeightRatio = json.value("baseHeightRatio", 0.4);
+    config.heightScale     = json.value("heightScale", 1.2);
+    config.enableCaves     = json.value("enableCaves", false);
+    config.caveFrequency   = json.value("caveFrequency", 0.04);
+    config.caveThreshold   = json.value("caveThreshold", 0.12);
+    config.solidThreshold  = json.value("solidThreshold", 0.0);
+}
+
 nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto svo = CADacomb::SVOLandscapeGenerator::generateSVO<bool>(dimension, config, glm::dvec3(0.0), true, false, 32, CADacomb::MostPrevalentExceptMergeStrategy<bool, false>::instance());

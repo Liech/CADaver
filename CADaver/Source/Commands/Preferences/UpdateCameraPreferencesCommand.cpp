@@ -52,6 +52,11 @@ std::string UpdateCameraPreferencesCommand::getDescription() const
            "}";
 }
 
+void UpdateCameraPreferencesCommand::setInput(const nlohmann::json& json)
+{
+    preferencesData = json.at("preferences");
+}
+
 nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database, std::istream*, std::ostream*, bool recordUndo)
 {
     auto& cameraPreferences = database.getPreferences().getCameraPreferences();

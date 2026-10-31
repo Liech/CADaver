@@ -176,6 +176,7 @@ void Cadaver::prepare()
     if (topMenu->getPreferencesWindow())
     {
         topMenu->getPreferencesWindow()->getUIPreferencesView().apply(preferences.getUIPreferences());
+        topMenu->getPreferencesWindow()->load();
     }
 
     viewController = std::make_unique<ViewController>();
@@ -185,34 +186,25 @@ void Cadaver::prepare()
 void Cadaver::registerCommands()
 {
     auto& factory = GatedDatabase::getInstance().getCommandFactory();
-    factory.registerCommand("RemoveAsset", [](const nlohmann::json& json) { return std::make_unique<RemoveAssetCommand>(json); }, []() { return std::make_unique<RemoveAssetCommand>(); });
-    factory.registerCommand("ClearProject", [](const nlohmann::json& json) { return std::make_unique<ClearProjectCommand>(json); }, []() { return std::make_unique<ClearProjectCommand>(); });
-    factory.registerCommand("ConvertCadToStl", [](const nlohmann::json& json) { return std::make_unique<ConvertCadToStlCommand>(json); }, []() { return std::make_unique<ConvertCadToStlCommand>(); });
-    factory.registerCommand("ConvertCadToSvo", [](const nlohmann::json& json) { return std::make_unique<ConvertCadToSvoCommand>(json); }, []() { return std::make_unique<ConvertCadToSvoCommand>(); });
-    factory.registerCommand("ConvertStlToSvo", [](const nlohmann::json& json) { return std::make_unique<ConvertStlToSvoCommand>(json); }, []() { return std::make_unique<ConvertStlToSvoCommand>(); });
-    factory.registerCommand("ConvertSvoToStl", [](const nlohmann::json& json) { return std::make_unique<ConvertSvoToStlCommand>(json); }, []() { return std::make_unique<ConvertSvoToStlCommand>(); });
-    factory.registerCommand(
-      "GenerateLandscape", [](const nlohmann::json& json) { return std::make_unique<GenerateLandscapeCommand>(json); }, []() { return std::make_unique<GenerateLandscapeCommand>(); });
-    factory.registerCommand("LoadStlAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStlAssetCommand>(json); }, []() { return std::make_unique<LoadStlAssetCommand>(); });
-    factory.registerCommand("SaveStlAsset", [](const nlohmann::json& json) { return std::make_unique<SaveStlAssetCommand>(json); }, []() { return std::make_unique<SaveStlAssetCommand>(); });
-    factory.registerCommand("LoadStepAsset", [](const nlohmann::json& json) { return std::make_unique<LoadStepAssetCommand>(json); }, []() { return std::make_unique<LoadStepAssetCommand>(); });
-    factory.registerCommand("SaveStepAsset", [](const nlohmann::json& json) { return std::make_unique<SaveStepAssetCommand>(json); }, []() { return std::make_unique<SaveStepAssetCommand>(); });
-    factory.registerCommand("LoadSvoAsset", [](const nlohmann::json& json) { return std::make_unique<LoadSvoAssetCommand>(json); }, []() { return std::make_unique<LoadSvoAssetCommand>(); });
-    factory.registerCommand("SaveVoxelAsset", [](const nlohmann::json& json) { return std::make_unique<SaveVoxelAssetCommand>(json); }, []() { return std::make_unique<SaveVoxelAssetCommand>(); });
-    factory.registerCommand("Undo", [](const nlohmann::json& json) { return std::make_unique<UndoCommand>(json); }, []() { return std::make_unique<UndoCommand>(); });
-    factory.registerCommand("Redo", [](const nlohmann::json& json) { return std::make_unique<RedoCommand>(json); }, []() { return std::make_unique<RedoCommand>(); });
-    factory.registerCommand(
-      "UpdateCameraPreferences",
-      [](const nlohmann::json& json) { return std::make_unique<UpdateCameraPreferencesCommand>(json); },
-      []() { return std::make_unique<UpdateCameraPreferencesCommand>(); });
-    factory.registerCommand(
-      "UpdateUIPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateUIPreferencesCommand>(json); }, []() { return std::make_unique<UpdateUIPreferencesCommand>(); });
-    factory.registerCommand(
-      "UpdateRenderPreferences",
-      [](const nlohmann::json& json) { return std::make_unique<UpdateRenderPreferencesCommand>(json); },
-      []() { return std::make_unique<UpdateRenderPreferencesCommand>(); });
-    factory.registerCommand(
-      "UpdateSVOPreferences", [](const nlohmann::json& json) { return std::make_unique<UpdateSVOPreferencesCommand>(json); }, []() { return std::make_unique<UpdateSVOPreferencesCommand>(); });
+    factory.registerCommand("RemoveAsset", []() { return std::make_unique<RemoveAssetCommand>(); });
+    factory.registerCommand("ClearProject", []() { return std::make_unique<ClearProjectCommand>(); });
+    factory.registerCommand("ConvertCadToStl", []() { return std::make_unique<ConvertCadToStlCommand>(); });
+    factory.registerCommand("ConvertCadToSvo", []() { return std::make_unique<ConvertCadToSvoCommand>(); });
+    factory.registerCommand("ConvertStlToSvo", []() { return std::make_unique<ConvertStlToSvoCommand>(); });
+    factory.registerCommand("ConvertSvoToStl", []() { return std::make_unique<ConvertSvoToStlCommand>(); });
+    factory.registerCommand("GenerateLandscape", []() { return std::make_unique<GenerateLandscapeCommand>(); });
+    factory.registerCommand("LoadStlAsset", []() { return std::make_unique<LoadStlAssetCommand>(); });
+    factory.registerCommand("SaveStlAsset", []() { return std::make_unique<SaveStlAssetCommand>(); });
+    factory.registerCommand("LoadStepAsset", []() { return std::make_unique<LoadStepAssetCommand>(); });
+    factory.registerCommand("SaveStepAsset", []() { return std::make_unique<SaveStepAssetCommand>(); });
+    factory.registerCommand("LoadSvoAsset", []() { return std::make_unique<LoadSvoAssetCommand>(); });
+    factory.registerCommand("SaveVoxelAsset", []() { return std::make_unique<SaveVoxelAssetCommand>(); });
+    factory.registerCommand("Undo", []() { return std::make_unique<UndoCommand>(); });
+    factory.registerCommand("Redo", []() { return std::make_unique<RedoCommand>(); });
+    factory.registerCommand("UpdateCameraPreferences", []() { return std::make_unique<UpdateCameraPreferencesCommand>(); });
+    factory.registerCommand("UpdateUIPreferences", []() { return std::make_unique<UpdateUIPreferencesCommand>(); });
+    factory.registerCommand("UpdateRenderPreferences", []() { return std::make_unique<UpdateRenderPreferencesCommand>(); });
+    factory.registerCommand("UpdateSVOPreferences", []() { return std::make_unique<UpdateSVOPreferencesCommand>(); });
 }
 
 void Cadaver::renderImGui()

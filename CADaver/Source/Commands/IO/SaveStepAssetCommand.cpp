@@ -59,6 +59,12 @@ std::vector<CADacomb::GUID> SaveStepAssetCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
+void SaveStepAssetCommand::setInput(const nlohmann::json& json)
+{
+    filePath  = json.value("filePath", "");
+    assetGuid = json.value("assetGuid", "");
+}
+
 nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, std::ostream*, bool)
 {
     CADacomb::ProgressBar bar(1, "Saving STEP asset");
@@ -87,18 +93,8 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, 
         targetPath = cadAsset->getName() + ".step";
     }
 
-    try
-    {
-        CADacomb::CAD::KernelSm kernel;
-        kernel.saveStepFile(cadAsset->getCadShape(), targetPath, cadAsset->getName());
-    }
-    catch (...)
-    {
-        return createResponse("WriteFailed",
-                              {
-                                { "filePath", targetPath }
-        });
-    }
+    CADacomb::CAD::KernelSm kernel;
+    kernel.saveStepFile(cadAsset->getCadShape(), targetPath, cadAsset->getName());
 
     if (bar.isCanceled())
     {

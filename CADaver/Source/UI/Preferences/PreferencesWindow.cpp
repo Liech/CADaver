@@ -5,11 +5,72 @@
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
+#include <fstream>
 #include <imgui.h>
+#include <nlohmann/json.hpp>
 
 PreferencesWindow::PreferencesWindow() {}
 
 PreferencesWindow::~PreferencesWindow() {}
+
+void PreferencesWindow::load(const std::string& filepath)
+{
+    std::ifstream file(filepath);
+    if (!file.is_open())
+    {
+        return;
+    }
+
+    try
+    {
+        nlohmann::json jsonObject;
+        file >> jsonObject;
+
+        Preferences loadedPrefs;
+        loadedPrefs.fromJson(jsonObject);
+
+        uiPreferencesView.apply(loadedPrefs.getUIPreferences());
+
+        Defer::getInstance().defer(
+          [loadedPrefs]()
+          {
+              GatedDatabase::getInstance().execute({
+                {        "type",                   "UpdateUIPreferences" },
+                {     "version",                                       1 },
+                { "preferences", loadedPrefs.getUIPreferences().toJson() }
+              });
+              GatedDatabase::getInstance().execute({
+                {        "type",                   "UpdateCameraPreferences" },
+                {     "version",                                           1 },
+                { "preferences", loadedPrefs.getCameraPreferences().toJson() }
+              });
+              GatedDatabase::getInstance().execute({
+                {        "type",                   "UpdateRenderPreferences" },
+                {     "version",                                           1 },
+                { "preferences", loadedPrefs.getRenderPreferences().toJson() }
+              });
+              GatedDatabase::getInstance().execute({
+                {        "type",                   "UpdateSVOPreferences" },
+                {     "version",                                        1 },
+                { "preferences", loadedPrefs.getSVOPreferences().toJson() }
+              });
+          });
+    }
+    catch (const nlohmann::json::exception&)
+    {
+    }
+}
+
+void PreferencesWindow::save(const Preferences& preferences, const std::string& filepath) const
+{
+    std::ofstream file(filepath);
+    if (!file.is_open())
+    {
+        return;
+    }
+
+    file << preferences.toJson().dump(4);
+}
 
 void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit::Camera* camera)
 {
@@ -131,7 +192,7 @@ void PreferencesWindow::render(const Preferences& preferences, Vulcant::Toolkit:
 
         if (modified)
         {
-            workingPreferences.save();
+            save(workingPreferences);
         }
     }
     ImGui::End();

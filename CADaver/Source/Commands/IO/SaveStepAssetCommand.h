@@ -21,6 +21,7 @@ class SaveStepAssetCommand : public Command
 
     virtual std::vector<CADacomb::GUID> getRequiredAssets() const override;
 
+    virtual void           setInput(const nlohmann::json& json) override;
     virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
 
     const CADacomb::GUID& getAssetGuid() const;

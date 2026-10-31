@@ -16,6 +16,7 @@ class RemoveAssetCommand : public Command
     virtual int         getVersion() const override;
     virtual std::string getDescription() const override;
 
+    virtual void           setInput(const nlohmann::json& json) override;
     virtual nlohmann::json execute(Database& database, std::istream* inputStream, std::ostream* outputStream, bool recordUndo = false) override;
 
     const CADacomb::GUID& getAssetGuid() const;
