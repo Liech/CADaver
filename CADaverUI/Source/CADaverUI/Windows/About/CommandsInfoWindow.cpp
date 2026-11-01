@@ -84,10 +84,12 @@ void CommandsInfoWindow::render()
 
         ImGui::SameLine();
 
-        ImGui::BeginChild("ContentPane", ImVec2(0.0f, 0.0f), true, ImGuiWindowFlags_HorizontalScrollbar);
+        ImGui::BeginChild("ContentPane", ImVec2(0.0f, 0.0f), true);
         if (selectedIndex >= 0 && selectedIndex < static_cast<int>(entries.size()))
         {
+            ImGui::PushTextWrapPos(0.0f);
             ImGui::TextUnformatted(entries[selectedIndex].second.c_str());
+            ImGui::PopTextWrapPos();
         }
         ImGui::EndChild();
     }

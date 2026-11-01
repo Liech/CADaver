@@ -42,6 +42,8 @@ set(Windows_About_Files
     "Source/CADaverUI/Windows/About/AboutWindow.cpp"
     "Source/CADaverUI/Windows/About/CommandsInfoWindow.h"
     "Source/CADaverUI/Windows/About/CommandsInfoWindow.cpp"
+    "Source/CADaverUI/Windows/About/ConceptsInfoWindow.h"
+    "Source/CADaverUI/Windows/About/ConceptsInfoWindow.cpp"
     "Source/CADaverUI/Windows/About/WindowsInfoWindow.h"
     "Source/CADaverUI/Windows/About/WindowsInfoWindow.cpp"
 )
@@ -115,6 +117,42 @@ set(Windows_Project_Files
 )
 source_group("Source/Windows/Project" FILES ${Windows_Project_Files})
 
+set(Concept_Files
+    "Source/CADaverUI/Concept/Concept.h"
+    "Source/CADaverUI/Concept/Concept.cpp"
+    "Source/CADaverUI/Concept/ConceptFactory.h"
+    "Source/CADaverUI/Concept/ConceptFactory.cpp"
+    "Source/CADaverUI/Concept/StepFileConcept.h"
+    "Source/CADaverUI/Concept/StepFileConcept.cpp"
+    "Source/CADaverUI/Concept/StlFileConcept.h"
+    "Source/CADaverUI/Concept/StlFileConcept.cpp"
+    "Source/CADaverUI/Concept/SvoFileConcept.h"
+    "Source/CADaverUI/Concept/SvoFileConcept.cpp"
+)
+source_group("Source/Concept" FILES ${Concept_Files})
+
+set(Search_Files
+    "Source/CADaverUI/Search/SearchResult.h"
+    "Source/CADaverUI/Search/SearchResult.cpp"
+    "Source/CADaverUI/Search/SearchProvider.h"
+    "Source/CADaverUI/Search/SearchProvider.cpp"
+    "Source/CADaverUI/Search/SearchService.h"
+    "Source/CADaverUI/Search/SearchService.cpp"
+    "Source/CADaverUI/Search/SearchMatcher.h"
+    "Source/CADaverUI/Search/SearchMatcher.cpp"
+    "Source/CADaverUI/Search/CommandSearchProvider.h"
+    "Source/CADaverUI/Search/CommandSearchProvider.cpp"
+    "Source/CADaverUI/Search/ConceptSearchProvider.h"
+    "Source/CADaverUI/Search/ConceptSearchProvider.cpp"
+    "Source/CADaverUI/Search/WindowSearchProvider.h"
+    "Source/CADaverUI/Search/WindowSearchProvider.cpp"
+    "Source/CADaverUI/Search/AssetSearchProvider.h"
+    "Source/CADaverUI/Search/AssetSearchProvider.cpp"
+    "Source/CADaverUI/Search/SearchBar.h"
+    "Source/CADaverUI/Search/SearchBar.cpp"
+)
+source_group("Source/Search" FILES ${Search_Files})
+
 set(ALL_FILES
     ${Source_Files}
     ${Component_Files}
@@ -126,6 +164,8 @@ set(ALL_FILES
     ${Windows_Preferences_Files}
     ${Windows_Asset_Files}
     ${Windows_Project_Files}
+    ${Concept_Files}
+    ${Search_Files}
 )
 
 ############################################################################

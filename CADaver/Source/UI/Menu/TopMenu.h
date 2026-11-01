@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Search/SearchBar.h"
 #include "UI/Menu/CreateMenu.h"
 #include "UI/Menu/EditMenu.h"
 #include "UI/Menu/FileMenu.h"
@@ -9,7 +10,7 @@ class GatedDatabase;
 class UndoStack;
 class Windows;
 
-// Coordinates the main top menu bar by hosting File, Edit, Create, and Help menus.
+// Coordinates the main top menu bar by hosting File, Edit, Create, Help menus, and the global search bar.
 class TopMenu
 {
   public:
@@ -22,4 +23,5 @@ class TopMenu
     FileMenu   fileMenu;
     EditMenu   editMenu;
     CreateMenu createMenu;
+    SearchBar  searchBar;
 };

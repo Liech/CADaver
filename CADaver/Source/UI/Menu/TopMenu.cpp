@@ -12,7 +12,8 @@ TopMenu::~TopMenu() {}
 
 void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Windows& windows, bool& quitRequested)
 {
-    (void)gatedDatabase;
+    searchBar.init(gatedDatabase, windows);
+
     if (ImGui::BeginMainMenuBar())
     {
         fileMenu.render(windows, quitRequested);
@@ -29,12 +30,22 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& 
             {
                 windows.open("CommandsInfoWindow");
             }
+            if (ImGui::MenuItem("Concepts"))
+            {
+                windows.open("ConceptsInfoWindow");
+            }
             if (ImGui::MenuItem("Windows"))
             {
                 windows.open("WindowsInfoWindow");
             }
             ImGui::EndMenu();
         }
+
+        ImGui::SameLine();
+        ImGui::Spacing();
+        ImGui::SameLine();
+
+        searchBar.render(defer);
 
         ImGui::EndMainMenuBar();
     }

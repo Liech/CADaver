@@ -2,6 +2,7 @@
 
 #include "Windows/About/AboutWindow.h"
 #include "Windows/About/CommandsInfoWindow.h"
+#include "Windows/About/ConceptsInfoWindow.h"
 #include "Windows/About/WindowsInfoWindow.h"
 #include "Windows/Asset/TextNoteEditWindow.h"
 #include "Windows/Conversion/CadToStlConversionModal.h"
@@ -72,6 +73,7 @@ void WindowFactory::registerWindows()
 {
     registerWindow("AboutWindow", []() { return std::make_shared<AboutWindow>(); });
     registerWindow("CommandsInfoWindow", []() { return std::make_shared<CommandsInfoWindow>(); });
+    registerWindow("ConceptsInfoWindow", []() { return std::make_shared<ConceptsInfoWindow>(); });
     registerWindow("WindowsInfoWindow", []() { return std::make_shared<WindowsInfoWindow>(); });
     registerWindow("CadToStlConversionModal", []() { return std::make_shared<CadToStlConversionModal>(); });
     registerWindow("CadToSvoConversionModal", []() { return std::make_shared<CadToSvoConversionModal>(); });
@@ -100,6 +102,7 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("UnknownWindow") == nullptr);
     CHECK(factory.create("AboutWindow") != nullptr);
     CHECK(factory.create("CommandsInfoWindow") != nullptr);
+    CHECK(factory.create("ConceptsInfoWindow") != nullptr);
     CHECK(factory.create("WindowsInfoWindow") != nullptr);
     CHECK(factory.create("CadToStlConversionModal") != nullptr);
     CHECK(factory.create("CadToSvoConversionModal") != nullptr);
@@ -117,6 +120,6 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("RemoveAssetModal") != nullptr);
     CHECK(factory.create("TaskNotificationModal") != nullptr);
     CHECK(factory.create("TextNoteEditWindow") != nullptr);
-    CHECK(factory.getAllWindows().size() == 19);
+    CHECK(factory.getAllWindows().size() == 20);
 }
 #endif

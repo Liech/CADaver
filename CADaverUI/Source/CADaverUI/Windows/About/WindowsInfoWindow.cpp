@@ -80,7 +80,7 @@ void WindowsInfoWindow::render()
 
         ImGui::SameLine();
 
-        ImGui::BeginChild("ContentPane", ImVec2(0.0f, 0.0f), true, ImGuiWindowFlags_HorizontalScrollbar);
+        ImGui::BeginChild("ContentPane", ImVec2(0.0f, 0.0f), true);
         if (selectedIndex >= 0 && selectedIndex < static_cast<int>(entries.size()))
         {
             if (windows && ImGui::Button("Open", ImVec2(120.0f, 0.0f)))
@@ -90,7 +90,9 @@ void WindowsInfoWindow::render()
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::Spacing();
+            ImGui::PushTextWrapPos(0.0f);
             ImGui::TextUnformatted(entries[selectedIndex].second.c_str());
+            ImGui::PopTextWrapPos();
         }
         ImGui::EndChild();
     }
