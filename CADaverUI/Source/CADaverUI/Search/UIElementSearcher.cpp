@@ -1,6 +1,6 @@
 #include "Search/UIElementSearcher.h"
 
-#include "UIElement/MenuEntry.h"
+#include "UIElement/Menu/MenuEntry.h"
 
 UIElementSearcher::UIElementSearcher(UIElementFactory& factory)
   : factory(factory)

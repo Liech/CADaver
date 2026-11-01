@@ -103,6 +103,7 @@ void SaveStepAssetWindow::render()
 
     if (ImGui::Begin("Save STEP Asset##SaveStepWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
+        handleEscapeClose();
         const auto& project = gatedDatabase->get().getProject();
         assetComboBox.render(project);
         ImGui::Spacing();

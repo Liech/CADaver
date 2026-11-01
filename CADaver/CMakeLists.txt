@@ -39,6 +39,26 @@ set(UI_Component_Files
 )
 source_group("Source/UI/Component" FILES ${UI_Component_Files})
 
+set(UI_ViewCube_Files
+    "Source/UI/ViewCube/ViewCubeHomeMenuEntry.h"
+    "Source/UI/ViewCube/ViewCubeHomeMenuEntry.cpp"
+    "Source/UI/ViewCube/ViewCubeRollCounterClockwiseMenuEntry.h"
+    "Source/UI/ViewCube/ViewCubeRollCounterClockwiseMenuEntry.cpp"
+    "Source/UI/ViewCube/ViewCubeRollClockwiseMenuEntry.h"
+    "Source/UI/ViewCube/ViewCubeRollClockwiseMenuEntry.cpp"
+    "Source/UI/ViewCube/ViewCubeToggleOrthographicMenuEntry.h"
+    "Source/UI/ViewCube/ViewCubeToggleOrthographicMenuEntry.cpp"
+    "Source/UI/ViewCube/ViewCubeRotateUpMenuEntry.h"
+    "Source/UI/ViewCube/ViewCubeRotateUpMenuEntry.cpp"
+    "Source/UI/ViewCube/ViewCubeRotateDownMenuEntry.h"
+    "Source/UI/ViewCube/ViewCubeRotateDownMenuEntry.cpp"
+    "Source/UI/ViewCube/ViewCubeRotateLeftMenuEntry.h"
+    "Source/UI/ViewCube/ViewCubeRotateLeftMenuEntry.cpp"
+    "Source/UI/ViewCube/ViewCubeRotateRightMenuEntry.h"
+    "Source/UI/ViewCube/ViewCubeRotateRightMenuEntry.cpp"
+)
+source_group("Source/UI/ViewCube" FILES ${UI_ViewCube_Files})
+
 set(UI_ContextMenu_Files
     "Source/UI/ContextMenu/AssetContextMenu.h"
     "Source/UI/ContextMenu/AssetContextMenu.cpp"
@@ -85,6 +105,7 @@ set(ALL_FILES
     ${Rendering_Files}
     ${UI_Menu_Files}
     ${UI_Component_Files}
+    ${UI_ViewCube_Files}
     ${UI_ContextMenu_Files}
     ${UI_Project_Files}
 )

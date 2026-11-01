@@ -7,19 +7,22 @@
 #include "Search/ConceptSearcher.h"
 #include "Search/UIElementSearcher.h"
 #include "Search/WindowSearcher.h"
+#include "Windows/About/CommandsInfoWindow.h"
+#include "Windows/About/ConceptsInfoWindow.h"
 #include "Windows/Windows.h"
 
 #include <algorithm>
 #include <array>
 #include <cctype>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <sstream>
 
 SearchBar::SearchBar() {}
 
 SearchBar::~SearchBar() {}
 
-void SearchBar::init(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windowsRef, bool& quitRequested)
+void SearchBar::init(GatedDatabase& gatedDatabase, Windows& windowsRef, UIElementFactory& uiElementFactory)
 {
     if (initialized)
     {
@@ -27,7 +30,6 @@ void SearchBar::init(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows
     }
 
     windows = &windowsRef;
-    uiElementFactory.registerDefaults(gatedDatabase, undoStack, windowsRef, quitRequested);
 
     searchService.addSearcher(std::make_unique<UIElementSearcher>(uiElementFactory));
     searchService.addSearcher(std::make_unique<AssetSearcher>(gatedDatabase.get()));
@@ -36,6 +38,17 @@ void SearchBar::init(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows
     searchService.addSearcher(std::make_unique<CommandSearcher>(gatedDatabase.getCommandFactory()));
 
     initialized = true;
+}
+
+void SearchBar::focus()
+{
+    focusRequested = true;
+    isOpen         = !query.empty();
+}
+
+bool SearchBar::isFocusRequested() const
+{
+    return focusRequested;
 }
 
 void SearchBar::renderSearchIcon() const
@@ -60,16 +73,42 @@ void SearchBar::render(Defer& defer)
 {
     float barWidth = 260.0f;
 
+    if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_F, false))
+    {
+        focus();
+    }
+
     renderSearchIcon();
+
+    if (focusRequested)
+    {
+        if (ImGui::GetCurrentWindow())
+        {
+            ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_NoNavFocus;
+        }
+        ImGui::SetWindowFocus();
+        ImGui::SetKeyboardFocusHere(0);
+    }
 
     std::array<char, 256> buffer{};
     std::copy_n(query.c_str(), std::min(query.size(), buffer.size() - 1), buffer.data());
 
     ImGui::SetNextItemWidth(barWidth);
-    bool textChanged = ImGui::InputTextWithHint("##GlobalSearchInput", "Search features, assets, notes...", buffer.data(), buffer.size());
-    if (textChanged)
+    ImGuiInputTextFlags inputFlags   = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll;
+    bool                enterPressed = ImGui::InputTextWithHint("##GlobalSearchInput", "Search (Ctrl+F)...", buffer.data(), buffer.size(), inputFlags);
+    if (buffer.data() != query)
     {
         query = buffer.data();
+    }
+
+    if (focusRequested)
+    {
+        ImGui::ActivateItemByID(ImGui::GetItemID());
+        if (ImGui::IsItemActive())
+        {
+            focusRequested = false;
+            isOpen         = !query.empty();
+        }
     }
 
     bool   isInputActive  = ImGui::IsItemActive();
@@ -91,6 +130,12 @@ void SearchBar::render(Defer& defer)
             results.clear();
             isOpen = false;
         }
+    }
+
+    if (enterPressed && !results.empty())
+    {
+        size_t targetIndex = (selectedIndex >= 0 && selectedIndex < static_cast<int>(results.size())) ? static_cast<size_t>(selectedIndex) : 0;
+        executeSelection(targetIndex, defer);
     }
 
     if ((isInputActive || isInputFocused) && !query.empty())
@@ -141,9 +186,10 @@ void SearchBar::renderDropdown(Defer& defer, float availableHeight)
         {
             selectedIndex = std::max(0, selectedIndex - 1);
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_Enter) && selectedIndex >= 0 && selectedIndex < static_cast<int>(results.size()))
+        if (ImGui::IsKeyPressed(ImGuiKey_Enter))
         {
-            executeSelection(static_cast<size_t>(selectedIndex), defer);
+            size_t targetIndex = (selectedIndex >= 0 && selectedIndex < static_cast<int>(results.size())) ? static_cast<size_t>(selectedIndex) : 0;
+            executeSelection(targetIndex, defer);
             return;
         }
     }
@@ -447,11 +493,31 @@ void SearchBar::executeSelection(size_t index, Defer& defer)
     {
         if (item.getCategory() == "Command")
         {
-            defer.defer([this]() { windows->open("CommandsInfo"); });
+            std::string commandType = item.getTitle();
+            defer.defer(
+              [this, commandType]()
+              {
+                  windows->open("CommandsInfo");
+                  auto window = windows->get("CommandsInfo");
+                  if (auto commandsInfo = std::dynamic_pointer_cast<CommandsInfoWindow>(window))
+                  {
+                      commandsInfo->selectCommand(commandType);
+                  }
+              });
         }
         else if (item.getCategory() == "Concept")
         {
-            defer.defer([this]() { windows->open("ConceptsInfo"); });
+            std::string conceptType = item.getTitle();
+            defer.defer(
+              [this, conceptType]()
+              {
+                  windows->open("ConceptsInfo");
+                  auto window = windows->get("ConceptsInfo");
+                  if (auto conceptsInfo = std::dynamic_pointer_cast<ConceptsInfoWindow>(window))
+                  {
+                      conceptsInfo->selectConcept(conceptType);
+                  }
+              });
         }
     }
 

@@ -19,6 +19,7 @@ nlohmann::json SVOPreferences::toJson() const
     jsonObject["farDistance"]           = farDistance;
     jsonObject["fixedDecision"]         = fixedDecision;
     jsonObject["rebuildRequested"]      = rebuildRequested;
+    jsonObject["rebuildCounter"]        = rebuildCounter;
     return jsonObject;
 }
 
@@ -38,6 +39,10 @@ void SVOPreferences::fromJson(const nlohmann::json& jsonObject)
     if (jsonObject.contains("rebuildRequested"))
     {
         rebuildRequested = jsonObject.at("rebuildRequested").get<bool>();
+    }
+    if (jsonObject.contains("rebuildCounter"))
+    {
+        rebuildCounter = jsonObject.at("rebuildCounter").get<size_t>();
     }
     dirty = true;
 }
@@ -171,12 +176,18 @@ bool SVOPreferences::isRebuildRequested() const
 void SVOPreferences::requestRebuild()
 {
     rebuildRequested = true;
+    rebuildCounter++;
     dirty            = true;
 }
 
 void SVOPreferences::clearRebuildRequested()
 {
     rebuildRequested = false;
+}
+
+size_t SVOPreferences::getRebuildCounter() const
+{
+    return rebuildCounter;
 }
 
 bool SVOPreferences::isDirty() const

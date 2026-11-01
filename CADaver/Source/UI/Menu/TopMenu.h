@@ -1,16 +1,15 @@
 #pragma once
 
 #include "Search/SearchBar.h"
-#include "UI/Menu/CreateMenu.h"
-#include "UI/Menu/EditMenu.h"
-#include "UI/Menu/FileMenu.h"
+#include "UIElement/Menu/DynamicMenuRenderer.h"
+#include "UIElement/UIElementFactory.h"
 
 class Defer;
 class GatedDatabase;
 class UndoStack;
 class Windows;
 
-// Coordinates the main top menu bar by hosting File, Edit, Create, Help menus, and the global search bar.
+// Coordinates the main top menu bar by dynamically rendering MenuEntry hierarchies alongside the search bar.
 class TopMenu
 {
   public:
@@ -18,10 +17,16 @@ class TopMenu
     virtual ~TopMenu();
 
     void render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Windows& windows, bool& quitRequested);
+    void focusSearchBar();
+
+    UIElementFactory&       getUIElementFactory();
+    const UIElementFactory& getUIElementFactory() const;
 
   private:
-    FileMenu   fileMenu;
-    EditMenu   editMenu;
-    CreateMenu createMenu;
-    SearchBar  searchBar;
+    void handleShortcuts(UndoStack& undoStack);
+
+    UIElementFactory    uiElementFactory;
+    DynamicMenuRenderer dynamicMenuRenderer;
+    SearchBar           searchBar;
+    bool                factoryInitialized;
 };

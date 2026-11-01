@@ -47,5 +47,6 @@ class VoxelAssetRenderer : public AssetRenderer
     int    lastChunkSize      = 32;
     int    lastVertexCapacity = 500000;
     size_t lastRevision       = 0;
+    size_t lastRebuildCounter = 0;
     bool   dirty              = true;
 };

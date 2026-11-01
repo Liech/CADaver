@@ -58,10 +58,11 @@ void VoxelAssetRenderer::render(Renderer& renderer)
     }
 
     const auto& svoPrefs = renderer.getSVOPreferences();
-    if (dirty || asset->getRevision() != lastRevision || !lodMesh || lastChunkSize != svoPrefs.getChunkSize() || lastVertexCapacity != svoPrefs.getVertexCapacity() || svoPrefs.isRebuildRequested())
+    if (dirty || asset->getRevision() != lastRevision || !lodMesh || lastChunkSize != svoPrefs.getChunkSize() || lastVertexCapacity != svoPrefs.getVertexCapacity() ||
+        lastRebuildCounter != svoPrefs.getRebuildCounter())
     {
         rebuildMesh(renderer);
-        const_cast<SVOPreferences&>(svoPrefs).clearRebuildRequested();
+        lastRebuildCounter = svoPrefs.getRebuildCounter();
     }
 
     if (!lodMesh)

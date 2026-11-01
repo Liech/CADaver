@@ -122,36 +122,60 @@ set(UIElement_Files
     "Source/CADaverUI/UIElement/UIElement.cpp"
     "Source/CADaverUI/UIElement/NullUIElement.h"
     "Source/CADaverUI/UIElement/NullUIElement.cpp"
-    "Source/CADaverUI/UIElement/MenuEntry.h"
-    "Source/CADaverUI/UIElement/MenuEntry.cpp"
     "Source/CADaverUI/UIElement/UIElementFactory.h"
     "Source/CADaverUI/UIElement/UIElementFactory.cpp"
-    "Source/CADaverUI/UIElement/Menu/AboutMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/AboutMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/CommandsInfoMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/CommandsInfoMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/ConceptsInfoMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/ConceptsInfoMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/LandscapeMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/LandscapeMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/LoadStepMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/LoadStepMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/LoadStlMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/LoadStlMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/LoadSvoMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/LoadSvoMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/PreferencesMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/PreferencesMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/QuitMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/QuitMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/RedoMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/RedoMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/UndoMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/UndoMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/WindowsInfoMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/WindowsInfoMenuEntry.cpp"
 )
 source_group("Source/UIElement" FILES ${UIElement_Files})
+
+set(UIElement_Menu_Files
+    "Source/CADaverUI/UIElement/Menu/MenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/MenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/DynamicMenuNode.h"
+    "Source/CADaverUI/UIElement/Menu/DynamicMenuNode.cpp"
+    "Source/CADaverUI/UIElement/Menu/DynamicMenuRenderer.h"
+    "Source/CADaverUI/UIElement/Menu/DynamicMenuRenderer.cpp"
+)
+source_group("Source/UIElement/Menu" FILES ${UIElement_Menu_Files})
+
+set(UIElement_Menu_File_Files
+    "Source/CADaverUI/UIElement/Menu/File/LoadStepMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/File/LoadStepMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/File/LoadStlMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/File/LoadStlMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/File/LoadSvoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/File/LoadSvoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/File/QuitMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/File/QuitMenuEntry.cpp"
+)
+source_group("Source/UIElement/Menu/File" FILES ${UIElement_Menu_File_Files})
+
+set(UIElement_Menu_Edit_Files
+    "Source/CADaverUI/UIElement/Menu/Edit/UndoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Edit/UndoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/Edit/RedoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Edit/RedoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/Edit/PreferencesMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Edit/PreferencesMenuEntry.cpp"
+)
+source_group("Source/UIElement/Menu/Edit" FILES ${UIElement_Menu_Edit_Files})
+
+set(UIElement_Menu_Create_Files
+    "Source/CADaverUI/UIElement/Menu/Create/LandscapeMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Create/LandscapeMenuEntry.cpp"
+)
+source_group("Source/UIElement/Menu/Create" FILES ${UIElement_Menu_Create_Files})
+
+set(UIElement_Menu_Help_Files
+    "Source/CADaverUI/UIElement/Menu/Help/AboutMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Help/AboutMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/Help/CommandsInfoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Help/CommandsInfoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/Help/ConceptsInfoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Help/ConceptsInfoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/Help/WindowsInfoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Help/WindowsInfoMenuEntry.cpp"
+)
+source_group("Source/UIElement/Menu/Help" FILES ${UIElement_Menu_Help_Files})
 
 set(Search_Files
     "Source/CADaverUI/Search/UIElementSearcher.h"
@@ -162,6 +186,12 @@ set(Search_Files
     "Source/CADaverUI/Search/SearchBar.cpp"
 )
 source_group("Source/Search" FILES ${Search_Files})
+
+set(Commands_Files
+    "Source/CADaverUI/Commands/ClickUIElementCommand.h"
+    "Source/CADaverUI/Commands/ClickUIElementCommand.cpp"
+)
+source_group("Source/Commands" FILES ${Commands_Files})
 
 set(ALL_FILES
     ${Source_Files}
@@ -175,7 +205,13 @@ set(ALL_FILES
     ${Windows_Asset_Files}
     ${Windows_Project_Files}
     ${UIElement_Files}
+    ${UIElement_Menu_Files}
+    ${UIElement_Menu_File_Files}
+    ${UIElement_Menu_Edit_Files}
+    ${UIElement_Menu_Create_Files}
+    ${UIElement_Menu_Help_Files}
     ${Search_Files}
+    ${Commands_Files}
 )
 
 ############################################################################

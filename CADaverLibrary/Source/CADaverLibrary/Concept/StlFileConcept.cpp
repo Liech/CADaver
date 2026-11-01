@@ -11,16 +11,9 @@ std::string StlFileConcept::getType() const
 
 std::string StlFileConcept::getDescription() const
 {
-    return "Concept: STL (Stereolithography)\n"
-           "File Extension: .stl\n"
-           "Format Variants: Binary and ASCII\n\n"
-           "Overview:\n"
-           "STL is one of the most widely used 3D formats in rapid prototyping, 3D printing, and computer-aided manufacturing. "
-           "It represents 3D surfaces as an unstructured collection of planar triangles defined by three 3D vertices and a face normal vector.\n\n"
-           "Key Characteristics:\n"
-           "  - Faceted Geometry: Approximates smooth curved surfaces via discrete triangular facets. Higher detail requires higher triangle counts.\n"
-           "  - No Topological Connectivity: In raw STL files, adjacent triangles do not share indexed vertices, though CADaver constructs an indexed mesh upon import.\n"
-           "  - In CADaver: Managed via TriangulationAsset and rendered using standard hardware vertex/index buffers or converted to SVO voxels.";
+    return "STL (Stereolithography) is a standard 3D file format that represents surface geometry "
+           "as an unstructured collection of triangular facets. It is widely used in 3D printing, "
+           "rapid prototyping, and polygonal visualization.";
 }
 
 #ifdef ISTESTPROJECT

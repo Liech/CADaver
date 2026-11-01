@@ -67,6 +67,7 @@ void WindowsInfoWindow::render()
     ImGui::SetNextWindowSize(ImVec2(800.0f, 520.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Windows", &openState))
     {
+        handleEscapeClose();
         ImGui::BeginChild("IndexPane", ImVec2(240.0f, 0.0f), true);
         for (size_t i = 0; i < entries.size(); i++)
         {

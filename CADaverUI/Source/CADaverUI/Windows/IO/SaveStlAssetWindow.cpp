@@ -108,6 +108,7 @@ void SaveStlAssetWindow::render()
 
     if (ImGui::Begin("Save STL Asset##SaveStlWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
+        handleEscapeClose();
         const auto& project = gatedDatabase->get().getProject();
         assetComboBox.render(project);
         ImGui::Spacing();

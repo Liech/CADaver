@@ -26,6 +26,24 @@ std::string ConceptsInfoWindow::getDescription() const
            "Dispatched Command: None (read-only documentation window)";
 }
 
+void ConceptsInfoWindow::selectConcept(const std::string& conceptType)
+{
+    if (!loaded)
+    {
+        loadData();
+    }
+
+    for (size_t i = 0; i < entries.size(); i++)
+    {
+        if (entries[i].first == conceptType)
+        {
+            selectedIndex     = static_cast<int>(i);
+            scrollToSelection = true;
+            break;
+        }
+    }
+}
+
 void ConceptsInfoWindow::loadData()
 {
     entries.clear();
@@ -66,10 +84,16 @@ void ConceptsInfoWindow::render()
     ImGui::SetNextWindowSize(ImVec2(800.0f, 520.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Concepts", &openState))
     {
+        handleEscapeClose();
         ImGui::BeginChild("IndexPane", ImVec2(260.0f, 0.0f), true);
         for (size_t i = 0; i < entries.size(); i++)
         {
             bool isSelected = (selectedIndex == static_cast<int>(i));
+            if (isSelected && scrollToSelection)
+            {
+                ImGui::SetScrollHereY(0.5f);
+                scrollToSelection = false;
+            }
             if (ImGui::Selectable(entries[i].first.c_str(), isSelected))
             {
                 selectedIndex = static_cast<int>(i);

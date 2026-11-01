@@ -19,8 +19,12 @@ namespace Vulcant::Toolkit
 
 class CameraController;
 class CameraPreferences;
+class GatedDatabase;
 class Project;
+class UIElementFactory;
+class UndoStack;
 class ViewCubeWidget;
+class Windows;
 
 // Coordinates camera navigation, projection updates, user input events, and the ViewCube widget.
 class ViewController
@@ -42,6 +46,19 @@ class ViewController
     Vulcant::Toolkit::Camera*   getCamera() const;
     Vulcant::Toolkit::SceneData getSceneData() const;
     CameraController&           getCameraController();
+
+    void rollCamera(double angle);
+    void rotateAroundTarget(double angle, const glm::dvec3& axis);
+    void rotateUp();
+    void rotateDown();
+    void rotateLeft();
+    void rotateRight();
+    void rollCcw();
+    void rollCw();
+    void toggleProjection();
+    void resetView(const Project& project);
+
+    void registerUIElements(UIElementFactory& factory, GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows);
 
     void renderViewCube(const glm::ivec2& resolution, const Project& project, const std::function<void(bool)>& onOrthographicChanged = nullptr);
 

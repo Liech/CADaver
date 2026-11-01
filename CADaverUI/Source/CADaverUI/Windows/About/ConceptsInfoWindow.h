@@ -17,10 +17,13 @@ class ConceptsInfoWindow : public Window
     virtual std::string getDescription() const override;
     virtual void        render() override;
 
+    void selectConcept(const std::string& conceptType);
+
   private:
     void loadData();
 
     std::vector<std::pair<std::string, std::string>> entries;
-    int                                              selectedIndex = 0;
-    bool                                             loaded        = false;
+    int                                              selectedIndex     = 0;
+    bool                                             loaded            = false;
+    bool                                             scrollToSelection = false;
 };

@@ -1,45 +1,39 @@
 #include "UI/Menu/TopMenu.h"
 
+#include "Commands/ClickUIElementCommand.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
+#include "Execution/UndoStack.h"
 #include "Windows/Windows.h"
 
 #include <imgui.h>
 
-TopMenu::TopMenu() {}
+TopMenu::TopMenu()
+  : factoryInitialized(false)
+{
+}
 
 TopMenu::~TopMenu() {}
 
 void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Windows& windows, bool& quitRequested)
 {
-    searchBar.init(gatedDatabase, undoStack, windows, quitRequested);
+    if (!factoryInitialized)
+    {
+        uiElementFactory.registerDefaults(gatedDatabase, undoStack, windows, quitRequested);
+        gatedDatabase.getCommandFactory().registerCommand("ClickUIElement", [this]() { return std::make_unique<ClickUIElementCommand>(uiElementFactory); });
+        factoryInitialized = true;
+    }
+
+    searchBar.init(gatedDatabase, windows, uiElementFactory);
+
+    if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_F, false))
+    {
+        searchBar.focus();
+    }
 
     if (ImGui::BeginMainMenuBar())
     {
-        fileMenu.render(gatedDatabase, undoStack, windows, quitRequested);
-        editMenu.render(undoStack, defer);
-        createMenu.render(windows);
-
-        if (ImGui::BeginMenu("Help"))
-        {
-            if (ImGui::MenuItem("About CADaver"))
-            {
-                windows.open("About");
-            }
-            if (ImGui::MenuItem("Commands"))
-            {
-                windows.open("CommandsInfo");
-            }
-            if (ImGui::MenuItem("Concepts"))
-            {
-                windows.open("ConceptsInfo");
-            }
-            if (ImGui::MenuItem("Windows"))
-            {
-                windows.open("WindowsInfo");
-            }
-            ImGui::EndMenu();
-        }
+        dynamicMenuRenderer.render(uiElementFactory);
 
         ImGui::SameLine();
         ImGui::Spacing();
@@ -48,6 +42,60 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& 
         searchBar.render(defer);
 
         ImGui::EndMainMenuBar();
+    }
+
+    handleShortcuts(undoStack);
+}
+
+void TopMenu::focusSearchBar()
+{
+    searchBar.focus();
+}
+
+UIElementFactory& TopMenu::getUIElementFactory()
+{
+    return uiElementFactory;
+}
+
+const UIElementFactory& TopMenu::getUIElementFactory() const
+{
+    return uiElementFactory;
+}
+
+void TopMenu::handleShortcuts(UndoStack& undoStack)
+{
+    if (!ImGui::GetIO().KeyCtrl || ImGui::GetIO().WantTextInput)
+    {
+        return;
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_Z, false))
+    {
+        if (ImGui::GetIO().KeyShift)
+        {
+            if (undoStack.canRedo())
+            {
+                undoStack.redo();
+            }
+        }
+        else
+        {
+            if (undoStack.canUndo())
+            {
+                undoStack.undo();
+            }
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_Y, false))
+    {
+        if (undoStack.canRedo())
+        {
+            undoStack.redo();
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_F, false))
+    {
+        searchBar.focus();
     }
 }
 

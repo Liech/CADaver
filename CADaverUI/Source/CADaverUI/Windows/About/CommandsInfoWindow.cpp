@@ -27,6 +27,24 @@ std::string CommandsInfoWindow::getDescription() const
            "Dispatched Command: None (read-only documentation window)";
 }
 
+void CommandsInfoWindow::selectCommand(const std::string& commandType)
+{
+    if (!loaded)
+    {
+        loadData();
+    }
+
+    for (size_t i = 0; i < entries.size(); i++)
+    {
+        if (entries[i].first == commandType)
+        {
+            selectedIndex     = static_cast<int>(i);
+            scrollToSelection = true;
+            break;
+        }
+    }
+}
+
 void CommandsInfoWindow::loadData()
 {
     entries.clear();
@@ -71,10 +89,16 @@ void CommandsInfoWindow::render()
     ImGui::SetNextWindowSize(ImVec2(800.0f, 520.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Commands", &openState))
     {
+        handleEscapeClose();
         ImGui::BeginChild("IndexPane", ImVec2(240.0f, 0.0f), true);
         for (size_t i = 0; i < entries.size(); i++)
         {
             bool isSelected = (selectedIndex == static_cast<int>(i));
+            if (isSelected && scrollToSelection)
+            {
+                ImGui::SetScrollHereY(0.5f);
+                scrollToSelection = false;
+            }
             if (ImGui::Selectable(entries[i].first.c_str(), isSelected))
             {
                 selectedIndex = static_cast<int>(i);
@@ -95,3 +119,15 @@ void CommandsInfoWindow::render()
     }
     ImGui::End();
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("CommandsInfoWindow/ConstructionAndType")
+{
+    CommandsInfoWindow win;
+    REQUIRE(win.getType() == "CommandsInfo");
+    REQUIRE(!win.getDescription().empty());
+    win.selectCommand("NonExistent");
+}
+#endif

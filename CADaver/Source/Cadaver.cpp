@@ -116,9 +116,25 @@ void Cadaver::onResize(const glm::ivec2& newResolution)
 
 void Cadaver::onKey(const Vulcant::VulcantInputValue& key)
 {
-    if (ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureMouse)
+    if (key == Vulcant::VulcantInputValue::F && window && window->getInput().isPressed(Vulcant::VulcantInputValue::Control))
     {
-        if (key == Vulcant::VulcantInputValue::MouseWheelUp || key == Vulcant::VulcantInputValue::MouseWheelDown)
+        if (topMenu)
+        {
+            topMenu->focusSearchBar();
+        }
+        return;
+    }
+
+    if (ImGui::GetCurrentContext())
+    {
+        if (ImGui::GetIO().WantCaptureMouse)
+        {
+            if (key == Vulcant::VulcantInputValue::MouseWheelUp || key == Vulcant::VulcantInputValue::MouseWheelDown)
+            {
+                return;
+            }
+        }
+        if (ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().WantTextInput)
         {
             return;
         }
@@ -148,6 +164,7 @@ void Cadaver::prepare()
 
     viewController = std::make_unique<ViewController>();
     viewController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
+    viewController->registerUIElements(topMenu->getUIElementFactory(), gatedDatabase, undoStack, windows);
 }
 
 void Cadaver::renderImGui()

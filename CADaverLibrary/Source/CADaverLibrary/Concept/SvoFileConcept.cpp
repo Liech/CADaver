@@ -11,17 +11,9 @@ std::string SvoFileConcept::getType() const
 
 std::string SvoFileConcept::getDescription() const
 {
-    return "Concept: SVO (Sparse Voxel Octree)\n"
-           "File Extension: .svo\n"
-           "Format Type: Hierarchical Volumetric Octree\n\n"
-           "Overview:\n"
-           "Sparse Voxel Octrees are 8-ary tree data structures designed to represent massive 3D volumetric fields efficiently. "
-           "Instead of allocating an N^3 dense uniform grid in memory, empty or homogeneous space is pruned, only storing "
-           "subdivisions where matter or surface boundaries exist.\n\n"
-           "Key Characteristics:\n"
-           "  - Level-of-Detail (LOD): Nodes can be coarsened or refined dynamically based on camera distance, screen-space pixel projection, or memory budgets.\n"
-           "  - Fast Spatial Queries: Fast ray traversal, collision detection, and spatial partitioning with O(log N) depth.\n"
-           "  - In CADaver: Encapsulated in VoxelAsset and meshed using dynamic LOD Marching Cubes (CADacomb::Render::SVOLODMesh).";
+    return "SVO (Sparse Voxel Octree) is a hierarchical volumetric data structure that represents "
+           "3D space as subdivided cubic cells (voxels). Only occupied regions are stored in tree nodes, "
+           "enabling efficient rendering and multi-resolution level-of-detail (LOD).";
 }
 
 #ifdef ISTESTPROJECT

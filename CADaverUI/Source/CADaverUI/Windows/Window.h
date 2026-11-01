@@ -23,6 +23,7 @@ class Window
     void open();
     void close();
     bool consumeFocus();
+    void handleEscapeClose();
 
   protected:
     GatedDatabase* gatedDatabase = nullptr;

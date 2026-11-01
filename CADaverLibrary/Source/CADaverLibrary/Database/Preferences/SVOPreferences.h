@@ -46,9 +46,10 @@ class SVOPreferences
     int  getFixedDecision() const;
     void setFixedDecision(int decision);
 
-    bool isRebuildRequested() const;
-    void requestRebuild();
-    void clearRebuildRequested();
+    bool   isRebuildRequested() const;
+    void   requestRebuild();
+    void   clearRebuildRequested();
+    size_t getRebuildCounter() const;
 
     bool isDirty() const;
     void markClean();
@@ -67,5 +68,6 @@ class SVOPreferences
     int    fixedDecision         = 1;
     bool   frustumCullingEnabled = true;
     bool   rebuildRequested      = false;
+    size_t rebuildCounter        = 0;
     bool   dirty                 = true;
 };

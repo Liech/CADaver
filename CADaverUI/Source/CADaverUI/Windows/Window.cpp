@@ -1,5 +1,7 @@
 #include "Windows/Window.h"
 
+#include <imgui.h>
+
 Window::Window() {}
 
 Window::~Window() {}
@@ -36,4 +38,12 @@ bool Window::consumeFocus()
         return true;
     }
     return false;
+}
+
+void Window::handleEscapeClose()
+{
+    if (openState && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape))
+    {
+        close();
+    }
 }

@@ -77,6 +77,7 @@ void LoadStlAssetWindow::render()
 
     if (ImGui::Begin("Load STL Asset##LoadStlWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
+        handleEscapeClose();
         char pathBuffer[512];
         strncpy_s(pathBuffer, sizeof(pathBuffer), filePath.c_str(), _TRUNCATE);
         if (ImGui::InputText("File Path", pathBuffer, sizeof(pathBuffer)))

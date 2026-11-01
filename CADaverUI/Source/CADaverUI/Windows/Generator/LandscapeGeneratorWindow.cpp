@@ -92,6 +92,7 @@ void LandscapeGeneratorWindow::render()
     ImGui::SetNextWindowSize(ImVec2(480.0f, 460.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Landscape Generator", &openState))
     {
+        handleEscapeClose();
         char nameBuffer[128];
         strncpy_s(nameBuffer, sizeof(nameBuffer), assetName.c_str(), _TRUNCATE);
         if (ImGui::InputText("Asset Name", nameBuffer, sizeof(nameBuffer)))

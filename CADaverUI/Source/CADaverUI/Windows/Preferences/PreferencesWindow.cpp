@@ -110,6 +110,7 @@ void PreferencesWindow::render()
     ImGui::SetNextWindowSize(ImVec2(480.0f, 420.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Preferences", &openState))
     {
+        handleEscapeClose();
         bool modified = false;
 
         if (ImGui::BeginTabBar("PreferencesTabs"))

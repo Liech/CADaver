@@ -108,6 +108,7 @@ void SaveVoxelAssetWindow::render()
 
     if (ImGui::Begin("Save SVO Asset##SaveSvoWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
+        handleEscapeClose();
         const auto& project = gatedDatabase->get().getProject();
         assetComboBox.render(project);
         ImGui::Spacing();

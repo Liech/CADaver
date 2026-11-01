@@ -49,6 +49,7 @@ void TextNoteEditWindow::render()
     ImGui::SetNextWindowSize(ImVec2(500.0f, 440.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Edit Text Note", &openState))
     {
+        handleEscapeClose();
         const auto& project = gatedDatabase->get().getProject();
 
         assetComboBox.render(project);
