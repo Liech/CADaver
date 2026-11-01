@@ -52,13 +52,17 @@ int SearchService::getCategoryRank(const std::string& category) const
     {
         return 1;
     }
-    if (category == "Window")
+    if (category == "UI" || category == "Menu")
     {
         return 2;
     }
-    if (category == "Concept")
+    if (category == "Window")
     {
         return 3;
+    }
+    if (category == "Concept")
+    {
+        return 4;
     }
     if (category == "Command")
     {

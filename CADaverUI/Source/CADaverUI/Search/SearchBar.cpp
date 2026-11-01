@@ -5,6 +5,7 @@
 #include "Search/AssetSearcher.h"
 #include "Search/CommandSearcher.h"
 #include "Search/ConceptSearcher.h"
+#include "Search/UIElementSearcher.h"
 #include "Search/WindowSearcher.h"
 #include "Windows/Windows.h"
 
@@ -18,7 +19,7 @@ SearchBar::SearchBar() {}
 
 SearchBar::~SearchBar() {}
 
-void SearchBar::init(GatedDatabase& gatedDatabase, Windows& windowsRef)
+void SearchBar::init(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windowsRef, bool& quitRequested)
 {
     if (initialized)
     {
@@ -26,6 +27,9 @@ void SearchBar::init(GatedDatabase& gatedDatabase, Windows& windowsRef)
     }
 
     windows = &windowsRef;
+    uiElementFactory.registerDefaults(gatedDatabase, undoStack, windowsRef, quitRequested);
+
+    searchService.addSearcher(std::make_unique<UIElementSearcher>(uiElementFactory));
     searchService.addSearcher(std::make_unique<AssetSearcher>(gatedDatabase.get()));
     searchService.addSearcher(std::make_unique<WindowSearcher>(windowsRef));
     searchService.addSearcher(std::make_unique<ConceptSearcher>());
@@ -191,6 +195,10 @@ void SearchBar::renderResultCard(size_t index, const SearchResult& item, bool is
     else if (item.getCategory() == "Concept")
     {
         badgeColor = ImVec4(0.95f, 0.42f, 0.42f, 1.0f);
+    }
+    else if (item.getCategory() == "UI" || item.getCategory() == "Menu")
+    {
+        badgeColor = ImVec4(0.25f, 0.85f, 0.85f, 1.0f);
     }
 
     std::string badge = "[" + item.getCategory() + "] ";

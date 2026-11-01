@@ -117,7 +117,45 @@ set(Windows_Project_Files
 )
 source_group("Source/Windows/Project" FILES ${Windows_Project_Files})
 
+set(UIElement_Files
+    "Source/CADaverUI/UIElement/UIElement.h"
+    "Source/CADaverUI/UIElement/UIElement.cpp"
+    "Source/CADaverUI/UIElement/NullUIElement.h"
+    "Source/CADaverUI/UIElement/NullUIElement.cpp"
+    "Source/CADaverUI/UIElement/MenuEntry.h"
+    "Source/CADaverUI/UIElement/MenuEntry.cpp"
+    "Source/CADaverUI/UIElement/UIElementFactory.h"
+    "Source/CADaverUI/UIElement/UIElementFactory.cpp"
+    "Source/CADaverUI/UIElement/Menu/AboutMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/AboutMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/CommandsInfoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/CommandsInfoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/ConceptsInfoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/ConceptsInfoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/LandscapeMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/LandscapeMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/LoadStepMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/LoadStepMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/LoadStlMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/LoadStlMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/LoadSvoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/LoadSvoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/PreferencesMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/PreferencesMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/QuitMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/QuitMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/RedoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/RedoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/UndoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/UndoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/WindowsInfoMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/WindowsInfoMenuEntry.cpp"
+)
+source_group("Source/UIElement" FILES ${UIElement_Files})
+
 set(Search_Files
+    "Source/CADaverUI/Search/UIElementSearcher.h"
+    "Source/CADaverUI/Search/UIElementSearcher.cpp"
     "Source/CADaverUI/Search/WindowSearcher.h"
     "Source/CADaverUI/Search/WindowSearcher.cpp"
     "Source/CADaverUI/Search/SearchBar.h"
@@ -136,6 +174,7 @@ set(ALL_FILES
     ${Windows_Preferences_Files}
     ${Windows_Asset_Files}
     ${Windows_Project_Files}
+    ${UIElement_Files}
     ${Search_Files}
 )
 

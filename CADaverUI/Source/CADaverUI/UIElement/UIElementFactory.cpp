@@ -1,0 +1,110 @@
+#include "UIElement/UIElementFactory.h"
+
+#include "Execution/GatedDatabase.h"
+#include "Execution/UndoStack.h"
+#include "UIElement/Menu/AboutMenuEntry.h"
+#include "UIElement/Menu/CommandsInfoMenuEntry.h"
+#include "UIElement/Menu/ConceptsInfoMenuEntry.h"
+#include "UIElement/Menu/LandscapeMenuEntry.h"
+#include "UIElement/Menu/LoadStepMenuEntry.h"
+#include "UIElement/Menu/LoadStlMenuEntry.h"
+#include "UIElement/Menu/LoadSvoMenuEntry.h"
+#include "UIElement/Menu/PreferencesMenuEntry.h"
+#include "UIElement/Menu/QuitMenuEntry.h"
+#include "UIElement/Menu/RedoMenuEntry.h"
+#include "UIElement/Menu/UndoMenuEntry.h"
+#include "UIElement/Menu/WindowsInfoMenuEntry.h"
+#include "Windows/Windows.h"
+
+#include <algorithm>
+
+UIElementFactory::UIElementFactory() {}
+
+UIElementFactory::~UIElementFactory() {}
+
+void UIElementFactory::registerDefaults(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows, bool& quitRequested)
+{
+    registerElement("STL", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LoadStlMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("STEP", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LoadStepMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("SVO", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LoadSvoMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("Preferences", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<PreferencesMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("Quit", [&gatedDatabase, &undoStack, &windows, &quitRequested]() { return std::make_shared<QuitMenuEntry>(gatedDatabase, undoStack, windows, quitRequested); });
+    registerElement("Undo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<UndoMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("Redo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<RedoMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("Landscape", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LandscapeMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("About", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<AboutMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("Commands", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<CommandsInfoMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("Concepts", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<ConceptsInfoMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("Windows", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<WindowsInfoMenuEntry>(gatedDatabase, undoStack, windows); });
+}
+
+void UIElementFactory::registerElement(const std::string& type, std::function<std::shared_ptr<UIElement>()> creator)
+{
+    if (std::find(registeredOrder.begin(), registeredOrder.end(), type) == registeredOrder.end())
+    {
+        registeredOrder.push_back(type);
+    }
+    creators[type] = std::move(creator);
+}
+
+std::shared_ptr<UIElement> UIElementFactory::create(const std::string& type) const
+{
+    auto it = creators.find(type);
+    if (it != creators.end() && it->second)
+    {
+        return it->second();
+    }
+    return nullptr;
+}
+
+std::vector<std::shared_ptr<UIElement>> UIElementFactory::getAllElements() const
+{
+    std::vector<std::shared_ptr<UIElement>> elements;
+    for (const auto& type : registeredOrder)
+    {
+        auto it = creators.find(type);
+        if (it != creators.end() && it->second)
+        {
+            auto elem = it->second();
+            if (elem)
+            {
+                elements.push_back(std::move(elem));
+            }
+        }
+    }
+    return elements;
+}
+
+std::vector<std::string> UIElementFactory::getRegisteredTypes() const
+{
+    return registeredOrder;
+}
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("UIElementFactory/Defaults")
+{
+    GatedDatabase    db;
+    UndoStack        us(db);
+    Windows          windows;
+    bool             quitFlag = false;
+    UIElementFactory factory;
+    factory.registerDefaults(db, us, windows, quitFlag);
+
+    REQUIRE(factory.create("SVO") != nullptr);
+    REQUIRE(factory.create("STL") != nullptr);
+    REQUIRE(factory.create("STEP") != nullptr);
+    REQUIRE(factory.create("Preferences") != nullptr);
+    REQUIRE(factory.create("Quit") != nullptr);
+    REQUIRE(factory.create("Undo") != nullptr);
+    REQUIRE(factory.create("Redo") != nullptr);
+    REQUIRE(factory.create("Landscape") != nullptr);
+    REQUIRE(factory.create("About") != nullptr);
+    REQUIRE(factory.create("Commands") != nullptr);
+    REQUIRE(factory.create("Concepts") != nullptr);
+    REQUIRE(factory.create("Windows") != nullptr);
+    REQUIRE(factory.create("Unknown") == nullptr);
+    REQUIRE(factory.getAllElements().size() == 12);
+}
+#endif

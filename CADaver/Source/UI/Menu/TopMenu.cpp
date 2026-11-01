@@ -12,11 +12,11 @@ TopMenu::~TopMenu() {}
 
 void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& defer, Windows& windows, bool& quitRequested)
 {
-    searchBar.init(gatedDatabase, windows);
+    searchBar.init(gatedDatabase, undoStack, windows, quitRequested);
 
     if (ImGui::BeginMainMenuBar())
     {
-        fileMenu.render(windows, quitRequested);
+        fileMenu.render(gatedDatabase, undoStack, windows, quitRequested);
         editMenu.render(undoStack, defer);
         createMenu.render(windows);
 

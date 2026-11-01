@@ -2,6 +2,7 @@
 
 #include "Search/SearchResult.h"
 #include "Search/SearchService.h"
+#include "UIElement/UIElementFactory.h"
 
 #include <string>
 #include <utility>
@@ -9,6 +10,7 @@
 
 class Defer;
 class GatedDatabase;
+class UndoStack;
 class Windows;
 
 // Renders the sleek top-menu search bar with interactive dropdown results.
@@ -18,7 +20,7 @@ class SearchBar
     SearchBar();
     virtual ~SearchBar();
 
-    void init(GatedDatabase& gatedDatabase, Windows& windows);
+    void init(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows, bool& quitRequested);
     void render(Defer& defer);
 
   private:
@@ -33,6 +35,7 @@ class SearchBar
     std::string                            toLower(const std::string& input) const;
 
     SearchService             searchService;
+    UIElementFactory          uiElementFactory;
     std::string               query;
     std::string               lastQuery;
     std::vector<SearchResult> results;
