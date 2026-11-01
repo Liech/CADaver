@@ -13,6 +13,7 @@ class ConceptFactory
     ConceptFactory();
     virtual ~ConceptFactory();
 
+    std::shared_ptr<Concept>              create(const std::string& type) const;
     std::vector<std::shared_ptr<Concept>> getAllConcepts() const;
 
   private:

@@ -11,6 +11,18 @@ ConceptFactory::ConceptFactory()
 
 ConceptFactory::~ConceptFactory() {}
 
+std::shared_ptr<Concept> ConceptFactory::create(const std::string& type) const
+{
+    for (const auto& item : concepts)
+    {
+        if (item && item->getType() == type)
+        {
+            return item;
+        }
+    }
+    return nullptr;
+}
+
 std::vector<std::shared_ptr<Concept>> ConceptFactory::getAllConcepts() const
 {
     return concepts;
@@ -31,5 +43,7 @@ TEST_CASE("ConceptFactory/Retrieval")
     ConceptFactory factory;
     auto           all = factory.getAllConcepts();
     REQUIRE(all.size() >= 3);
+    REQUIRE(factory.create("STEP") != nullptr);
+    REQUIRE(factory.create("Unknown") == nullptr);
 }
 #endif

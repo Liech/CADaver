@@ -1,17 +1,17 @@
-#include "Search/WindowSearchProvider.h"
+#include "Search/WindowSearcher.h"
 
 #include "Windows/Window.h"
 #include "Windows/WindowFactory.h"
 #include "Windows/Windows.h"
 
-WindowSearchProvider::WindowSearchProvider(Windows& windows)
+WindowSearcher::WindowSearcher(Windows& windows)
   : windows(windows)
 {
 }
 
-WindowSearchProvider::~WindowSearchProvider() {}
+WindowSearcher::~WindowSearcher() {}
 
-std::vector<SearchResult> WindowSearchProvider::search(const std::string& query)
+std::vector<SearchResult> WindowSearcher::search(const std::string& query)
 {
     std::vector<SearchResult> results;
     if (query.empty())
@@ -44,12 +44,12 @@ std::vector<SearchResult> WindowSearchProvider::search(const std::string& query)
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("WindowSearchProvider/SearchMatching")
+TEST_CASE("WindowSearcher/SearchMatching")
 {
-    Windows              windows;
-    WindowSearchProvider provider(windows);
+    Windows        windows;
+    WindowSearcher searcher(windows);
 
-    auto results = provider.search("About");
+    auto results = searcher.search("About");
     REQUIRE(!results.empty());
     REQUIRE(results[0].getTitle() == "About");
 }

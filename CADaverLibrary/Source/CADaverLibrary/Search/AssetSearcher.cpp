@@ -1,4 +1,4 @@
-#include "Search/AssetSearchProvider.h"
+#include "Search/AssetSearcher.h"
 
 #include "Database/Asset.h"
 #include "Database/Asset/CadAsset.h"
@@ -6,19 +6,17 @@
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Component/TextNoteComponent.h"
+#include "Database/Database.h"
 #include "Database/Project.h"
-#include "Execution/GatedDatabase.h"
-#include "Windows/Windows.h"
 
-AssetSearchProvider::AssetSearchProvider(GatedDatabase& gatedDatabase, Windows& windows)
-  : gatedDatabase(gatedDatabase)
-  , windows(windows)
+AssetSearcher::AssetSearcher(const Database& database)
+  : database(database)
 {
 }
 
-AssetSearchProvider::~AssetSearchProvider() {}
+AssetSearcher::~AssetSearcher() {}
 
-std::vector<SearchResult> AssetSearchProvider::search(const std::string& query)
+std::vector<SearchResult> AssetSearcher::search(const std::string& query)
 {
     std::vector<SearchResult> results;
     if (query.empty())
@@ -26,7 +24,7 @@ std::vector<SearchResult> AssetSearchProvider::search(const std::string& query)
         return results;
     }
 
-    const auto& project = gatedDatabase.get().getProject();
+    const auto& project = database.getProject();
     const auto& assets  = project.getAssets();
 
     for (const auto& asset : assets)
@@ -42,7 +40,7 @@ std::vector<SearchResult> AssetSearchProvider::search(const std::string& query)
         if (assetMatch)
         {
             std::string title = asset->getName() + " (" + asset->getType() + ")";
-            results.emplace_back(title, "Asset", summary, [this]() { windows.open("ProjectWindow"); });
+            results.emplace_back(title, "Asset", summary, nullptr);
         }
 
         auto notes = asset->getAttachments<TextNoteComponent>();
@@ -57,7 +55,7 @@ std::vector<SearchResult> AssetSearchProvider::search(const std::string& query)
             {
                 std::string noteTitle = asset->getName() + " -> Note: " + note->getName();
                 std::string noteDesc  = "Asset: " + asset->getName() + " (" + asset->getType() + ")\nNote: " + note->getName() + "\nContent: " + note->getText();
-                results.emplace_back(noteTitle, "Note", noteDesc, [this]() { windows.open("ProjectWindow"); });
+                results.emplace_back(noteTitle, "Note", noteDesc, nullptr);
             }
         }
     }
@@ -65,7 +63,7 @@ std::vector<SearchResult> AssetSearchProvider::search(const std::string& query)
     return results;
 }
 
-std::string AssetSearchProvider::buildAssetSummary(const std::shared_ptr<const Asset>& asset) const
+std::string AssetSearcher::buildAssetSummary(const std::shared_ptr<const Asset>& asset) const
 {
     std::string summary = "Name: " + asset->getName() + "\nType: " + asset->getType() + "\nRevision: " + std::to_string(asset->getRevision());
 
@@ -116,16 +114,14 @@ std::string AssetSearchProvider::buildAssetSummary(const std::shared_ptr<const A
 }
 
 #ifdef ISTESTPROJECT
-#include "Database/Asset/VoxelAsset.h"
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("AssetSearchProvider/SearchEmpty")
+TEST_CASE("AssetSearcher/SearchEmpty")
 {
-    GatedDatabase       gatedDatabase;
-    Windows             windows;
-    AssetSearchProvider provider(gatedDatabase, windows);
+    Database      database;
+    AssetSearcher searcher(database);
 
-    auto results = provider.search("NonExistent");
+    auto results = searcher.search("NonExistent");
     REQUIRE(results.empty());
 }
 #endif

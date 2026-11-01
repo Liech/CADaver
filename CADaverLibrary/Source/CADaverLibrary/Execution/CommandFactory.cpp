@@ -19,6 +19,8 @@
 #include "Commands/Preferences/UpdateUIPreferencesCommand.h"
 #include "Commands/Project/ClearProjectCommand.h"
 #include "Commands/Project/RemoveAssetCommand.h"
+#include "Commands/Search/GetDocumentationCommand.h"
+#include "Commands/Search/SearchCommand.h"
 
 #include <algorithm>
 
@@ -88,6 +90,8 @@ void CommandFactory::registerCommands()
     registerCommand("UpdateUIPreferences", []() { return std::make_unique<UpdateUIPreferencesCommand>(); });
     registerCommand("UpdateRenderPreferences", []() { return std::make_unique<UpdateRenderPreferencesCommand>(); });
     registerCommand("UpdateSVOPreferences", []() { return std::make_unique<UpdateSVOPreferencesCommand>(); });
+    registerCommand("Search", []() { return std::make_unique<SearchCommand>(); });
+    registerCommand("GetDocumentation", []() { return std::make_unique<GetDocumentationCommand>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -116,6 +120,8 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("UpdateSVOPreferences") != nullptr);
     CHECK(factory.create("AddNote") != nullptr);
     CHECK(factory.create("RemoveComponent") != nullptr);
-    CHECK(factory.getAllCommands().size() == 19);
+    CHECK(factory.create("Search") != nullptr);
+    CHECK(factory.create("GetDocumentation") != nullptr);
+    CHECK(factory.getAllCommands().size() == 21);
 }
 #endif

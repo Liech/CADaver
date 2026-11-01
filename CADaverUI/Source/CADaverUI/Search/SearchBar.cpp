@@ -2,10 +2,10 @@
 
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
-#include "Search/AssetSearchProvider.h"
-#include "Search/CommandSearchProvider.h"
-#include "Search/ConceptSearchProvider.h"
-#include "Search/WindowSearchProvider.h"
+#include "Search/AssetSearcher.h"
+#include "Search/CommandSearcher.h"
+#include "Search/ConceptSearcher.h"
+#include "Search/WindowSearcher.h"
 #include "Windows/Windows.h"
 
 #include <algorithm>
@@ -18,17 +18,18 @@ SearchBar::SearchBar() {}
 
 SearchBar::~SearchBar() {}
 
-void SearchBar::init(GatedDatabase& gatedDatabase, Windows& windows)
+void SearchBar::init(GatedDatabase& gatedDatabase, Windows& windowsRef)
 {
     if (initialized)
     {
         return;
     }
 
-    searchService.addProvider(std::make_unique<AssetSearchProvider>(gatedDatabase, windows));
-    searchService.addProvider(std::make_unique<WindowSearchProvider>(windows));
-    searchService.addProvider(std::make_unique<ConceptSearchProvider>(windows));
-    searchService.addProvider(std::make_unique<CommandSearchProvider>(gatedDatabase, windows));
+    windows = &windowsRef;
+    searchService.addSearcher(std::make_unique<AssetSearcher>(gatedDatabase.get()));
+    searchService.addSearcher(std::make_unique<WindowSearcher>(windowsRef));
+    searchService.addSearcher(std::make_unique<ConceptSearcher>());
+    searchService.addSearcher(std::make_unique<CommandSearcher>(gatedDatabase.getCommandFactory()));
 
     initialized = true;
 }
@@ -428,10 +429,22 @@ void SearchBar::executeSelection(size_t index, Defer& defer)
         return;
     }
 
-    auto action = results[index].getAction();
+    const auto& item   = results[index];
+    auto        action = item.getAction();
     if (action)
     {
         defer.defer(action);
+    }
+    else if (windows)
+    {
+        if (item.getCategory() == "Command")
+        {
+            defer.defer([this]() { windows->open("CommandsInfo"); });
+        }
+        else if (item.getCategory() == "Concept")
+        {
+            defer.defer([this]() { windows->open("ConceptsInfo"); });
+        }
     }
 
     query.clear();

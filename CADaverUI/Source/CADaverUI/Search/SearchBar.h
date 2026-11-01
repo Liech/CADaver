@@ -39,4 +39,5 @@ class SearchBar
     int                       selectedIndex = -1;
     bool                      initialized   = false;
     bool                      isOpen        = false;
+    Windows*                  windows       = nullptr;
 };

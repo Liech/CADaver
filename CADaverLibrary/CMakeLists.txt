@@ -130,6 +130,46 @@ set(Execution_Files
 )
 source_group("Source/Execution" FILES ${Execution_Files})
 
+set(Command_Search_Files
+    "Source/CADaverLibrary/Commands/Search/GetDocumentationCommand.h"
+    "Source/CADaverLibrary/Commands/Search/GetDocumentationCommand.cpp"
+    "Source/CADaverLibrary/Commands/Search/SearchCommand.h"
+    "Source/CADaverLibrary/Commands/Search/SearchCommand.cpp"
+)
+source_group("Source/Commands/Search" FILES ${Command_Search_Files})
+
+set(Concept_Files
+    "Source/CADaverLibrary/Concept/Concept.h"
+    "Source/CADaverLibrary/Concept/Concept.cpp"
+    "Source/CADaverLibrary/Concept/ConceptFactory.h"
+    "Source/CADaverLibrary/Concept/ConceptFactory.cpp"
+    "Source/CADaverLibrary/Concept/StepFileConcept.h"
+    "Source/CADaverLibrary/Concept/StepFileConcept.cpp"
+    "Source/CADaverLibrary/Concept/StlFileConcept.h"
+    "Source/CADaverLibrary/Concept/StlFileConcept.cpp"
+    "Source/CADaverLibrary/Concept/SvoFileConcept.h"
+    "Source/CADaverLibrary/Concept/SvoFileConcept.cpp"
+)
+source_group("Source/Concept" FILES ${Concept_Files})
+
+set(Search_Files
+    "Source/CADaverLibrary/Search/AssetSearcher.h"
+    "Source/CADaverLibrary/Search/AssetSearcher.cpp"
+    "Source/CADaverLibrary/Search/CommandSearcher.h"
+    "Source/CADaverLibrary/Search/CommandSearcher.cpp"
+    "Source/CADaverLibrary/Search/ConceptSearcher.h"
+    "Source/CADaverLibrary/Search/ConceptSearcher.cpp"
+    "Source/CADaverLibrary/Search/SearchMatcher.h"
+    "Source/CADaverLibrary/Search/SearchMatcher.cpp"
+    "Source/CADaverLibrary/Search/SearchResult.h"
+    "Source/CADaverLibrary/Search/SearchResult.cpp"
+    "Source/CADaverLibrary/Search/SearchService.h"
+    "Source/CADaverLibrary/Search/SearchService.cpp"
+    "Source/CADaverLibrary/Search/Searcher.h"
+    "Source/CADaverLibrary/Search/Searcher.cpp"
+)
+source_group("Source/Search" FILES ${Search_Files})
+
 set(Database_Asset_Files
     "Source/CADaverLibrary/Database/Asset/CadAsset.h"
     "Source/CADaverLibrary/Database/Asset/CadAsset.cpp"
@@ -152,6 +192,9 @@ set(ALL_FILES
     ${Command_Project_Files}
     ${Command_Component_Files}
     ${Command_Preferences_Files}
+    ${Command_Search_Files}
+    ${Concept_Files}
+    ${Search_Files}
     ${Database_Preferences_Files}
     ${Database_Files}
     ${Database_Asset_Files}

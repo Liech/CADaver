@@ -6,17 +6,17 @@ SearchService::SearchService() {}
 
 SearchService::~SearchService() {}
 
-void SearchService::addProvider(std::unique_ptr<SearchProvider> provider)
+void SearchService::addSearcher(std::unique_ptr<Searcher> searcher)
 {
-    if (provider)
+    if (searcher)
     {
-        providers.push_back(std::move(provider));
+        searchers.push_back(std::move(searcher));
     }
 }
 
-void SearchService::clearProviders()
+void SearchService::clearSearchers()
 {
-    providers.clear();
+    searchers.clear();
 }
 
 std::vector<SearchResult> SearchService::search(const std::string& query) const
@@ -27,11 +27,11 @@ std::vector<SearchResult> SearchService::search(const std::string& query) const
         return combinedResults;
     }
 
-    for (const auto& provider : providers)
+    for (const auto& searcher : searchers)
     {
-        if (provider)
+        if (searcher)
         {
-            auto results = provider->search(query);
+            auto results = searcher->search(query);
             combinedResults.insert(combinedResults.end(), std::make_move_iterator(results.begin()), std::make_move_iterator(results.end()));
         }
     }
@@ -70,11 +70,11 @@ int SearchService::getCategoryRank(const std::string& category) const
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
-class MockSearchProvider : public SearchProvider
+class MockSearcher : public Searcher
 {
   public:
-    MockSearchProvider() {}
-    virtual ~MockSearchProvider() {}
+    MockSearcher() {}
+    virtual ~MockSearcher() {}
 
     std::vector<SearchResult> search(const std::string& query) override
     {
@@ -90,7 +90,7 @@ class MockSearchProvider : public SearchProvider
 TEST_CASE("SearchService/Aggregation")
 {
     SearchService service;
-    service.addProvider(std::make_unique<MockSearchProvider>());
+    service.addSearcher(std::make_unique<MockSearcher>());
 
     auto emptyResults = service.search("");
     REQUIRE(emptyResults.empty());
