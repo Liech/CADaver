@@ -49,8 +49,8 @@ TEST_CASE("WindowSearchProvider/SearchMatching")
     Windows              windows;
     WindowSearchProvider provider(windows);
 
-    auto results = provider.search("AboutWindow");
+    auto results = provider.search("About");
     REQUIRE(!results.empty());
-    REQUIRE(results[0].getTitle() == "AboutWindow");
+    REQUIRE(results[0].getTitle() == "About");
 }
 #endif

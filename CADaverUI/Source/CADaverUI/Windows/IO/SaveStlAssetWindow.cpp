@@ -22,12 +22,12 @@ SaveStlAssetWindow::~SaveStlAssetWindow() {}
 
 std::string SaveStlAssetWindow::getType() const
 {
-    return "SaveStlAssetWindow";
+    return "SaveStlAsset";
 }
 
 std::string SaveStlAssetWindow::getDescription() const
 {
-    return "Window: SaveStlAssetWindow\n"
+    return "Window: SaveStlAsset\n"
            "Title: Save STL Asset\n"
            "Purpose: Dialog for exporting a triangulated mesh asset from the project to an STL (.stl) file on disk.\n\n"
            "Parameters:\n"

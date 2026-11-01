@@ -16,12 +16,12 @@ CadToStlConversionModal::~CadToStlConversionModal() {}
 
 std::string CadToStlConversionModal::getType() const
 {
-    return "CadToStlConversionModal";
+    return "CadToStlConversion";
 }
 
 std::string CadToStlConversionModal::getDescription() const
 {
-    return "Window: CadToStlConversionModal\n"
+    return "Window: CadToStlConversion\n"
            "Title: Convert to STL\n"
            "Purpose: Dialog for tessellating a STEP/CAD boundary-representation asset into a triangulated STL mesh asset.\n\n"
            "Parameters:\n"

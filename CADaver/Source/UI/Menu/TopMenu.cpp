@@ -24,19 +24,19 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& 
         {
             if (ImGui::MenuItem("About CADaver"))
             {
-                windows.open("AboutWindow");
+                windows.open("About");
             }
             if (ImGui::MenuItem("Commands"))
             {
-                windows.open("CommandsInfoWindow");
+                windows.open("CommandsInfo");
             }
             if (ImGui::MenuItem("Concepts"))
             {
-                windows.open("ConceptsInfoWindow");
+                windows.open("ConceptsInfo");
             }
             if (ImGui::MenuItem("Windows"))
             {
-                windows.open("WindowsInfoWindow");
+                windows.open("WindowsInfo");
             }
             ImGui::EndMenu();
         }

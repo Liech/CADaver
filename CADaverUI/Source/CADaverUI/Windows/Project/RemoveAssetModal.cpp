@@ -13,12 +13,12 @@ RemoveAssetModal::~RemoveAssetModal() {}
 
 std::string RemoveAssetModal::getType() const
 {
-    return "RemoveAssetModal";
+    return "RemoveAsset";
 }
 
 std::string RemoveAssetModal::getDescription() const
 {
-    return "Window: RemoveAssetModal\n"
+    return "Window: RemoveAsset\n"
            "Title: Close Asset\n"
            "Purpose: Confirmation dialog for closing and removing a selected asset from the active project.\n\n"
            "Parameters:\n"

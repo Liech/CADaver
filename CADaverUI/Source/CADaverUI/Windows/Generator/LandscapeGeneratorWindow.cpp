@@ -14,12 +14,12 @@ LandscapeGeneratorWindow::~LandscapeGeneratorWindow() {}
 
 std::string LandscapeGeneratorWindow::getType() const
 {
-    return "LandscapeGeneratorWindow";
+    return "LandscapeGenerator";
 }
 
 std::string LandscapeGeneratorWindow::getDescription() const
 {
-    return "Window: LandscapeGeneratorWindow\n"
+    return "Window: LandscapeGenerator\n"
            "Title: Landscape Generator\n"
            "Purpose: Configures procedural noise parameters and generates a volumetric SVO terrain asset asynchronously.\n\n"
            "Parameters:\n"
@@ -133,7 +133,7 @@ void LandscapeGeneratorWindow::render()
 TEST_CASE("LandscapeGeneratorWindow/InitialState")
 {
     LandscapeGeneratorWindow window;
-    CHECK(window.getType() == "LandscapeGeneratorWindow");
+    CHECK(window.getType() == "LandscapeGenerator");
     CHECK_FALSE(window.getDescription().empty());
     CHECK_FALSE(window.isOpen());
 

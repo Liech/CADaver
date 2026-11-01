@@ -16,12 +16,12 @@ LoadStlAssetWindow::~LoadStlAssetWindow() {}
 
 std::string LoadStlAssetWindow::getType() const
 {
-    return "LoadStlAssetWindow";
+    return "LoadStlAsset";
 }
 
 std::string LoadStlAssetWindow::getDescription() const
 {
-    return "Window: LoadStlAssetWindow\n"
+    return "Window: LoadStlAsset\n"
            "Title: Load STL Asset\n"
            "Purpose: Dialog for selecting an STL mesh file on disk and importing it into the project as a TriangulationAsset.\n\n"
            "Parameters:\n"

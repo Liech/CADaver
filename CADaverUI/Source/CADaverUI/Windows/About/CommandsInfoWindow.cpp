@@ -13,12 +13,12 @@ CommandsInfoWindow::~CommandsInfoWindow() {}
 
 std::string CommandsInfoWindow::getType() const
 {
-    return "CommandsInfoWindow";
+    return "CommandsInfo";
 }
 
 std::string CommandsInfoWindow::getDescription() const
 {
-    return "Window: CommandsInfoWindow\n"
+    return "Window: CommandsInfo\n"
            "Title: Commands\n"
            "Purpose: Interactive reference browser displaying all commands registered in GatedDatabase's CommandFactory along with their JSON input/output schemas and stream requirements.\n\n"
            "Parameters:\n"

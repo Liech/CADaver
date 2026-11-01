@@ -133,15 +133,15 @@ TEST_CASE("Windows/OpenAndRemove")
 {
     Windows container;
     CHECK(container.getOpen().empty());
-    CHECK(container.get("LandscapeGeneratorWindow") == nullptr);
+    CHECK(container.get("LandscapeGenerator") == nullptr);
 
-    container.open("LandscapeGeneratorWindow");
-    CHECK(container.getOpen().count("LandscapeGeneratorWindow") == 1);
-    REQUIRE(container.get("LandscapeGeneratorWindow") != nullptr);
-    CHECK(container.get("LandscapeGeneratorWindow")->isOpen());
+    container.open("LandscapeGenerator");
+    CHECK(container.getOpen().count("LandscapeGenerator") == 1);
+    REQUIRE(container.get("LandscapeGenerator") != nullptr);
+    CHECK(container.get("LandscapeGenerator")->isOpen());
 
-    container.remove("LandscapeGeneratorWindow");
+    container.remove("LandscapeGenerator");
     CHECK(container.getOpen().empty());
-    CHECK(container.get("LandscapeGeneratorWindow") == nullptr);
+    CHECK(container.get("LandscapeGenerator") == nullptr);
 }
 #endif

@@ -6,7 +6,7 @@ StepFileConcept::~StepFileConcept() {}
 
 std::string StepFileConcept::getType() const
 {
-    return "STEP File Format (.step, .stp)";
+    return "STEP";
 }
 
 std::string StepFileConcept::getDescription() const

@@ -6,7 +6,7 @@ SvoFileConcept::~SvoFileConcept() {}
 
 std::string SvoFileConcept::getType() const
 {
-    return "SVO File Format (.svo)";
+    return "SVO";
 }
 
 std::string SvoFileConcept::getDescription() const

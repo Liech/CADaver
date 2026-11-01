@@ -57,8 +57,8 @@ void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, Windows& wind
         ImGui::Separator();
         if (ImGui::MenuItem("Close"))
         {
-            windows.open("RemoveAssetModal");
-            auto modal = std::dynamic_pointer_cast<RemoveAssetModal>(windows.get("RemoveAssetModal"));
+            windows.open("RemoveAsset");
+            auto modal = std::dynamic_pointer_cast<RemoveAssetModal>(windows.get("RemoveAsset"));
             if (modal)
             {
                 modal->setTargetAsset(asset->getGuid());

@@ -77,8 +77,8 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                             if (ImGui::MenuItem("Cancel"))
                             {
                                 progressAsset->cancel();
-                                windows.open("TaskNotificationModal");
-                                auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotificationModal"));
+                                windows.open("TaskNotification");
+                                auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
                                 if (modal)
                                 {
                                     modal->setMessage("Operation '" + progressAsset->getOperationName() + "' was canceled.");
@@ -93,8 +93,8 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                             std::string st  = res.value("status", "");
                             if (!st.empty() && st != "Success" && st != "Canceled")
                             {
-                                windows.open("TaskNotificationModal");
-                                auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotificationModal"));
+                                windows.open("TaskNotification");
+                                auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
                                 if (modal)
                                 {
                                     modal->setMessage("Operation '" + progressAsset->getOperationName() + "' failed: " + res.value("error", st));
@@ -153,8 +153,8 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                         {
                             if (comp->getType() == "TextNote")
                             {
-                                windows.open("TextNoteEditWindow");
-                                auto editWin = std::dynamic_pointer_cast<TextNoteEditWindow>(windows.get("TextNoteEditWindow"));
+                                windows.open("TextNoteEdit");
+                                auto editWin = std::dynamic_pointer_cast<TextNoteEditWindow>(windows.get("TextNoteEdit"));
                                 if (editWin)
                                 {
                                     editWin->setTarget(asset->getGuid(), comp->getGuid());
@@ -167,8 +167,8 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                         {
                             if (comp->getType() == "TextNote" && ImGui::MenuItem("Edit Note..."))
                             {
-                                windows.open("TextNoteEditWindow");
-                                auto editWin = std::dynamic_pointer_cast<TextNoteEditWindow>(windows.get("TextNoteEditWindow"));
+                                windows.open("TextNoteEdit");
+                                auto editWin = std::dynamic_pointer_cast<TextNoteEditWindow>(windows.get("TextNoteEdit"));
                                 if (editWin)
                                 {
                                     editWin->setTarget(asset->getGuid(), comp->getGuid());
@@ -203,7 +203,7 @@ void ProjectWindow::renderMenuBar(const Project& project, Windows& windows)
         {
             if (ImGui::MenuItem("Clear Project...", nullptr, false, project.getAssetCount() > 0))
             {
-                windows.open("ClearProjectModal");
+                windows.open("ClearProject");
             }
             ImGui::EndMenu();
         }

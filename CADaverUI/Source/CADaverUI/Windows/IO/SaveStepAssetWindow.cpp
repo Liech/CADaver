@@ -20,12 +20,12 @@ SaveStepAssetWindow::~SaveStepAssetWindow() {}
 
 std::string SaveStepAssetWindow::getType() const
 {
-    return "SaveStepAssetWindow";
+    return "SaveStepAsset";
 }
 
 std::string SaveStepAssetWindow::getDescription() const
 {
-    return "Window: SaveStepAssetWindow\n"
+    return "Window: SaveStepAsset\n"
            "Title: Save STEP Asset\n"
            "Purpose: Dialog for exporting a CAD asset from the project to a STEP (.step / .stp) file on disk.\n\n"
            "Parameters:\n"

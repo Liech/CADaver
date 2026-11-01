@@ -8,12 +8,12 @@ TaskNotificationModal::~TaskNotificationModal() {}
 
 std::string TaskNotificationModal::getType() const
 {
-    return "TaskNotificationModal";
+    return "TaskNotification";
 }
 
 std::string TaskNotificationModal::getDescription() const
 {
-    return "Window: TaskNotificationModal\n"
+    return "Window: TaskNotification\n"
            "Title: Task Notification\n"
            "Purpose: Displays status notifications, cancellation messages, or error details from background asynchronous tasks.\n\n"
            "Parameters:\n"

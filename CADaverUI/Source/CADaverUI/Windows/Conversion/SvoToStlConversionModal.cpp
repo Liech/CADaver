@@ -18,12 +18,12 @@ SvoToStlConversionModal::~SvoToStlConversionModal() {}
 
 std::string SvoToStlConversionModal::getType() const
 {
-    return "SvoToStlConversionModal";
+    return "SvoToStlConversion";
 }
 
 std::string SvoToStlConversionModal::getDescription() const
 {
-    return "Window: SvoToStlConversionModal\n"
+    return "Window: SvoToStlConversion\n"
            "Title: Convert to STL\n"
            "Purpose: Dialog for extracting a blocky boundary triangulation mesh asset from a Sparse Voxel Octree (SVO) volumetric asset at a chosen LOD depth.\n\n"
            "Parameters:\n"

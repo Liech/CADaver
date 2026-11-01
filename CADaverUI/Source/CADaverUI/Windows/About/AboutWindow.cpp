@@ -12,12 +12,12 @@ AboutWindow::~AboutWindow() {}
 
 std::string AboutWindow::getType() const
 {
-    return "AboutWindow";
+    return "About";
 }
 
 std::string AboutWindow::getDescription() const
 {
-    return "Window: AboutWindow\n"
+    return "Window: About\n"
            "Title: About CADaver\n"
            "Purpose: Displays application overview information from about.txt along with a two-pane browser of all third-party software licenses in the Licenses/ directory.\n\n"
            "Parameters:\n"

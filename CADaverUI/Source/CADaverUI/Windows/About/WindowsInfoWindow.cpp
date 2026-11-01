@@ -13,12 +13,12 @@ WindowsInfoWindow::~WindowsInfoWindow() {}
 
 std::string WindowsInfoWindow::getType() const
 {
-    return "WindowsInfoWindow";
+    return "WindowsInfo";
 }
 
 std::string WindowsInfoWindow::getDescription() const
 {
-    return "Window: WindowsInfoWindow\n"
+    return "Window: WindowsInfo\n"
            "Title: Windows\n"
            "Purpose: Interactive reference browser displaying all UI windows registered in WindowFactory along with their purpose, parameters, and dispatched commands.\n\n"
            "Parameters:\n"

@@ -16,12 +16,12 @@ CadToSvoConversionModal::~CadToSvoConversionModal() {}
 
 std::string CadToSvoConversionModal::getType() const
 {
-    return "CadToSvoConversionModal";
+    return "CadToSvoConversion";
 }
 
 std::string CadToSvoConversionModal::getDescription() const
 {
-    return "Window: CadToSvoConversionModal\n"
+    return "Window: CadToSvoConversion\n"
            "Title: Convert to SVO\n"
            "Purpose: Dialog for converting a STEP/CAD asset directly into a Sparse Voxel Octree (SVO) volumetric asset via intermediate triangulation.\n\n"
            "Parameters:\n"

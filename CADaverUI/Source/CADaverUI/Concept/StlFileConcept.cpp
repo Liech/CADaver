@@ -6,7 +6,7 @@ StlFileConcept::~StlFileConcept() {}
 
 std::string StlFileConcept::getType() const
 {
-    return "STL File Format (.stl)";
+    return "STL";
 }
 
 std::string StlFileConcept::getDescription() const

@@ -14,7 +14,7 @@ void CreateMenu::render(Windows& windows)
     {
         if (ImGui::MenuItem("Landscape..."))
         {
-            windows.open("LandscapeGeneratorWindow");
+            windows.open("LandscapeGenerator");
         }
 
         ImGui::EndMenu();

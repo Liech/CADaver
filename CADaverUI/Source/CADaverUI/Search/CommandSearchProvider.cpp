@@ -34,7 +34,7 @@ std::vector<SearchResult> CommandSearchProvider::search(const std::string& query
 
         if (matcher.matchesAny(query, type, description))
         {
-            results.emplace_back(type, "Command", description, [this]() { windows.open("CommandsInfoWindow"); });
+            results.emplace_back(type, "Command", description, [this]() { windows.open("CommandsInfo"); });
         }
     }
 

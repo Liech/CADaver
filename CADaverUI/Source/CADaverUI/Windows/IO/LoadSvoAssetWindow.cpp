@@ -16,12 +16,12 @@ LoadSvoAssetWindow::~LoadSvoAssetWindow() {}
 
 std::string LoadSvoAssetWindow::getType() const
 {
-    return "LoadSvoAssetWindow";
+    return "LoadSvoAsset";
 }
 
 std::string LoadSvoAssetWindow::getDescription() const
 {
-    return "Window: LoadSvoAssetWindow\n"
+    return "Window: LoadSvoAsset\n"
            "Title: Load SVO Asset\n"
            "Purpose: Dialog for selecting a Sparse Voxel Octree (.cadacombsvo / .svo) file on disk and importing it into the project as a VoxelAsset.\n\n"
            "Parameters:\n"

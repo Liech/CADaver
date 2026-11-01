@@ -16,12 +16,12 @@ StlToSvoConversionModal::~StlToSvoConversionModal() {}
 
 std::string StlToSvoConversionModal::getType() const
 {
-    return "StlToSvoConversionModal";
+    return "StlToSvoConversion";
 }
 
 std::string StlToSvoConversionModal::getDescription() const
 {
-    return "Window: StlToSvoConversionModal\n"
+    return "Window: StlToSvoConversion\n"
            "Title: Convert to SVO\n"
            "Purpose: Dialog for voxelizing a triangulated STL mesh asset into a Sparse Voxel Octree (SVO) volumetric asset.\n\n"
            "Parameters:\n"

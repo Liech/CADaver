@@ -12,12 +12,12 @@ ConceptsInfoWindow::~ConceptsInfoWindow() {}
 
 std::string ConceptsInfoWindow::getType() const
 {
-    return "ConceptsInfoWindow";
+    return "ConceptsInfo";
 }
 
 std::string ConceptsInfoWindow::getDescription() const
 {
-    return "Window: ConceptsInfoWindow\n"
+    return "Window: ConceptsInfo\n"
            "Title: Concepts\n"
            "Purpose: Interactive reference browser explaining core geometry, volumetric data structures, and file formats.\n\n"
            "Parameters:\n"
@@ -97,7 +97,7 @@ void ConceptsInfoWindow::render()
 TEST_CASE("ConceptsInfoWindow/ConstructionAndType")
 {
     ConceptsInfoWindow win;
-    REQUIRE(win.getType() == "ConceptsInfoWindow");
+    REQUIRE(win.getType() == "ConceptsInfo");
     REQUIRE(!win.getDescription().empty());
 }
 #endif

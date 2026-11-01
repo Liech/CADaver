@@ -34,7 +34,7 @@ std::vector<SearchResult> ConceptSearchProvider::search(const std::string& query
 
         if (matcher.matchesAny(query, type, description))
         {
-            results.emplace_back(type, "Concept", description, [this]() { windows.open("ConceptsInfoWindow"); });
+            results.emplace_back(type, "Concept", description, [this]() { windows.open("ConceptsInfo"); });
         }
     }
 

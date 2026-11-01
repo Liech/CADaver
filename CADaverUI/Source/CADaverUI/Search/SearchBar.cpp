@@ -189,7 +189,7 @@ void SearchBar::renderResultCard(size_t index, const SearchResult& item, bool is
     }
     else if (item.getCategory() == "Concept")
     {
-        badgeColor = ImVec4(0.3f, 0.75f, 0.95f, 1.0f);
+        badgeColor = ImVec4(0.95f, 0.42f, 0.42f, 1.0f);
     }
 
     std::string badge = "[" + item.getCategory() + "] ";

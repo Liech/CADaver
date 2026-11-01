@@ -13,12 +13,12 @@ ClearProjectModal::~ClearProjectModal() {}
 
 std::string ClearProjectModal::getType() const
 {
-    return "ClearProjectModal";
+    return "ClearProject";
 }
 
 std::string ClearProjectModal::getDescription() const
 {
-    return "Window: ClearProjectModal\n"
+    return "Window: ClearProject\n"
            "Title: Clear Project\n"
            "Purpose: Confirmation dialog for removing all loaded and generated assets from the active project.\n\n"
            "Parameters:\n"

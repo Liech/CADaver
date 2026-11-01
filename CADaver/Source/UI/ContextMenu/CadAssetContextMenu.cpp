@@ -24,8 +24,8 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows,
 
     if (ImGui::MenuItem("Save..."))
     {
-        windows.open("SaveStepAssetWindow");
-        auto window = std::dynamic_pointer_cast<SaveStepAssetWindow>(windows.get("SaveStepAssetWindow"));
+        windows.open("SaveStepAsset");
+        auto window = std::dynamic_pointer_cast<SaveStepAssetWindow>(windows.get("SaveStepAsset"));
         if (window)
         {
             window->setTargetAsset(cadAsset->getGuid());
@@ -36,8 +36,8 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows,
     {
         if (ImGui::MenuItem("STL..."))
         {
-            windows.open("CadToStlConversionModal");
-            auto modal = std::dynamic_pointer_cast<CadToStlConversionModal>(windows.get("CadToStlConversionModal"));
+            windows.open("CadToStlConversion");
+            auto modal = std::dynamic_pointer_cast<CadToStlConversionModal>(windows.get("CadToStlConversion"));
             if (modal)
             {
                 modal->setTargetAsset(cadAsset->getGuid());
@@ -45,8 +45,8 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows,
         }
         if (ImGui::MenuItem("SVO..."))
         {
-            windows.open("CadToSvoConversionModal");
-            auto modal = std::dynamic_pointer_cast<CadToSvoConversionModal>(windows.get("CadToSvoConversionModal"));
+            windows.open("CadToSvoConversion");
+            auto modal = std::dynamic_pointer_cast<CadToSvoConversionModal>(windows.get("CadToSvoConversion"));
             if (modal)
             {
                 modal->setTargetAsset(cadAsset->getGuid());

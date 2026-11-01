@@ -16,12 +16,12 @@ TextNoteEditWindow::~TextNoteEditWindow() {}
 
 std::string TextNoteEditWindow::getType() const
 {
-    return "TextNoteEditWindow";
+    return "TextNoteEdit";
 }
 
 std::string TextNoteEditWindow::getDescription() const
 {
-    return "Window: TextNoteEditWindow\n"
+    return "Window: TextNoteEdit\n"
            "Title: Edit Text Note\n"
            "Purpose: Self-sufficient dialog for selecting project assets and viewing, authoring, and managing their attached text notes and metadata annotations.\n\n"
            "Parameters:\n"
@@ -226,8 +226,8 @@ void TextNoteEditWindow::render()
 TEST_CASE("TextNoteEditWindow/TypeAndDescription")
 {
     TextNoteEditWindow window;
-    CHECK(window.getType() == "TextNoteEditWindow");
-    CHECK(window.getDescription().find("Window: TextNoteEditWindow") != std::string::npos);
+    CHECK(window.getType() == "TextNoteEdit");
+    CHECK(window.getDescription().find("Window: TextNoteEdit") != std::string::npos);
     CHECK(window.getDescription().find("AddNote, RemoveComponent") != std::string::npos);
 }
 #endif

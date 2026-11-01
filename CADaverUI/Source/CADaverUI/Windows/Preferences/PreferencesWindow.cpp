@@ -20,7 +20,7 @@ PreferencesWindow::~PreferencesWindow() {}
 
 std::string PreferencesWindow::getType() const
 {
-    return "PreferencesWindow";
+    return "Preferences";
 }
 
 std::string PreferencesWindow::getDescription() const
@@ -142,7 +142,7 @@ void PreferencesWindow::render()
 TEST_CASE("PreferencesWindow/TypeAndDescription")
 {
     PreferencesWindow window;
-    CHECK(window.getType() == "PreferencesWindow");
+    CHECK(window.getType() == "Preferences");
     CHECK(window.getDescription() == "Preferences");
 }
 #endif

@@ -71,26 +71,26 @@ void WindowFactory::registerWindow(const std::string& name, std::function<std::s
 
 void WindowFactory::registerWindows()
 {
-    registerWindow("AboutWindow", []() { return std::make_shared<AboutWindow>(); });
-    registerWindow("CommandsInfoWindow", []() { return std::make_shared<CommandsInfoWindow>(); });
-    registerWindow("ConceptsInfoWindow", []() { return std::make_shared<ConceptsInfoWindow>(); });
-    registerWindow("WindowsInfoWindow", []() { return std::make_shared<WindowsInfoWindow>(); });
-    registerWindow("CadToStlConversionModal", []() { return std::make_shared<CadToStlConversionModal>(); });
-    registerWindow("CadToSvoConversionModal", []() { return std::make_shared<CadToSvoConversionModal>(); });
-    registerWindow("StlToSvoConversionModal", []() { return std::make_shared<StlToSvoConversionModal>(); });
-    registerWindow("SvoToStlConversionModal", []() { return std::make_shared<SvoToStlConversionModal>(); });
-    registerWindow("LandscapeGeneratorWindow", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
-    registerWindow("LoadStepAssetWindow", []() { return std::make_shared<LoadStepAssetWindow>(); });
-    registerWindow("LoadStlAssetWindow", []() { return std::make_shared<LoadStlAssetWindow>(); });
-    registerWindow("LoadSvoAssetWindow", []() { return std::make_shared<LoadSvoAssetWindow>(); });
-    registerWindow("SaveStepAssetWindow", []() { return std::make_shared<SaveStepAssetWindow>(); });
-    registerWindow("SaveStlAssetWindow", []() { return std::make_shared<SaveStlAssetWindow>(); });
-    registerWindow("SaveVoxelAssetWindow", []() { return std::make_shared<SaveVoxelAssetWindow>(); });
-    registerWindow("ClearProjectModal", []() { return std::make_shared<ClearProjectModal>(); });
-    registerWindow("RemoveAssetModal", []() { return std::make_shared<RemoveAssetModal>(); });
-    registerWindow("PreferencesWindow", []() { return std::make_shared<PreferencesWindow>(); });
-    registerWindow("TaskNotificationModal", []() { return std::make_shared<TaskNotificationModal>(); });
-    registerWindow("TextNoteEditWindow", []() { return std::make_shared<TextNoteEditWindow>(); });
+    registerWindow("About", []() { return std::make_shared<AboutWindow>(); });
+    registerWindow("CommandsInfo", []() { return std::make_shared<CommandsInfoWindow>(); });
+    registerWindow("ConceptsInfo", []() { return std::make_shared<ConceptsInfoWindow>(); });
+    registerWindow("WindowsInfo", []() { return std::make_shared<WindowsInfoWindow>(); });
+    registerWindow("CadToStlConversion", []() { return std::make_shared<CadToStlConversionModal>(); });
+    registerWindow("CadToSvoConversion", []() { return std::make_shared<CadToSvoConversionModal>(); });
+    registerWindow("StlToSvoConversion", []() { return std::make_shared<StlToSvoConversionModal>(); });
+    registerWindow("SvoToStlConversion", []() { return std::make_shared<SvoToStlConversionModal>(); });
+    registerWindow("LandscapeGenerator", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
+    registerWindow("LoadStepAsset", []() { return std::make_shared<LoadStepAssetWindow>(); });
+    registerWindow("LoadStlAsset", []() { return std::make_shared<LoadStlAssetWindow>(); });
+    registerWindow("LoadSvoAsset", []() { return std::make_shared<LoadSvoAssetWindow>(); });
+    registerWindow("SaveStepAsset", []() { return std::make_shared<SaveStepAssetWindow>(); });
+    registerWindow("SaveStlAsset", []() { return std::make_shared<SaveStlAssetWindow>(); });
+    registerWindow("SaveVoxelAsset", []() { return std::make_shared<SaveVoxelAssetWindow>(); });
+    registerWindow("ClearProject", []() { return std::make_shared<ClearProjectModal>(); });
+    registerWindow("RemoveAsset", []() { return std::make_shared<RemoveAssetModal>(); });
+    registerWindow("Preferences", []() { return std::make_shared<PreferencesWindow>(); });
+    registerWindow("TaskNotification", []() { return std::make_shared<TaskNotificationModal>(); });
+    registerWindow("TextNoteEdit", []() { return std::make_shared<TextNoteEditWindow>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -100,26 +100,26 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
 {
     WindowFactory factory;
     CHECK(factory.create("UnknownWindow") == nullptr);
-    CHECK(factory.create("AboutWindow") != nullptr);
-    CHECK(factory.create("CommandsInfoWindow") != nullptr);
-    CHECK(factory.create("ConceptsInfoWindow") != nullptr);
-    CHECK(factory.create("WindowsInfoWindow") != nullptr);
-    CHECK(factory.create("CadToStlConversionModal") != nullptr);
-    CHECK(factory.create("CadToSvoConversionModal") != nullptr);
-    CHECK(factory.create("StlToSvoConversionModal") != nullptr);
-    CHECK(factory.create("SvoToStlConversionModal") != nullptr);
-    CHECK(factory.create("LandscapeGeneratorWindow") != nullptr);
-    CHECK(factory.create("LoadStepAssetWindow") != nullptr);
-    CHECK(factory.create("LoadStlAssetWindow") != nullptr);
-    CHECK(factory.create("LoadSvoAssetWindow") != nullptr);
-    CHECK(factory.create("SaveStepAssetWindow") != nullptr);
-    CHECK(factory.create("SaveStlAssetWindow") != nullptr);
-    CHECK(factory.create("SaveVoxelAssetWindow") != nullptr);
-    CHECK(factory.create("ClearProjectModal") != nullptr);
-    CHECK(factory.create("PreferencesWindow") != nullptr);
-    CHECK(factory.create("RemoveAssetModal") != nullptr);
-    CHECK(factory.create("TaskNotificationModal") != nullptr);
-    CHECK(factory.create("TextNoteEditWindow") != nullptr);
+    CHECK(factory.create("About") != nullptr);
+    CHECK(factory.create("CommandsInfo") != nullptr);
+    CHECK(factory.create("ConceptsInfo") != nullptr);
+    CHECK(factory.create("WindowsInfo") != nullptr);
+    CHECK(factory.create("CadToStlConversion") != nullptr);
+    CHECK(factory.create("CadToSvoConversion") != nullptr);
+    CHECK(factory.create("StlToSvoConversion") != nullptr);
+    CHECK(factory.create("SvoToStlConversion") != nullptr);
+    CHECK(factory.create("LandscapeGenerator") != nullptr);
+    CHECK(factory.create("LoadStepAsset") != nullptr);
+    CHECK(factory.create("LoadStlAsset") != nullptr);
+    CHECK(factory.create("LoadSvoAsset") != nullptr);
+    CHECK(factory.create("SaveStepAsset") != nullptr);
+    CHECK(factory.create("SaveStlAsset") != nullptr);
+    CHECK(factory.create("SaveVoxelAsset") != nullptr);
+    CHECK(factory.create("ClearProject") != nullptr);
+    CHECK(factory.create("Preferences") != nullptr);
+    CHECK(factory.create("RemoveAsset") != nullptr);
+    CHECK(factory.create("TaskNotification") != nullptr);
+    CHECK(factory.create("TextNoteEdit") != nullptr);
     CHECK(factory.getAllWindows().size() == 20);
 }
 #endif

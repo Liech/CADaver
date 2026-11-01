@@ -23,8 +23,8 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
 
     if (ImGui::MenuItem("Save..."))
     {
-        windows.open("SaveStlAssetWindow");
-        auto window = std::dynamic_pointer_cast<SaveStlAssetWindow>(windows.get("SaveStlAssetWindow"));
+        windows.open("SaveStlAsset");
+        auto window = std::dynamic_pointer_cast<SaveStlAssetWindow>(windows.get("SaveStlAsset"));
         if (window)
         {
             window->setTargetAsset(triAsset->getGuid());
@@ -35,8 +35,8 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
     {
         if (ImGui::MenuItem("SVO..."))
         {
-            windows.open("StlToSvoConversionModal");
-            auto modal = std::dynamic_pointer_cast<StlToSvoConversionModal>(windows.get("StlToSvoConversionModal"));
+            windows.open("StlToSvoConversion");
+            auto modal = std::dynamic_pointer_cast<StlToSvoConversionModal>(windows.get("StlToSvoConversion"));
             if (modal)
             {
                 modal->setTargetAsset(triAsset->getGuid());

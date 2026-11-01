@@ -14,12 +14,12 @@ LoadStepAssetWindow::~LoadStepAssetWindow() {}
 
 std::string LoadStepAssetWindow::getType() const
 {
-    return "LoadStepAssetWindow";
+    return "LoadStepAsset";
 }
 
 std::string LoadStepAssetWindow::getDescription() const
 {
-    return "Window: LoadStepAssetWindow\n"
+    return "Window: LoadStepAsset\n"
            "Title: Load STEP Asset\n"
            "Purpose: Dialog for selecting a STEP/STP file on disk and importing it into the project as a CadAsset.\n\n"
            "Parameters:\n"

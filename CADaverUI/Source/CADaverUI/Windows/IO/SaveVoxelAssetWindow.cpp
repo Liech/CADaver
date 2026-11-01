@@ -22,12 +22,12 @@ SaveVoxelAssetWindow::~SaveVoxelAssetWindow() {}
 
 std::string SaveVoxelAssetWindow::getType() const
 {
-    return "SaveVoxelAssetWindow";
+    return "SaveVoxelAsset";
 }
 
 std::string SaveVoxelAssetWindow::getDescription() const
 {
-    return "Window: SaveVoxelAssetWindow\n"
+    return "Window: SaveVoxelAsset\n"
            "Title: Save SVO Asset\n"
            "Purpose: Dialog for exporting a Sparse Voxel Octree (SVO) volumetric asset from the project to a .cadacombsvo or .svo file on disk.\n\n"
            "Parameters:\n"

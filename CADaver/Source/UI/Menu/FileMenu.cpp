@@ -16,15 +16,15 @@ void FileMenu::render(Windows& windows, bool& quitRequested)
         {
             if (ImGui::MenuItem("STL..."))
             {
-                windows.open("LoadStlAssetWindow");
+                windows.open("LoadStlAsset");
             }
             if (ImGui::MenuItem("STEP..."))
             {
-                windows.open("LoadStepAssetWindow");
+                windows.open("LoadStepAsset");
             }
             if (ImGui::MenuItem("SVO..."))
             {
-                windows.open("LoadSvoAssetWindow");
+                windows.open("LoadSvoAsset");
             }
             ImGui::EndMenu();
         }
@@ -32,7 +32,7 @@ void FileMenu::render(Windows& windows, bool& quitRequested)
         ImGui::Separator();
         if (ImGui::MenuItem("Preferences..."))
         {
-            windows.open("PreferencesWindow");
+            windows.open("Preferences");
         }
 
         ImGui::Separator();
