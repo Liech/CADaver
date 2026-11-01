@@ -111,6 +111,30 @@ bool SVOPreferencesTab::render(GatedDatabase& database, Defer& defer)
             modified = true;
         }
     }
+    else if (strategyType == 1)
+    {
+        float minPix = static_cast<float>(preferences.getMinPixelSize());
+        float maxPix = static_cast<float>(preferences.getMaxPixelSize());
+        if (ImGui::SliderFloat("Coarsen Pixels (Min)", &minPix, 0.5f, 10.0f, "%.1f px"))
+        {
+            preferences.setMinPixelSize(static_cast<double>(minPix));
+            modified = true;
+        }
+        if (ImGui::SliderFloat("Refine Pixels (Max)", &maxPix, 1.0f, 30.0f, "%.1f px"))
+        {
+            preferences.setMaxPixelSize(static_cast<double>(maxPix));
+            modified = true;
+        }
+    }
+    else if (strategyType == 2)
+    {
+        float targetFill = static_cast<float>(preferences.getTargetFillRatio());
+        if (ImGui::SliderFloat("Target Fill Ratio", &targetFill, 0.5f, 0.99f, "%.2f"))
+        {
+            preferences.setTargetFillRatio(static_cast<double>(targetFill));
+            modified = true;
+        }
+    }
     else if (strategyType == 3)
     {
         float nearDist = static_cast<float>(preferences.getNearDistance());
@@ -128,10 +152,22 @@ bool SVOPreferencesTab::render(GatedDatabase& database, Defer& defer)
     }
     else if (strategyType == 4)
     {
-        int fixedDec = preferences.getFixedDecision();
-        if (ImGui::SliderInt("Fixed Decision", &fixedDec, 0, 3))
+        int fixedDecision = preferences.getFixedDecision();
+        if (ImGui::RadioButton("Refine", fixedDecision == 0))
         {
-            preferences.setFixedDecision(fixedDec);
+            preferences.setFixedDecision(0);
+            modified = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Keep", fixedDecision == 1))
+        {
+            preferences.setFixedDecision(1);
+            modified = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Coarsen", fixedDecision == 2))
+        {
+            preferences.setFixedDecision(2);
             modified = true;
         }
     }

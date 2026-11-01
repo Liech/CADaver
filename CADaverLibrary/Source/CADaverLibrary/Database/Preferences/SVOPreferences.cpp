@@ -18,6 +18,7 @@ nlohmann::json SVOPreferences::toJson() const
     jsonObject["nearDistance"]          = nearDistance;
     jsonObject["farDistance"]           = farDistance;
     jsonObject["fixedDecision"]         = fixedDecision;
+    jsonObject["rebuildRequested"]      = rebuildRequested;
     return jsonObject;
 }
 
@@ -34,7 +35,11 @@ void SVOPreferences::fromJson(const nlohmann::json& jsonObject)
     nearDistance          = jsonObject.at("nearDistance").get<double>();
     farDistance           = jsonObject.at("farDistance").get<double>();
     fixedDecision         = jsonObject.at("fixedDecision").get<int>();
-    dirty                 = true;
+    if (jsonObject.contains("rebuildRequested"))
+    {
+        rebuildRequested = jsonObject.at("rebuildRequested").get<bool>();
+    }
+    dirty = true;
 }
 
 int SVOPreferences::getStrategyType() const

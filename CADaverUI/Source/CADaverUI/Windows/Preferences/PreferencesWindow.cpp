@@ -130,7 +130,7 @@ void PreferencesWindow::render()
 
         if (modified)
         {
-            save(gatedDatabase->get().getPreferences());
+            defer->defer([this]() { save(gatedDatabase->get().getPreferences()); });
         }
     }
     ImGui::End();
