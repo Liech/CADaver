@@ -17,6 +17,12 @@ std::string RenderPreferencesTab::getTitle() const
     return "Render";
 }
 
+std::string RenderPreferencesTab::getDescription() const
+{
+    return "Preference Tab: Render\n"
+           "Purpose: Configure 3D viewport rendering options, including mesh color, wireframe mode (Off, Overlay, Only), wireframe color, and backface culling modes.";
+}
+
 bool RenderPreferencesTab::render(GatedDatabase& database, Defer& defer)
 {
     RenderPreferences preferences = database.get().getPreferences().getRenderPreferences();

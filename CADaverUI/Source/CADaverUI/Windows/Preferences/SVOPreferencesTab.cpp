@@ -19,6 +19,12 @@ std::string SVOPreferencesTab::getTitle() const
     return "SVO";
 }
 
+std::string SVOPreferencesTab::getDescription() const
+{
+    return "Preference Tab: SVO\n"
+           "Purpose: Configure sparse voxel octree (SVO) volumetric rendering, meshing chunk size, vertex capacity, mesh rebuild, and level-of-detail (LOD) strategies.";
+}
+
 bool SVOPreferencesTab::render(GatedDatabase& database, Defer& defer)
 {
     SVOPreferences preferences = database.get().getPreferences().getSVOPreferences();

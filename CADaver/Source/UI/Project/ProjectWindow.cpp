@@ -120,22 +120,6 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                     contextMenuFactory->render(gatedDatabase, windows, asset);
                 }
 
-                std::string assetContextId = "AssetTreeContext##" + asset->getGuid().toString();
-                if (ImGui::BeginPopupContextItem(assetContextId.c_str()))
-                {
-                    if (ImGui::MenuItem("Add Note..."))
-                    {
-                        gatedDatabase.execute({
-                          {      "type",                   "AddNote" },
-                          {   "version",                           1 },
-                          { "assetGuid", asset->getGuid().toString() },
-                          {      "name",                      "Note" },
-                          {      "text",                          "" }
-                        });
-                    }
-                    ImGui::EndPopup();
-                }
-
                 if (nodeOpen && !attachments.empty())
                 {
                     for (const auto& comp : attachments)

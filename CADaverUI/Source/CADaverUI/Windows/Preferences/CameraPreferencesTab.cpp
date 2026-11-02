@@ -18,6 +18,12 @@ std::string CameraPreferencesTab::getTitle() const
     return "Camera";
 }
 
+std::string CameraPreferencesTab::getDescription() const
+{
+    return "Preference Tab: Camera\n"
+           "Purpose: Configure 3D camera navigation modes (Arcball, Freecam), projection (Perspective, Orthographic), sensitivity, movement speed, field of view (FOV), and clipping planes.";
+}
+
 bool CameraPreferencesTab::render(GatedDatabase& database, Defer& defer)
 {
     CameraPreferences preferences = database.get().getPreferences().getCameraPreferences();

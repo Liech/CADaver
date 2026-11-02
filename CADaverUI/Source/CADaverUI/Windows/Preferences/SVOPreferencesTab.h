@@ -10,5 +10,6 @@ class SVOPreferencesTab : public PreferenceTab
     virtual ~SVOPreferencesTab();
 
     std::string getTitle() const override;
+    std::string getDescription() const override;
     bool        render(GatedDatabase& database, Defer& defer) override;
 };

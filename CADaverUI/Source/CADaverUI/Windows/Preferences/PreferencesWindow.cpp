@@ -4,7 +4,6 @@
 #include "Database/Preferences/Preferences.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
-#include "Windows/Preferences/PreferenceTabFactory.h"
 #include "Windows/Preferences/UIPreferencesTab.h"
 
 #include <fstream>
@@ -13,7 +12,7 @@
 
 PreferencesWindow::PreferencesWindow()
 {
-    tabs = PreferenceTabFactory::getInstance().createTabs();
+    tabs = tabFactory.createTabs();
 }
 
 PreferencesWindow::~PreferencesWindow() {}
@@ -25,7 +24,32 @@ std::string PreferencesWindow::getType() const
 
 std::string PreferencesWindow::getDescription() const
 {
-    return "Preferences";
+    return "Window: Preferences\n"
+           "Title: Preferences\n"
+           "Purpose: Configure application preferences across UI theme, camera, rendering, and sparse voxel octree (SVO) settings.\n\n"
+           "Parameters:\n"
+           "  - Tabs: UI, Camera, Render, SVO\n\n"
+           "Dispatched Command: UpdateUIPreferences, UpdateCameraPreferences, UpdateRenderPreferences, UpdateSVOPreferences (sync/async)";
+}
+
+void PreferencesWindow::selectTab(const std::string& tabName)
+{
+    selectedTab = tabName;
+}
+
+const std::string& PreferencesWindow::getSelectedTab() const
+{
+    return selectedTab;
+}
+
+PreferenceTabFactory& PreferencesWindow::getTabFactory()
+{
+    return tabFactory;
+}
+
+const PreferenceTabFactory& PreferencesWindow::getTabFactory() const
+{
+    return tabFactory;
 }
 
 void PreferencesWindow::load(const std::string& filepath)
@@ -104,7 +128,7 @@ void PreferencesWindow::render()
 
     if (tabs.empty())
     {
-        tabs = PreferenceTabFactory::getInstance().createTabs();
+        tabs = tabFactory.createTabs();
     }
 
     ImGui::SetNextWindowSize(ImVec2(480.0f, 420.0f), ImGuiCond_FirstUseEver);
@@ -117,8 +141,13 @@ void PreferencesWindow::render()
         {
             for (auto& tab : tabs)
             {
-                if (ImGui::BeginTabItem(tab->getTitle().c_str()))
+                ImGuiTabItemFlags flags = (tab->getTitle() == selectedTab) ? ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
+                if (ImGui::BeginTabItem(tab->getTitle().c_str(), nullptr, flags))
                 {
+                    if (tab->getTitle() == selectedTab)
+                    {
+                        selectedTab.clear();
+                    }
                     if (tab->render(*gatedDatabase, *defer))
                     {
                         modified = true;
@@ -144,6 +173,14 @@ TEST_CASE("PreferencesWindow/TypeAndDescription")
 {
     PreferencesWindow window;
     CHECK(window.getType() == "Preferences");
-    CHECK(window.getDescription() == "Preferences");
+    CHECK(!window.getDescription().empty());
+}
+
+TEST_CASE("PreferencesWindow/TabSelection")
+{
+    PreferencesWindow window;
+    CHECK(window.getSelectedTab().empty());
+    window.selectTab("Render");
+    CHECK(window.getSelectedTab() == "Render");
 }
 #endif

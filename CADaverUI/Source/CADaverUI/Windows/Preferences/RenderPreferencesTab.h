@@ -10,5 +10,6 @@ class RenderPreferencesTab : public PreferenceTab
     virtual ~RenderPreferencesTab();
 
     std::string getTitle() const override;
+    std::string getDescription() const override;
     bool        render(GatedDatabase& database, Defer& defer) override;
 };

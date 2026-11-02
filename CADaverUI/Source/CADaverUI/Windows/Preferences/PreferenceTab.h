@@ -13,5 +13,6 @@ class PreferenceTab
     virtual ~PreferenceTab();
 
     virtual std::string getTitle() const                              = 0;
+    virtual std::string getDescription() const                        = 0;
     virtual bool        render(GatedDatabase& database, Defer& defer) = 0;
 };

@@ -19,8 +19,8 @@ std::string RemoveAssetModal::getType() const
 std::string RemoveAssetModal::getDescription() const
 {
     return "Window: RemoveAsset\n"
-           "Title: Close Asset\n"
-           "Purpose: Confirmation dialog for closing and removing a selected asset from the active project.\n\n"
+           "Title: Remove Asset\n"
+           "Purpose: Confirmation dialog for removing a selected asset from the active project.\n\n"
            "Parameters:\n"
            "  - Target Asset: Asset from the project to remove\n"
            "  - Confirmation: Yes / Cancel buttons\n\n"
@@ -60,13 +60,14 @@ void RemoveAssetModal::render()
         return;
     }
 
-    if (ImGui::Begin("Close Asset##RemoveAssetWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::Begin("Remove Asset##RemoveAssetWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
+        handleEscapeClose();
         const auto& project = gatedDatabase->get().getProject();
         assetComboBox.render(project);
         ImGui::Spacing();
 
-        ImGui::Text("Are you sure you want to close the selected asset?");
+        ImGui::Text("Are you sure you want to remove the selected asset?");
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();

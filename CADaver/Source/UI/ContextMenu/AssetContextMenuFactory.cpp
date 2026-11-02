@@ -3,6 +3,7 @@
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Asset/VoxelAsset.h"
+#include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/CadAssetContextMenu.h"
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 #include "UI/ContextMenu/VoxelAssetContextMenu.h"
@@ -54,8 +55,19 @@ void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, Windows& wind
             menu->render(gatedDatabase, windows, *asset);
         }
 
+        if (ImGui::MenuItem("Add Note..."))
+        {
+            gatedDatabase.execute({
+              {      "type",                   "AddNote" },
+              {   "version",                           1 },
+              { "assetGuid", asset->getGuid().toString() },
+              {      "name",                      "Note" },
+              {      "text",                          "" }
+            });
+        }
+
         ImGui::Separator();
-        if (ImGui::MenuItem("Close"))
+        if (ImGui::MenuItem("Remove Asset"))
         {
             windows.open("RemoveAsset");
             auto modal = std::dynamic_pointer_cast<RemoveAssetModal>(windows.get("RemoveAsset"));

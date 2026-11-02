@@ -12,6 +12,7 @@ class UIPreferencesTab : public PreferenceTab
     virtual ~UIPreferencesTab();
 
     std::string getTitle() const override;
+    std::string getDescription() const override;
     bool        render(GatedDatabase& database, Defer& defer) override;
 
     static void apply(const UIPreferences& preferences);

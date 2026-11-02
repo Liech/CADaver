@@ -17,6 +17,12 @@ std::string UIPreferencesTab::getTitle() const
     return "UI";
 }
 
+std::string UIPreferencesTab::getDescription() const
+{
+    return "Preference Tab: UI\n"
+           "Purpose: Configure user interface appearance, including color themes (Dark, Light, Classic), UI font scale, and viewport background color.";
+}
+
 void UIPreferencesTab::apply(const UIPreferences& preferences)
 {
     ImGuiIO& io        = ImGui::GetIO();

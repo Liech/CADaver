@@ -182,6 +182,8 @@ set(Search_Files
     "Source/CADaverUI/Search/UIElementSearcher.cpp"
     "Source/CADaverUI/Search/WindowSearcher.h"
     "Source/CADaverUI/Search/WindowSearcher.cpp"
+    "Source/CADaverUI/Search/PreferenceTabSearcher.h"
+    "Source/CADaverUI/Search/PreferenceTabSearcher.cpp"
     "Source/CADaverUI/Search/SearchBar.h"
     "Source/CADaverUI/Search/SearchBar.cpp"
 )

@@ -10,5 +10,6 @@ class CameraPreferencesTab : public PreferenceTab
     virtual ~CameraPreferencesTab();
 
     std::string getTitle() const override;
+    std::string getDescription() const override;
     bool        render(GatedDatabase& database, Defer& defer) override;
 };

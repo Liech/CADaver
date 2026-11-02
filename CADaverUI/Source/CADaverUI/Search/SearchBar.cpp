@@ -5,6 +5,7 @@
 #include "Search/AssetSearcher.h"
 #include "Search/CommandSearcher.h"
 #include "Search/ConceptSearcher.h"
+#include "Search/PreferenceTabSearcher.h"
 #include "Search/UIElementSearcher.h"
 #include "Search/WindowSearcher.h"
 #include "Windows/About/CommandsInfoWindow.h"
@@ -34,6 +35,7 @@ void SearchBar::init(GatedDatabase& gatedDatabase, Windows& windowsRef, UIElemen
     searchService.addSearcher(std::make_unique<UIElementSearcher>(uiElementFactory));
     searchService.addSearcher(std::make_unique<AssetSearcher>(gatedDatabase.get()));
     searchService.addSearcher(std::make_unique<WindowSearcher>(windowsRef));
+    searchService.addSearcher(std::make_unique<PreferenceTabSearcher>(windowsRef));
     searchService.addSearcher(std::make_unique<ConceptSearcher>());
     searchService.addSearcher(std::make_unique<CommandSearcher>(gatedDatabase.getCommandFactory()));
 
@@ -245,6 +247,10 @@ void SearchBar::renderResultCard(size_t index, const SearchResult& item, bool is
     else if (item.getCategory() == "UI" || item.getCategory() == "Menu")
     {
         badgeColor = ImVec4(0.25f, 0.85f, 0.85f, 1.0f);
+    }
+    else if (item.getCategory() == "Preferences")
+    {
+        badgeColor = ImVec4(0.45f, 0.75f, 0.95f, 1.0f);
     }
 
     std::string badge = "[" + item.getCategory() + "] ";
