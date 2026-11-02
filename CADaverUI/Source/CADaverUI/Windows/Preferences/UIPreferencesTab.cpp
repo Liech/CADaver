@@ -25,6 +25,11 @@ std::string UIPreferencesTab::getDescription() const
 
 void UIPreferencesTab::apply(const UIPreferences& preferences)
 {
+    if (!ImGui::GetCurrentContext())
+    {
+        return;
+    }
+
     ImGuiIO& io        = ImGui::GetIO();
     io.FontGlobalScale = preferences.getUiScale();
 

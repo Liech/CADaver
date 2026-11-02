@@ -56,13 +56,17 @@ int SearchService::getCategoryRank(const std::string& category) const
     {
         return 2;
     }
-    if (category == "Window")
+    if (category == "Preferences")
     {
         return 3;
     }
-    if (category == "Concept")
+    if (category == "Window")
     {
         return 4;
+    }
+    if (category == "Concept")
+    {
+        return 5;
     }
     if (category == "Command")
     {
@@ -102,5 +106,36 @@ TEST_CASE("SearchService/Aggregation")
     auto results = service.search("test");
     REQUIRE(results.size() == 1);
     REQUIRE(results[0].getTitle() == "MockItem");
+}
+
+class RankingMockSearcher : public Searcher
+{
+  public:
+    RankingMockSearcher() {}
+    virtual ~RankingMockSearcher() {}
+
+    std::vector<SearchResult> search(const std::string& query) override
+    {
+        std::vector<SearchResult> res;
+        if (query == "pref")
+        {
+            res.emplace_back("WindowItem", "Window", "Window description", nullptr);
+            res.emplace_back("UIItem", "UI", "UI description", nullptr);
+            res.emplace_back("PrefItem", "Preferences", "Pref description", nullptr);
+        }
+        return res;
+    }
+};
+
+TEST_CASE("SearchService/RankingPreferencesBetweenUIAndWindow")
+{
+    SearchService service;
+    service.addSearcher(std::make_unique<RankingMockSearcher>());
+
+    auto results = service.search("pref");
+    REQUIRE(results.size() == 3);
+    REQUIRE(results[0].getCategory() == "UI");
+    REQUIRE(results[1].getCategory() == "Preferences");
+    REQUIRE(results[2].getCategory() == "Window");
 }
 #endif

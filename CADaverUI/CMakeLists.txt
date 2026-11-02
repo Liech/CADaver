@@ -177,6 +177,22 @@ set(UIElement_Menu_Help_Files
 )
 source_group("Source/UIElement/Menu/Help" FILES ${UIElement_Menu_Help_Files})
 
+set(UIElement_Radio_Files
+    "Source/CADaverUI/UIElement/Radio/RadioUIElement.h"
+    "Source/CADaverUI/UIElement/Radio/RadioUIElement.cpp"
+    "Source/CADaverUI/UIElement/Radio/WireframeRadioElement.h"
+    "Source/CADaverUI/UIElement/Radio/WireframeRadioElement.cpp"
+    "Source/CADaverUI/UIElement/Radio/CullModeRadioElement.h"
+    "Source/CADaverUI/UIElement/Radio/CullModeRadioElement.cpp"
+    "Source/CADaverUI/UIElement/Radio/CameraModeRadioElement.h"
+    "Source/CADaverUI/UIElement/Radio/CameraModeRadioElement.cpp"
+    "Source/CADaverUI/UIElement/Radio/ProjectionRadioElement.h"
+    "Source/CADaverUI/UIElement/Radio/ProjectionRadioElement.cpp"
+    "Source/CADaverUI/UIElement/Radio/ColorThemeRadioElement.h"
+    "Source/CADaverUI/UIElement/Radio/ColorThemeRadioElement.cpp"
+)
+source_group("Source/UIElement/Radio" FILES ${UIElement_Radio_Files})
+
 set(Search_Files
     "Source/CADaverUI/Search/UIElementSearcher.h"
     "Source/CADaverUI/Search/UIElementSearcher.cpp"
@@ -212,6 +228,7 @@ set(ALL_FILES
     ${UIElement_Menu_Edit_Files}
     ${UIElement_Menu_Create_Files}
     ${UIElement_Menu_Help_Files}
+    ${UIElement_Radio_Files}
     ${Search_Files}
     ${Commands_Files}
 )
