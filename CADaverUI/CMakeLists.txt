@@ -118,6 +118,8 @@ set(Windows_Console_Files
     "Source/CADaverUI/Windows/Console/ConsoleStreamBuffer.cpp"
     "Source/CADaverUI/Windows/Console/ConsoleWindow.h"
     "Source/CADaverUI/Windows/Console/ConsoleWindow.cpp"
+    "Source/CADaverUI/Windows/Console/SystemConsole.h"
+    "Source/CADaverUI/Windows/Console/SystemConsole.cpp"
 )
 source_group("Source/Windows/Console" FILES ${Windows_Console_Files})
 

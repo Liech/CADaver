@@ -20,7 +20,7 @@ std::string UpdateUIPreferencesCommand::getDescription() const
 {
     return "Command: UpdateUIPreferences\n"
            "Version: 1\n"
-           "Purpose: Updates user interface settings (UI scale, theme index, background color).\n\n"
+           "Purpose: Updates user interface settings (UI scale, theme index, background color, system console visibility).\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"UpdateUIPreferences\",\n"
@@ -28,7 +28,8 @@ std::string UpdateUIPreferencesCommand::getDescription() const
            "  \"preferences\": {\n"
            "    \"uiScale\": <float>,\n"
            "    \"themeIndex\": <int>,\n"
-           "    \"backgroundColor\": [<float>, <float>, <float>, <float>]\n"
+           "    \"backgroundColor\": [<float>, <float>, <float>, <float>],\n"
+           "    \"systemConsoleEnabled\": <bool>\n"
            "  }\n"
            "}\n\n"
            "Input Stream: None\n"

@@ -170,6 +170,11 @@ void ScriptWindow::renderOutput()
     {
         ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "%s", outputMessage.c_str());
         ImGui::SameLine();
+        if (ImGui::SmallButton("Copy Error"))
+        {
+            ImGui::SetClipboardText(outputMessage.c_str());
+        }
+        ImGui::SameLine();
         if (ImGui::SmallButton("View Details in Console"))
         {
             if (windows)

@@ -110,7 +110,7 @@ set(ALL_FILES
     ${UI_Project_Files}
 )
 
-add_executable(CadaverExe ${ALL_FILES})
+add_executable(CadaverExe WIN32 ${ALL_FILES})
 set_property(TARGET CadaverExe PROPERTY CXX_STANDARD 20)
 
 target_link_libraries(CadaverExe

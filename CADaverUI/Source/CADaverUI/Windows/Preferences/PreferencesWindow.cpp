@@ -65,6 +65,7 @@ void PreferencesWindow::load(GatedDatabase& database, Defer& deferTarget, const 
     std::ifstream file(filepath);
     if (!file.is_open())
     {
+        UIPreferencesTab::apply(database.get().getPreferences().getUIPreferences());
         return;
     }
 

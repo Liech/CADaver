@@ -5,6 +5,7 @@
 #include "Database/Preferences/UIPreferences.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
+#include "Windows/Console/SystemConsole.h"
 
 #include <imgui.h>
 
@@ -20,11 +21,13 @@ std::string UIPreferencesTab::getTitle() const
 std::string UIPreferencesTab::getDescription() const
 {
     return "Preference Tab: UI\n"
-           "Purpose: Configure user interface appearance, including color themes (Dark, Light, Classic), UI font scale, and viewport background color.";
+           "Purpose: Configure user interface appearance, including color themes (Dark, Light, Classic), UI font scale, viewport background color, and system console visibility.";
 }
 
 void UIPreferencesTab::apply(const UIPreferences& preferences)
 {
+    SystemConsole::setVisible(preferences.isSystemConsoleEnabled());
+
     if (!ImGui::GetCurrentContext())
     {
         return;
@@ -73,6 +76,14 @@ bool UIPreferencesTab::render(GatedDatabase& database, Defer& defer)
         modified = true;
     }
 
+    bool showConsole = preferences.isSystemConsoleEnabled();
+    if (ImGui::Checkbox("System Console", &showConsole))
+    {
+        preferences.setSystemConsoleEnabled(showConsole);
+        apply(preferences);
+        modified = true;
+    }
+
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
@@ -97,6 +108,7 @@ bool UIPreferencesTab::render(GatedDatabase& database, Defer& defer)
         preferences.setUiScale(1.0f);
         preferences.setThemeIndex(0);
         preferences.setBackgroundColor(glm::vec4(0.12f, 0.12f, 0.14f, 1.0f));
+        preferences.setSystemConsoleEnabled(true);
         apply(preferences);
         modified = true;
     }

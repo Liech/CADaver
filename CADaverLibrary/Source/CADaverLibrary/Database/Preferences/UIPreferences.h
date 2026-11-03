@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-// Headless data model managing UI theme, scale, and background color preferences.
+// Headless data model managing UI theme, scale, background color, and system console visibility preferences.
 class UIPreferences
 {
   public:
@@ -20,9 +20,12 @@ class UIPreferences
     void             setThemeIndex(int index);
     const glm::vec4& getBackgroundColor() const;
     void             setBackgroundColor(const glm::vec4& color);
+    bool             isSystemConsoleEnabled() const;
+    void             setSystemConsoleEnabled(bool enabled);
 
   private:
-    glm::vec4 backgroundColor = glm::vec4(0.12f, 0.12f, 0.14f, 1.0f);
-    float     uiScale         = 1.0f;
-    int       themeIndex      = 0;
+    glm::vec4 backgroundColor      = glm::vec4(0.12f, 0.12f, 0.14f, 1.0f);
+    float     uiScale              = 1.0f;
+    int       themeIndex           = 0;
+    bool      systemConsoleEnabled = false;
 };
