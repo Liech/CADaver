@@ -40,6 +40,11 @@ void GatedDatabase::setDispatchCallback(std::function<void(std::function<void()>
     dispatchCallback = std::move(callback);
 }
 
+void GatedDatabase::setLogCallback(std::function<void(const std::string&)> callback)
+{
+    logCallback = std::move(callback);
+}
+
 nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istream* inputStream, std::ostream* outputStream)
 {
     if (recursionLock)
@@ -133,7 +138,14 @@ void GatedDatabase::redo(UndoContainer& container)
 
 void GatedDatabase::log(const std::string& msg)
 {
-    std::cout << msg << std::endl;
+    if (logCallback)
+    {
+        logCallback(msg);
+    }
+    else
+    {
+        std::cout << msg << std::endl;
+    }
 }
 
 bool GatedDatabase::hasActiveTasks() const
@@ -317,3 +329,21 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
 
     return callerFuture;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("GatedDatabase/LogCallback")
+{
+    GatedDatabase            gatedDatabase;
+    std::vector<std::string> logs;
+    gatedDatabase.setLogCallback([&logs](const std::string& msg) { logs.push_back(msg); });
+
+    gatedDatabase.execute({
+      {    "type", "ClearProject" },
+      { "version",              1 }
+    });
+
+    CHECK(logs.size() >= 2);
+}
+#endif

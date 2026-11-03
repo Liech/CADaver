@@ -97,6 +97,27 @@ bool SystemConsole::isAvailable()
 #endif
 }
 
+bool SystemConsole::attachParent()
+{
+#ifdef _WIN32
+    if (AttachConsole(ATTACH_PARENT_PROCESS))
+    {
+        FILE* dummy = nullptr;
+        freopen_s(&dummy, "CONOUT$", "w", stdout);
+        freopen_s(&dummy, "CONOUT$", "w", stderr);
+        freopen_s(&dummy, "CONIN$", "r", stdin);
+        std::cout.clear();
+        std::cerr.clear();
+        std::cin.clear();
+        return true;
+    }
+
+    return false;
+#else
+    return true;
+#endif
+}
+
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 

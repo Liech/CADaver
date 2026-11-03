@@ -27,5 +27,5 @@ class UIPreferences
     glm::vec4 backgroundColor      = glm::vec4(0.12f, 0.12f, 0.14f, 1.0f);
     float     uiScale              = 1.0f;
     int       themeIndex           = 0;
-    bool      systemConsoleEnabled = false;
+    bool      systemConsoleEnabled = true;
 };

@@ -1,4 +1,7 @@
 #include "Cadaver.h"
+#include "CommandLineArgs.h"
+#include "HeadlessScriptRunner.h"
+#include "Windows/Console/SystemConsole.h"
 
 #include <cstdlib>
 
@@ -13,6 +16,14 @@
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
+    CommandLineArgs args = CommandLineArgs::parse(__argc, __argv);
+    if (args.hasScript())
+    {
+        SystemConsole::attachParent();
+        HeadlessScriptRunner runner;
+        return runner.run(args);
+    }
+
     Cadaver::run();
     return EXIT_SUCCESS;
 }
@@ -20,6 +31,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 int main(int argc, char* argv[])
 {
+    CommandLineArgs args = CommandLineArgs::parse(argc, argv);
+    if (args.hasScript())
+    {
+        SystemConsole::attachParent();
+        HeadlessScriptRunner runner;
+        return runner.run(args);
+    }
+
     Cadaver::run();
     return EXIT_SUCCESS;
 }

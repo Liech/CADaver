@@ -10,4 +10,5 @@ class SystemConsole
     static void setVisible(bool visible);
     static bool isVisible();
     static bool isAvailable();
+    static bool attachParent();
 };

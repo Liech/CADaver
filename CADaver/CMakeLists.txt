@@ -14,6 +14,10 @@ set(Source_Files
     "Source/main.cpp"
     "Source/Cadaver.h"
     "Source/Cadaver.cpp"
+    "Source/CommandLineArgs.h"
+    "Source/CommandLineArgs.cpp"
+    "Source/HeadlessScriptRunner.h"
+    "Source/HeadlessScriptRunner.cpp"
 )
 source_group("Source" FILES ${Source_Files})
 
