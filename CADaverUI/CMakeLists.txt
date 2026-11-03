@@ -288,6 +288,7 @@ target_include_directories(CadaverUITest PUBLIC
 )
 
 set_property(TARGET CadaverUITest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1)
+set_property(TARGET CadaverUITest PROPERTY FOLDER "Tests")
 
 include(CTest)
 include(Catch)

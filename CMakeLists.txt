@@ -18,9 +18,12 @@ if(NOT TARGET CADacomb::CADacomb)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../CADacomb" "${CMAKE_CURRENT_BINARY_DIR}/CADacomb")
 endif()
 
+enable_testing()
+
 add_subdirectory(CADaver)
 add_subdirectory(CADaverLibrary)
 add_subdirectory(CADaverUI)
+add_subdirectory(IntegrationTests)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT CadaverExe)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

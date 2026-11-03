@@ -244,6 +244,7 @@ target_include_directories(CadaverLibraryTest PUBLIC
 )
 
 set_property(TARGET CadaverLibraryTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1)
+set_property(TARGET CadaverLibraryTest PROPERTY FOLDER "Tests")
 
 include(CTest)
 include(Catch)
