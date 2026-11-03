@@ -151,6 +151,12 @@ add_custom_command(TARGET CadaverExe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/../Licenses"
         "${CMAKE_CURRENT_BINARY_DIR}/Licenses"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<TARGET_FILE_DIR:Polyglot>/python"
+        "$<TARGET_FILE_DIR:CadaverExe>/python"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<TARGET_FILE_DIR:Polyglot>/lua"
+        "$<TARGET_FILE_DIR:CadaverExe>/lua"
 )
 
 set_property(TARGET CadaverExe PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:CadaverExe>")

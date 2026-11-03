@@ -123,6 +123,8 @@ set(Execution_Files
     "Source/CADaverLibrary/Execution/Defer.cpp"
     "Source/CADaverLibrary/Execution/GatedDatabase.h"
     "Source/CADaverLibrary/Execution/GatedDatabase.cpp"
+    "Source/CADaverLibrary/Execution/ScriptBridge.h"
+    "Source/CADaverLibrary/Execution/ScriptBridge.cpp"
     "Source/CADaverLibrary/Execution/UndoContainer.h"
     "Source/CADaverLibrary/Execution/UndoContainer.cpp"
     "Source/CADaverLibrary/Execution/UndoStack.h"
@@ -221,12 +223,14 @@ target_link_libraries(CadaverLibraryTest PRIVATE
     Catch2::Catch2
     glm::glm
     nlohmann_json::nlohmann_json
+    Polyglot
 )
 
 target_link_libraries(CadaverLibrary PUBLIC
     CADacomb::CADacomb
     glm::glm
     nlohmann_json::nlohmann_json
+    Polyglot
 )
 
 target_include_directories(CadaverLibrary PUBLIC

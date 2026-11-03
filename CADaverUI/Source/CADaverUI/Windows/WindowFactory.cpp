@@ -20,6 +20,7 @@
 #include "Windows/Project/ClearProjectModal.h"
 #include "Windows/Project/RemoveAssetModal.h"
 #include "Windows/Project/TaskNotificationModal.h"
+#include "Windows/Script/ScriptWindow.h"
 #include "Windows/Window.h"
 
 #include <algorithm>
@@ -91,6 +92,7 @@ void WindowFactory::registerWindows()
     registerWindow("Preferences", []() { return std::make_shared<PreferencesWindow>(); });
     registerWindow("TaskNotification", []() { return std::make_shared<TaskNotificationModal>(); });
     registerWindow("TextNoteEdit", []() { return std::make_shared<TextNoteEditWindow>(); });
+    registerWindow("Script", []() { return std::make_shared<ScriptWindow>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -120,6 +122,7 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("RemoveAsset") != nullptr);
     CHECK(factory.create("TaskNotification") != nullptr);
     CHECK(factory.create("TextNoteEdit") != nullptr);
-    CHECK(factory.getAllWindows().size() == 20);
+    CHECK(factory.create("Script") != nullptr);
+    CHECK(factory.getAllWindows().size() == 21);
 }
 #endif
