@@ -4,6 +4,8 @@
 #include "Execution/ScriptBridge.h"
 #include "Polyglot/Lua/LuaEngine.h"
 #include "Polyglot/Python/PythonEngine.h"
+#include "Windows/Console/ConsoleWindow.h"
+#include "Windows/Windows.h"
 
 #include <cstring>
 #include <imgui.h>
@@ -28,7 +30,8 @@ std::string ScriptWindow::getDescription() const
            "Parameters:\n"
            "  - Language: ComboBox selecting Python or Lua\n"
            "  - Script: Multi-line text editor for script input\n"
-           "  - Run: Button executing the script synchronously\n\n"
+           "  - Run: Button executing the script synchronously\n"
+           "  - Console: Button opening the in-program Console window\n\n"
            "Dispatched Command: Dynamic based on cadaver() invocations inside the script";
 }
 
@@ -73,11 +76,26 @@ void ScriptWindow::runScript()
 {
     scriptText = std::string(scriptBuffer.data());
 
+    std::shared_ptr<ConsoleWindow> console;
+    if (windows)
+    {
+        console = std::dynamic_pointer_cast<ConsoleWindow>(windows->get("Console"));
+    }
+
     if (!gatedDatabase)
     {
         outputMessage = "Error: Database not available.";
         hasError      = true;
+        if (console)
+        {
+            console->logError(outputMessage);
+        }
         return;
+    }
+
+    if (console)
+    {
+        console->log(std::string("[Script] Running ") + (selectedLanguage == 0 ? "Python" : "Lua") + " script...");
     }
 
     try
@@ -96,11 +114,19 @@ void ScriptWindow::runScript()
 
         outputMessage = "Execution completed successfully.";
         hasError      = false;
+        if (console)
+        {
+            console->log("[Script] Execution completed successfully.");
+        }
     }
     catch (const std::exception& exception)
     {
         outputMessage = std::string("Error: ") + exception.what();
         hasError      = true;
+        if (console)
+        {
+            console->logError(std::string("[Script Error] ") + exception.what());
+        }
     }
 }
 
@@ -110,15 +136,24 @@ void ScriptWindow::renderControls()
     ImGui::Combo("Language", &selectedLanguage, languages);
 
     ImGui::SameLine();
-    if (ImGui::Button("Run", ImVec2(100.0f, 0.0f)))
+    if (ImGui::Button("Run", ImVec2(80.0f, 0.0f)))
     {
         runScript();
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Console", ImVec2(80.0f, 0.0f)))
+    {
+        if (windows)
+        {
+            windows->open("Console");
+        }
     }
 }
 
 void ScriptWindow::renderEditor()
 {
-    float reservedHeight = 80.0f;
+    float reservedHeight = outputMessage.empty() ? 10.0f : 35.0f;
     ImGui::InputTextMultiline("##ScriptCode", scriptBuffer.data(), scriptBuffer.size(), ImVec2(-1.0f, -reservedHeight));
     scriptText = std::string(scriptBuffer.data());
 }
@@ -134,6 +169,14 @@ void ScriptWindow::renderOutput()
     if (hasError)
     {
         ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "%s", outputMessage.c_str());
+        ImGui::SameLine();
+        if (ImGui::SmallButton("View Details in Console"))
+        {
+            if (windows)
+            {
+                windows->open("Console");
+            }
+        }
     }
     else
     {
@@ -224,5 +267,25 @@ TEST_CASE("ScriptWindow/RunWithDatabasePython")
 
     CHECK(!window.hasExecutionError());
     CHECK(window.getOutput() == "Execution completed successfully.");
+}
+
+TEST_CASE("ScriptWindow/RunWithConsoleLogging")
+{
+    GatedDatabase gatedDatabase;
+    Defer         defer;
+    Windows       windows;
+
+    windows.open("Console");
+    auto console = std::dynamic_pointer_cast<ConsoleWindow>(windows.get("Console"));
+    REQUIRE(console != nullptr);
+
+    ScriptWindow window;
+    window.setInput(gatedDatabase, defer, windows);
+    window.setLanguage(1);
+    window.setScript("cadaver({type = \"ClearProject\"})");
+    window.runScript();
+
+    CHECK(!window.hasExecutionError());
+    CHECK(console->getMessageCount() >= 2);
 }
 #endif

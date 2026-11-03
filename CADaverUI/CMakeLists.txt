@@ -113,6 +113,14 @@ set(Windows_Script_Files
 )
 source_group("Source/Windows/Script" FILES ${Windows_Script_Files})
 
+set(Windows_Console_Files
+    "Source/CADaverUI/Windows/Console/ConsoleStreamBuffer.h"
+    "Source/CADaverUI/Windows/Console/ConsoleStreamBuffer.cpp"
+    "Source/CADaverUI/Windows/Console/ConsoleWindow.h"
+    "Source/CADaverUI/Windows/Console/ConsoleWindow.cpp"
+)
+source_group("Source/Windows/Console" FILES ${Windows_Console_Files})
+
 set(Windows_Project_Files
     "Source/CADaverUI/Windows/Project/ClearProjectModal.h"
     "Source/CADaverUI/Windows/Project/ClearProjectModal.cpp"
@@ -228,6 +236,7 @@ set(ALL_FILES
     ${Windows_Preferences_Files}
     ${Windows_Asset_Files}
     ${Windows_Script_Files}
+    ${Windows_Console_Files}
     ${Windows_Project_Files}
     ${UIElement_Files}
     ${UIElement_Menu_Files}

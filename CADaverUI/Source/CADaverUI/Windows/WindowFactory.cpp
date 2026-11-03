@@ -5,6 +5,7 @@
 #include "Windows/About/ConceptsInfoWindow.h"
 #include "Windows/About/WindowsInfoWindow.h"
 #include "Windows/Asset/TextNoteEditWindow.h"
+#include "Windows/Console/ConsoleWindow.h"
 #include "Windows/Conversion/CadToStlConversionModal.h"
 #include "Windows/Conversion/CadToSvoConversionModal.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
@@ -93,6 +94,7 @@ void WindowFactory::registerWindows()
     registerWindow("TaskNotification", []() { return std::make_shared<TaskNotificationModal>(); });
     registerWindow("TextNoteEdit", []() { return std::make_shared<TextNoteEditWindow>(); });
     registerWindow("Script", []() { return std::make_shared<ScriptWindow>(); });
+    registerWindow("Console", []() { return std::make_shared<ConsoleWindow>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -123,6 +125,7 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("TaskNotification") != nullptr);
     CHECK(factory.create("TextNoteEdit") != nullptr);
     CHECK(factory.create("Script") != nullptr);
-    CHECK(factory.getAllWindows().size() == 21);
+    CHECK(factory.create("Console") != nullptr);
+    CHECK(factory.getAllWindows().size() == 22);
 }
 #endif
