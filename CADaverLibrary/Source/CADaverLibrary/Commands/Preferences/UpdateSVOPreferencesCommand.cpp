@@ -49,12 +49,13 @@ std::string UpdateSVOPreferencesCommand::getDescription() const
            "}";
 }
 
-void UpdateSVOPreferencesCommand::setInput(const nlohmann::json& json)
+void UpdateSVOPreferencesCommand::setInput(const Polyglot::Node& node)
 {
-    preferencesData = json.at("preferences");
+    nlohmann::json json = node.toJson();
+    preferencesData     = json.at("preferences");
 }
 
-nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database)
 {
     auto& svoPreferences = database.getPreferences().getSVOPreferences();
     previousPreferences  = svoPreferences;

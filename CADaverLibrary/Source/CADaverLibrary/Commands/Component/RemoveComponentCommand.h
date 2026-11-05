@@ -19,8 +19,8 @@ class RemoveComponentCommand : public Command
     int         getVersion() const override;
     std::string getDescription() const override;
 
-    void           setInput(const nlohmann::json& json) override;
-    nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
+    void           setInput(const Polyglot::Node& node) override;
+    nlohmann::json execute(Database& database) override;
 
     bool   isUndoable() const override;
     void   undo(Database& database) override;

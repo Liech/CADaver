@@ -132,6 +132,12 @@ set(Execution_Files
 )
 source_group("Source/Execution" FILES ${Execution_Files})
 
+set(Utility_Files
+    "Source/CADaverLibrary/Utility/IOValueGrabber.h"
+    "Source/CADaverLibrary/Utility/IOValueGrabber.cpp"
+)
+source_group("Source/Utility" FILES ${Utility_Files})
+
 set(Command_Search_Files
     "Source/CADaverLibrary/Commands/Search/GetDocumentationCommand.h"
     "Source/CADaverLibrary/Commands/Search/GetDocumentationCommand.cpp"
@@ -207,6 +213,7 @@ set(ALL_FILES
     ${Database_Files}
     ${Database_Asset_Files}
     ${Execution_Files}
+    ${Utility_Files}
 )
 
 ############################################################################

@@ -4,6 +4,9 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
+#include "Utility/IOValueGrabber.h"
+
+#include <sstream>
 
 LoadStlAssetCommand::LoadStlAssetCommand() {}
 
@@ -23,44 +26,45 @@ std::string LoadStlAssetCommand::getDescription() const
 {
     return "Command: LoadStlAsset\n"
            "Version: 1\n"
-           "Purpose: Loads an STL triangulation asset from an input stream into the project.\n\n"
+           "Purpose: Loads an STL triangulation asset from a source callback or file path into the project.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"LoadStlAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"name\": \"<string>\"\n"
+           "  \"name\": \"<string>\",\n"
+           "  \"source\": <callback or string>\n"
            "}\n\n"
-           "Input Stream: Binary or ASCII STL stream\n"
-           "Output Stream: None\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"LoadStlAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"NoInputStream\" | \"ParseFailed\",\n"
+           "  \"status\": \"Success\" | \"ParseFailed\",\n"
            "  \"index\": <int>,\n"
            "  \"name\": \"<string>\"\n"
            "}";
 }
 
-void LoadStlAssetCommand::setInput(const nlohmann::json& json)
+void LoadStlAssetCommand::setInput(const Polyglot::Node& node)
 {
-    name = json.at("name").get<std::string>();
+    auto& mutableNode = const_cast<Polyglot::Node&>(node);
+    name              = static_cast<std::string>(mutableNode["name"]);
+    source            = mutableNode["source"];
 }
 
-nlohmann::json LoadStlAssetCommand::execute(Database& database, std::istream* inputStream, std::ostream*)
+nlohmann::json LoadStlAssetCommand::execute(Database& database)
 {
     CADacomb::ProgressBar bar(1, "Loading STL asset");
 
-    if (!inputStream || bar.isCanceled())
+    std::unique_ptr<CADacomb::Triangulation> triangulation;
+
+    std::vector<uint8_t> bytes = IOValueGrabber::grabBytes(source);
+    if (!bytes.empty())
     {
-        return createResponse("NoInputStream",
-                              {
-                                { "index",   -1 },
-                                {  "name", name }
-        });
+        std::string        str(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+        std::istringstream stream(str, std::ios::binary);
+        triangulation = CADacomb::Triangulation::fromSTLStream(stream);
     }
 
-    auto triangulation = CADacomb::Triangulation::fromSTLStream(*inputStream);
     if (!triangulation || triangulation->indices.empty() || bar.isCanceled())
     {
         return createResponse("ParseFailed",
@@ -117,9 +121,10 @@ size_t LoadStlAssetCommand::getUndoSize() const
 TEST_CASE("LoadStlAssetCommand/TypeAndVersion")
 {
     LoadStlAssetCommand cmd;
-    cmd.setInput({
-      { "name", "Mesh" }
-    });
+    cmd.setInput(Polyglot::Node({
+      {   "name",  "Mesh" },
+      { "source", "dummy" }
+    }));
     CHECK(cmd.getType() == "LoadStlAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());

@@ -50,15 +50,16 @@ std::vector<CADacomb::GUID> ConvertCadToSvoCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
-void ConvertCadToSvoCommand::setInput(const nlohmann::json& json)
+void ConvertCadToSvoCommand::setInput(const Polyglot::Node& node)
 {
-    assetGuid    = json.value("assetGuid", "");
-    precision    = json.value("precision", 0.1);
-    dimension    = json.value("dimension", 64u);
-    deleteOrigin = json.value("deleteOrigin", false);
+    nlohmann::json json = node.toJson();
+    assetGuid           = json.value("assetGuid", "");
+    precision           = json.value("precision", 0.1);
+    dimension           = json.value("dimension", 64u);
+    deleteOrigin        = json.value("deleteOrigin", false);
 }
 
-nlohmann::json ConvertCadToSvoCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json ConvertCadToSvoCommand::execute(Database& database)
 {
     CADacomb::ProgressBar bar(1, "Converting CAD to SVO");
 

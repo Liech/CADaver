@@ -39,12 +39,13 @@ std::string RemoveAssetCommand::getDescription() const
            "}";
 }
 
-void RemoveAssetCommand::setInput(const nlohmann::json& json)
+void RemoveAssetCommand::setInput(const Polyglot::Node& node)
 {
-    assetGuid = json.value("assetGuid", "");
+    nlohmann::json json = node.toJson();
+    assetGuid           = json.value("assetGuid", "");
 }
 
-nlohmann::json RemoveAssetCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json RemoveAssetCommand::execute(Database& database)
 {
     removedAsset = database.getProject().getAsset(assetGuid);
     if (!removedAsset)

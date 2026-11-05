@@ -1,9 +1,15 @@
 #include "Commands/IO/LoadStepAssetCommand.h"
 
 #include "CADacomb/CAD/Sm/KernelSm.h"
+#include "CADacomb/Util/GUID.h"
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
+#include "Utility/IOValueGrabber.h"
+
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 LoadStepAssetCommand::LoadStepAssetCommand() {}
 
@@ -23,38 +29,56 @@ std::string LoadStepAssetCommand::getDescription() const
 {
     return "Command: LoadStepAsset\n"
            "Version: 1\n"
-           "Purpose: Loads a STEP CAD asset from a file path into the project.\n\n"
+           "Purpose: Loads a STEP CAD asset from a source callback or file path into the project.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"LoadStepAsset\",\n"
            "  \"version\": 1,\n"
            "  \"name\": \"<string>\",\n"
-           "  \"filePath\": \"<string>\"\n"
+           "  \"source\": \"<callback or string>\"\n"
            "}\n\n"
-           "Input Stream: None\n"
-           "Output Stream: None\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"LoadStepAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
+           "  \"status\": \"Success\" | \"LoadFailed\",\n"
            "  \"index\": <int>,\n"
            "  \"name\": \"<string>\"\n"
            "}";
 }
 
-void LoadStepAssetCommand::setInput(const nlohmann::json& json)
+void LoadStepAssetCommand::setInput(const Polyglot::Node& node)
 {
-    name     = json.at("name").get<std::string>();
-    filePath = json.at("filePath").get<std::string>();
+    auto& mutableNode = const_cast<Polyglot::Node&>(node);
+    name              = static_cast<std::string>(mutableNode["name"]);
+    source            = mutableNode["source"];
 }
 
-nlohmann::json LoadStepAssetCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json LoadStepAssetCommand::execute(Database& database)
 {
     CADacomb::ProgressBar bar(1, "Loading STEP asset");
 
     CADacomb::CAD::KernelSm                            kernel;
-    std::vector<std::unique_ptr<CADacomb::CAD::Shape>> shapes = kernel.loadStepFile(filePath);
+    std::vector<std::unique_ptr<CADacomb::CAD::Shape>> shapes;
+
+    if (IOValueGrabber::isFilePath(source))
+    {
+        shapes = kernel.loadStepFile(IOValueGrabber::grabFilePath(source));
+    }
+    else
+    {
+        std::vector<uint8_t> bytes = IOValueGrabber::grabBytes(source);
+        if (!bytes.empty())
+        {
+            std::string tempPath = (std::filesystem::temp_directory_path() / ("cadaver_temp_" + CADacomb::GUID::random().toString() + ".step")).string();
+            {
+                std::ofstream tempOut(tempPath, std::ios::binary);
+                tempOut.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+            }
+            shapes = kernel.loadStepFile(tempPath);
+            std::filesystem::remove(tempPath);
+        }
+    }
 
     if (shapes.empty() || !shapes[0] || bar.isCanceled())
     {
@@ -113,10 +137,10 @@ size_t LoadStepAssetCommand::getUndoSize() const
 TEST_CASE("LoadStepAssetCommand/TypeAndVersion")
 {
     LoadStepAssetCommand cmd;
-    cmd.setInput({
-      {     "name",      "Part" },
-      { "filePath", "part.step" }
-    });
+    cmd.setInput(Polyglot::Node({
+      {   "name",      "Part" },
+      { "source", "part.step" }
+    }));
     CHECK(cmd.getType() == "LoadStepAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());

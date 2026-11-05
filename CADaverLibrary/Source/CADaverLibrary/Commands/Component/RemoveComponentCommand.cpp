@@ -39,16 +39,17 @@ std::string RemoveComponentCommand::getDescription() const
            "}";
 }
 
-void RemoveComponentCommand::setInput(const nlohmann::json& json)
+void RemoveComponentCommand::setInput(const Polyglot::Node& node)
 {
-    componentGuid = CADacomb::GUID(json.at("componentGuid").get<std::string>());
+    nlohmann::json json = node.toJson();
+    componentGuid       = CADacomb::GUID(json.at("componentGuid").get<std::string>());
     if (json.contains("assetGuid"))
     {
         assetGuid = CADacomb::GUID(json.at("assetGuid").get<std::string>());
     }
 }
 
-nlohmann::json RemoveComponentCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json RemoveComponentCommand::execute(Database& database)
 {
     std::shared_ptr<Asset> targetAsset;
 

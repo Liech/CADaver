@@ -42,12 +42,20 @@ std::string ClickUIElementCommand::getDescription() const
            "}";
 }
 
-void ClickUIElementCommand::setInput(const nlohmann::json& json)
+void ClickUIElementCommand::setInput(const Polyglot::Node& node)
 {
-    target = json.value("target", "");
-    if (target.empty())
+    auto& mutableNode = const_cast<Polyglot::Node&>(node);
+    if (mutableNode["target"].isString())
     {
-        target = json.value("elementType", "");
+        target = mutableNode["target"].asString();
+    }
+    else if (mutableNode["elementType"].isString())
+    {
+        target = mutableNode["elementType"].asString();
+    }
+    else
+    {
+        target.clear();
     }
 }
 
@@ -56,7 +64,7 @@ const std::string& ClickUIElementCommand::getTarget() const
     return target;
 }
 
-nlohmann::json ClickUIElementCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json ClickUIElementCommand::execute(Database& database)
 {
     if (target.empty())
     {
@@ -125,7 +133,7 @@ TEST_CASE("ClickUIElementCommand/Execute")
     ClickUIElementCommand cmd(factory);
 
     // Test missing target
-    cmd.setInput(nlohmann::json::object());
+    cmd.setInput(Polyglot::Node(nlohmann::json::object()));
     Database db;
     auto     resMissing = cmd.execute(db);
     REQUIRE(resMissing["status"] == "Failed");

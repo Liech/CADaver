@@ -15,8 +15,8 @@ class SearchCommand : public Command
     virtual int         getVersion() const override;
     virtual std::string getDescription() const override;
 
-    virtual void           setInput(const nlohmann::json& json) override;
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
+    virtual void           setInput(const Polyglot::Node& node) override;
+    virtual nlohmann::json execute(Database& database) override;
 
   private:
     std::string query;

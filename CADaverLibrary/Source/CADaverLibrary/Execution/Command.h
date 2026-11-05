@@ -1,11 +1,10 @@
 #pragma once
 
 #include "CADacomb/Util/GUID.h"
+#include "Polyglot/Node.h"
 
 #include <cstddef>
-#include <istream>
 #include <nlohmann/json.hpp>
-#include <ostream>
 #include <string>
 #include <vector>
 
@@ -24,8 +23,8 @@ class Command
 
     virtual std::vector<CADacomb::GUID> getRequiredAssets() const;
 
-    virtual void           setInput(const nlohmann::json& json);
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) = 0;
+    virtual void           setInput(const Polyglot::Node& node);
+    virtual nlohmann::json execute(Database& database) = 0;
 
     virtual bool   isUndoable() const;
     virtual void   undo(Database& database);

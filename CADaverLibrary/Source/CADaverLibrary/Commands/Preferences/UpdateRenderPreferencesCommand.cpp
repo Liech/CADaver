@@ -42,12 +42,13 @@ std::string UpdateRenderPreferencesCommand::getDescription() const
            "}";
 }
 
-void UpdateRenderPreferencesCommand::setInput(const nlohmann::json& json)
+void UpdateRenderPreferencesCommand::setInput(const Polyglot::Node& node)
 {
-    preferencesData = json.at("preferences");
+    nlohmann::json json = node.toJson();
+    preferencesData     = json.at("preferences");
 }
 
-nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database)
 {
     auto& renderPreferences = database.getPreferences().getRenderPreferences();
     previousPreferences     = renderPreferences;

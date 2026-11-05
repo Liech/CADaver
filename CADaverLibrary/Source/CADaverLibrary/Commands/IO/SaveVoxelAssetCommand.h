@@ -2,11 +2,12 @@
 
 #include "CADacomb/Util/GUID.h"
 #include "Execution/Command.h"
+#include "Polyglot/Node.h"
 
 #include <string>
 #include <vector>
 
-// Command to save an SVO voxel asset to an output stream.
+// Command to save an SVO voxel asset.
 class SaveVoxelAssetCommand : public Command
 {
   public:
@@ -19,9 +20,10 @@ class SaveVoxelAssetCommand : public Command
 
     virtual std::vector<CADacomb::GUID> getRequiredAssets() const override;
 
-    virtual void           setInput(const nlohmann::json& json) override;
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
+    virtual void           setInput(const Polyglot::Node& node) override;
+    virtual nlohmann::json execute(Database& database) override;
 
   private:
     CADacomb::GUID assetGuid;
+    Polyglot::Node destination;
 };

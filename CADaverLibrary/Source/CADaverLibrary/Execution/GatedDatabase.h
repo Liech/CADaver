@@ -28,8 +28,8 @@ class GatedDatabase
     CommandFactory&       getCommandFactory();
     const CommandFactory& getCommandFactory() const;
 
-    Polyglot::Node              execute(const Polyglot::Node& command, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr);
-    std::future<Polyglot::Node> executeAsync(const Polyglot::Node& command, std::shared_ptr<std::istream> inputStream = nullptr, std::shared_ptr<std::ostream> outputStream = nullptr);
+    Polyglot::Node              execute(const Polyglot::Node& command);
+    std::future<Polyglot::Node> executeAsync(const Polyglot::Node& command);
 
     void undo(UndoContainer& container);
     void redo(UndoContainer& container);

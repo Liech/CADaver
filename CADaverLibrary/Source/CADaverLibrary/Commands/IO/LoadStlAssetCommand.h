@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Execution/Command.h"
+#include "Polyglot/Node.h"
 
 #include <memory>
 #include <string>
 
 class Asset;
 
-// Command to load an STL triangulation asset from an input stream into the project.
+// Command to load an STL triangulation asset into the project.
 class LoadStlAssetCommand : public Command
 {
   public:
@@ -18,8 +19,8 @@ class LoadStlAssetCommand : public Command
     virtual int         getVersion() const override;
     virtual std::string getDescription() const override;
 
-    virtual void           setInput(const nlohmann::json& json) override;
-    virtual nlohmann::json execute(Database& database, std::istream* inputStream = nullptr, std::ostream* outputStream = nullptr) override;
+    virtual void           setInput(const Polyglot::Node& node) override;
+    virtual nlohmann::json execute(Database& database) override;
 
     virtual bool   isUndoable() const override;
     virtual void   undo(Database& database) override;
@@ -28,5 +29,6 @@ class LoadStlAssetCommand : public Command
 
   private:
     std::string            name;
+    Polyglot::Node         source;
     std::shared_ptr<Asset> createdAsset;
 };

@@ -177,7 +177,7 @@ void SVOPreferences::requestRebuild()
 {
     rebuildRequested = true;
     rebuildCounter++;
-    dirty            = true;
+    dirty = true;
 }
 
 void SVOPreferences::clearRebuildRequested()

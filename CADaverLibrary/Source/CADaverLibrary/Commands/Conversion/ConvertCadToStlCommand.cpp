@@ -49,14 +49,15 @@ std::vector<CADacomb::GUID> ConvertCadToStlCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
-void ConvertCadToStlCommand::setInput(const nlohmann::json& json)
+void ConvertCadToStlCommand::setInput(const Polyglot::Node& node)
 {
-    assetGuid    = json.value("assetGuid", "");
-    precision    = json.value("precision", 0.1);
-    deleteOrigin = json.value("deleteOrigin", false);
+    nlohmann::json json = node.toJson();
+    assetGuid           = json.value("assetGuid", "");
+    precision           = json.value("precision", 0.1);
+    deleteOrigin        = json.value("deleteOrigin", false);
 }
 
-nlohmann::json ConvertCadToStlCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json ConvertCadToStlCommand::execute(Database& database)
 {
     CADacomb::ProgressBar bar(1, "Converting CAD to STL");
 

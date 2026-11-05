@@ -45,12 +45,13 @@ std::string UpdateCameraPreferencesCommand::getDescription() const
            "}";
 }
 
-void UpdateCameraPreferencesCommand::setInput(const nlohmann::json& json)
+void UpdateCameraPreferencesCommand::setInput(const Polyglot::Node& node)
 {
-    preferencesData = json.at("preferences");
+    nlohmann::json json = node.toJson();
+    preferencesData     = json.at("preferences");
 }
 
-nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database)
 {
     auto& cameraPreferences = database.getPreferences().getCameraPreferences();
     previousPreferences     = cameraPreferences;

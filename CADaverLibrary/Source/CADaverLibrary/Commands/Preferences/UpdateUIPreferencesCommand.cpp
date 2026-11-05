@@ -42,12 +42,13 @@ std::string UpdateUIPreferencesCommand::getDescription() const
            "}";
 }
 
-void UpdateUIPreferencesCommand::setInput(const nlohmann::json& json)
+void UpdateUIPreferencesCommand::setInput(const Polyglot::Node& node)
 {
-    preferencesData = json.at("preferences");
+    nlohmann::json json = node.toJson();
+    preferencesData     = json.at("preferences");
 }
 
-nlohmann::json UpdateUIPreferencesCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json UpdateUIPreferencesCommand::execute(Database& database)
 {
     auto& uiPreferences = database.getPreferences().getUIPreferences();
     previousPreferences = uiPreferences;

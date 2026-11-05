@@ -56,10 +56,10 @@ void LoadStepAssetWindow::executeLoad()
       [db, path, name]()
       {
           Polyglot::Node command = {
-              {     "type", "LoadStepAsset" },
-              {  "version",               1 },
-              {     "name",            name },
-              { "filePath",            path }
+              {    "type", "LoadStepAsset" },
+              { "version",               1 },
+              {    "name",            name },
+              {  "source",            path }
           };
           db->executeAsync(command);
       });

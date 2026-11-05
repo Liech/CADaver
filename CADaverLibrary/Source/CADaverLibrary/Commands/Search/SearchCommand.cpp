@@ -55,18 +55,16 @@ std::string SearchCommand::getDescription() const
            "}";
 }
 
-void SearchCommand::setInput(const nlohmann::json& json)
+void SearchCommand::setInput(const Polyglot::Node& node)
 {
-    query      = json.value("query", "");
-    category   = json.value("category", "All");
-    maxResults = json.value("maxResults", 20);
+    nlohmann::json json = node.toJson();
+    query               = json.value("query", "");
+    category            = json.value("category", "All");
+    maxResults          = json.value("maxResults", 20);
 }
 
-nlohmann::json SearchCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json SearchCommand::execute(Database& database)
 {
-    (void)inputStream;
-    (void)outputStream;
-
     SearchService service;
 
     CommandFactory cmdFactory;

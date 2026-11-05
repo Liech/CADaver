@@ -37,7 +37,7 @@ std::string ClearProjectCommand::getDescription() const
            "}";
 }
 
-nlohmann::json ClearProjectCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json ClearProjectCommand::execute(Database& database)
 {
     clearedAssets = database.getProject().getAssets();
 

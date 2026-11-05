@@ -49,14 +49,15 @@ std::vector<CADacomb::GUID> ConvertStlToSvoCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
-void ConvertStlToSvoCommand::setInput(const nlohmann::json& json)
+void ConvertStlToSvoCommand::setInput(const Polyglot::Node& node)
 {
-    assetGuid    = json.value("assetGuid", "");
-    dimension    = json.value("dimension", 64u);
-    deleteOrigin = json.value("deleteOrigin", false);
+    nlohmann::json json = node.toJson();
+    assetGuid           = json.value("assetGuid", "");
+    dimension           = json.value("dimension", 64u);
+    deleteOrigin        = json.value("deleteOrigin", false);
 }
 
-nlohmann::json ConvertStlToSvoCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json ConvertStlToSvoCommand::execute(Database& database)
 {
     CADacomb::ProgressBar bar(1, "Converting STL to SVO");
 

@@ -41,9 +41,10 @@ std::string AddNoteCommand::getDescription() const
            "}";
 }
 
-void AddNoteCommand::setInput(const nlohmann::json& json)
+void AddNoteCommand::setInput(const Polyglot::Node& node)
 {
-    assetGuid = CADacomb::GUID(json.at("assetGuid").get<std::string>());
+    nlohmann::json json = node.toJson();
+    assetGuid           = CADacomb::GUID(json.at("assetGuid").get<std::string>());
     if (json.contains("name"))
     {
         name = json.at("name").get<std::string>();
@@ -54,7 +55,7 @@ void AddNoteCommand::setInput(const nlohmann::json& json)
     }
 }
 
-nlohmann::json AddNoteCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json AddNoteCommand::execute(Database& database)
 {
     auto asset = database.getProject().getAsset(assetGuid);
     if (!asset)

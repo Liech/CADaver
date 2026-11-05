@@ -9,7 +9,7 @@ std::vector<CADacomb::GUID> Command::getRequiredAssets() const
     return {};
 }
 
-void Command::setInput(const nlohmann::json&) {}
+void Command::setInput(const Polyglot::Node&) {}
 
 bool Command::isUndoable() const
 {

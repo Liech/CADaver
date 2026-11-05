@@ -56,16 +56,15 @@ std::string GetDocumentationCommand::getDescription() const
            "}";
 }
 
-void GetDocumentationCommand::setInput(const nlohmann::json& json)
+void GetDocumentationCommand::setInput(const Polyglot::Node& node)
 {
-    category = json.value("category", "");
-    name     = json.value("name", "");
+    nlohmann::json json = node.toJson();
+    category            = json.value("category", "");
+    name                = json.value("name", "");
 }
 
-nlohmann::json GetDocumentationCommand::execute(Database& database, std::istream* inputStream, std::ostream* outputStream)
+nlohmann::json GetDocumentationCommand::execute(Database& database)
 {
-    (void)inputStream;
-    (void)outputStream;
 
     if (category == "Command")
     {

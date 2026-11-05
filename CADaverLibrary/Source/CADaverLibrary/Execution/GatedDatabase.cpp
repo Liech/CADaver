@@ -45,7 +45,7 @@ void GatedDatabase::setLogCallback(std::function<void(const std::string&)> callb
     logCallback = std::move(callback);
 }
 
-Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command, std::istream* inputStream, std::ostream* outputStream)
+Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command)
 {
     Polyglot::Node commandNode = command;
     if (recursionLock)
@@ -83,10 +83,10 @@ Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command, std::istrea
             return result;
         }
 
-        cmd->setInput(commandNode.toJson());
+        cmd->setInput(commandNode);
 
         recursionLock         = true;
-        nlohmann::json result = cmd->execute(database, inputStream, outputStream);
+        nlohmann::json result = cmd->execute(database);
         recursionLock         = false;
         assert(result.at("type").get<std::string>() == cmd->getType());
         if (undoCallback && result.value("status", "") == "Success" && cmd->isUndoable())
@@ -164,7 +164,7 @@ void GatedDatabase::cancelAllTasks()
     }
 }
 
-std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& command, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
+std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& command)
 {
     Polyglot::Node commandNode = command;
     log("IN: " + commandNode.toJson().dump(4));
@@ -186,7 +186,7 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
         return p.get_future();
     }
 
-    cmd->setInput(commandNode.toJson());
+    cmd->setInput(commandNode);
 
     auto                                requiredGuids = cmd->getRequiredAssets();
     std::vector<std::shared_ptr<Asset>> abductedAssets;
@@ -230,7 +230,7 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
     auto cmdHolder = std::make_shared<std::unique_ptr<Command>>(std::move(cmd));
 
     std::thread worker(
-      [this, taskGuid, progressAsset, abductedAssets, cmdHolder, inputStream, outputStream, promise, callerPromise]()
+      [this, taskGuid, progressAsset, abductedAssets, cmdHolder, promise, callerPromise]()
       {
           CADacomb::ProgressBar::setThreadGuid(taskGuid);
 
@@ -245,7 +245,7 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
 
           try
           {
-              executionResult = (*cmdHolder)->execute(isolatedDb, inputStream.get(), outputStream.get());
+              executionResult = (*cmdHolder)->execute(isolatedDb);
               success         = (executionResult.value("status", "") == "Success");
           }
           catch (const std::exception& e)

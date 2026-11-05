@@ -53,8 +53,9 @@ std::string GenerateLandscapeCommand::getDescription() const
            "}";
 }
 
-void GenerateLandscapeCommand::setInput(const nlohmann::json& json)
+void GenerateLandscapeCommand::setInput(const Polyglot::Node& node)
 {
+    nlohmann::json json    = node.toJson();
     dimension              = json.value("dimension", 64u);
     assetName              = json.value("assetName", "Landscape");
     config.seed            = json.value("seed", 1337u);
@@ -70,7 +71,7 @@ void GenerateLandscapeCommand::setInput(const nlohmann::json& json)
     config.solidThreshold  = json.value("solidThreshold", 0.0);
 }
 
-nlohmann::json GenerateLandscapeCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json GenerateLandscapeCommand::execute(Database& database)
 {
     auto svo = CADacomb::SVOLandscapeGenerator::generateSVO<bool>(dimension, config, glm::dvec3(0.0), true, false, 32, CADacomb::MostPrevalentExceptMergeStrategy<bool, false>::instance());
 

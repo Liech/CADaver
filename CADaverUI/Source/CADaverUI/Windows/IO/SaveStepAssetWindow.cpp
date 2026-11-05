@@ -86,10 +86,10 @@ void SaveStepAssetWindow::executeSave()
       [db, guid, savePath]()
       {
           Polyglot::Node command = {
-              {      "type", "SaveStepAsset" },
-              {   "version",               1 },
-              { "assetGuid", guid.toString() },
-              {  "filePath",        savePath }
+              {        "type", "SaveStepAsset" },
+              {     "version",               1 },
+              {   "assetGuid", guid.toString() },
+              { "destination",        savePath }
           };
           db->executeAsync(command);
       });

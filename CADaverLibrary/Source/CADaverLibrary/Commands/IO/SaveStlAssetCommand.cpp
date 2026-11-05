@@ -3,6 +3,9 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Database.h"
+#include "Utility/IOValueGrabber.h"
+
+#include <sstream>
 
 SaveStlAssetCommand::SaveStlAssetCommand() {}
 
@@ -22,20 +25,19 @@ std::string SaveStlAssetCommand::getDescription() const
 {
     return "Command: SaveStlAsset\n"
            "Version: 1\n"
-           "Purpose: Saves a triangulation asset to a binary STL output stream.\n\n"
+           "Purpose: Saves a triangulation asset to a destination callback or file path.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveStlAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"assetGuid\": <string>\n"
+           "  \"assetGuid\": <string>,\n"
+           "  \"destination\": <callback or string>\n"
            "}\n\n"
-           "Input Stream: None\n"
-           "Output Stream: Binary STL data\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveStlAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotTriangulationAsset\" | \"NoTriangulation\" | \"NoOutputStream\"\n"
+           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotTriangulationAsset\" | \"NoTriangulation\"\n"
            "}";
 }
 
@@ -44,12 +46,14 @@ std::vector<CADacomb::GUID> SaveStlAssetCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
-void SaveStlAssetCommand::setInput(const nlohmann::json& json)
+void SaveStlAssetCommand::setInput(const Polyglot::Node& node)
 {
-    assetGuid = json.value("assetGuid", "");
+    auto& mutableNode = const_cast<Polyglot::Node&>(node);
+    assetGuid         = static_cast<std::string>(mutableNode["assetGuid"]);
+    destination       = mutableNode["destination"];
 }
 
-nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream*, std::ostream* outputStream)
+nlohmann::json SaveStlAssetCommand::execute(Database& database)
 {
     CADacomb::ProgressBar bar(1, "Saving STL asset");
 
@@ -65,12 +69,16 @@ nlohmann::json SaveStlAssetCommand::execute(Database& database, std::istream*, s
         return createResponse("NotTriangulationAsset");
     }
 
-    if (!outputStream || bar.isCanceled())
+    std::ostringstream memStream(std::ios::binary);
+    triAsset->getTriangulation().saveAsSTL(memStream);
+    std::string          str = memStream.str();
+    std::vector<uint8_t> bytes(str.begin(), str.end());
+
+    if (!IOValueGrabber::deliverBytes(destination, bytes))
     {
-        return createResponse("NoOutputStream");
+        return createResponse("WriteFailed");
     }
 
-    triAsset->getTriangulation().saveAsSTL(*outputStream);
     bar.addProgress(1);
 
     return createResponse("Success");
@@ -83,9 +91,10 @@ TEST_CASE("SaveStlAssetCommand/TypeAndVersion")
 {
     CADacomb::GUID      guid = CADacomb::GUID::random();
     SaveStlAssetCommand cmd;
-    cmd.setInput({
-      { "assetGuid", guid.toString() }
-    });
+    cmd.setInput(Polyglot::Node({
+      {   "assetGuid", guid.toString() },
+      { "destination",    "output.stl" }
+    }));
     CHECK(cmd.getType() == "SaveStlAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());

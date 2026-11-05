@@ -87,13 +87,13 @@ void SaveVoxelAssetWindow::executeSave()
     defer->defer(
       [db, guid, savePath]()
       {
-          auto           fileStream = std::make_shared<std::ofstream>(savePath, std::ios::binary);
-          Polyglot::Node command    = {
-              {      "type", "SaveVoxelAsset" },
-              {   "version",                1 },
-              { "assetGuid",  guid.toString() }
+          Polyglot::Node command = {
+              {        "type", "SaveVoxelAsset" },
+              {     "version",                1 },
+              {   "assetGuid",  guid.toString() },
+              { "destination",         savePath }
           };
-          db->executeAsync(command, nullptr, fileStream);
+          db->executeAsync(command);
       });
 }
 

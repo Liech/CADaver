@@ -4,6 +4,10 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Database.h"
+#include "Utility/IOValueGrabber.h"
+
+#include <filesystem>
+#include <fstream>
 
 SaveStepAssetCommand::SaveStepAssetCommand() {}
 
@@ -23,22 +27,19 @@ std::string SaveStepAssetCommand::getDescription() const
 {
     return "Command: SaveStepAsset\n"
            "Version: 1\n"
-           "Purpose: Saves a CAD asset to a STEP file.\n\n"
+           "Purpose: Saves a CAD asset to a destination callback or STEP file.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveStepAsset\",\n"
            "  \"version\": 1,\n"
            "  \"assetGuid\": <string>,\n"
-           "  \"filePath\": <string> (optional)\n"
+           "  \"destination\": <callback or string>\n"
            "}\n\n"
-           "Input Stream: None\n"
-           "Output Stream: None\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveStepAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotCadAsset\" | \"NoShape\" | \"WriteFailed\",\n"
-           "  \"filePath\": <string>\n"
+           "  \"status\": \"Success\" | \"AssetNotFound\" | \"NotCadAsset\" | \"WriteFailed\"\n"
            "}";
 }
 
@@ -47,57 +48,67 @@ std::vector<CADacomb::GUID> SaveStepAssetCommand::getRequiredAssets() const
     return { assetGuid };
 }
 
-void SaveStepAssetCommand::setInput(const nlohmann::json& json)
+void SaveStepAssetCommand::setInput(const Polyglot::Node& node)
 {
-    filePath  = json.value("filePath", "");
-    assetGuid = json.value("assetGuid", "");
+    auto& mutableNode = const_cast<Polyglot::Node&>(node);
+    assetGuid         = static_cast<std::string>(mutableNode["assetGuid"]);
+    destination       = mutableNode["destination"];
 }
 
-nlohmann::json SaveStepAssetCommand::execute(Database& database, std::istream*, std::ostream*)
+nlohmann::json SaveStepAssetCommand::execute(Database& database)
 {
     CADacomb::ProgressBar bar(1, "Saving STEP asset");
 
     auto baseAsset = database.getProject().getAsset(assetGuid);
     if (!baseAsset || bar.isCanceled())
     {
-        return createResponse("AssetNotFound",
-                              {
-                                { "filePath", filePath }
-        });
+        return createResponse("AssetNotFound");
     }
 
     auto cadAsset = std::dynamic_pointer_cast<CadAsset>(baseAsset);
     if (!cadAsset)
     {
-        return createResponse("NotCadAsset",
-                              {
-                                { "filePath", filePath }
-        });
-    }
-
-    std::string targetPath = filePath;
-    if (targetPath.empty())
-    {
-        targetPath = cadAsset->getName() + ".step";
+        return createResponse("NotCadAsset");
     }
 
     CADacomb::CAD::KernelSm kernel;
-    kernel.saveStepFile(cadAsset->getCadShape(), targetPath, cadAsset->getName());
 
-    if (bar.isCanceled())
+    if (IOValueGrabber::isFunction(destination))
     {
-        return createResponse("WriteFailed",
+        std::string tempPath = (std::filesystem::temp_directory_path() / ("cadaver_temp_" + CADacomb::GUID::random().toString() + ".step")).string();
+        kernel.saveStepFile(cadAsset->getCadShape(), tempPath, cadAsset->getName());
+        std::vector<uint8_t> bytes;
+        {
+            std::ifstream tempIn(tempPath, std::ios::binary | std::ios::ate);
+            if (tempIn.is_open())
+            {
+                std::streamsize size = tempIn.tellg();
+                tempIn.seekg(0, std::ios::beg);
+                bytes.resize(static_cast<size_t>(size));
+                tempIn.read(reinterpret_cast<char*>(bytes.data()), size);
+            }
+        }
+        std::filesystem::remove(tempPath);
+        IOValueGrabber::deliverBytes(destination, bytes);
+        bar.addProgress(1);
+        return createResponse("Success");
+    }
+    else if (IOValueGrabber::isFilePath(destination))
+    {
+        std::string targetPath = IOValueGrabber::grabFilePath(destination);
+        if (targetPath.empty())
+        {
+            targetPath = cadAsset->getName() + ".step";
+        }
+        kernel.saveStepFile(cadAsset->getCadShape(), targetPath, cadAsset->getName());
+        bar.addProgress(1);
+        return createResponse("Success",
                               {
                                 { "filePath", targetPath }
         });
     }
 
-    bar.addProgress(1);
-
-    return createResponse("Success",
-                          {
-                            { "filePath", targetPath }
-    });
+    return createResponse("WriteFailed");
 }
 
 #ifdef ISTESTPROJECT
@@ -107,10 +118,10 @@ TEST_CASE("SaveStepAssetCommand/TypeAndVersion")
 {
     CADacomb::GUID       guid = CADacomb::GUID::random();
     SaveStepAssetCommand cmd;
-    cmd.setInput({
-      { "assetGuid", guid.toString() },
-      {  "filePath",   "output.step" }
-    });
+    cmd.setInput(Polyglot::Node({
+      {   "assetGuid", guid.toString() },
+      { "destination",   "output.step" }
+    }));
     CHECK(cmd.getType() == "SaveStepAsset");
     CHECK(cmd.getVersion() == 1);
     CHECK_FALSE(cmd.getDescription().empty());

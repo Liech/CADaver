@@ -3,11 +3,17 @@ find_package(Catch2 REQUIRED)
 set(Script_Python_Files
     "Scripts/Python/test_clear_project.py"
     "Scripts/Python/test_generate_landscape.py"
+    "Scripts/Python/test_stl_io.py"
+    "Scripts/Python/test_svo_io.py"
+    "Scripts/Python/test_step_io.py"
 )
 source_group("Scripts/Python" FILES ${Script_Python_Files})
 
 set(Script_Lua_Files
     "Scripts/Lua/test_lua_pipeline.lua"
+    "Scripts/Lua/test_stl_io.lua"
+    "Scripts/Lua/test_svo_io.lua"
+    "Scripts/Lua/test_step_io.lua"
 )
 source_group("Scripts/Lua" FILES ${Script_Lua_Files})
 
