@@ -56,7 +56,7 @@ void SaveVoxelAssetCommand::setInput(const Polyglot::Node& node)
 
 nlohmann::json SaveVoxelAssetCommand::execute(Database& database)
 {
-    CADacomb::ProgressBar bar(1, "Saving SVO asset");
+    CADacomb::ProgressBar bar(2, "Saving SVO asset");
 
     auto baseAsset = database.getProject().getAsset(assetGuid);
     if (!baseAsset || bar.isCanceled())
@@ -72,6 +72,12 @@ nlohmann::json SaveVoxelAssetCommand::execute(Database& database)
 
     std::ostringstream memStream(std::ios::binary);
     CADacomb::SVOFile::save(memStream, voxelAsset->getSVO(), voxelAsset->getAABB());
+    bar.addProgress(1);
+    if (bar.isCanceled())
+    {
+        return createResponse("WriteFailed");
+    }
+
     std::string          str = memStream.str();
     std::vector<uint8_t> bytes(str.begin(), str.end());
 

@@ -55,7 +55,7 @@ void SaveStlAssetCommand::setInput(const Polyglot::Node& node)
 
 nlohmann::json SaveStlAssetCommand::execute(Database& database)
 {
-    CADacomb::ProgressBar bar(1, "Saving STL asset");
+    CADacomb::ProgressBar bar(2, "Saving STL asset");
 
     auto baseAsset = database.getProject().getAsset(assetGuid);
     if (!baseAsset || bar.isCanceled())
@@ -71,6 +71,12 @@ nlohmann::json SaveStlAssetCommand::execute(Database& database)
 
     std::ostringstream memStream(std::ios::binary);
     triAsset->getTriangulation().saveAsSTL(memStream);
+    bar.addProgress(1);
+    if (bar.isCanceled())
+    {
+        return createResponse("WriteFailed");
+    }
+
     std::string          str = memStream.str();
     std::vector<uint8_t> bytes(str.begin(), str.end());
 

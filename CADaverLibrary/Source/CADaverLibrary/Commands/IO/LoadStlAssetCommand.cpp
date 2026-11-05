@@ -53,17 +53,20 @@ void LoadStlAssetCommand::setInput(const Polyglot::Node& node)
 
 nlohmann::json LoadStlAssetCommand::execute(Database& database)
 {
-    CADacomb::ProgressBar bar(1, "Loading STL asset");
+    CADacomb::ProgressBar bar(3, "Loading STL asset");
 
     std::unique_ptr<CADacomb::Triangulation> triangulation;
 
     std::vector<uint8_t> bytes = IOValueGrabber::grabBytes(source);
+    bar.addProgress(1);
+
     if (!bytes.empty())
     {
         std::string        str(reinterpret_cast<const char*>(bytes.data()), bytes.size());
         std::istringstream stream(str, std::ios::binary);
         triangulation = CADacomb::Triangulation::fromSTLStream(stream);
     }
+    bar.addProgress(1);
 
     if (!triangulation || triangulation->indices.empty() || bar.isCanceled())
     {
@@ -74,13 +77,13 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database)
         });
     }
 
-    bar.addProgress(1);
-
     auto asset = std::make_shared<TriangulationAsset>();
     asset->setName(name);
     asset->setTriangulation(std::move(triangulation));
     database.getProject().addAsset(asset);
     createdAsset = asset;
+
+    bar.addProgress(1);
 
     return createResponse("Success",
                           {

@@ -53,18 +53,21 @@ void LoadSvoAssetCommand::setInput(const Polyglot::Node& node)
 
 nlohmann::json LoadSvoAssetCommand::execute(Database& database)
 {
-    CADacomb::ProgressBar bar(1, "Loading SVO asset");
+    CADacomb::ProgressBar bar(3, "Loading SVO asset");
 
     CADacomb::AABB3                      bounds;
     std::unique_ptr<CADacomb::SVO<bool>> svo;
 
     std::vector<uint8_t> bytes = IOValueGrabber::grabBytes(source);
+    bar.addProgress(1);
+
     if (!bytes.empty())
     {
         std::string        str(reinterpret_cast<const char*>(bytes.data()), bytes.size());
         std::istringstream stream(str, std::ios::binary);
         svo = CADacomb::SVOFile::load<bool>(stream, bounds);
     }
+    bar.addProgress(1);
 
     if (!svo || bar.isCanceled())
     {
@@ -80,14 +83,14 @@ nlohmann::json LoadSvoAssetCommand::execute(Database& database)
         bounds = CADacomb::AABB3(glm::dvec3(0.0), glm::dvec3(static_cast<double>(svo->getDimension())));
     }
 
-    bar.addProgress(1);
-
     auto asset = std::make_shared<VoxelAsset>();
     asset->setName(name);
     asset->setSVO(std::move(svo));
     asset->setAABB(bounds);
     database.getProject().addAsset(asset);
     createdAsset = asset;
+
+    bar.addProgress(1);
 
     return createResponse("Success",
                           {

@@ -56,18 +56,20 @@ void LoadStepAssetCommand::setInput(const Polyglot::Node& node)
 
 nlohmann::json LoadStepAssetCommand::execute(Database& database)
 {
-    CADacomb::ProgressBar bar(1, "Loading STEP asset");
+    CADacomb::ProgressBar bar(3, "Loading STEP asset");
 
     CADacomb::CAD::KernelSm                            kernel;
     std::vector<std::unique_ptr<CADacomb::CAD::Shape>> shapes;
 
     if (IOValueGrabber::isFilePath(source))
     {
+        bar.addProgress(1);
         shapes = kernel.loadStepFile(IOValueGrabber::grabFilePath(source));
     }
     else
     {
         std::vector<uint8_t> bytes = IOValueGrabber::grabBytes(source);
+        bar.addProgress(1);
         if (!bytes.empty())
         {
             std::string tempPath = (std::filesystem::temp_directory_path() / ("cadaver_temp_" + CADacomb::GUID::random().toString() + ".step")).string();
@@ -79,6 +81,7 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database)
             std::filesystem::remove(tempPath);
         }
     }
+    bar.addProgress(1);
 
     if (shapes.empty() || !shapes[0] || bar.isCanceled())
     {
@@ -93,10 +96,10 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database)
     asset->setName(name);
     asset->setCadShape(std::move(shapes[0]));
 
-    bar.addProgress(1);
-
     database.getProject().addAsset(asset);
     createdAsset = asset;
+
+    bar.addProgress(1);
 
     return createResponse("Success",
                           {

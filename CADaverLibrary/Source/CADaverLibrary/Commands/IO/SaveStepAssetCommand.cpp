@@ -57,7 +57,7 @@ void SaveStepAssetCommand::setInput(const Polyglot::Node& node)
 
 nlohmann::json SaveStepAssetCommand::execute(Database& database)
 {
-    CADacomb::ProgressBar bar(1, "Saving STEP asset");
+    CADacomb::ProgressBar bar(2, "Saving STEP asset");
 
     auto baseAsset = database.getProject().getAsset(assetGuid);
     if (!baseAsset || bar.isCanceled())
@@ -77,6 +77,13 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database)
     {
         std::string tempPath = (std::filesystem::temp_directory_path() / ("cadaver_temp_" + CADacomb::GUID::random().toString() + ".step")).string();
         kernel.saveStepFile(cadAsset->getCadShape(), tempPath, cadAsset->getName());
+        bar.addProgress(1);
+        if (bar.isCanceled())
+        {
+            std::filesystem::remove(tempPath);
+            return createResponse("WriteFailed");
+        }
+
         std::vector<uint8_t> bytes;
         {
             std::ifstream tempIn(tempPath, std::ios::binary | std::ios::ate);
@@ -89,7 +96,10 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database)
             }
         }
         std::filesystem::remove(tempPath);
-        IOValueGrabber::deliverBytes(destination, bytes);
+        if (!IOValueGrabber::deliverBytes(destination, bytes))
+        {
+            return createResponse("WriteFailed");
+        }
         bar.addProgress(1);
         return createResponse("Success");
     }
@@ -101,6 +111,11 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database)
             targetPath = cadAsset->getName() + ".step";
         }
         kernel.saveStepFile(cadAsset->getCadShape(), targetPath, cadAsset->getName());
+        bar.addProgress(1);
+        if (bar.isCanceled())
+        {
+            return createResponse("WriteFailed");
+        }
         bar.addProgress(1);
         return createResponse("Success",
                               {
