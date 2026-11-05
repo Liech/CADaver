@@ -32,12 +32,12 @@ void ColorThemeRadioElement::click()
     auto preferences = gatedDatabase.get().getPreferences().getUIPreferences();
     preferences.setThemeIndex(targetTheme);
     UIPreferencesTab::apply(preferences);
-    auto json = preferences.toJson();
-    gatedDatabase.execute({
-      {        "type", "UpdateUIPreferences" },
-      {     "version",                     1 },
-      { "preferences",                  json }
-    });
+    Polyglot::Node command = {
+        {        "type", "UpdateUIPreferences" },
+        {     "version",                     1 },
+        { "preferences",  preferences.toJson() }
+    };
+    gatedDatabase.execute(command);
 }
 
 bool ColorThemeRadioElement::isSelected() const

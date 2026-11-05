@@ -251,7 +251,7 @@ TEST_CASE("ScriptWindow/RunWithDatabaseLua")
     ScriptWindow window;
     window.setInput(gatedDatabase, defer, windows);
     window.setLanguage(1);
-    window.setScript("cadaver({type = \"ClearProject\"})");
+    window.setScript("cadaver({type = \"ClearProject\", version = 1})");
     window.runScript();
 
     CHECK(!window.hasExecutionError());
@@ -267,7 +267,7 @@ TEST_CASE("ScriptWindow/RunWithDatabasePython")
     ScriptWindow window;
     window.setInput(gatedDatabase, defer, windows);
     window.setLanguage(0);
-    window.setScript("cadaver({\"type\": \"ClearProject\"})");
+    window.setScript("cadaver({\"type\": \"ClearProject\", \"version\": 1})");
     window.runScript();
 
     CHECK(!window.hasExecutionError());
@@ -287,7 +287,7 @@ TEST_CASE("ScriptWindow/RunWithConsoleLogging")
     ScriptWindow window;
     window.setInput(gatedDatabase, defer, windows);
     window.setLanguage(1);
-    window.setScript("cadaver({type = \"ClearProject\"})");
+    window.setScript("cadaver({type = \"ClearProject\", version = 1})");
     window.runScript();
 
     CHECK(!window.hasExecutionError());

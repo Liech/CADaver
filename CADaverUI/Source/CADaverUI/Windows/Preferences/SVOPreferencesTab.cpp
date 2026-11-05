@@ -180,16 +180,12 @@ bool SVOPreferencesTab::render(GatedDatabase& database, Defer& defer)
 
     if (modified)
     {
-        auto json = preferences.toJson();
-        defer.defer(
-          [&database, json]()
-          {
-              database.execute({
-                {        "type", "UpdateSVOPreferences" },
-                {     "version",                      1 },
-                { "preferences",                   json }
-              });
-          });
+        Polyglot::Node command = {
+            {        "type", "UpdateSVOPreferences" },
+            {     "version",                      1 },
+            { "preferences",   preferences.toJson() }
+        };
+        defer.defer([&database, command]() { database.execute(command); });
     }
 
     return modified;

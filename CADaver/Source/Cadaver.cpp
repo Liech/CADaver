@@ -206,16 +206,12 @@ void Cadaver::renderImGui()
                                        {
                                            CameraPreferences prefs = gatedDatabase.get().getPreferences().getCameraPreferences();
                                            prefs.setOrthographic(ortho);
-                                           auto json = prefs.toJson();
-                                           defer.defer(
-                                             [this, json]()
-                                             {
-                                                 gatedDatabase.execute({
-                                                   {        "type", "UpdateCameraPreferences" },
-                                                   {     "version",                         1 },
-                                                   { "preferences",                      json }
-                                                 });
-                                             });
+                                           Polyglot::Node command = {
+                                               {        "type", "UpdateCameraPreferences" },
+                                               {     "version",                         1 },
+                                               { "preferences",            prefs.toJson() }
+                                           };
+                                           defer.defer([this, command]() { gatedDatabase.execute(command); });
                                            if (viewController && viewController->getCamera())
                                            {
                                                viewController->getCamera()->setOrthographic(ortho);

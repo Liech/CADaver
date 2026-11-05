@@ -83,13 +83,14 @@ void TextNoteEditWindow::render()
                 defer->defer(
                   [this, selectedAssetGuid]()
                   {
-                      gatedDatabase->execute({
-                        {      "type",                    "AddNote" },
-                        {   "version",                            1 },
-                        { "assetGuid", selectedAssetGuid.toString() },
-                        {      "name",                       "Note" },
-                        {      "text",                           "" }
-                      });
+                      Polyglot::Node command = {
+                          {      "type",                    "AddNote" },
+                          {   "version",                            1 },
+                          { "assetGuid", selectedAssetGuid.toString() },
+                          {      "name",                       "Note" },
+                          {      "text",                           "" }
+                      };
+                      gatedDatabase->execute(command);
                   });
                 needsSync = true;
             }
@@ -183,13 +184,14 @@ void TextNoteEditWindow::render()
             defer->defer(
               [this, selectedAssetGuid]()
               {
-                  gatedDatabase->execute({
-                    {      "type",                    "AddNote" },
-                    {   "version",                            1 },
-                    { "assetGuid", selectedAssetGuid.toString() },
-                    {      "name",                   "New Note" },
-                    {      "text",                           "" }
-                  });
+                  Polyglot::Node command = {
+                      {      "type",                    "AddNote" },
+                      {   "version",                            1 },
+                      { "assetGuid", selectedAssetGuid.toString() },
+                      {      "name",                   "New Note" },
+                      {      "text",                           "" }
+                  };
+                  gatedDatabase->execute(command);
               });
             needsSync = true;
         }
@@ -201,12 +203,13 @@ void TextNoteEditWindow::render()
             defer->defer(
               [this, compToDelete, selectedAssetGuid]()
               {
-                  gatedDatabase->execute({
-                    {          "type",            "RemoveComponent" },
-                    {       "version",                            1 },
-                    { "componentGuid",      compToDelete.toString() },
-                    {     "assetGuid", selectedAssetGuid.toString() }
-                  });
+                  Polyglot::Node command = {
+                      {          "type",            "RemoveComponent" },
+                      {       "version",                            1 },
+                      { "componentGuid",      compToDelete.toString() },
+                      {     "assetGuid", selectedAssetGuid.toString() }
+                  };
+                  gatedDatabase->execute(command);
               });
             currentComponentGuid = CADacomb::GUID("");
             needsSync            = true;

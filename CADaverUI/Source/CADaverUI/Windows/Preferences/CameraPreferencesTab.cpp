@@ -110,16 +110,12 @@ bool CameraPreferencesTab::render(GatedDatabase& database, Defer& defer)
 
     if (modified)
     {
-        auto json = preferences.toJson();
-        defer.defer(
-          [&database, json]()
-          {
-              database.execute({
-                {        "type", "UpdateCameraPreferences" },
-                {     "version",                         1 },
-                { "preferences",                      json }
-              });
-          });
+        Polyglot::Node command = {
+            {        "type", "UpdateCameraPreferences" },
+            {     "version",                         1 },
+            { "preferences",      preferences.toJson() }
+        };
+        defer.defer([&database, command]() { database.execute(command); });
     }
 
     return modified;

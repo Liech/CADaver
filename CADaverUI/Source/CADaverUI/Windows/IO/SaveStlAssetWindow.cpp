@@ -87,15 +87,13 @@ void SaveStlAssetWindow::executeSave()
     defer->defer(
       [db, guid, savePath]()
       {
-          auto fileStream = std::make_shared<std::ofstream>(savePath, std::ios::binary);
-          db->executeAsync(
-            {
+          auto           fileStream = std::make_shared<std::ofstream>(savePath, std::ios::binary);
+          Polyglot::Node command    = {
               {      "type",  "SaveStlAsset" },
               {   "version",               1 },
               { "assetGuid", guid.toString() }
-          },
-            nullptr,
-            fileStream);
+          };
+          db->executeAsync(command, nullptr, fileStream);
       });
 }
 

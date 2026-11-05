@@ -30,12 +30,12 @@ void CullModeRadioElement::click()
 {
     auto preferences = gatedDatabase.get().getPreferences().getRenderPreferences();
     preferences.setCullMode(targetMode);
-    auto json = preferences.toJson();
-    gatedDatabase.execute({
-      {        "type", "UpdateRenderPreferences" },
-      {     "version",                         1 },
-      { "preferences",                      json }
-    });
+    Polyglot::Node command = {
+        {        "type", "UpdateRenderPreferences" },
+        {     "version",                         1 },
+        { "preferences",      preferences.toJson() }
+    };
+    gatedDatabase.execute(command);
 }
 
 bool CullModeRadioElement::isSelected() const

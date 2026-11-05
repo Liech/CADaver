@@ -26,12 +26,12 @@ void ProjectionRadioElement::click()
 {
     auto preferences = gatedDatabase.get().getPreferences().getCameraPreferences();
     preferences.setOrthographic(orthographic);
-    auto json = preferences.toJson();
-    gatedDatabase.execute({
-      {        "type", "UpdateCameraPreferences" },
-      {     "version",                         1 },
-      { "preferences",                      json }
-    });
+    Polyglot::Node command = {
+        {        "type", "UpdateCameraPreferences" },
+        {     "version",                         1 },
+        { "preferences",      preferences.toJson() }
+    };
+    gatedDatabase.execute(command);
 }
 
 bool ProjectionRadioElement::isSelected() const

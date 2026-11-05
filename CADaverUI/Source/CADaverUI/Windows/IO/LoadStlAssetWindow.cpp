@@ -57,14 +57,13 @@ void LoadStlAssetWindow::executeLoad()
     defer->defer(
       [db, path, name]()
       {
-          auto fileStream = std::make_shared<std::ifstream>(path, std::ios::binary);
-          db->executeAsync(
-            {
+          auto           fileStream = std::make_shared<std::ifstream>(path, std::ios::binary);
+          Polyglot::Node command    = {
               {    "type", "LoadStlAsset" },
               { "version",              1 },
               {    "name",           name }
-          },
-            fileStream);
+          };
+          db->executeAsync(command, fileStream);
       });
 }
 

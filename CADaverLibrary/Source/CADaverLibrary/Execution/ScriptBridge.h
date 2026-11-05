@@ -20,7 +20,4 @@ class ScriptBridge
 
     void bind(Polyglot::Engine& engine, GatedDatabase& gatedDatabase);
     void execute(Polyglot::Engine& engine, GatedDatabase& gatedDatabase, const std::string& script);
-
-  private:
-    nlohmann::json convertNodeToJson(const Polyglot::Node& node) const;
 };

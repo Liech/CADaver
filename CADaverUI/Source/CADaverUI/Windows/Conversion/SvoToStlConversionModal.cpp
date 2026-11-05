@@ -102,13 +102,14 @@ void SvoToStlConversionModal::executeConversion()
     defer->defer(
       [db, guid, depth, delOrigin]()
       {
-          db->executeAsync({
-            {         "type", "ConvertSvoToStl" },
-            {      "version",                 1 },
-            {    "assetGuid",   guid.toString() },
-            {  "targetDepth",             depth },
-            { "deleteOrigin",         delOrigin }
-          });
+          Polyglot::Node command = {
+              {         "type", "ConvertSvoToStl" },
+              {      "version",                 1 },
+              {    "assetGuid",   guid.toString() },
+              {  "targetDepth",             depth },
+              { "deleteOrigin",         delOrigin }
+          };
+          db->executeAsync(command);
       });
 }
 

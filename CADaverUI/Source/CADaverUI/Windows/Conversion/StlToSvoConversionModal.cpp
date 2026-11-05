@@ -90,12 +90,13 @@ void StlToSvoConversionModal::executeConversion()
     defer->defer(
       [db, guid, dim, delOrigin]()
       {
-          db->executeAsync({
-            {         "type", "ConvertStlToSvo" },
-            {      "version",                 1 },
-            {    "assetGuid",   guid.toString() },
-            {    "dimension",               dim },
-            { "deleteOrigin",         delOrigin }
-          });
+          Polyglot::Node command = {
+              {         "type", "ConvertStlToSvo" },
+              {      "version",                 1 },
+              {    "assetGuid",   guid.toString() },
+              {    "dimension",               dim },
+              { "deleteOrigin",         delOrigin }
+          };
+          db->executeAsync(command);
       });
 }

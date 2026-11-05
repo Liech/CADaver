@@ -82,26 +82,33 @@ void PreferencesWindow::load(GatedDatabase& database, Defer& deferTarget, const 
         deferTarget.defer(
           [&database, loadedPrefs]()
           {
-              database.execute({
-                {        "type",                   "UpdateUIPreferences" },
-                {     "version",                                       1 },
-                { "preferences", loadedPrefs.getUIPreferences().toJson() }
-              });
-              database.execute({
-                {        "type",                   "UpdateCameraPreferences" },
-                {     "version",                                           1 },
-                { "preferences", loadedPrefs.getCameraPreferences().toJson() }
-              });
-              database.execute({
-                {        "type",                   "UpdateRenderPreferences" },
-                {     "version",                                           1 },
-                { "preferences", loadedPrefs.getRenderPreferences().toJson() }
-              });
-              database.execute({
-                {        "type",                   "UpdateSVOPreferences" },
-                {     "version",                                        1 },
-                { "preferences", loadedPrefs.getSVOPreferences().toJson() }
-              });
+              Polyglot::Node uiCommand = {
+                  {        "type",                   "UpdateUIPreferences" },
+                  {     "version",                                       1 },
+                  { "preferences", loadedPrefs.getUIPreferences().toJson() }
+              };
+              database.execute(uiCommand);
+
+              Polyglot::Node cameraCommand = {
+                  {        "type",                   "UpdateCameraPreferences" },
+                  {     "version",                                           1 },
+                  { "preferences", loadedPrefs.getCameraPreferences().toJson() }
+              };
+              database.execute(cameraCommand);
+
+              Polyglot::Node renderCommand = {
+                  {        "type",                   "UpdateRenderPreferences" },
+                  {     "version",                                           1 },
+                  { "preferences", loadedPrefs.getRenderPreferences().toJson() }
+              };
+              database.execute(renderCommand);
+
+              Polyglot::Node svoCommand = {
+                  {        "type",                   "UpdateSVOPreferences" },
+                  {     "version",                                        1 },
+                  { "preferences", loadedPrefs.getSVOPreferences().toJson() }
+              };
+              database.execute(svoCommand);
           });
     }
     catch (const nlohmann::json::exception&)

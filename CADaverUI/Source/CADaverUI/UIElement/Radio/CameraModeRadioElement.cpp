@@ -28,12 +28,12 @@ void CameraModeRadioElement::click()
 {
     auto preferences = gatedDatabase.get().getPreferences().getCameraPreferences();
     preferences.requestModeChange(targetMode);
-    auto json = preferences.toJson();
-    gatedDatabase.execute({
-      {        "type", "UpdateCameraPreferences" },
-      {     "version",                         1 },
-      { "preferences",                      json }
-    });
+    Polyglot::Node command = {
+        {        "type", "UpdateCameraPreferences" },
+        {     "version",                         1 },
+        { "preferences",      preferences.toJson() }
+    };
+    gatedDatabase.execute(command);
 }
 
 bool CameraModeRadioElement::isSelected() const

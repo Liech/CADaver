@@ -85,12 +85,13 @@ void SaveStepAssetWindow::executeSave()
     defer->defer(
       [db, guid, savePath]()
       {
-          db->executeAsync({
-            {      "type", "SaveStepAsset" },
-            {   "version",               1 },
-            { "assetGuid", guid.toString() },
-            {  "filePath",        savePath }
-          });
+          Polyglot::Node command = {
+              {      "type", "SaveStepAsset" },
+              {   "version",               1 },
+              { "assetGuid", guid.toString() },
+              {  "filePath",        savePath }
+          };
+          db->executeAsync(command);
       });
 }
 

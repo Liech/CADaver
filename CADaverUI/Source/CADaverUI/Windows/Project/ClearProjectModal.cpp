@@ -37,10 +37,11 @@ void ClearProjectModal::executeClear()
     defer->defer(
       [db]()
       {
-          db->execute({
-            {    "type", "ClearProject" },
-            { "version",              1 }
-          });
+          Polyglot::Node command = {
+              {    "type", "ClearProject" },
+              { "version",              1 }
+          };
+          db->execute(command);
       });
 }
 

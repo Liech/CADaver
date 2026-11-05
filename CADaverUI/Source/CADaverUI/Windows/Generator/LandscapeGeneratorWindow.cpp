@@ -61,7 +61,7 @@ void LandscapeGeneratorWindow::startGenerate()
     defer->defer(
       [db, config, dim, name]()
       {
-          nlohmann::json cmdJson = {
+          Polyglot::Node command = {
               {            "type",    "GenerateLandscape" },
               {         "version",                      1 },
               {       "assetName",                   name },
@@ -78,7 +78,7 @@ void LandscapeGeneratorWindow::startGenerate()
               {   "caveThreshold",   config.caveThreshold },
               {  "solidThreshold",  config.solidThreshold }
           };
-          db->executeAsync(cmdJson);
+          db->executeAsync(command);
       });
 }
 

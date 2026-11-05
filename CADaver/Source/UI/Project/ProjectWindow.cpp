@@ -161,12 +161,13 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
 
                             if (ImGui::MenuItem("Remove Component"))
                             {
-                                gatedDatabase.execute({
-                                  {          "type",           "RemoveComponent" },
-                                  {       "version",                           1 },
-                                  { "componentGuid",  comp->getGuid().toString() },
-                                  {     "assetGuid", asset->getGuid().toString() }
-                                });
+                                Polyglot::Node command = {
+                                    {          "type",           "RemoveComponent" },
+                                    {       "version",                           1 },
+                                    { "componentGuid",  comp->getGuid().toString() },
+                                    {     "assetGuid", asset->getGuid().toString() }
+                                };
+                                gatedDatabase.execute(command);
                             }
                             ImGui::EndPopup();
                         }

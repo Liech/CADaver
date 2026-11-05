@@ -98,13 +98,14 @@ void CadToSvoConversionModal::executeConversion()
     defer->defer(
       [db, guid, prec, dim, delOrigin]()
       {
-          db->executeAsync({
-            {         "type", "ConvertCadToSvo" },
-            {      "version",                 1 },
-            {    "assetGuid",   guid.toString() },
-            {    "precision",              prec },
-            {    "dimension",               dim },
-            { "deleteOrigin",         delOrigin }
-          });
+          Polyglot::Node command = {
+              {         "type", "ConvertCadToSvo" },
+              {      "version",                 1 },
+              {    "assetGuid",   guid.toString() },
+              {    "precision",              prec },
+              {    "dimension",               dim },
+              { "deleteOrigin",         delOrigin }
+          };
+          db->executeAsync(command);
       });
 }

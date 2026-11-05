@@ -94,12 +94,13 @@ void CadToStlConversionModal::executeConversion()
     defer->defer(
       [db, guid, prec, delOrigin]()
       {
-          db->executeAsync({
-            {         "type", "ConvertCadToStl" },
-            {      "version",                 1 },
-            {    "assetGuid",   guid.toString() },
-            {    "precision",              prec },
-            { "deleteOrigin",         delOrigin }
-          });
+          Polyglot::Node command = {
+              {         "type", "ConvertCadToStl" },
+              {      "version",                 1 },
+              {    "assetGuid",   guid.toString() },
+              {    "precision",              prec },
+              { "deleteOrigin",         delOrigin }
+          };
+          db->executeAsync(command);
       });
 }

@@ -10,39 +10,17 @@ ScriptBridge::ScriptBridge() {}
 
 ScriptBridge::~ScriptBridge() {}
 
-nlohmann::json ScriptBridge::convertNodeToJson(const Polyglot::Node& node) const
-{
-    nlohmann::json commandJson;
-    if (std::holds_alternative<std::string>(node.value))
-    {
-        commandJson = nlohmann::json::parse(std::get<std::string>(node.value));
-    }
-    else
-    {
-        commandJson = node.toJson();
-    }
-
-    if (commandJson.is_object() && !commandJson.contains("version"))
-    {
-        commandJson["version"] = 1;
-    }
-
-    return commandJson;
-}
-
 void ScriptBridge::bind(Polyglot::Engine& engine, GatedDatabase& gatedDatabase)
 {
     std::function<Polyglot::Node(const Polyglot::Node&)> cadaverCallback = [this, &gatedDatabase](const Polyglot::Node& input) -> Polyglot::Node
     {
-        nlohmann::json commandJson = convertNodeToJson(input);
-        nlohmann::json result      = gatedDatabase.execute(commandJson);
-        if (result.value("type", "") == "Error")
+        Polyglot::Node result = gatedDatabase.execute(input);
+        if (static_cast<std::string>(result["type"]) == "Error")
         {
-            std::string errorMessage = result.value("error", "Command execution failed");
-            throw std::runtime_error(errorMessage);
+            throw std::runtime_error(static_cast<std::string>(result["error"]));
         }
 
-        return Polyglot::Node(result);
+        return result;
     };
 
     engine.setVar("cadaver", cadaverCallback);
@@ -66,7 +44,7 @@ TEST_CASE("ScriptBridge/BindAndExecuteLua")
     ScriptBridge             bridge;
 
     bridge.bind(engine, gatedDatabase);
-    engine.executeString("result = cadaver({type = \"ClearProject\"})");
+    engine.executeString("result = cadaver({type = \"ClearProject\", version = 1})");
     Polyglot::Node result = engine.getVar("result");
     nlohmann::json json   = result.toJson();
     CHECK(json["status"] == "Success");
@@ -79,7 +57,7 @@ TEST_CASE("ScriptBridge/BindAndExecutePython")
     ScriptBridge                   bridge;
 
     bridge.bind(engine, gatedDatabase);
-    engine.executeString("result = cadaver({\"type\": \"ClearProject\"})");
+    engine.executeString("result = cadaver({\"type\": \"ClearProject\", \"version\": 1})");
     Polyglot::Node result = engine.getVar("result");
     nlohmann::json json   = result.toJson();
     CHECK(json["status"] == "Success");
@@ -91,7 +69,7 @@ TEST_CASE("ScriptBridge/ExecuteConvenience")
     Polyglot::Lua::LuaEngine engine;
     ScriptBridge             bridge;
 
-    bridge.execute(engine, gatedDatabase, "result = cadaver({type = \"ClearProject\"})");
+    bridge.execute(engine, gatedDatabase, "result = cadaver({type = \"ClearProject\", version = 1})");
     Polyglot::Node result = engine.getVar("result");
     nlohmann::json json   = result.toJson();
     CHECK(json["status"] == "Success");
@@ -104,7 +82,7 @@ TEST_CASE("ScriptBridge/ExecuteErrorThrowsLua")
     ScriptBridge             bridge;
 
     bridge.bind(engine, gatedDatabase);
-    CHECK_THROWS_AS(engine.executeString("cadaver({type = \"NonExistentCommand\"})"), std::runtime_error);
+    CHECK_THROWS_AS(engine.executeString("cadaver({type = \"NonExistentCommand\", version = 1})"), std::runtime_error);
 }
 
 TEST_CASE("ScriptBridge/ExecuteErrorThrowsPython")
@@ -114,6 +92,6 @@ TEST_CASE("ScriptBridge/ExecuteErrorThrowsPython")
     ScriptBridge                   bridge;
 
     bridge.bind(engine, gatedDatabase);
-    CHECK_THROWS(engine.executeString("cadaver({\"type\": \"NonExistentCommand\"})"));
+    CHECK_THROWS(engine.executeString("cadaver({\"type\": \"NonExistentCommand\", \"version\": 1})"));
 }
 #endif

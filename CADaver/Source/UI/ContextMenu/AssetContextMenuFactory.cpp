@@ -57,13 +57,14 @@ void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, Windows& wind
 
         if (ImGui::MenuItem("Add Note..."))
         {
-            gatedDatabase.execute({
-              {      "type",                   "AddNote" },
-              {   "version",                           1 },
-              { "assetGuid", asset->getGuid().toString() },
-              {      "name",                      "Note" },
-              {      "text",                          "" }
-            });
+            Polyglot::Node command = {
+                {      "type",                   "AddNote" },
+                {   "version",                           1 },
+                { "assetGuid", asset->getGuid().toString() },
+                {      "name",                      "Note" },
+                {      "text",                          "" }
+            };
+            gatedDatabase.execute(command);
         }
 
         ImGui::Separator();

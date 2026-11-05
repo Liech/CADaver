@@ -115,16 +115,12 @@ bool UIPreferencesTab::render(GatedDatabase& database, Defer& defer)
 
     if (modified)
     {
-        auto json = preferences.toJson();
-        defer.defer(
-          [&database, json]()
-          {
-              database.execute({
-                {        "type", "UpdateUIPreferences" },
-                {     "version",                     1 },
-                { "preferences",                  json }
-              });
-          });
+        Polyglot::Node command = {
+            {        "type", "UpdateUIPreferences" },
+            {     "version",                     1 },
+            { "preferences",  preferences.toJson() }
+        };
+        defer.defer([&database, command]() { database.execute(command); });
     }
 
     return modified;

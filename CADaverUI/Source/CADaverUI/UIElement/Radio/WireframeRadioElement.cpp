@@ -30,12 +30,12 @@ void WireframeRadioElement::click()
 {
     auto preferences = gatedDatabase.get().getPreferences().getRenderPreferences();
     preferences.setWireframeMode(targetMode);
-    auto json = preferences.toJson();
-    gatedDatabase.execute({
-      {        "type", "UpdateRenderPreferences" },
-      {     "version",                         1 },
-      { "preferences",                      json }
-    });
+    Polyglot::Node command = {
+        {        "type", "UpdateRenderPreferences" },
+        {     "version",                         1 },
+        { "preferences",      preferences.toJson() }
+    };
+    gatedDatabase.execute(command);
 }
 
 bool WireframeRadioElement::isSelected() const

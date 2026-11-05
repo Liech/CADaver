@@ -45,11 +45,12 @@ void RemoveAssetModal::executeRemove()
     defer->defer(
       [db, targetGuid]()
       {
-          db->execute({
-            {      "type",         "RemoveAsset" },
-            {   "version",                     1 },
-            { "assetGuid", targetGuid.toString() }
-          });
+          Polyglot::Node command = {
+              {      "type",         "RemoveAsset" },
+              {   "version",                     1 },
+              { "assetGuid", targetGuid.toString() }
+          };
+          db->execute(command);
       });
 }
 

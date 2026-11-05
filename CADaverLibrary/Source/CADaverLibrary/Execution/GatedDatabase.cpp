@@ -45,44 +45,45 @@ void GatedDatabase::setLogCallback(std::function<void(const std::string&)> callb
     logCallback = std::move(callback);
 }
 
-nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istream* inputStream, std::ostream* outputStream)
+Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command, std::istream* inputStream, std::ostream* outputStream)
 {
+    Polyglot::Node commandNode = command;
     if (recursionLock)
     {
-        nlohmann::json result = {
+        Polyglot::Node result = {
             {    "type",                                      "Error" },
             { "command",                                           "" },
             { "version",                                            0 },
             {  "status",                                     "Locked" },
             {   "error", "Only one command can be executed at a time" }
         };
-        log("OUT: " + result.dump(4));
+        log("OUT: " + result.toJson().dump(4));
         return result;
     }
 
     std::string commandType;
     int         commandVersion = 0;
-    log("IN: " + command.dump(4));
+    log("IN: " + commandNode.toJson().dump(4));
     try
     {
-        commandType    = command.at("type").get<std::string>();
-        commandVersion = command.at("version").get<int>();
+        commandType    = static_cast<std::string>(commandNode["type"]);
+        commandVersion = static_cast<int>(commandNode["version"]);
 
         auto cmd = commandFactory.create(commandType);
         if (!cmd)
         {
-            nlohmann::json result = {
+            Polyglot::Node result = {
                 {    "type",                                "Error" },
                 { "command",                            commandType },
                 { "version",                         commandVersion },
                 {  "status",                       "UnknownCommand" },
                 {   "error", "Unknown command type: " + commandType }
             };
-            log("OUT: " + result.dump(4));
+            log("OUT: " + result.toJson().dump(4));
             return result;
         }
 
-        cmd->setInput(command);
+        cmd->setInput(commandNode.toJson());
 
         recursionLock         = true;
         nlohmann::json result = cmd->execute(database, inputStream, outputStream);
@@ -93,19 +94,19 @@ nlohmann::json GatedDatabase::execute(const nlohmann::json& command, std::istrea
             undoCallback(std::make_unique<UndoContainer>(std::move(cmd)));
         }
         log("OUT: " + result.dump(4));
-        return result;
+        return Polyglot::Node(result);
     }
     catch (const std::exception& e)
     {
         recursionLock         = false;
-        nlohmann::json result = {
+        Polyglot::Node result = {
             {    "type",        "Error" },
             { "command",    commandType },
             { "version", commandVersion },
             {  "status",    "Exception" },
             {   "error",       e.what() }
         };
-        log("OUT: " + result.dump(4));
+        log("OUT: " + result.toJson().dump(4));
         return result;
     }
 }
@@ -163,26 +164,29 @@ void GatedDatabase::cancelAllTasks()
     }
 }
 
-std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& command, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
+std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& command, std::shared_ptr<std::istream> inputStream, std::shared_ptr<std::ostream> outputStream)
 {
-    log("IN: " + command.dump(4));
-    std::string commandType = command.value("type", "Unknown");
-    auto        cmd         = commandFactory.create(commandType);
+    Polyglot::Node commandNode = command;
+    log("IN: " + commandNode.toJson().dump(4));
+    std::string commandType    = static_cast<std::string>(commandNode["type"]);
+    int         commandVersion = static_cast<int>(commandNode["version"]);
+
+    auto cmd = commandFactory.create(commandType);
     if (!cmd)
     {
-        std::promise<nlohmann::json> p;
-        nlohmann::json               result = {
-            { "type", commandType },
-            { "version", command.value("version", 0) },
-            { "status", "UnknownCommand" },
-            { "error", "Unknown command type" }
+        std::promise<Polyglot::Node> p;
+        Polyglot::Node               result = {
+            {    "type",                            commandType },
+            { "version",                         commandVersion },
+            {  "status",                       "UnknownCommand" },
+            {   "error", "Unknown command type: " + commandType }
         };
-        log("OUT: " + result.dump(4));
+        log("OUT: " + result.toJson().dump(4));
         p.set_value(result);
         return p.get_future();
     }
 
-    cmd->setInput(command);
+    cmd->setInput(commandNode.toJson());
 
     auto                                requiredGuids = cmd->getRequiredAssets();
     std::vector<std::shared_ptr<Asset>> abductedAssets;
@@ -206,14 +210,6 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
     {
         taskName = abductedAssets.front()->getName() + " (" + cmd->getType() + ")";
     }
-    else if (command.contains("assetName") && command["assetName"].is_string())
-    {
-        taskName = command["assetName"].get<std::string>() + " (" + cmd->getType() + ")";
-    }
-    else if (command.contains("name") && command["name"].is_string())
-    {
-        taskName = command["name"].get<std::string>() + " (" + cmd->getType() + ")";
-    }
 
     auto progressAsset = std::make_shared<ProgressBarAsset>();
     progressAsset->setName(taskName);
@@ -228,8 +224,8 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
     }
 
     auto                        promise       = std::make_shared<std::promise<nlohmann::json>>();
-    auto                        callerPromise = std::make_shared<std::promise<nlohmann::json>>();
-    std::future<nlohmann::json> callerFuture  = callerPromise->get_future();
+    auto                        callerPromise = std::make_shared<std::promise<Polyglot::Node>>();
+    std::future<Polyglot::Node> callerFuture  = callerPromise->get_future();
 
     auto cmdHolder = std::make_shared<std::unique_ptr<Command>>(std::move(cmd));
 
@@ -244,17 +240,17 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
               isolatedDb.getProject().addAsset(asset);
           }
 
-          nlohmann::json result;
+          nlohmann::json executionResult;
           bool           success = false;
 
           try
           {
-              result  = (*cmdHolder)->execute(isolatedDb, inputStream.get(), outputStream.get());
-              success = (result.value("status", "") == "Success");
+              executionResult = (*cmdHolder)->execute(isolatedDb, inputStream.get(), outputStream.get());
+              success         = (executionResult.value("status", "") == "Success");
           }
           catch (const std::exception& e)
           {
-              result = {
+              executionResult = {
                   {    "type",    (*cmdHolder)->getType() },
                   { "version", (*cmdHolder)->getVersion() },
                   {  "status",                "Exception" },
@@ -264,8 +260,8 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
 
           if (CADacomb::ProgressBar::isCanceled(taskGuid))
           {
-              result["status"] = "Canceled";
-              success          = false;
+              executionResult["status"] = "Canceled";
+              success                   = false;
           }
 
           std::vector<std::shared_ptr<Asset>> resultAssets;
@@ -274,10 +270,10 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
               resultAssets = isolatedDb.getProject().getAssets();
           }
 
-          promise->set_value(result);
-          callerPromise->set_value(result);
+          promise->set_value(executionResult);
+          callerPromise->set_value(Polyglot::Node(executionResult));
 
-          auto completion = [this, taskGuid, progressAsset, abductedAssets, resultAssets, cmdHolder, result, success]()
+          auto completion = [this, taskGuid, progressAsset, abductedAssets, resultAssets, cmdHolder, executionResult, success]()
           {
               database.getProject().removeAsset(progressAsset->getGuid());
 
@@ -300,7 +296,7 @@ std::future<nlohmann::json> GatedDatabase::executeAsync(const nlohmann::json& co
                   }
               }
 
-              log("OUT: " + result.dump(4));
+              log("OUT: " + executionResult.dump(4));
 
               {
                   std::lock_guard<std::mutex> lock(tasksMutex);

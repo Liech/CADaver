@@ -55,12 +55,13 @@ void LoadStepAssetWindow::executeLoad()
     defer->defer(
       [db, path, name]()
       {
-          db->executeAsync({
-            {     "type", "LoadStepAsset" },
-            {  "version",               1 },
-            {     "name",            name },
-            { "filePath",            path }
-          });
+          Polyglot::Node command = {
+              {     "type", "LoadStepAsset" },
+              {  "version",               1 },
+              {     "name",            name },
+              { "filePath",            path }
+          };
+          db->executeAsync(command);
       });
 }
 
