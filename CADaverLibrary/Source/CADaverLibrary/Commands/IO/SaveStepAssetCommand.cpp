@@ -50,9 +50,8 @@ std::vector<CADacomb::GUID> SaveStepAssetCommand::getRequiredAssets() const
 
 void SaveStepAssetCommand::setInput(const Polyglot::Node& node)
 {
-    auto& mutableNode = const_cast<Polyglot::Node&>(node);
-    assetGuid         = static_cast<std::string>(mutableNode["assetGuid"]);
-    destination       = mutableNode["destination"];
+    assetGuid   = node["assetGuid"].asString();
+    destination = node["destination"];
 }
 
 nlohmann::json SaveStepAssetCommand::execute(Database& database)

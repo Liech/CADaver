@@ -44,19 +44,17 @@ std::string ClickUIElementCommand::getDescription() const
 
 void ClickUIElementCommand::setInput(const Polyglot::Node& node)
 {
-    auto& mutableNode = const_cast<Polyglot::Node&>(node);
-    if (mutableNode["target"].isString())
+    if (node.isMap())
     {
-        target = mutableNode["target"].asString();
+        const auto& map = node.asMap();
+        auto        it  = map.find("target");
+        if (it != map.end() && it->second.isString())
+        {
+            target = it->second.asString();
+            return;
+        }
     }
-    else if (mutableNode["elementType"].isString())
-    {
-        target = mutableNode["elementType"].asString();
-    }
-    else
-    {
-        target.clear();
-    }
+    target.clear();
 }
 
 const std::string& ClickUIElementCommand::getTarget() const
@@ -133,7 +131,7 @@ TEST_CASE("ClickUIElementCommand/Execute")
     ClickUIElementCommand cmd(factory);
 
     // Test missing target
-    cmd.setInput(Polyglot::Node(nlohmann::json::object()));
+    cmd.setInput(Polyglot::Node(std::map<std::string, Polyglot::Node>{}));
     Database db;
     auto     resMissing = cmd.execute(db);
     REQUIRE(resMissing["status"] == "Failed");

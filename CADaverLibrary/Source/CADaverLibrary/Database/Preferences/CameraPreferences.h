@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Polyglot/Node.h"
+
 #include <nlohmann/json.hpp>
 #include <string>
 
@@ -9,6 +11,9 @@ class CameraPreferences
   public:
     CameraPreferences();
     virtual ~CameraPreferences();
+
+    Polyglot::Node toNode() const;
+    void           fromNode(const Polyglot::Node& node);
 
     nlohmann::json toJson() const;
     void           fromJson(const nlohmann::json& jsonObject);

@@ -23,7 +23,7 @@ class UpdateRenderPreferencesCommand : public Command
     virtual size_t getUndoSize() const override;
 
   private:
-    nlohmann::json    preferencesData;
+    Polyglot::Node    preferencesData;
     RenderPreferences previousPreferences;
     RenderPreferences newPreferences;
 };

@@ -61,12 +61,12 @@ void ProgressBarAsset::setAbductedAssets(const std::vector<std::shared_ptr<Asset
     markModified();
 }
 
-std::shared_future<nlohmann::json> ProgressBarAsset::getFuture() const
+std::shared_future<Polyglot::Node> ProgressBarAsset::getFuture() const
 {
     return future;
 }
 
-void ProgressBarAsset::setFuture(const std::shared_future<nlohmann::json>& newFuture)
+void ProgressBarAsset::setFuture(const std::shared_future<Polyglot::Node>& newFuture)
 {
     future = newFuture;
 }
@@ -80,7 +80,7 @@ bool ProgressBarAsset::isReady() const
     return future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
-nlohmann::json ProgressBarAsset::getResult() const
+Polyglot::Node ProgressBarAsset::getResult() const
 {
     if (isReady())
     {

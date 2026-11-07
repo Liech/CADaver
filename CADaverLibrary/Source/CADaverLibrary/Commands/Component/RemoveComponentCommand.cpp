@@ -29,7 +29,7 @@ std::string RemoveComponentCommand::getDescription() const
            "  \"type\": \"RemoveComponent\",\n"
            "  \"version\": 1,\n"
            "  \"componentGuid\": \"<string>\",\n"
-           "  \"assetGuid\": \"<string, optional>\"\n"
+           "  \"assetGuid\": \"<string>\"\n"
            "}\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
@@ -41,35 +41,13 @@ std::string RemoveComponentCommand::getDescription() const
 
 void RemoveComponentCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    componentGuid       = CADacomb::GUID(json.at("componentGuid").get<std::string>());
-    if (json.contains("assetGuid"))
-    {
-        assetGuid = CADacomb::GUID(json.at("assetGuid").get<std::string>());
-    }
+    componentGuid = CADacomb::GUID(node["componentGuid"].asString());
+    assetGuid     = CADacomb::GUID(node["assetGuid"].asString());
 }
 
 nlohmann::json RemoveComponentCommand::execute(Database& database)
 {
-    std::shared_ptr<Asset> targetAsset;
-
-    if (!assetGuid.toString().empty())
-    {
-        targetAsset = database.getProject().getAsset(assetGuid);
-    }
-    else
-    {
-        for (const auto& asset : database.getProject().getAssets())
-        {
-            if (asset && asset->getComponent(componentGuid))
-            {
-                targetAsset = asset;
-                assetGuid   = asset->getGuid();
-                break;
-            }
-        }
-    }
-
+    auto targetAsset = database.getProject().getAsset(assetGuid);
     if (!targetAsset)
     {
         return {
@@ -107,7 +85,7 @@ bool RemoveComponentCommand::isUndoable() const
 
 void RemoveComponentCommand::undo(Database& database)
 {
-    if (removedComponent && !assetGuid.toString().empty())
+    if (removedComponent)
     {
         auto asset = database.getProject().getAsset(assetGuid);
         if (asset)
@@ -119,7 +97,7 @@ void RemoveComponentCommand::undo(Database& database)
 
 void RemoveComponentCommand::redo(Database& database)
 {
-    if (removedComponent && !assetGuid.toString().empty())
+    if (removedComponent)
     {
         auto asset = database.getProject().getAsset(assetGuid);
         if (asset)
@@ -166,9 +144,10 @@ TEST_CASE("RemoveComponentCommand/ExecuteAndUndo")
 
     RemoveComponentCommand cmd;
     cmd.setInput({
-      {          "type",          "RemoveComponent" },
-      {       "version",                          1 },
-      { "componentGuid", note->getGuid().toString() }
+      {          "type",           "RemoveComponent" },
+      {       "version",                           1 },
+      { "componentGuid",  note->getGuid().toString() },
+      {     "assetGuid", asset->getGuid().toString() }
     });
 
     nlohmann::json result = cmd.execute(database);

@@ -58,9 +58,8 @@ std::string GetDocumentationCommand::getDescription() const
 
 void GetDocumentationCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    category            = json.value("category", "");
-    name                = json.value("name", "");
+    category = node["category"].asString();
+    name     = node["name"].asString();
 }
 
 nlohmann::json GetDocumentationCommand::execute(Database& database)

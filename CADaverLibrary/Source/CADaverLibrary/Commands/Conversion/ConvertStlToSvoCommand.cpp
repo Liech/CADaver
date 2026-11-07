@@ -51,10 +51,9 @@ std::vector<CADacomb::GUID> ConvertStlToSvoCommand::getRequiredAssets() const
 
 void ConvertStlToSvoCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    assetGuid           = json.value("assetGuid", "");
-    dimension           = json.value("dimension", 64u);
-    deleteOrigin        = json.value("deleteOrigin", false);
+    assetGuid    = node["assetGuid"].asString();
+    dimension    = static_cast<uint32_t>(node["dimension"].asInt());
+    deleteOrigin = node["deleteOrigin"].asBool();
 }
 
 nlohmann::json ConvertStlToSvoCommand::execute(Database& database)

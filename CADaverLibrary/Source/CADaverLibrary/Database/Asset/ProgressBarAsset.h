@@ -2,10 +2,10 @@
 
 #include "CADacomb/Util/GUID.h"
 #include "Database/Asset.h"
+#include "Polyglot/Node.h"
 
 #include <future>
 #include <memory>
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
@@ -29,10 +29,10 @@ class ProgressBarAsset : public Asset
     std::vector<std::shared_ptr<const Asset>> getAbductedAssets() const;
     void                                      setAbductedAssets(const std::vector<std::shared_ptr<Asset>>& abductedAssets);
 
-    std::shared_future<nlohmann::json> getFuture() const;
-    void                               setFuture(const std::shared_future<nlohmann::json>& newFuture);
+    std::shared_future<Polyglot::Node> getFuture() const;
+    void                               setFuture(const std::shared_future<Polyglot::Node>& newFuture);
     bool                               isReady() const;
-    nlohmann::json                     getResult() const;
+    Polyglot::Node                     getResult() const;
 
     void cancel() const;
 
@@ -42,5 +42,5 @@ class ProgressBarAsset : public Asset
     CADacomb::GUID                      taskGuid;
     std::string                         operationName;
     std::vector<std::shared_ptr<Asset>> abductedAssets;
-    std::shared_future<nlohmann::json>  future;
+    std::shared_future<Polyglot::Node>  future;
 };

@@ -47,15 +47,14 @@ std::string UpdateCameraPreferencesCommand::getDescription() const
 
 void UpdateCameraPreferencesCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    preferencesData     = json.at("preferences");
+    preferencesData = node["preferences"];
 }
 
 nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database)
 {
     auto& cameraPreferences = database.getPreferences().getCameraPreferences();
     previousPreferences     = cameraPreferences;
-    cameraPreferences.fromJson(preferencesData);
+    cameraPreferences.fromNode(preferencesData);
     newPreferences = cameraPreferences;
 
     return {
@@ -82,5 +81,5 @@ void UpdateCameraPreferencesCommand::redo(Database& database)
 
 size_t UpdateCameraPreferencesCommand::getUndoSize() const
 {
-    return sizeof(UpdateCameraPreferencesCommand) + preferencesData.dump().capacity();
+    return sizeof(UpdateCameraPreferencesCommand);
 }

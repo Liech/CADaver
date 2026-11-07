@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Polyglot/Node.h"
+
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -10,6 +12,9 @@ class RenderPreferences
   public:
     RenderPreferences();
     virtual ~RenderPreferences();
+
+    Polyglot::Node toNode() const;
+    void           fromNode(const Polyglot::Node& node);
 
     nlohmann::json toJson() const;
     void           fromJson(const nlohmann::json& jsonObject);

@@ -57,10 +57,9 @@ std::string SearchCommand::getDescription() const
 
 void SearchCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    query               = json.value("query", "");
-    category            = json.value("category", "All");
-    maxResults          = json.value("maxResults", 20);
+    query      = node["query"].asString();
+    category   = node["category"].asString();
+    maxResults = node["maxResults"].asInt();
 }
 
 nlohmann::json SearchCommand::execute(Database& database)
@@ -120,10 +119,9 @@ nlohmann::json SearchCommand::execute(Database& database)
 
 TEST_CASE("SearchCommand/CoarseSearch")
 {
-    Database      db;
-    SearchCommand cmd;
-
-    nlohmann::json input = {
+    Database       db;
+    SearchCommand  cmd;
+    Polyglot::Node input = {
         {       "type", "Search" },
         {    "version",        1 },
         {      "query",   "step" },
@@ -141,10 +139,9 @@ TEST_CASE("SearchCommand/CoarseSearch")
 
 TEST_CASE("SearchCommand/CategoryFilter")
 {
-    Database      db;
-    SearchCommand cmd;
-
-    nlohmann::json input = {
+    Database       db;
+    SearchCommand  cmd;
+    Polyglot::Node input = {
         {       "type",  "Search" },
         {    "version",         1 },
         {      "query",    "step" },

@@ -29,7 +29,7 @@ void ProjectionRadioElement::click()
     Polyglot::Node command = {
         {        "type", "UpdateCameraPreferences" },
         {     "version",                         1 },
-        { "preferences",      preferences.toJson() }
+        { "preferences",      preferences.toNode() }
     };
     gatedDatabase.execute(command);
 }

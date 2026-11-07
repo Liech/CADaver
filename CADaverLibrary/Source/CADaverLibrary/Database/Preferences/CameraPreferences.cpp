@@ -4,6 +4,31 @@ CameraPreferences::CameraPreferences() {}
 
 CameraPreferences::~CameraPreferences() {}
 
+Polyglot::Node CameraPreferences::toNode() const
+{
+    Polyglot::Node node = {
+        {          "cameraMode",          cameraMode },
+        {         "cameraSpeed",         cameraSpeed },
+        { "rotationSensitivity", rotationSensitivity },
+        {                 "fov",                 fov },
+        {           "nearPlane",           nearPlane },
+        {            "farPlane",            farPlane },
+        {        "orthographic",        orthographic }
+    };
+    return node;
+}
+
+void CameraPreferences::fromNode(const Polyglot::Node& node)
+{
+    cameraMode          = node["cameraMode"].asInt();
+    cameraSpeed         = node["cameraSpeed"].asFloat();
+    rotationSensitivity = node["rotationSensitivity"].asDouble();
+    fov                 = node["fov"].asFloat();
+    nearPlane           = node["nearPlane"].asFloat();
+    farPlane            = node["farPlane"].asFloat();
+    orthographic        = node["orthographic"].asBool();
+}
+
 nlohmann::json CameraPreferences::toJson() const
 {
     nlohmann::json jsonObject;
@@ -25,11 +50,7 @@ void CameraPreferences::fromJson(const nlohmann::json& jsonObject)
     fov                 = jsonObject.at("fov").get<float>();
     nearPlane           = jsonObject.at("nearPlane").get<float>();
     farPlane            = jsonObject.at("farPlane").get<float>();
-
-    if (jsonObject.contains("orthographic"))
-    {
-        orthographic = jsonObject.at("orthographic").get<bool>();
-    }
+    orthographic        = jsonObject.at("orthographic").get<bool>();
 }
 
 int CameraPreferences::getCameraMode() const

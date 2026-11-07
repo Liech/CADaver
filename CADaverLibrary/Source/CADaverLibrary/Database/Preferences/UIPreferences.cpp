@@ -4,6 +4,31 @@ UIPreferences::UIPreferences() {}
 
 UIPreferences::~UIPreferences() {}
 
+Polyglot::Node UIPreferences::toNode() const
+{
+    Polyglot::Node node = {
+        {              "uiScale",                                                                                                                   uiScale },
+        {           "themeIndex",                                                                                                                themeIndex },
+        {      "backgroundColor", Polyglot::Node(std::vector<Polyglot::Node>{ backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a }) },
+        { "systemConsoleEnabled",                                                                                                      systemConsoleEnabled }
+    };
+    return node;
+}
+
+void UIPreferences::fromNode(const Polyglot::Node& node)
+{
+    uiScale    = node["uiScale"].asFloat();
+    themeIndex = node["themeIndex"].asInt();
+
+    const auto& bgArr = node["backgroundColor"].asArray();
+    backgroundColor.r = bgArr[0].asFloat();
+    backgroundColor.g = bgArr[1].asFloat();
+    backgroundColor.b = bgArr[2].asFloat();
+    backgroundColor.a = bgArr[3].asFloat();
+
+    systemConsoleEnabled = node["systemConsoleEnabled"].asBool();
+}
+
 nlohmann::json UIPreferences::toJson() const
 {
     nlohmann::json jsonObject;
@@ -16,27 +41,14 @@ nlohmann::json UIPreferences::toJson() const
 
 void UIPreferences::fromJson(const nlohmann::json& jsonObject)
 {
-    uiScale    = jsonObject.at("uiScale").get<float>();
-    themeIndex = jsonObject.at("themeIndex").get<int>();
-
-    const auto& bgArray = jsonObject.at("backgroundColor");
-    backgroundColor.r   = bgArray.at(0).get<float>();
-    backgroundColor.g   = bgArray.at(1).get<float>();
-    backgroundColor.b   = bgArray.at(2).get<float>();
-    backgroundColor.a   = bgArray.at(3).get<float>();
-
-    if (jsonObject.contains("systemConsoleEnabled"))
-    {
-        systemConsoleEnabled = jsonObject.at("systemConsoleEnabled").get<bool>();
-    }
-    else if (jsonObject.contains("showWindowsConsole"))
-    {
-        systemConsoleEnabled = jsonObject.at("showWindowsConsole").get<bool>();
-    }
-    else
-    {
-        systemConsoleEnabled = true;
-    }
+    uiScale              = jsonObject.at("uiScale").get<float>();
+    themeIndex           = jsonObject.at("themeIndex").get<int>();
+    const auto& bgArray  = jsonObject.at("backgroundColor");
+    backgroundColor.r    = bgArray.at(0).get<float>();
+    backgroundColor.g    = bgArray.at(1).get<float>();
+    backgroundColor.b    = bgArray.at(2).get<float>();
+    backgroundColor.a    = bgArray.at(3).get<float>();
+    systemConsoleEnabled = jsonObject.at("systemConsoleEnabled").get<bool>();
 }
 
 float UIPreferences::getUiScale() const

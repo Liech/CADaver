@@ -223,14 +223,16 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
         activeTaskGuids.push_back(taskGuid);
     }
 
-    auto                        promise       = std::make_shared<std::promise<nlohmann::json>>();
-    auto                        callerPromise = std::make_shared<std::promise<Polyglot::Node>>();
-    std::future<Polyglot::Node> callerFuture  = callerPromise->get_future();
+    auto                               callerPromise   = std::make_shared<std::promise<Polyglot::Node>>();
+    auto                               progressPromise = std::make_shared<std::promise<Polyglot::Node>>();
+    std::future<Polyglot::Node>        callerFuture    = callerPromise->get_future();
+    std::shared_future<Polyglot::Node> sharedFuture    = progressPromise->get_future().share();
+    progressAsset->setFuture(sharedFuture);
 
     auto cmdHolder = std::make_shared<std::unique_ptr<Command>>(std::move(cmd));
 
     std::thread worker(
-      [this, taskGuid, progressAsset, abductedAssets, cmdHolder, promise, callerPromise]()
+      [this, taskGuid, progressAsset, abductedAssets, cmdHolder, callerPromise, progressPromise]()
       {
           CADacomb::ProgressBar::setThreadGuid(taskGuid);
 
@@ -270,8 +272,9 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
               resultAssets = isolatedDb.getProject().getAssets();
           }
 
-          promise->set_value(executionResult);
-          callerPromise->set_value(Polyglot::Node(executionResult));
+          Polyglot::Node resultNode(executionResult);
+          callerPromise->set_value(resultNode);
+          progressPromise->set_value(resultNode);
 
           auto completion = [this, taskGuid, progressAsset, abductedAssets, resultAssets, cmdHolder, executionResult, success]()
           {
@@ -319,9 +322,6 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
       });
 
     worker.detach();
-
-    std::shared_future<nlohmann::json> sharedFut = promise->get_future().share();
-    progressAsset->setFuture(sharedFut);
 
     return callerFuture;
 }

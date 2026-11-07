@@ -33,7 +33,7 @@ void CullModeRadioElement::click()
     Polyglot::Node command = {
         {        "type", "UpdateRenderPreferences" },
         {     "version",                         1 },
-        { "preferences",      preferences.toJson() }
+        { "preferences",      preferences.toNode() }
     };
     gatedDatabase.execute(command);
 }

@@ -44,15 +44,14 @@ std::string UpdateRenderPreferencesCommand::getDescription() const
 
 void UpdateRenderPreferencesCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    preferencesData     = json.at("preferences");
+    preferencesData = node["preferences"];
 }
 
 nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database)
 {
     auto& renderPreferences = database.getPreferences().getRenderPreferences();
     previousPreferences     = renderPreferences;
-    renderPreferences.fromJson(preferencesData);
+    renderPreferences.fromNode(preferencesData);
     newPreferences = renderPreferences;
 
     return {
@@ -79,5 +78,5 @@ void UpdateRenderPreferencesCommand::redo(Database& database)
 
 size_t UpdateRenderPreferencesCommand::getUndoSize() const
 {
-    return sizeof(UpdateRenderPreferencesCommand) + preferencesData.dump().capacity();
+    return sizeof(UpdateRenderPreferencesCommand);
 }

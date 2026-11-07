@@ -9,7 +9,18 @@ local gen_res = cadaver({
     type = "GenerateLandscape",
     version = 1,
     assetName = "LuaLandscape",
-    dimension = 8
+    dimension = 8,
+    seed = 1337,
+    octaves = 4,
+    frequency = 0.05,
+    persistence = 0.5,
+    lacunarity = 2.0,
+    baseHeightRatio = 0.4,
+    heightScale = 1.2,
+    enableCaves = false,
+    caveFrequency = 0.04,
+    caveThreshold = 0.12,
+    solidThreshold = 0.0
 })
 assert(gen_res.status == "Success", "GenerateLandscape failed in Lua")
 local asset_guid = gen_res.assetGuid

@@ -52,11 +52,10 @@ std::vector<CADacomb::GUID> ConvertCadToSvoCommand::getRequiredAssets() const
 
 void ConvertCadToSvoCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    assetGuid           = json.value("assetGuid", "");
-    precision           = json.value("precision", 0.1);
-    dimension           = json.value("dimension", 64u);
-    deleteOrigin        = json.value("deleteOrigin", false);
+    assetGuid    = node["assetGuid"].asString();
+    precision    = node["precision"].asDouble();
+    dimension    = static_cast<uint32_t>(node["dimension"].asInt());
+    deleteOrigin = node["deleteOrigin"].asBool();
 }
 
 nlohmann::json ConvertCadToSvoCommand::execute(Database& database)

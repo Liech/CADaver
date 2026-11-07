@@ -85,28 +85,28 @@ void PreferencesWindow::load(GatedDatabase& database, Defer& deferTarget, const 
               Polyglot::Node uiCommand = {
                   {        "type",                   "UpdateUIPreferences" },
                   {     "version",                                       1 },
-                  { "preferences", loadedPrefs.getUIPreferences().toJson() }
+                  { "preferences", loadedPrefs.getUIPreferences().toNode() }
               };
               database.execute(uiCommand);
 
               Polyglot::Node cameraCommand = {
                   {        "type",                   "UpdateCameraPreferences" },
                   {     "version",                                           1 },
-                  { "preferences", loadedPrefs.getCameraPreferences().toJson() }
+                  { "preferences", loadedPrefs.getCameraPreferences().toNode() }
               };
               database.execute(cameraCommand);
 
               Polyglot::Node renderCommand = {
                   {        "type",                   "UpdateRenderPreferences" },
                   {     "version",                                           1 },
-                  { "preferences", loadedPrefs.getRenderPreferences().toJson() }
+                  { "preferences", loadedPrefs.getRenderPreferences().toNode() }
               };
               database.execute(renderCommand);
 
               Polyglot::Node svoCommand = {
                   {        "type",                   "UpdateSVOPreferences" },
                   {     "version",                                        1 },
-                  { "preferences", loadedPrefs.getSVOPreferences().toJson() }
+                  { "preferences", loadedPrefs.getSVOPreferences().toNode() }
               };
               database.execute(svoCommand);
           });

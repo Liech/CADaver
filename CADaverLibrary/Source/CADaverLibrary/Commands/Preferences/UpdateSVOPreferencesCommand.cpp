@@ -51,15 +51,14 @@ std::string UpdateSVOPreferencesCommand::getDescription() const
 
 void UpdateSVOPreferencesCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    preferencesData     = json.at("preferences");
+    preferencesData = node["preferences"];
 }
 
 nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database)
 {
     auto& svoPreferences = database.getPreferences().getSVOPreferences();
     previousPreferences  = svoPreferences;
-    svoPreferences.fromJson(preferencesData);
+    svoPreferences.fromNode(preferencesData);
     newPreferences = svoPreferences;
 
     return {
@@ -86,5 +85,5 @@ void UpdateSVOPreferencesCommand::redo(Database& database)
 
 size_t UpdateSVOPreferencesCommand::getUndoSize() const
 {
-    return sizeof(UpdateSVOPreferencesCommand) + preferencesData.dump().capacity();
+    return sizeof(UpdateSVOPreferencesCommand);
 }

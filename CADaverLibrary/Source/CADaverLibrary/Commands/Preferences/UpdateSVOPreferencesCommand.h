@@ -23,7 +23,7 @@ class UpdateSVOPreferencesCommand : public Command
     virtual size_t getUndoSize() const override;
 
   private:
-    nlohmann::json preferencesData;
+    Polyglot::Node preferencesData;
     SVOPreferences previousPreferences;
     SVOPreferences newPreferences;
 };

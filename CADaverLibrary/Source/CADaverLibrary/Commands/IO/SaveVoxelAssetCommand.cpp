@@ -49,9 +49,8 @@ std::vector<CADacomb::GUID> SaveVoxelAssetCommand::getRequiredAssets() const
 
 void SaveVoxelAssetCommand::setInput(const Polyglot::Node& node)
 {
-    auto& mutableNode = const_cast<Polyglot::Node&>(node);
-    assetGuid         = static_cast<std::string>(mutableNode["assetGuid"]);
-    destination       = mutableNode["destination"];
+    assetGuid   = node["assetGuid"].asString();
+    destination = node["destination"];
 }
 
 nlohmann::json SaveVoxelAssetCommand::execute(Database& database)

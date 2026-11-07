@@ -44,15 +44,14 @@ std::string UpdateUIPreferencesCommand::getDescription() const
 
 void UpdateUIPreferencesCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    preferencesData     = json.at("preferences");
+    preferencesData = node["preferences"];
 }
 
 nlohmann::json UpdateUIPreferencesCommand::execute(Database& database)
 {
     auto& uiPreferences = database.getPreferences().getUIPreferences();
     previousPreferences = uiPreferences;
-    uiPreferences.fromJson(preferencesData);
+    uiPreferences.fromNode(preferencesData);
     newPreferences = uiPreferences;
 
     return {
@@ -79,5 +78,5 @@ void UpdateUIPreferencesCommand::redo(Database& database)
 
 size_t UpdateUIPreferencesCommand::getUndoSize() const
 {
-    return sizeof(UpdateUIPreferencesCommand) + preferencesData.dump().capacity();
+    return sizeof(UpdateUIPreferencesCommand);
 }

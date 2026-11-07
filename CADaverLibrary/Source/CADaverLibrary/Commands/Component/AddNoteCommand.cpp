@@ -43,16 +43,9 @@ std::string AddNoteCommand::getDescription() const
 
 void AddNoteCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    assetGuid           = CADacomb::GUID(json.at("assetGuid").get<std::string>());
-    if (json.contains("name"))
-    {
-        name = json.at("name").get<std::string>();
-    }
-    if (json.contains("text"))
-    {
-        text = json.at("text").get<std::string>();
-    }
+    assetGuid = CADacomb::GUID(node["assetGuid"].asString());
+    name      = node["name"].asString();
+    text      = node["text"].asString();
 }
 
 nlohmann::json AddNoteCommand::execute(Database& database)

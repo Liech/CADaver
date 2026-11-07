@@ -46,9 +46,8 @@ std::string LoadSvoAssetCommand::getDescription() const
 
 void LoadSvoAssetCommand::setInput(const Polyglot::Node& node)
 {
-    auto& mutableNode = const_cast<Polyglot::Node&>(node);
-    name              = static_cast<std::string>(mutableNode["name"]);
-    source            = mutableNode["source"];
+    name   = node["name"].asString();
+    source = node["source"];
 }
 
 nlohmann::json LoadSvoAssetCommand::execute(Database& database)

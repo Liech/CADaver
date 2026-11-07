@@ -4,6 +4,44 @@ SVOPreferences::SVOPreferences() {}
 
 SVOPreferences::~SVOPreferences() {}
 
+Polyglot::Node SVOPreferences::toNode() const
+{
+    Polyglot::Node node = {
+        {          "strategyType",                     strategyType },
+        {             "chunkSize",                        chunkSize },
+        {        "vertexCapacity",                   vertexCapacity },
+        {          "minPixelSize",                     minPixelSize },
+        {          "maxPixelSize",                     maxPixelSize },
+        {       "targetFillRatio",                  targetFillRatio },
+        {              "maxDepth",                         maxDepth },
+        { "frustumCullingEnabled",            frustumCullingEnabled },
+        {          "nearDistance",                     nearDistance },
+        {           "farDistance",                      farDistance },
+        {         "fixedDecision",                    fixedDecision },
+        {      "rebuildRequested",                 rebuildRequested },
+        {        "rebuildCounter", static_cast<int>(rebuildCounter) }
+    };
+    return node;
+}
+
+void SVOPreferences::fromNode(const Polyglot::Node& node)
+{
+    strategyType          = node["strategyType"].asInt();
+    chunkSize             = node["chunkSize"].asInt();
+    vertexCapacity        = node["vertexCapacity"].asInt();
+    minPixelSize          = node["minPixelSize"].asDouble();
+    maxPixelSize          = node["maxPixelSize"].asDouble();
+    targetFillRatio       = node["targetFillRatio"].asDouble();
+    maxDepth              = node["maxDepth"].asInt();
+    frustumCullingEnabled = node["frustumCullingEnabled"].asBool();
+    nearDistance          = node["nearDistance"].asDouble();
+    farDistance           = node["farDistance"].asDouble();
+    fixedDecision         = node["fixedDecision"].asInt();
+    rebuildRequested      = node["rebuildRequested"].asBool();
+    rebuildCounter        = static_cast<size_t>(node["rebuildCounter"].asInt());
+    dirty                 = true;
+}
+
 nlohmann::json SVOPreferences::toJson() const
 {
     nlohmann::json jsonObject;
@@ -36,15 +74,9 @@ void SVOPreferences::fromJson(const nlohmann::json& jsonObject)
     nearDistance          = jsonObject.at("nearDistance").get<double>();
     farDistance           = jsonObject.at("farDistance").get<double>();
     fixedDecision         = jsonObject.at("fixedDecision").get<int>();
-    if (jsonObject.contains("rebuildRequested"))
-    {
-        rebuildRequested = jsonObject.at("rebuildRequested").get<bool>();
-    }
-    if (jsonObject.contains("rebuildCounter"))
-    {
-        rebuildCounter = jsonObject.at("rebuildCounter").get<size_t>();
-    }
-    dirty = true;
+    rebuildRequested      = jsonObject.at("rebuildRequested").get<bool>();
+    rebuildCounter        = jsonObject.at("rebuildCounter").get<size_t>();
+    dirty                 = true;
 }
 
 int SVOPreferences::getStrategyType() const

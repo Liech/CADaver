@@ -41,8 +41,7 @@ std::string RemoveAssetCommand::getDescription() const
 
 void RemoveAssetCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    assetGuid           = json.value("assetGuid", "");
+    assetGuid = node["assetGuid"].asString();
 }
 
 nlohmann::json RemoveAssetCommand::execute(Database& database)

@@ -12,7 +12,18 @@ gen_res = cadaver({
     "type": "GenerateLandscape",
     "version": 1,
     "assetName": "SourceLandscape",
-    "dimension": 8
+    "dimension": 8,
+    "seed": 1337,
+    "octaves": 4,
+    "frequency": 0.05,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "baseHeightRatio": 0.4,
+    "heightScale": 1.2,
+    "enableCaves": False,
+    "caveFrequency": 0.04,
+    "caveThreshold": 0.12,
+    "solidThreshold": 0.0
 })
 assert gen_res.get("status") == "Success", f"GenerateLandscape failed: {gen_res}"
 asset_guid = gen_res.get("assetGuid")

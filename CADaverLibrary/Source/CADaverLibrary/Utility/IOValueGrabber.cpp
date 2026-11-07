@@ -25,7 +25,7 @@ std::vector<uint8_t> IOValueGrabber::grabBytes(const Polyglot::Node& source)
 {
     if (source.isFunction())
     {
-        Polyglot::Node callbackResult = const_cast<Polyglot::Node&>(source)(Polyglot::Node());
+        Polyglot::Node callbackResult = source.asFunction()(Polyglot::Node());
         if (callbackResult.isBinary())
         {
             return callbackResult.asBinary();
@@ -73,7 +73,7 @@ bool IOValueGrabber::deliverBytes(const Polyglot::Node& destination, const std::
 {
     if (destination.isFunction())
     {
-        const_cast<Polyglot::Node&>(destination)(Polyglot::Node(bytes));
+        destination.asFunction()(Polyglot::Node(bytes));
         return true;
     }
 

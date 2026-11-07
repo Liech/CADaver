@@ -89,15 +89,16 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
 
                         if (progressAsset->isReady())
                         {
-                            auto        res = progressAsset->getResult();
-                            std::string st  = res.value("status", "");
+                            Polyglot::Node res = progressAsset->getResult();
+                            std::string    st  = res["status"].isString() ? res["status"].asString() : "";
                             if (!st.empty() && st != "Success" && st != "Canceled")
                             {
                                 windows.open("TaskNotification");
                                 auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
                                 if (modal)
                                 {
-                                    modal->setMessage("Operation '" + progressAsset->getOperationName() + "' failed: " + res.value("error", st));
+                                    std::string err = res["error"].isString() ? res["error"].asString() : st;
+                                    modal->setMessage("Operation '" + progressAsset->getOperationName() + "' failed: " + err);
                                 }
                             }
                         }

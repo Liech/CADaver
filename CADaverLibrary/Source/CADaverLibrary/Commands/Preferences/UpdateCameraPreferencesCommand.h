@@ -23,7 +23,7 @@ class UpdateCameraPreferencesCommand : public Command
     virtual size_t getUndoSize() const override;
 
   private:
-    nlohmann::json    preferencesData;
+    Polyglot::Node    preferencesData;
     CameraPreferences previousPreferences;
     CameraPreferences newPreferences;
 };

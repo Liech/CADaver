@@ -28,19 +28,19 @@ std::string GenerateLandscapeCommand::getDescription() const
            "{\n"
            "  \"type\": \"GenerateLandscape\",\n"
            "  \"version\": 1,\n"
-           "  \"assetName\": <string> (optional, default: \"Landscape\"),\n"
-           "  \"dimension\": <uint> (optional, default: 64),\n"
-           "  \"seed\": <uint> (optional, default: 1337),\n"
-           "  \"octaves\": <int> (optional, default: 4),\n"
-           "  \"frequency\": <double> (optional, default: 0.05),\n"
-           "  \"persistence\": <double> (optional, default: 0.5),\n"
-           "  \"lacunarity\": <double> (optional, default: 2.0),\n"
-           "  \"baseHeightRatio\": <double> (optional, default: 0.4),\n"
-           "  \"heightScale\": <double> (optional, default: 1.2),\n"
-           "  \"enableCaves\": <bool> (optional, default: false),\n"
-           "  \"caveFrequency\": <double> (optional, default: 0.04),\n"
-           "  \"caveThreshold\": <double> (optional, default: 0.12),\n"
-           "  \"solidThreshold\": <double> (optional, default: 0.0)\n"
+           "  \"assetName\": <string>,\n"
+           "  \"dimension\": <uint>,\n"
+           "  \"seed\": <uint>,\n"
+           "  \"octaves\": <int>,\n"
+           "  \"frequency\": <double>,\n"
+           "  \"persistence\": <double>,\n"
+           "  \"lacunarity\": <double>,\n"
+           "  \"baseHeightRatio\": <double>,\n"
+           "  \"heightScale\": <double>,\n"
+           "  \"enableCaves\": <bool>,\n"
+           "  \"caveFrequency\": <double>,\n"
+           "  \"caveThreshold\": <double>,\n"
+           "  \"solidThreshold\": <double>\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -55,20 +55,19 @@ std::string GenerateLandscapeCommand::getDescription() const
 
 void GenerateLandscapeCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json    = node.toJson();
-    dimension              = json.value("dimension", 64u);
-    assetName              = json.value("assetName", "Landscape");
-    config.seed            = json.value("seed", 1337u);
-    config.octaves         = json.value("octaves", 4);
-    config.frequency       = json.value("frequency", 0.05);
-    config.persistence     = json.value("persistence", 0.5);
-    config.lacunarity      = json.value("lacunarity", 2.0);
-    config.baseHeightRatio = json.value("baseHeightRatio", 0.4);
-    config.heightScale     = json.value("heightScale", 1.2);
-    config.enableCaves     = json.value("enableCaves", false);
-    config.caveFrequency   = json.value("caveFrequency", 0.04);
-    config.caveThreshold   = json.value("caveThreshold", 0.12);
-    config.solidThreshold  = json.value("solidThreshold", 0.0);
+    dimension              = static_cast<uint32_t>(node["dimension"].asInt());
+    assetName              = node["assetName"].asString();
+    config.seed            = static_cast<uint32_t>(node["seed"].asInt());
+    config.octaves         = node["octaves"].asInt();
+    config.frequency       = node["frequency"].asDouble();
+    config.persistence     = node["persistence"].asDouble();
+    config.lacunarity      = node["lacunarity"].asDouble();
+    config.baseHeightRatio = node["baseHeightRatio"].asDouble();
+    config.heightScale     = node["heightScale"].asDouble();
+    config.enableCaves     = node["enableCaves"].asBool();
+    config.caveFrequency   = node["caveFrequency"].asDouble();
+    config.caveThreshold   = node["caveThreshold"].asDouble();
+    config.solidThreshold  = node["solidThreshold"].asDouble();
 }
 
 nlohmann::json GenerateLandscapeCommand::execute(Database& database)
@@ -139,9 +138,21 @@ TEST_CASE("GenerateLandscapeCommand/ExecuteSuccess")
     Database                 database;
     GenerateLandscapeCommand cmd;
     cmd.setInput({
-      {      "seed",            42 },
-      { "dimension",            16 },
-      { "assetName", "TestTerrain" }
+      {            "type", "GenerateLandscape" },
+      {         "version",                   1 },
+      {       "assetName",       "TestTerrain" },
+      {       "dimension",                  16 },
+      {            "seed",                  42 },
+      {         "octaves",                   4 },
+      {       "frequency",                0.05 },
+      {     "persistence",                 0.5 },
+      {      "lacunarity",                 2.0 },
+      { "baseHeightRatio",                 0.4 },
+      {     "heightScale",                 1.2 },
+      {     "enableCaves",               false },
+      {   "caveFrequency",                0.04 },
+      {   "caveThreshold",                0.12 },
+      {  "solidThreshold",                 0.0 }
     });
     nlohmann::json result = cmd.execute(database);
 
@@ -161,8 +172,21 @@ TEST_CASE("GenerateLandscapeCommand/UndoRedo")
     Database                 database;
     GenerateLandscapeCommand cmd;
     cmd.setInput({
-      { "dimension",            16 },
-      { "assetName", "UndoTerrain" }
+      {            "type", "GenerateLandscape" },
+      {         "version",                   1 },
+      {       "assetName",       "UndoTerrain" },
+      {       "dimension",                  16 },
+      {            "seed",                  42 },
+      {         "octaves",                   4 },
+      {       "frequency",                0.05 },
+      {     "persistence",                 0.5 },
+      {      "lacunarity",                 2.0 },
+      { "baseHeightRatio",                 0.4 },
+      {     "heightScale",                 1.2 },
+      {     "enableCaves",               false },
+      {   "caveFrequency",                0.04 },
+      {   "caveThreshold",                0.12 },
+      {  "solidThreshold",                 0.0 }
     });
     nlohmann::json result  = cmd.execute(database);
     std::string    guidStr = result.at("assetGuid").get<std::string>();

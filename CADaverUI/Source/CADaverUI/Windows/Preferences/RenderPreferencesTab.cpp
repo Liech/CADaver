@@ -83,7 +83,7 @@ bool RenderPreferencesTab::render(GatedDatabase& database, Defer& defer)
         Polyglot::Node command = {
             {        "type", "UpdateRenderPreferences" },
             {     "version",                         1 },
-            { "preferences",      preferences.toJson() }
+            { "preferences",      preferences.toNode() }
         };
         defer.defer([&database, command]() { database.execute(command); });
     }

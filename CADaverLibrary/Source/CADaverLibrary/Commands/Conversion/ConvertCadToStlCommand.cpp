@@ -51,10 +51,9 @@ std::vector<CADacomb::GUID> ConvertCadToStlCommand::getRequiredAssets() const
 
 void ConvertCadToStlCommand::setInput(const Polyglot::Node& node)
 {
-    nlohmann::json json = node.toJson();
-    assetGuid           = json.value("assetGuid", "");
-    precision           = json.value("precision", 0.1);
-    deleteOrigin        = json.value("deleteOrigin", false);
+    assetGuid    = node["assetGuid"].asString();
+    precision    = node["precision"].asDouble();
+    deleteOrigin = node["deleteOrigin"].asBool();
 }
 
 nlohmann::json ConvertCadToStlCommand::execute(Database& database)

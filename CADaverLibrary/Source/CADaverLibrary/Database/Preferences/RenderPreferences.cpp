@@ -4,6 +4,34 @@ RenderPreferences::RenderPreferences() {}
 
 RenderPreferences::~RenderPreferences() {}
 
+Polyglot::Node RenderPreferences::toNode() const
+{
+    Polyglot::Node node = {
+        {      "meshColor",                Polyglot::Node(std::vector<Polyglot::Node>{ meshColor.r, meshColor.g, meshColor.b }) },
+        {  "wireframeMode",                                                                                       wireframeMode },
+        { "wireframeColor", Polyglot::Node(std::vector<Polyglot::Node>{ wireframeColor.r, wireframeColor.g, wireframeColor.b }) },
+        {       "cullMode",                                                                                            cullMode }
+    };
+    return node;
+}
+
+void RenderPreferences::fromNode(const Polyglot::Node& node)
+{
+    const auto& meshArr = node["meshColor"].asArray();
+    meshColor.r         = meshArr[0].asFloat();
+    meshColor.g         = meshArr[1].asFloat();
+    meshColor.b         = meshArr[2].asFloat();
+
+    wireframeMode = node["wireframeMode"].asInt();
+
+    const auto& wireArr = node["wireframeColor"].asArray();
+    wireframeColor.r    = wireArr[0].asFloat();
+    wireframeColor.g    = wireArr[1].asFloat();
+    wireframeColor.b    = wireArr[2].asFloat();
+
+    cullMode = node["cullMode"].asInt();
+}
+
 nlohmann::json RenderPreferences::toJson() const
 {
     nlohmann::json jsonObject;
