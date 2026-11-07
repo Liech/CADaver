@@ -24,6 +24,7 @@ add_subdirectory(CADaver)
 add_subdirectory(CADaverLibrary)
 add_subdirectory(CADaverUI)
 add_subdirectory(IntegrationTests)
+add_subdirectory(StaticAnalysisTests)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT CadaverExe)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
