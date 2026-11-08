@@ -92,6 +92,34 @@ set(Command_Preferences_Files
 )
 source_group("Source/Commands/Preferences" FILES ${Command_Preferences_Files})
 
+set(Command_Preferences_Query_Files
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetCameraPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetCameraPreferencesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetRenderPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetRenderPreferencesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetSVOPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetSVOPreferencesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetUIPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetUIPreferencesCommand.cpp"
+)
+source_group("Source/Commands/Preferences/Query" FILES ${Command_Preferences_Query_Files})
+
+set(Command_Task_Files
+    "Source/CADaverLibrary/Commands/Task/GetActiveTasksCommand.h"
+    "Source/CADaverLibrary/Commands/Task/GetActiveTasksCommand.cpp"
+    "Source/CADaverLibrary/Commands/Task/GetTaskStateCommand.h"
+    "Source/CADaverLibrary/Commands/Task/GetTaskStateCommand.cpp"
+    "Source/CADaverLibrary/Commands/Task/CancelTaskCommand.h"
+    "Source/CADaverLibrary/Commands/Task/CancelTaskCommand.cpp"
+)
+source_group("Source/Commands/Task" FILES ${Command_Task_Files})
+
+set(Command_Geometry_Files
+    "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.h"
+    "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.cpp"
+)
+source_group("Source/Commands/Geometry" FILES ${Command_Geometry_Files})
+
 set(Database_Preferences_Files
     "Source/CADaverLibrary/Database/Preferences/Preferences.h"
     "Source/CADaverLibrary/Database/Preferences/Preferences.cpp"
@@ -212,6 +240,9 @@ set(ALL_FILES
     ${Command_Project_Files}
     ${Command_Component_Files}
     ${Command_Preferences_Files}
+    ${Command_Preferences_Query_Files}
+    ${Command_Task_Files}
+    ${Command_Geometry_Files}
     ${Command_Search_Files}
     ${Concept_Files}
     ${Search_Files}

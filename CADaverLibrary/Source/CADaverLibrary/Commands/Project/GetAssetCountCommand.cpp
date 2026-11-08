@@ -1,4 +1,4 @@
-#include "Commands/Project/GetAssetCountCommand.h"
+﻿#include "Commands/Project/GetAssetCountCommand.h"
 
 #include "Database/Database.h"
 

@@ -1,4 +1,4 @@
-clear_res = cadaver({"type": "ClearProject", "version": 1})
+﻿clear_res = cadaver({"type": "ClearProject", "version": 1})
 assert clear_res.get("status") == "Success", f"ClearProject failed: {clear_res}"
 
 gen_res = cadaver({
@@ -36,3 +36,23 @@ assert info_res_by_name.get("assetGuid") == gen_res.get("assetGuid"), f"GUID mis
 info_res_by_guid = cadaver({"type": "GetAssetInfo", "version": 1, "assetGuid": gen_res.get("assetGuid")})
 assert info_res_by_guid.get("status") == "Success", f"GetAssetInfo by guid failed: {info_res_by_guid}"
 assert info_res_by_guid.get("assetName") == "IntegrationLandscape", f"Name mismatch: {info_res_by_guid}"
+
+asset_aabb = cadaver({"type": "GetAssetAABB", "version": 1, "assetName": "IntegrationLandscape"})
+assert asset_aabb.get("status") == "Success", f"GetAssetAABB failed: {asset_aabb}"
+assert len(asset_aabb.get("min", [])) == 3, f"Expected 3D min vector: {asset_aabb}"
+
+tasks_res = cadaver({"type": "GetActiveTasks", "version": 1})
+assert tasks_res.get("status") == "Success", f"GetActiveTasks failed: {tasks_res}"
+
+cam_prefs = cadaver({"type": "GetCameraPreferences", "version": 1})
+assert cam_prefs.get("status") == "Success", f"GetCameraPreferences failed: {cam_prefs}"
+assert "cameraSpeed" in cam_prefs.get("preferences", {}), f"Expected cameraSpeed: {cam_prefs}"
+
+render_prefs = cadaver({"type": "GetRenderPreferences", "version": 1})
+assert render_prefs.get("status") == "Success", f"GetRenderPreferences failed: {render_prefs}"
+
+svo_prefs = cadaver({"type": "GetSVOPreferences", "version": 1})
+assert svo_prefs.get("status") == "Success", f"GetSVOPreferences failed: {svo_prefs}"
+
+ui_prefs = cadaver({"type": "GetUIPreferences", "version": 1})
+assert ui_prefs.get("status") == "Success", f"GetUIPreferences failed: {ui_prefs}"

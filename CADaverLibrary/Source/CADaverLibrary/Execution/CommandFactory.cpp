@@ -1,4 +1,4 @@
-#include "Execution/CommandFactory.h"
+﻿#include "Execution/CommandFactory.h"
 
 #include "Commands/Component/AddNoteCommand.h"
 #include "Commands/Component/RemoveComponentCommand.h"
@@ -13,6 +13,11 @@
 #include "Commands/IO/SaveStepAssetCommand.h"
 #include "Commands/IO/SaveStlAssetCommand.h"
 #include "Commands/IO/SaveVoxelAssetCommand.h"
+#include "Commands/Geometry/GetAssetAABBCommand.h"
+#include "Commands/Preferences/Query/GetCameraPreferencesCommand.h"
+#include "Commands/Preferences/Query/GetRenderPreferencesCommand.h"
+#include "Commands/Preferences/Query/GetSVOPreferencesCommand.h"
+#include "Commands/Preferences/Query/GetUIPreferencesCommand.h"
 #include "Commands/Preferences/UpdateCameraPreferencesCommand.h"
 #include "Commands/Preferences/UpdateRenderPreferencesCommand.h"
 #include "Commands/Preferences/UpdateSVOPreferencesCommand.h"
@@ -24,6 +29,9 @@
 #include "Commands/Project/RemoveAssetCommand.h"
 #include "Commands/Search/GetDocumentationCommand.h"
 #include "Commands/Search/SearchCommand.h"
+#include "Commands/Task/CancelTaskCommand.h"
+#include "Commands/Task/GetActiveTasksCommand.h"
+#include "Commands/Task/GetTaskStateCommand.h"
 
 #include <algorithm>
 
@@ -96,6 +104,14 @@ void CommandFactory::registerCommands()
     registerCommand("GetAssetCount", []() { return std::make_unique<GetAssetCountCommand>(); });
     registerCommand("GetAssetInfo", []() { return std::make_unique<GetAssetInfoCommand>(); });
     registerCommand("GetAssetNames", []() { return std::make_unique<GetAssetNamesCommand>(); });
+    registerCommand("GetCameraPreferences", []() { return std::make_unique<GetCameraPreferencesCommand>(); });
+    registerCommand("GetRenderPreferences", []() { return std::make_unique<GetRenderPreferencesCommand>(); });
+    registerCommand("GetSVOPreferences", []() { return std::make_unique<GetSVOPreferencesCommand>(); });
+    registerCommand("GetUIPreferences", []() { return std::make_unique<GetUIPreferencesCommand>(); });
+    registerCommand("GetActiveTasks", []() { return std::make_unique<GetActiveTasksCommand>(); });
+    registerCommand("GetTaskState", []() { return std::make_unique<GetTaskStateCommand>(); });
+    registerCommand("CancelTask", []() { return std::make_unique<CancelTaskCommand>(); });
+    registerCommand("GetAssetAABB", []() { return std::make_unique<GetAssetAABBCommand>(); });
     registerCommand("Search", []() { return std::make_unique<SearchCommand>(); });
     registerCommand("GetDocumentation", []() { return std::make_unique<GetDocumentationCommand>(); });
 }
@@ -112,6 +128,14 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GetAssetCount") != nullptr);
     CHECK(factory.create("GetAssetInfo") != nullptr);
     CHECK(factory.create("GetAssetNames") != nullptr);
+    CHECK(factory.create("GetCameraPreferences") != nullptr);
+    CHECK(factory.create("GetRenderPreferences") != nullptr);
+    CHECK(factory.create("GetSVOPreferences") != nullptr);
+    CHECK(factory.create("GetUIPreferences") != nullptr);
+    CHECK(factory.create("GetActiveTasks") != nullptr);
+    CHECK(factory.create("GetTaskState") != nullptr);
+    CHECK(factory.create("CancelTask") != nullptr);
+    CHECK(factory.create("GetAssetAABB") != nullptr);
     CHECK(factory.create("ConvertCadToStl") != nullptr);
     CHECK(factory.create("ConvertCadToSvo") != nullptr);
     CHECK(factory.create("ConvertStlToSvo") != nullptr);
@@ -131,6 +155,6 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("RemoveComponent") != nullptr);
     CHECK(factory.create("Search") != nullptr);
     CHECK(factory.create("GetDocumentation") != nullptr);
-    CHECK(factory.getAllCommands().size() == 24);
+    CHECK(factory.getAllCommands().size() == 32);
 }
 #endif

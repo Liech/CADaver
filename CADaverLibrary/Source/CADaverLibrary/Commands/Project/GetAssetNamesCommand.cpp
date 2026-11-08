@@ -1,4 +1,4 @@
-#include "Commands/Project/GetAssetNamesCommand.h"
+﻿#include "Commands/Project/GetAssetNamesCommand.h"
 
 #include "Database/Asset.h"
 #include "Database/Database.h"
