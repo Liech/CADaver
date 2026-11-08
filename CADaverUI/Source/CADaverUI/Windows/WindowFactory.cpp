@@ -1,4 +1,4 @@
-#include "Windows/WindowFactory.h"
+﻿#include "Windows/WindowFactory.h"
 
 #include "Windows/About/AboutWindow.h"
 #include "Windows/About/CommandsInfoWindow.h"

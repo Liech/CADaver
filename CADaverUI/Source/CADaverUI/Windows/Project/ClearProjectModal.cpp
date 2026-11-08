@@ -1,4 +1,4 @@
-#include "Windows/Project/ClearProjectModal.h"
+﻿#include "Windows/Project/ClearProjectModal.h"
 
 #include "Database/Database.h"
 #include "Database/Project.h"

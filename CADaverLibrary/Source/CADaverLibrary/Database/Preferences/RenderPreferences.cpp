@@ -1,4 +1,4 @@
-#include "Database/Preferences/RenderPreferences.h"
+﻿#include "Database/Preferences/RenderPreferences.h"
 
 RenderPreferences::RenderPreferences() {}
 

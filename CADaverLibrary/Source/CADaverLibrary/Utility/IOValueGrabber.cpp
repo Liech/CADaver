@@ -1,4 +1,4 @@
-#include "Utility/IOValueGrabber.h"
+﻿#include "Utility/IOValueGrabber.h"
 
 #include <fstream>
 
@@ -52,7 +52,7 @@ std::vector<uint8_t> IOValueGrabber::grabBytes(const Polyglot::Node& source)
             std::streamsize      fileSize = stream.tellg();
             std::vector<uint8_t> fileBytes(static_cast<size_t>(fileSize));
             stream.seekg(0, std::ios::beg);
-            stream.read(reinterpret_cast<char*>(fileBytes.data()), fileSize);
+            stream.read(static_cast<char*>(static_cast<void*>(fileBytes.data())), fileSize);
             return fileBytes;
         }
     }
@@ -85,7 +85,7 @@ bool IOValueGrabber::deliverBytes(const Polyglot::Node& destination, const std::
             std::ofstream stream(filePath, std::ios::binary);
             if (stream.is_open())
             {
-                stream.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+                stream.write(static_cast<const char*>(static_cast<const void*>(bytes.data())), bytes.size());
                 return true;
             }
         }

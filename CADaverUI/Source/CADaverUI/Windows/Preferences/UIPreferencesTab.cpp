@@ -1,4 +1,4 @@
-#include "Windows/Preferences/UIPreferencesTab.h"
+﻿#include "Windows/Preferences/UIPreferencesTab.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/Preferences.h"

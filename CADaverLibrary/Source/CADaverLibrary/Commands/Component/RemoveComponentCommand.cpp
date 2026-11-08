@@ -1,4 +1,4 @@
-#include "Commands/Component/RemoveComponentCommand.h"
+﻿#include "Commands/Component/RemoveComponentCommand.h"
 
 #include "Database/Asset.h"
 #include "Database/AssetComponent.h"

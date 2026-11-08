@@ -1,4 +1,4 @@
-#include "UIElement/Menu/Edit/UndoMenuEntry.h"
+﻿#include "UIElement/Menu/Edit/UndoMenuEntry.h"
 
 #include "Execution/UndoStack.h"
 

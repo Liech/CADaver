@@ -1,4 +1,4 @@
-#include "Concept/CommandConcept.h"
+﻿#include "Concept/CommandConcept.h"
 
 CommandConcept::CommandConcept() {}
 

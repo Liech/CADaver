@@ -1,4 +1,4 @@
-#include "FunctionPointerStaticTest.h"
+﻿#include "FunctionPointerStaticTest.h"
 
 #include "SourceFile.h"
 #include "SourceFileDiscoverer.h"

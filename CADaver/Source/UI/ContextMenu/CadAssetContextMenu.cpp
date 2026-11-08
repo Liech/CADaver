@@ -1,4 +1,4 @@
-#include "UI/ContextMenu/CadAssetContextMenu.h"
+﻿#include "UI/ContextMenu/CadAssetContextMenu.h"
 
 #include "Database/Asset/CadAsset.h"
 #include "Windows/Conversion/CadToStlConversionModal.h"

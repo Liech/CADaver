@@ -1,4 +1,4 @@
-clear_res = cadaver({"type": "ClearProject", "version": 1})
+﻿clear_res = cadaver({"type": "ClearProject", "version": 1})
 assert clear_res.get("status") == "Success", f"ClearProject failed: {clear_res}"
 
 gen_res = cadaver({

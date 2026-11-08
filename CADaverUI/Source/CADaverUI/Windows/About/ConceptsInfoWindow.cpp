@@ -1,4 +1,4 @@
-#include "Windows/About/ConceptsInfoWindow.h"
+﻿#include "Windows/About/ConceptsInfoWindow.h"
 
 #include "Concept/Concept.h"
 #include "Concept/ConceptFactory.h"

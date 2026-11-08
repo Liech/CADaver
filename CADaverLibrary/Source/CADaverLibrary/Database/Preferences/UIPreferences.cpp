@@ -1,4 +1,4 @@
-#include "Database/Preferences/UIPreferences.h"
+﻿#include "Database/Preferences/UIPreferences.h"
 
 UIPreferences::UIPreferences() {}
 

@@ -1,4 +1,4 @@
-#include "Database/Component/TextNoteComponent.h"
+﻿#include "Database/Component/TextNoteComponent.h"
 
 TextNoteComponent::TextNoteComponent() {}
 

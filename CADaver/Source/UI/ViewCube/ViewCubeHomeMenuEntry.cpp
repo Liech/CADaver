@@ -1,4 +1,4 @@
-#include "UI/ViewCube/ViewCubeHomeMenuEntry.h"
+﻿#include "UI/ViewCube/ViewCubeHomeMenuEntry.h"
 
 #include "Camera/ViewController.h"
 #include "Execution/GatedDatabase.h"

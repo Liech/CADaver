@@ -1,4 +1,4 @@
-#include "SourceFileDiscoverer.h"
+﻿#include "SourceFileDiscoverer.h"
 
 #include <algorithm>
 #include <filesystem>

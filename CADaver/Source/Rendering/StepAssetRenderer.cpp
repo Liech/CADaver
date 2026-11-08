@@ -1,4 +1,4 @@
-#include "StepAssetRenderer.h"
+﻿#include "StepAssetRenderer.h"
 
 #include "Database/Asset/CadAsset.h"
 #include "Rendering/Renderer.h"

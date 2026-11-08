@@ -1,4 +1,4 @@
-#include "Commands/IO/SaveStepAssetCommand.h"
+﻿#include "Commands/IO/SaveStepAssetCommand.h"
 
 #include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Util/ProgressBar.h"
@@ -91,7 +91,7 @@ nlohmann::json SaveStepAssetCommand::execute(Database& database)
                 std::streamsize size = tempIn.tellg();
                 tempIn.seekg(0, std::ios::beg);
                 bytes.resize(static_cast<size_t>(size));
-                tempIn.read(reinterpret_cast<char*>(bytes.data()), size);
+                tempIn.read(static_cast<char*>(static_cast<void*>(bytes.data())), size);
             }
         }
         std::filesystem::remove(tempPath);

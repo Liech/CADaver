@@ -1,4 +1,4 @@
-#include "Database/Preferences/CameraPreferences.h"
+﻿#include "Database/Preferences/CameraPreferences.h"
 
 CameraPreferences::CameraPreferences() {}
 

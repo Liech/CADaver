@@ -1,4 +1,4 @@
-#include "Commands/Conversion/ConvertStlToSvoCommand.h"
+﻿#include "Commands/Conversion/ConvertStlToSvoCommand.h"
 
 #include "CADacomb/Util/ProgressBar.h"
 #include "Conversion/AssetConverter.h"

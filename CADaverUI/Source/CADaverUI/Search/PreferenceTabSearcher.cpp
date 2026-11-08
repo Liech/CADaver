@@ -1,4 +1,4 @@
-#include "Search/PreferenceTabSearcher.h"
+﻿#include "Search/PreferenceTabSearcher.h"
 
 #include "Windows/Preferences/PreferenceTab.h"
 #include "Windows/Preferences/PreferenceTabFactory.h"

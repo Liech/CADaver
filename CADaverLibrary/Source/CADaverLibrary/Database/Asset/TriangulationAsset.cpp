@@ -1,4 +1,4 @@
-#include "Database/Asset/TriangulationAsset.h"
+﻿#include "Database/Asset/TriangulationAsset.h"
 
 TriangulationAsset::TriangulationAsset()
   : triangulation(std::make_unique<CADacomb::Triangulation>())

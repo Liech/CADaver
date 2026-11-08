@@ -1,4 +1,4 @@
-#include "Search/SearchBar.h"
+﻿#include "Search/SearchBar.h"
 
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"

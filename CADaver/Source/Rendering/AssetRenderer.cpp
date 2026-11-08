@@ -1,4 +1,4 @@
-#include "AssetRenderer.h"
+﻿#include "AssetRenderer.h"
 
 AssetRenderer::AssetRenderer() {}
 

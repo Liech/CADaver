@@ -1,4 +1,4 @@
-#include "Commands/Search/GetDocumentationCommand.h"
+﻿#include "Commands/Search/GetDocumentationCommand.h"
 
 #include "Concept/Concept.h"
 #include "Concept/ConceptFactory.h"

@@ -1,4 +1,4 @@
-#include "ConstCastStaticTest.h"
+﻿#include "ConstCastStaticTest.h"
 
 #include "SourceFile.h"
 #include "SourceFileDiscoverer.h"

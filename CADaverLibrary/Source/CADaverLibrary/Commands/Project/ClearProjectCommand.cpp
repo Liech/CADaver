@@ -1,4 +1,4 @@
-#include "Commands/Project/ClearProjectCommand.h"
+﻿#include "Commands/Project/ClearProjectCommand.h"
 
 #include "Database/Asset.h"
 #include "Database/Database.h"

@@ -1,4 +1,4 @@
-#include "Commands/IO/LoadSvoAssetCommand.h"
+﻿#include "Commands/IO/LoadSvoAssetCommand.h"
 
 #include "CADacomb/Util/ProgressBar.h"
 #include "CADacomb/Volume/SVO/SVOFile.h"
@@ -62,7 +62,7 @@ nlohmann::json LoadSvoAssetCommand::execute(Database& database)
 
     if (!bytes.empty())
     {
-        std::string        str(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+        std::string        str(bytes.begin(), bytes.end());
         std::istringstream stream(str, std::ios::binary);
         svo = CADacomb::SVOFile::load<bool>(stream, bounds);
     }

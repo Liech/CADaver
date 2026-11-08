@@ -1,4 +1,4 @@
-#include "Commands/Search/SearchCommand.h"
+﻿#include "Commands/Search/SearchCommand.h"
 
 #include "Execution/CommandFactory.h"
 #include "Search/AssetSearcher.h"

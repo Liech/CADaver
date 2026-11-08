@@ -1,4 +1,4 @@
-#include "Utf8BomStaticTest.h"
+﻿#include "Utf8BomStaticTest.h"
 
 #include "SourceFileDiscoverer.h"
 

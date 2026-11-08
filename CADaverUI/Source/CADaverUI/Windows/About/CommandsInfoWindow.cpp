@@ -1,4 +1,4 @@
-#include "Windows/About/CommandsInfoWindow.h"
+﻿#include "Windows/About/CommandsInfoWindow.h"
 
 #include "Execution/Command.h"
 #include "Execution/CommandFactory.h"

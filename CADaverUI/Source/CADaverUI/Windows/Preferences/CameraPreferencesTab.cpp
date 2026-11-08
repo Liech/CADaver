@@ -1,4 +1,4 @@
-#include "Windows/Preferences/CameraPreferencesTab.h"
+﻿#include "Windows/Preferences/CameraPreferencesTab.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/CameraPreferences.h"

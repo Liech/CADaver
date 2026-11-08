@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"

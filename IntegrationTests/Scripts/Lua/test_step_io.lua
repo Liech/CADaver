@@ -1,4 +1,4 @@
-local function find_repo_file(rel_path)
+﻿local function find_repo_file(rel_path)
     local candidates = {
         rel_path,
         "../../../../" .. rel_path,

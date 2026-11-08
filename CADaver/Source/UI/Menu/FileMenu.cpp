@@ -1,4 +1,4 @@
-#include "UI/Menu/FileMenu.h"
+﻿#include "UI/Menu/FileMenu.h"
 
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"

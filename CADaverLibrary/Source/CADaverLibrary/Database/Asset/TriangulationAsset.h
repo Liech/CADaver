@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CADacomb/Triangle/Triangulation.h"
 #include "Database/Asset.h"

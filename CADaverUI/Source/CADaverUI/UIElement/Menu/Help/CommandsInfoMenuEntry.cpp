@@ -1,4 +1,4 @@
-#include "UIElement/Menu/Help/CommandsInfoMenuEntry.h"
+﻿#include "UIElement/Menu/Help/CommandsInfoMenuEntry.h"
 
 #include "Windows/Windows.h"
 

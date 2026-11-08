@@ -1,4 +1,4 @@
-#include "AssetRenderFactory.h"
+﻿#include "AssetRenderFactory.h"
 
 #include "AssetRenderer.h"
 #include "StepAssetRenderer.h"

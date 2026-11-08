@@ -1,4 +1,4 @@
-local temp_out_path = "temp_lua_svo_test.svo"
+﻿local temp_out_path = "temp_lua_svo_test.svo"
 
 -- 1. Clear project
 local res = cadaver({type = "ClearProject", version = 1})

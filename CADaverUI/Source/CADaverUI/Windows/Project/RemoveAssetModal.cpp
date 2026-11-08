@@ -1,4 +1,4 @@
-#include "Windows/Project/RemoveAssetModal.h"
+﻿#include "Windows/Project/RemoveAssetModal.h"
 
 #include "Database/Database.h"
 #include "Database/Project.h"

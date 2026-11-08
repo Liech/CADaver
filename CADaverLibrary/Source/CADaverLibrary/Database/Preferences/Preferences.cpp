@@ -1,4 +1,4 @@
-#include "Database/Preferences/Preferences.h"
+﻿#include "Database/Preferences/Preferences.h"
 
 Preferences::Preferences() {}
 

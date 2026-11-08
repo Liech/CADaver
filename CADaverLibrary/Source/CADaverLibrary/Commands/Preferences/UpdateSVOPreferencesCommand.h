@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Database/Preferences/SVOPreferences.h"
 #include "Execution/Command.h"

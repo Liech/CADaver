@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Database/Preferences/Preferences.h"
 #include "Database/Project.h"

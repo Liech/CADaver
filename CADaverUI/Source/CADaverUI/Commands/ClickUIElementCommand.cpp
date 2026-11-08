@@ -1,4 +1,4 @@
-#include "Commands/ClickUIElementCommand.h"
+﻿#include "Commands/ClickUIElementCommand.h"
 
 #include "UIElement/Menu/MenuEntry.h"
 #include "UIElement/UIElementFactory.h"

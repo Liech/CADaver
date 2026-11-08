@@ -1,4 +1,4 @@
-#include "Search/UIElementSearcher.h"
+﻿#include "Search/UIElementSearcher.h"
 
 #include "UIElement/Menu/MenuEntry.h"
 #include "UIElement/Radio/RadioUIElement.h"

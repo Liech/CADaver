@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"

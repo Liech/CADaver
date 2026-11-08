@@ -1,4 +1,4 @@
-#include "Execution/CommandFactory.h"
+﻿#include "Execution/CommandFactory.h"
 
 #include "Commands/Component/AddNoteCommand.h"
 #include "Commands/Component/RemoveComponentCommand.h"

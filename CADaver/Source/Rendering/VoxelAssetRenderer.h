@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "AssetRenderer.h"
 #include "CADacomb/Volume/LODStrategy/CapacityTargetLODStrategy.h"

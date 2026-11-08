@@ -1,4 +1,4 @@
-#include "Windows/Console/ConsoleStreamBuffer.h"
+﻿#include "Windows/Console/ConsoleStreamBuffer.h"
 
 #include <utility>
 

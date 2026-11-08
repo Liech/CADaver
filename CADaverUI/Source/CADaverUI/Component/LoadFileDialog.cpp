@@ -1,4 +1,4 @@
-#include "Component/LoadFileDialog.h"
+﻿#include "Component/LoadFileDialog.h"
 
 #include <algorithm>
 #include <nfd.h>

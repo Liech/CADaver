@@ -1,4 +1,4 @@
-#include "Windows/Asset/TextNoteEditWindow.h"
+﻿#include "Windows/Asset/TextNoteEditWindow.h"
 
 #include "Database/Asset.h"
 #include "Database/Component/TextNoteComponent.h"

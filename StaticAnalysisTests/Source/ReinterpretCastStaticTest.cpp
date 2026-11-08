@@ -1,4 +1,4 @@
-#include "ReinterpretCastStaticTest.h"
+﻿#include "ReinterpretCastStaticTest.h"
 
 #include "SourceFile.h"
 #include "SourceFileDiscoverer.h"

@@ -1,4 +1,4 @@
-#include "Database/Asset/ProgressBarAsset.h"
+﻿#include "Database/Asset/ProgressBarAsset.h"
 
 #include "CADacomb/Util/ProgressBar.h"
 

@@ -1,4 +1,4 @@
-#include "UI/Component/ViewCubeWidget.h"
+﻿#include "UI/Component/ViewCubeWidget.h"
 
 #include <imgui.h>
 
@@ -62,7 +62,7 @@ void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& 
         bool homeClicked   = false;
         if (hasEmojiGlyph)
         {
-            homeClicked = ImGui::Button(reinterpret_cast<const char*>(u8"🏠"), ImVec2(24.0f * scale, 24.0f * scale));
+            homeClicked = ImGui::Button("🏠", ImVec2(24.0f * scale, 24.0f * scale));
         }
         else
         {

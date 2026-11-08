@@ -1,4 +1,4 @@
-#include "Database/AssetComponent.h"
+﻿#include "Database/AssetComponent.h"
 
 AssetComponent::AssetComponent()
   : guid(CADacomb::GUID::random())

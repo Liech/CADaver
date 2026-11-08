@@ -1,4 +1,4 @@
-#include "Commands/Project/RemoveAssetCommand.h"
+﻿#include "Commands/Project/RemoveAssetCommand.h"
 
 #include "Database/Asset.h"
 #include "Database/Database.h"

@@ -1,4 +1,4 @@
-#include "Windows/Conversion/SvoToStlConversionModal.h"
+﻿#include "Windows/Conversion/SvoToStlConversionModal.h"
 
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"

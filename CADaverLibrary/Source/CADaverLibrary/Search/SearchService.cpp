@@ -1,4 +1,4 @@
-#include "Search/SearchService.h"
+﻿#include "Search/SearchService.h"
 
 #include <algorithm>
 

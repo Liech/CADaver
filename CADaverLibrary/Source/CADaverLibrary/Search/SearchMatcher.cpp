@@ -1,4 +1,4 @@
-#include "Search/SearchMatcher.h"
+﻿#include "Search/SearchMatcher.h"
 
 #include <algorithm>
 #include <cctype>

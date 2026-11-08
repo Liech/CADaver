@@ -1,4 +1,4 @@
-#include "UI/ViewCube/ViewCubeRotateLeftMenuEntry.h"
+﻿#include "UI/ViewCube/ViewCubeRotateLeftMenuEntry.h"
 
 #include "Camera/ViewController.h"
 

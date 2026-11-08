@@ -1,4 +1,4 @@
-#include "HeadlessScriptRunner.h"
+﻿#include "HeadlessScriptRunner.h"
 
 #include "CommandLineArgs.h"
 #include "Execution/GatedDatabase.h"
@@ -67,7 +67,7 @@ int HeadlessScriptRunner::run(const CommandLineArgs& args)
 
 std::string HeadlessScriptRunner::readScriptFile(const std::string& path) const
 {
-    std::ifstream file(path);
+    std::ifstream file(path, std::ios::binary);
     if (!file.is_open())
     {
         return "";
@@ -75,7 +75,12 @@ std::string HeadlessScriptRunner::readScriptFile(const std::string& path) const
 
     std::stringstream buffer;
     buffer << file.rdbuf();
-    return buffer.str();
+    std::string str = buffer.str();
+    if (str.size() >= 3 && static_cast<unsigned char>(str[0]) == 0xEF && static_cast<unsigned char>(str[1]) == 0xBB && static_cast<unsigned char>(str[2]) == 0xBF)
+    {
+        str = str.substr(3);
+    }
+    return str;
 }
 
 std::string HeadlessScriptRunner::determineLanguage(const CommandLineArgs& args) const

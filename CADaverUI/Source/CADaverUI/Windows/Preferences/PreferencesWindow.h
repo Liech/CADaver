@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Windows/Preferences/PreferenceTab.h"
 #include "Windows/Preferences/PreferenceTabFactory.h"

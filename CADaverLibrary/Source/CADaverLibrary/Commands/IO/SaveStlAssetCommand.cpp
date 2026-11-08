@@ -1,4 +1,4 @@
-#include "Commands/IO/SaveStlAssetCommand.h"
+﻿#include "Commands/IO/SaveStlAssetCommand.h"
 
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/TriangulationAsset.h"

@@ -1,4 +1,4 @@
-#include "Commands/Generator/GenerateLandscapeCommand.h"
+﻿#include "Commands/Generator/GenerateLandscapeCommand.h"
 
 #include "CADacomb/Volume/MergeStrategy/MostPrevalentExceptMergeStrategy.h"
 #include "CADacomb/Volume/SVO/Generator/SVOLandscapeGenerator.h"

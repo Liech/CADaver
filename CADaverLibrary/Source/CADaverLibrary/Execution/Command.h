@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CADacomb/Util/GUID.h"
 #include "Polyglot/Node.h"

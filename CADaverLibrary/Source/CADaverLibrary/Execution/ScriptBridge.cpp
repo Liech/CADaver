@@ -1,4 +1,4 @@
-#include "Execution/ScriptBridge.h"
+﻿#include "Execution/ScriptBridge.h"
 
 #include "Execution/GatedDatabase.h"
 #include "Polyglot/Engine.h"

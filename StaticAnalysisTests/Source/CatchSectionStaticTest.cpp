@@ -1,4 +1,4 @@
-#include "CatchSectionStaticTest.h"
+﻿#include "CatchSectionStaticTest.h"
 
 #include "SourceFile.h"
 #include "SourceFileDiscoverer.h"

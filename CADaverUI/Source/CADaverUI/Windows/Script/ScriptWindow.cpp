@@ -1,4 +1,4 @@
-#include "Windows/Script/ScriptWindow.h"
+﻿#include "Windows/Script/ScriptWindow.h"
 
 #include "Execution/GatedDatabase.h"
 #include "Execution/ScriptBridge.h"

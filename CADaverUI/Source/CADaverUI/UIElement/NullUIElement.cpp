@@ -1,4 +1,4 @@
-#include "UIElement/NullUIElement.h"
+﻿#include "UIElement/NullUIElement.h"
 
 GatedDatabase NullUIElement::dummyDatabase;
 UndoStack     NullUIElement::dummyUndoStack(NullUIElement::dummyDatabase);

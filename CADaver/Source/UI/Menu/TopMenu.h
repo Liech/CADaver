@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Search/SearchBar.h"
 #include "UIElement/Menu/DynamicMenuRenderer.h"

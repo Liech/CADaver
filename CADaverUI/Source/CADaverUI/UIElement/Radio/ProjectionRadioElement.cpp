@@ -1,4 +1,4 @@
-#include "UIElement/Radio/ProjectionRadioElement.h"
+﻿#include "UIElement/Radio/ProjectionRadioElement.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/CameraPreferences.h"

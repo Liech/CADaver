@@ -1,4 +1,4 @@
-local clearRes = cadaver({type = "ClearProject", version = 1})
+﻿local clearRes = cadaver({type = "ClearProject", version = 1})
 assert(clearRes.status == "Success", "ClearProject failed in Lua")
 
 local genRes = cadaver({

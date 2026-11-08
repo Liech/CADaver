@@ -1,4 +1,4 @@
-#include "Windows/About/AboutWindow.h"
+﻿#include "Windows/About/AboutWindow.h"
 
 #include <algorithm>
 #include <filesystem>

@@ -1,4 +1,4 @@
-#include "Commands/Preferences/UpdateCameraPreferencesCommand.h"
+﻿#include "Commands/Preferences/UpdateCameraPreferencesCommand.h"
 
 #include "Database/Database.h"
 

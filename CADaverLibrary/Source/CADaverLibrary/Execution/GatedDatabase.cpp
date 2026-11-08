@@ -1,4 +1,4 @@
-#include "Execution/GatedDatabase.h"
+﻿#include "Execution/GatedDatabase.h"
 
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/ProgressBarAsset.h"

@@ -1,4 +1,4 @@
-#include "Database/Project.h"
+﻿#include "Database/Project.h"
 
 #include <algorithm>
 

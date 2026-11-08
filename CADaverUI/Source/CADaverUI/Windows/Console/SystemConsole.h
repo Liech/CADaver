@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // Platform abstraction managing host operating system console window allocation and visibility.
 class SystemConsole

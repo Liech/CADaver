@@ -1,4 +1,4 @@
-#include "UI/ViewCube/ViewCubeToggleOrthographicMenuEntry.h"
+﻿#include "UI/ViewCube/ViewCubeToggleOrthographicMenuEntry.h"
 
 #include "Camera/ViewController.h"
 

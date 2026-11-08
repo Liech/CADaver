@@ -1,4 +1,4 @@
-#include "UI/ContextMenu/AssetContextMenuFactory.h"
+﻿#include "UI/ContextMenu/AssetContextMenuFactory.h"
 
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
@@ -46,7 +46,7 @@ void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, Windows& wind
         return;
     }
 
-    std::string popupId = "AssetContextMenu##" + std::to_string(reinterpret_cast<uintptr_t>(asset.get()));
+    std::string popupId = "AssetContextMenu##" + asset->getGuid().toString();
     if (ImGui::BeginPopupContextItem(popupId.c_str()))
     {
         auto menu = create(asset);

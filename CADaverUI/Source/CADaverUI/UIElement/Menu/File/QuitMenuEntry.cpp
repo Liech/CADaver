@@ -1,4 +1,4 @@
-#include "UIElement/Menu/File/QuitMenuEntry.h"
+﻿#include "UIElement/Menu/File/QuitMenuEntry.h"
 
 QuitMenuEntry::QuitMenuEntry(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows, bool& quitRequested)
   : MenuEntry("Quit", "File/Quit", "Alt+F4", gatedDatabase, undoStack, windows)

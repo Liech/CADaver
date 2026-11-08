@@ -1,4 +1,4 @@
-#include "Database/Asset/CadAsset.h"
+﻿#include "Database/Asset/CadAsset.h"
 
 #include "CADacomb/CAD/Interface/Shape.h"
 #include "CADacomb/CAD/Interface/TessellationOptions.h"

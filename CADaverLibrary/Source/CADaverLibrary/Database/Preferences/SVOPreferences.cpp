@@ -1,4 +1,4 @@
-#include "Database/Preferences/SVOPreferences.h"
+﻿#include "Database/Preferences/SVOPreferences.h"
 
 SVOPreferences::SVOPreferences() {}
 

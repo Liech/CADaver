@@ -1,4 +1,4 @@
-#include "Search/Searcher.h"
+﻿#include "Search/Searcher.h"
 
 Searcher::Searcher() {}
 

@@ -1,4 +1,4 @@
-#include "Search/AssetSearcher.h"
+﻿#include "Search/AssetSearcher.h"
 
 #include "Database/Asset.h"
 #include "Database/Asset/CadAsset.h"

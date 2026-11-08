@@ -1,4 +1,4 @@
-#include "UI/Project/ProjectWindow.h"
+﻿#include "UI/Project/ProjectWindow.h"
 
 #include "Database/Asset.h"
 #include "Database/Asset/ProgressBarAsset.h"

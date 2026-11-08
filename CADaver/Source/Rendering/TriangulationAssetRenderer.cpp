@@ -1,4 +1,4 @@
-#include "TriangulationAssetRenderer.h"
+﻿#include "TriangulationAssetRenderer.h"
 
 #include "Database/Asset/TriangulationAsset.h"
 #include "Rendering/Renderer.h"

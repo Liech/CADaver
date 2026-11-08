@@ -1,4 +1,4 @@
-#include "Conversion/AssetConverter.h"
+﻿#include "Conversion/AssetConverter.h"
 
 #include "CADacomb/CAD/Interface/TessellationOptions.h"
 #include "CADacomb/CAD/Sm/KernelSm.h"

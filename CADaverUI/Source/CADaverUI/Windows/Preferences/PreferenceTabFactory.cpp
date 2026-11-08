@@ -1,4 +1,4 @@
-#include "Windows/Preferences/PreferenceTabFactory.h"
+﻿#include "Windows/Preferences/PreferenceTabFactory.h"
 
 #include "Windows/Preferences/CameraPreferencesTab.h"
 #include "Windows/Preferences/RenderPreferencesTab.h"

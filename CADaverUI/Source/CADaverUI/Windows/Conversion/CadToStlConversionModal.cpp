@@ -1,4 +1,4 @@
-#include "Windows/Conversion/CadToStlConversionModal.h"
+﻿#include "Windows/Conversion/CadToStlConversionModal.h"
 
 #include "Database/Database.h"
 #include "Database/Project.h"

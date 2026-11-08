@@ -1,4 +1,4 @@
-#include "Commands/IO/LoadStepAssetCommand.h"
+﻿#include "Commands/IO/LoadStepAssetCommand.h"
 
 #include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Util/GUID.h"
@@ -74,7 +74,7 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database)
             std::string tempPath = (std::filesystem::temp_directory_path() / ("cadaver_temp_" + CADacomb::GUID::random().toString() + ".step")).string();
             {
                 std::ofstream tempOut(tempPath, std::ios::binary);
-                tempOut.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+                tempOut.write(static_cast<const char*>(static_cast<const void*>(bytes.data())), bytes.size());
             }
             shapes = kernel.loadStepFile(tempPath);
             std::filesystem::remove(tempPath);

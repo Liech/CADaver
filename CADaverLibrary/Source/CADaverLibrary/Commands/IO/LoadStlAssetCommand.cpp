@@ -1,4 +1,4 @@
-#include "Commands/IO/LoadStlAssetCommand.h"
+﻿#include "Commands/IO/LoadStlAssetCommand.h"
 
 #include "CADacomb/Triangle/Triangulation.h"
 #include "CADacomb/Util/ProgressBar.h"
@@ -61,7 +61,7 @@ nlohmann::json LoadStlAssetCommand::execute(Database& database)
 
     if (!bytes.empty())
     {
-        std::string        str(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+        std::string        str(bytes.begin(), bytes.end());
         std::istringstream stream(str, std::ios::binary);
         triangulation = CADacomb::Triangulation::fromSTLStream(stream);
     }

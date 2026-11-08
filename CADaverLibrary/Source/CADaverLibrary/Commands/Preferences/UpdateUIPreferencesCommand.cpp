@@ -1,4 +1,4 @@
-#include "Commands/Preferences/UpdateUIPreferencesCommand.h"
+﻿#include "Commands/Preferences/UpdateUIPreferencesCommand.h"
 
 #include "Database/Database.h"
 

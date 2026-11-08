@@ -1,4 +1,4 @@
-#include "UIElement/UIElement.h"
+﻿#include "UIElement/UIElement.h"
 
 UIElement::UIElement(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows)
   : gatedDatabase(gatedDatabase)

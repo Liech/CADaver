@@ -1,4 +1,4 @@
-#include "Windows/Preferences/PreferenceTab.h"
+﻿#include "Windows/Preferences/PreferenceTab.h"
 
 PreferenceTab::PreferenceTab() {}
 

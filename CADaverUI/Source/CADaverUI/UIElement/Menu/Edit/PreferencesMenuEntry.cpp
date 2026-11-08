@@ -1,4 +1,4 @@
-#include "UIElement/Menu/Edit/PreferencesMenuEntry.h"
+﻿#include "UIElement/Menu/Edit/PreferencesMenuEntry.h"
 
 #include "Windows/Windows.h"
 

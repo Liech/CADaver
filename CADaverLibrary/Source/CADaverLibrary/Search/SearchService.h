@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Search/SearchResult.h"
 #include "Search/Searcher.h"

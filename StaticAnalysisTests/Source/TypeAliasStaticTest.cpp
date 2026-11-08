@@ -1,4 +1,4 @@
-#include "TypeAliasStaticTest.h"
+﻿#include "TypeAliasStaticTest.h"
 
 #include "SourceFile.h"
 #include "SourceFileDiscoverer.h"

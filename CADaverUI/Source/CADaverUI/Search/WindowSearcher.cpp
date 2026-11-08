@@ -1,4 +1,4 @@
-#include "Search/WindowSearcher.h"
+﻿#include "Search/WindowSearcher.h"
 
 #include "Windows/Window.h"
 #include "Windows/WindowFactory.h"

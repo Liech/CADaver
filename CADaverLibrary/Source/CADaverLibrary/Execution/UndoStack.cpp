@@ -1,4 +1,4 @@
-#include "Execution/UndoStack.h"
+﻿#include "Execution/UndoStack.h"
 
 #include "Execution/GatedDatabase.h"
 

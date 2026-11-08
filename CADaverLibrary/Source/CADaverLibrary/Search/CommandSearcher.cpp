@@ -1,4 +1,4 @@
-#include "Search/CommandSearcher.h"
+﻿#include "Search/CommandSearcher.h"
 
 #include "Execution/Command.h"
 #include "Execution/CommandFactory.h"

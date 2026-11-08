@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 
 temp_out_path = os.path.abspath("temp_python_svo_test.svo")

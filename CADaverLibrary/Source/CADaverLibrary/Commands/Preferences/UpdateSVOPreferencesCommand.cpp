@@ -1,4 +1,4 @@
-#include "Commands/Preferences/UpdateSVOPreferencesCommand.h"
+﻿#include "Commands/Preferences/UpdateSVOPreferencesCommand.h"
 
 #include "Database/Database.h"
 

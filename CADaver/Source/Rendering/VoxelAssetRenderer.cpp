@@ -1,4 +1,4 @@
-#include "VoxelAssetRenderer.h"
+﻿#include "VoxelAssetRenderer.h"
 
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Preferences/SVOPreferences.h"

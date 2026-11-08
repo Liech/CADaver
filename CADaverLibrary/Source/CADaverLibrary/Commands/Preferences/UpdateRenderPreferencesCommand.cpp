@@ -1,4 +1,4 @@
-#include "Commands/Preferences/UpdateRenderPreferencesCommand.h"
+﻿#include "Commands/Preferences/UpdateRenderPreferencesCommand.h"
 
 #include "Database/Database.h"
 

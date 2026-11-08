@@ -1,4 +1,4 @@
-#include "Search/SearchResult.h"
+﻿#include "Search/SearchResult.h"
 
 SearchResult::SearchResult() {}
 

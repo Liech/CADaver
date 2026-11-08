@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CADacomb/Volume/SVO/Generator/LandscapeConfig.h"
 #include "Component/VoxelResolutionComboBox.h"
