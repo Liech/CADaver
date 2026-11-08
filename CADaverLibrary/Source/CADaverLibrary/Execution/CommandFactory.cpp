@@ -1,4 +1,4 @@
-﻿#include "Execution/CommandFactory.h"
+#include "Execution/CommandFactory.h"
 
 #include "Commands/Component/AddNoteCommand.h"
 #include "Commands/Component/RemoveComponentCommand.h"
@@ -18,6 +18,9 @@
 #include "Commands/Preferences/UpdateSVOPreferencesCommand.h"
 #include "Commands/Preferences/UpdateUIPreferencesCommand.h"
 #include "Commands/Project/ClearProjectCommand.h"
+#include "Commands/Project/GetAssetCountCommand.h"
+#include "Commands/Project/GetAssetInfoCommand.h"
+#include "Commands/Project/GetAssetNamesCommand.h"
 #include "Commands/Project/RemoveAssetCommand.h"
 #include "Commands/Search/GetDocumentationCommand.h"
 #include "Commands/Search/SearchCommand.h"
@@ -90,6 +93,9 @@ void CommandFactory::registerCommands()
     registerCommand("UpdateUIPreferences", []() { return std::make_unique<UpdateUIPreferencesCommand>(); });
     registerCommand("UpdateRenderPreferences", []() { return std::make_unique<UpdateRenderPreferencesCommand>(); });
     registerCommand("UpdateSVOPreferences", []() { return std::make_unique<UpdateSVOPreferencesCommand>(); });
+    registerCommand("GetAssetCount", []() { return std::make_unique<GetAssetCountCommand>(); });
+    registerCommand("GetAssetInfo", []() { return std::make_unique<GetAssetInfoCommand>(); });
+    registerCommand("GetAssetNames", []() { return std::make_unique<GetAssetNamesCommand>(); });
     registerCommand("Search", []() { return std::make_unique<SearchCommand>(); });
     registerCommand("GetDocumentation", []() { return std::make_unique<GetDocumentationCommand>(); });
 }
@@ -103,6 +109,9 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("NonExistent") == nullptr);
     CHECK(factory.create("RemoveAsset") != nullptr);
     CHECK(factory.create("ClearProject") != nullptr);
+    CHECK(factory.create("GetAssetCount") != nullptr);
+    CHECK(factory.create("GetAssetInfo") != nullptr);
+    CHECK(factory.create("GetAssetNames") != nullptr);
     CHECK(factory.create("ConvertCadToStl") != nullptr);
     CHECK(factory.create("ConvertCadToSvo") != nullptr);
     CHECK(factory.create("ConvertStlToSvo") != nullptr);
@@ -122,6 +131,6 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("RemoveComponent") != nullptr);
     CHECK(factory.create("Search") != nullptr);
     CHECK(factory.create("GetDocumentation") != nullptr);
-    CHECK(factory.getAllCommands().size() == 21);
+    CHECK(factory.getAllCommands().size() == 24);
 }
 #endif

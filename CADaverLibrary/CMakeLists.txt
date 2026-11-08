@@ -63,6 +63,12 @@ set(Command_Project_Files
     "Source/CADaverLibrary/Commands/Project/ClearProjectCommand.cpp"
     "Source/CADaverLibrary/Commands/Project/RemoveAssetCommand.h"
     "Source/CADaverLibrary/Commands/Project/RemoveAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/Project/GetAssetNamesCommand.h"
+    "Source/CADaverLibrary/Commands/Project/GetAssetNamesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Project/GetAssetCountCommand.h"
+    "Source/CADaverLibrary/Commands/Project/GetAssetCountCommand.cpp"
+    "Source/CADaverLibrary/Commands/Project/GetAssetInfoCommand.h"
+    "Source/CADaverLibrary/Commands/Project/GetAssetInfoCommand.cpp"
 )
 source_group("Source/Commands/Project" FILES ${Command_Project_Files})
 
