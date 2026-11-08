@@ -24,6 +24,10 @@ set(Source_Files
     "Source/TypeAliasStaticTest.cpp"
     "Source/CatchSectionStaticTest.h"
     "Source/CatchSectionStaticTest.cpp"
+    "Source/VoidCastStaticTest.h"
+    "Source/VoidCastStaticTest.cpp"
+    "Source/LineEndingStaticTest.h"
+    "Source/LineEndingStaticTest.cpp"
 )
 source_group("Source" FILES ${Source_Files})
 

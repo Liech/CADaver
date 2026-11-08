@@ -74,7 +74,8 @@ nlohmann::json LoadStepAssetCommand::execute(Database& database)
             std::string tempPath = (std::filesystem::temp_directory_path() / ("cadaver_temp_" + CADacomb::GUID::random().toString() + ".step")).string();
             {
                 std::ofstream tempOut(tempPath, std::ios::binary);
-                tempOut.write(static_cast<const char*>(static_cast<const void*>(bytes.data())), bytes.size());
+                std::string   str(bytes.begin(), bytes.end());
+                tempOut.write(str.data(), str.size());
             }
             shapes = kernel.loadStepFile(tempPath);
             std::filesystem::remove(tempPath);
