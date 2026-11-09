@@ -33,6 +33,20 @@ CommandLineArgs CommandLineArgs::parse(int argc, char* argv[])
         {
             result.setVerbose(true);
         }
+        else if (arg == "--mcp")
+        {
+            result.setMcp(true);
+        }
+        else if (arg == "--headless")
+        {
+            result.setHeadless(true);
+        }
+        else if ((arg == "--port" || arg == "-p") && i + 1 < argc)
+        {
+            i++;
+            result.setPort(std::stoi(argv[i]));
+            result.setMcp(true);
+        }
     }
 
     return result;
@@ -41,6 +55,16 @@ CommandLineArgs CommandLineArgs::parse(int argc, char* argv[])
 bool CommandLineArgs::hasScript() const
 {
     return !scriptPath.empty();
+}
+
+bool CommandLineArgs::hasMcp() const
+{
+    return mcp;
+}
+
+bool CommandLineArgs::isHeadless() const
+{
+    return headless;
 }
 
 const std::string& CommandLineArgs::getScriptPath() const
@@ -63,6 +87,11 @@ const std::string& CommandLineArgs::getOutputPath() const
     return outputPath;
 }
 
+int CommandLineArgs::getPort() const
+{
+    return port;
+}
+
 void CommandLineArgs::setScriptPath(const std::string& path)
 {
     scriptPath = path;
@@ -81,4 +110,19 @@ void CommandLineArgs::setVerbose(bool flag)
 void CommandLineArgs::setOutputPath(const std::string& path)
 {
     outputPath = path;
+}
+
+void CommandLineArgs::setMcp(bool flag)
+{
+    mcp = flag;
+}
+
+void CommandLineArgs::setHeadless(bool flag)
+{
+    headless = flag;
+}
+
+void CommandLineArgs::setPort(int portNumber)
+{
+    port = portNumber;
 }

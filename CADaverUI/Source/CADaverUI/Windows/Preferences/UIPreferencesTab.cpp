@@ -1,4 +1,4 @@
-﻿#include "Windows/Preferences/UIPreferencesTab.h"
+#include "Windows/Preferences/UIPreferencesTab.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/Preferences.h"
@@ -76,6 +76,7 @@ bool UIPreferencesTab::render(GatedDatabase& database, Defer& defer)
         modified = true;
     }
 
+    ImGui::BeginDisabled(!SystemConsole::isAvailable());
     bool showConsole = preferences.isSystemConsoleEnabled();
     if (ImGui::Checkbox("System Console", &showConsole))
     {
@@ -83,6 +84,7 @@ bool UIPreferencesTab::render(GatedDatabase& database, Defer& defer)
         apply(preferences);
         modified = true;
     }
+    ImGui::EndDisabled();
 
     ImGui::Spacing();
     ImGui::Separator();

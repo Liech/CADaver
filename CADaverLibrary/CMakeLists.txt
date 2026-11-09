@@ -172,6 +172,16 @@ set(Utility_Files
 )
 source_group("Source/Utility" FILES ${Utility_Files})
 
+set(Mcp_Files
+    "Source/CADaverLibrary/MCP/McpPipeStream.h"
+    "Source/CADaverLibrary/MCP/McpPipeStream.cpp"
+    "Source/CADaverLibrary/MCP/McpServer.h"
+    "Source/CADaverLibrary/MCP/McpServer.cpp"
+    "Source/CADaverLibrary/MCP/McpSocketServer.h"
+    "Source/CADaverLibrary/MCP/McpSocketServer.cpp"
+)
+source_group("Source/MCP" FILES ${Mcp_Files})
+
 set(Command_Search_Files
     "Source/CADaverLibrary/Commands/Search/GetDocumentationCommand.h"
     "Source/CADaverLibrary/Commands/Search/GetDocumentationCommand.cpp"
@@ -189,6 +199,10 @@ set(Concept_Files
     "Source/CADaverLibrary/Concept/AssetConcept.cpp"
     "Source/CADaverLibrary/Concept/CommandConcept.h"
     "Source/CADaverLibrary/Concept/CommandConcept.cpp"
+    "Source/CADaverLibrary/Concept/CommandLineConcept.h"
+    "Source/CADaverLibrary/Concept/CommandLineConcept.cpp"
+    "Source/CADaverLibrary/Concept/McpConcept.h"
+    "Source/CADaverLibrary/Concept/McpConcept.cpp"
     "Source/CADaverLibrary/Concept/StepFileConcept.h"
     "Source/CADaverLibrary/Concept/StepFileConcept.cpp"
     "Source/CADaverLibrary/Concept/StlFileConcept.h"
@@ -251,6 +265,7 @@ set(ALL_FILES
     ${Database_Asset_Files}
     ${Execution_Files}
     ${Utility_Files}
+    ${Mcp_Files}
 )
 
 ############################################################################
@@ -276,6 +291,11 @@ target_link_libraries(CadaverLibrary PUBLIC
     nlohmann_json::nlohmann_json
     Polyglot
 )
+
+if(WIN32)
+    target_link_libraries(CadaverLibrary PUBLIC ws2_32)
+    target_link_libraries(CadaverLibraryTest PRIVATE ws2_32)
+endif()
 
 target_include_directories(CadaverLibrary PUBLIC
     ./Source/

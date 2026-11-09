@@ -21,6 +21,14 @@ set(Source_Files
 )
 source_group("Source" FILES ${Source_Files})
 
+set(MCP_Files
+    "Source/MCP/HeadlessMcpRunner.h"
+    "Source/MCP/HeadlessMcpRunner.cpp"
+    "Source/MCP/InteractiveMcpRunner.h"
+    "Source/MCP/InteractiveMcpRunner.cpp"
+)
+source_group("Source/MCP" FILES ${MCP_Files})
+
 set(Rendering_Files
     "Source/Rendering/Renderer.h"
     "Source/Rendering/Renderer.cpp"
@@ -105,6 +113,7 @@ source_group("Source/Camera" FILES ${Camera_Files})
 
 set(ALL_FILES
     ${Source_Files}
+    ${MCP_Files}
     ${Camera_Files}
     ${Rendering_Files}
     ${UI_Menu_Files}

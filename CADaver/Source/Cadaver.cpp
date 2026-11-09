@@ -71,6 +71,16 @@ bool Cadaver::isQuitRequested() const
     return quitRequested;
 }
 
+GatedDatabase& Cadaver::getGatedDatabase()
+{
+    return gatedDatabase;
+}
+
+Defer& Cadaver::getDefer()
+{
+    return defer;
+}
+
 void Cadaver::onLogic(double delta)
 {
     defer.process();

@@ -36,6 +36,9 @@ class Cadaver
     Vulcant::VulcantWindow& getWindow();
     bool                    isQuitRequested() const;
 
+    GatedDatabase& getGatedDatabase();
+    Defer&         getDefer();
+
   private:
     void onLogic(double delta);
     void onRender();

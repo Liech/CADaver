@@ -1,6 +1,8 @@
 ﻿#include "Cadaver.h"
 #include "CommandLineArgs.h"
 #include "HeadlessScriptRunner.h"
+#include "MCP/HeadlessMcpRunner.h"
+#include "MCP/InteractiveMcpRunner.h"
 #include "Windows/Console/SystemConsole.h"
 
 #include <cstdlib>
@@ -24,6 +26,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         return runner.run(args);
     }
 
+    if (args.hasMcp())
+    {
+        if (args.isHeadless())
+        {
+            HeadlessMcpRunner runner;
+            return runner.run(args);
+        }
+
+        InteractiveMcpRunner runner;
+        return runner.run(args);
+    }
+
     Cadaver::run();
     return EXIT_SUCCESS;
 }
@@ -36,6 +50,18 @@ int main(int argc, char* argv[])
     {
         SystemConsole::attachParent();
         HeadlessScriptRunner runner;
+        return runner.run(args);
+    }
+
+    if (args.hasMcp())
+    {
+        if (args.isHeadless())
+        {
+            HeadlessMcpRunner runner;
+            return runner.run(args);
+        }
+
+        InteractiveMcpRunner runner;
         return runner.run(args);
     }
 

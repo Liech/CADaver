@@ -1,4 +1,4 @@
-﻿#include "Windows/Console/SystemConsole.h"
+#include "Windows/Console/SystemConsole.h"
 
 #include <iostream>
 
@@ -12,12 +12,19 @@
 #include <windows.h>
 #endif
 
+bool SystemConsole::available = true;
+
 SystemConsole::SystemConsole() {}
 
 SystemConsole::~SystemConsole() {}
 
 void SystemConsole::setVisible(bool visible)
 {
+    if (!available)
+    {
+        return;
+    }
+
 #ifdef _WIN32
     if (visible)
     {
@@ -88,10 +95,15 @@ bool SystemConsole::isVisible()
 #endif
 }
 
+void SystemConsole::setAvailable(bool isAvailable)
+{
+    available = isAvailable;
+}
+
 bool SystemConsole::isAvailable()
 {
 #ifdef _WIN32
-    return true;
+    return available;
 #else
     return false;
 #endif
@@ -123,7 +135,11 @@ bool SystemConsole::attachParent()
 
 TEST_CASE("SystemConsole/Availability")
 {
+    SystemConsole::setAvailable(true);
     CHECK(SystemConsole::isAvailable() == true);
+    SystemConsole::setAvailable(false);
+    CHECK(SystemConsole::isAvailable() == false);
+    SystemConsole::setAvailable(true);
 }
 
 TEST_CASE("SystemConsole/VisibilityToggle")
