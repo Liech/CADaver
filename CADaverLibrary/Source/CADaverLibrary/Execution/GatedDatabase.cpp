@@ -1,4 +1,4 @@
-﻿#include "Execution/GatedDatabase.h"
+#include "Execution/GatedDatabase.h"
 
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/ProgressBarAsset.h"
@@ -142,10 +142,6 @@ void GatedDatabase::log(const std::string& msg)
     if (logCallback)
     {
         logCallback(msg);
-    }
-    else
-    {
-        std::cout << msg << std::endl;
     }
 }
 
