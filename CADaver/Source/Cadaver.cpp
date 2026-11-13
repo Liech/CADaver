@@ -1,8 +1,7 @@
-﻿#include "Cadaver.h"
+#include "Cadaver.h"
 
 #include "Camera/ViewController.h"
 #include "Database/Preferences/CameraPreferences.h"
-#include "Database/Preferences/Preferences.h"
 #include "Rendering/Renderer.h"
 #include "UI/Menu/TopMenu.h"
 #include "UI/Project/ProjectWindow.h"
@@ -90,13 +89,17 @@ void Cadaver::onLogic(double delta)
         viewController->tick(delta);
     }
 
-    const auto& project = gatedDatabase.get().getProject();
-    if (lastAssetCount != project.getAssetCount())
+    Polyglot::Node countRes          = gatedDatabase.execute({
+      {    "type", "GetAssetCount" },
+      { "version",               1 }
+    });
+    size_t         currentAssetCount = countRes.toJson().value("count", static_cast<size_t>(0));
+    if (lastAssetCount != currentAssetCount)
     {
-        lastAssetCount = project.getAssetCount();
+        lastAssetCount = currentAssetCount;
         if (viewController)
         {
-            viewController->frameOnProject(project);
+            viewController->frameOnProject(gatedDatabase);
         }
     }
 
@@ -164,16 +167,24 @@ void Cadaver::prepare()
 
     renderer = std::make_unique<Renderer>(device, *window, resolution, gatedDatabase);
 
-    const auto& preferences = gatedDatabase.get().getPreferences();
-
     projectWindow = std::make_unique<ProjectWindow>();
     topMenu       = std::make_unique<TopMenu>();
 
     PreferencesWindow preferencesWindow;
     preferencesWindow.load(gatedDatabase, defer);
 
+    Polyglot::Node    camPrefRes = gatedDatabase.execute({
+      {    "type", "GetCameraPreferences" },
+      { "version",                      1 }
+    });
+    CameraPreferences cameraPreferences;
+    if (camPrefRes.contains("preferences"))
+    {
+        cameraPreferences.fromNode(camPrefRes["preferences"]);
+    }
+
     viewController = std::make_unique<ViewController>();
-    viewController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
+    viewController->setMode(cameraPreferences.getCameraMode(), *window, cameraPreferences, resolution);
     viewController->registerUIElements(topMenu->getUIElementFactory(), gatedDatabase, undoStack, windows);
 }
 
@@ -186,24 +197,30 @@ void Cadaver::renderImGui()
 
     renderer->beginUiFrame();
 
-    const auto& database    = gatedDatabase.get();
-    const auto& project     = database.getProject();
-    const auto& preferences = database.getPreferences();
-
     if (topMenu)
     {
         topMenu->render(gatedDatabase, undoStack, defer, windows, quitRequested);
 
         if (viewController)
         {
-            if (preferences.getCameraPreferences().getCameraMode() != viewController->getMode())
+            Polyglot::Node    camPrefRes = gatedDatabase.execute({
+              {    "type", "GetCameraPreferences" },
+              { "version",                      1 }
+            });
+            CameraPreferences cameraPreferences;
+            if (camPrefRes.contains("preferences"))
             {
-                viewController->setMode(preferences.getCameraPreferences().getCameraMode(), *window, preferences.getCameraPreferences(), resolution);
+                cameraPreferences.fromNode(camPrefRes["preferences"]);
             }
 
-            if (viewController->getCamera() && viewController->getCamera()->isOrthographic() != preferences.getCameraPreferences().isOrthographic())
+            if (cameraPreferences.getCameraMode() != viewController->getMode())
             {
-                viewController->getCamera()->setOrthographic(preferences.getCameraPreferences().isOrthographic());
+                viewController->setMode(cameraPreferences.getCameraMode(), *window, cameraPreferences, resolution);
+            }
+
+            if (viewController->getCamera() && viewController->getCamera()->isOrthographic() != cameraPreferences.isOrthographic())
+            {
+                viewController->getCamera()->setOrthographic(cameraPreferences.isOrthographic());
             }
         }
     }
@@ -211,10 +228,18 @@ void Cadaver::renderImGui()
     if (viewController)
     {
         viewController->renderViewCube(resolution,
-                                       project,
+                                       gatedDatabase,
                                        [this](bool ortho)
                                        {
-                                           CameraPreferences prefs = gatedDatabase.get().getPreferences().getCameraPreferences();
+                                           Polyglot::Node    camPrefRes = gatedDatabase.execute({
+                                             {    "type", "GetCameraPreferences" },
+                                             { "version",                      1 }
+                                           });
+                                           CameraPreferences prefs;
+                                           if (camPrefRes.contains("preferences"))
+                                           {
+                                               prefs.fromNode(camPrefRes["preferences"]);
+                                           }
                                            prefs.setOrthographic(ortho);
                                            Polyglot::Node command = {
                                                {        "type", "UpdateCameraPreferences" },

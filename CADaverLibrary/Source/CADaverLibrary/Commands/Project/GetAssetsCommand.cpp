@@ -1,6 +1,7 @@
 #include "Commands/Project/GetAssetsCommand.h"
 
 #include "Database/Asset.h"
+#include "Database/Asset/ProgressBarAsset.h"
 #include "Database/AssetComponent.h"
 #include "Database/Database.h"
 
@@ -80,18 +81,35 @@ nlohmann::json GetAssetsCommand::execute(Database& database)
             });
         }
 
-        assetArray.push_back({
-          {  "assetGuid", asset->getGuid().toString() },
-          {       "name",            asset->getName() },
-          {       "type",            asset->getType() },
-          {   "revision",        asset->getRevision() },
-          { "components",              componentArray }
-        });
+        nlohmann::json assetJson = {
+            {  "assetGuid", asset->getGuid().toString() },
+            {       "name",            asset->getName() },
+            {       "type",            asset->getType() },
+            {   "revision",        asset->getRevision() },
+            { "components",              componentArray }
+        };
+
+        auto progressAsset = std::dynamic_pointer_cast<const ProgressBarAsset>(asset);
+        if (progressAsset)
+        {
+            assetJson["operationName"] = progressAsset->getOperationName();
+            assetJson["progress"]      = progressAsset->getProgress();
+            assetJson["isReady"]       = progressAsset->isReady();
+            if (progressAsset->isReady())
+            {
+                Polyglot::Node res      = progressAsset->getResult();
+                assetJson["taskStatus"] = res["status"].isString() ? res["status"].asString() : "";
+                assetJson["taskError"]  = res["error"].isString() ? res["error"].asString() : "";
+            }
+        }
+
+        assetArray.push_back(assetJson);
     }
 
-    return createResponse("Success", {
-                                       { "assets", assetArray }
-                                     });
+    return createResponse("Success",
+                          {
+                            { "assets", assetArray }
+    });
 }
 
 #ifdef ISTESTPROJECT

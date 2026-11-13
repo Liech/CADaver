@@ -1,4 +1,4 @@
-﻿#include "Windows/Project/ClearProjectModal.h"
+#include "Windows/Project/ClearProjectModal.h"
 
 #include "Database/Database.h"
 #include "Database/Project.h"
@@ -54,7 +54,11 @@ void ClearProjectModal::render()
 
     if (ImGui::Begin("Clear Project##ClearProjectWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        const auto& project = gatedDatabase->get().getProject();
+        Polyglot::Node countRes   = gatedDatabase->execute({
+          {    "type", "GetAssetCount" },
+          { "version",               1 }
+        });
+        size_t         assetCount = static_cast<size_t>(countRes["count"].asInt());
 
         ImGui::Text("Are you sure you want to clear the project?");
         ImGui::TextDisabled("All assets will be removed from the project.");
@@ -62,7 +66,7 @@ void ClearProjectModal::render()
         ImGui::Separator();
         ImGui::Spacing();
 
-        ImGui::BeginDisabled(project.getAssetCount() == 0);
+        ImGui::BeginDisabled(assetCount == 0);
         if (ImGui::Button("Yes", ImVec2(120.0f, 0.0f)))
         {
             executeClear();

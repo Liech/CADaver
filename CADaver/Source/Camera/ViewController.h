@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Vulcant/Toolkit/SceneData.h"
 
@@ -20,7 +20,6 @@ namespace Vulcant::Toolkit
 class CameraController;
 class CameraPreferences;
 class GatedDatabase;
-class Project;
 class UIElementFactory;
 class UndoStack;
 class ViewCubeWidget;
@@ -40,8 +39,8 @@ class ViewController
     void tick(double delta);
     void keyEvent(const Vulcant::VulcantInputValue& key);
 
-    void frameOnProject(const Project& project);
-    void reset(const CameraPreferences& cameraPreferences, const Project& project);
+    void frameOnProject(GatedDatabase& gatedDatabase);
+    void reset(const CameraPreferences& cameraPreferences, GatedDatabase& gatedDatabase);
 
     Vulcant::Toolkit::Camera*   getCamera() const;
     Vulcant::Toolkit::SceneData getSceneData() const;
@@ -56,11 +55,11 @@ class ViewController
     void rollCcw();
     void rollCw();
     void toggleProjection();
-    void resetView(const Project& project);
+    void resetView(GatedDatabase& gatedDatabase);
 
     void registerUIElements(UIElementFactory& factory, GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows);
 
-    void renderViewCube(const glm::ivec2& resolution, const Project& project, const std::function<void(bool)>& onOrthographicChanged = nullptr);
+    void renderViewCube(const glm::ivec2& resolution, GatedDatabase& gatedDatabase, const std::function<void(bool)>& onOrthographicChanged = nullptr);
 
   private:
     std::unique_ptr<CameraController> cameraController;

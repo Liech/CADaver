@@ -1,17 +1,12 @@
-﻿#include "Windows/IO/SaveStlAssetWindow.h"
+#include "Windows/IO/SaveStlAssetWindow.h"
 
 #include "Component/SaveFileDialog.h"
-#include "Database/Asset.h"
-#include "Database/Database.h"
-#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
 #include <cstring>
 #include <filesystem>
-#include <fstream>
 #include <imgui.h>
-#include <memory>
 
 SaveStlAssetWindow::SaveStlAssetWindow()
   : assetComboBox("Triangulation")
@@ -41,19 +36,27 @@ void SaveStlAssetWindow::setTargetAsset(const CADacomb::GUID& assetGuid)
     assetComboBox.setSelectedGuid(assetGuid);
 }
 
-void SaveStlAssetWindow::browseFile(const Project& project)
+void SaveStlAssetWindow::browseFile()
 {
     SaveFileDialog dialog;
     dialog.addFilter("STL File", { "stl" });
 
     std::string defaultName = "mesh.stl";
-    auto        asset       = project.getAsset(assetComboBox.getSelectedGuid());
-    if (asset)
+    if (gatedDatabase && !assetComboBox.getSelectedGuid().toString().empty())
     {
-        defaultName = asset->getName();
-        if (std::filesystem::path(defaultName).extension().empty())
+        Polyglot::Node response = gatedDatabase->execute({
+          {      "type",                             "GetAssetInfo" },
+          {   "version",                                          1 },
+          { "assetGuid", assetComboBox.getSelectedGuid().toString() }
+        });
+        nlohmann::json infoJson = response.toJson();
+        if (infoJson.value("status", "") == "Success")
         {
-            defaultName += ".stl";
+            defaultName = infoJson.value("assetName", "mesh.stl");
+            if (std::filesystem::path(defaultName).extension().empty())
+            {
+                defaultName += ".stl";
+            }
         }
     }
     dialog.setSaveFileName(defaultName);
@@ -107,8 +110,7 @@ void SaveStlAssetWindow::render()
     if (ImGui::Begin("Save STL Asset##SaveStlWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
         handleEscapeClose();
-        const auto& project = gatedDatabase->get().getProject();
-        assetComboBox.render(project);
+        assetComboBox.render(*gatedDatabase);
         ImGui::Spacing();
 
         char pathBuffer[512];
@@ -120,14 +122,14 @@ void SaveStlAssetWindow::render()
         ImGui::SameLine();
         if (ImGui::Button("Browse..."))
         {
-            browseFile(project);
+            browseFile();
         }
 
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool canSave = project.hasAsset(assetComboBox.getSelectedGuid()) && !filePath.empty();
+        bool canSave = !assetComboBox.getSelectedGuid().toString().empty() && !filePath.empty();
         ImGui::BeginDisabled(!canSave);
         if (ImGui::Button("Save", ImVec2(120.0f, 0.0f)))
         {

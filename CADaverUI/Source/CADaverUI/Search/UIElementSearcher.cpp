@@ -1,4 +1,4 @@
-﻿#include "Search/UIElementSearcher.h"
+#include "Search/UIElementSearcher.h"
 
 #include "UIElement/Menu/MenuEntry.h"
 #include "UIElement/Radio/RadioUIElement.h"
@@ -54,6 +54,9 @@ std::vector<SearchResult> UIElementSearcher::search(const std::string& query)
 }
 
 #ifdef ISTESTPROJECT
+#include "Database/Preferences/CameraPreferences.h"
+#include "Database/Preferences/RenderPreferences.h"
+#include "Database/Preferences/UIPreferences.h"
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"
 #include "Windows/Windows.h"
@@ -91,30 +94,53 @@ TEST_CASE("UIElementSearcher/SearchAndInvoke")
     REQUIRE(!wireframeResults.empty());
     REQUIRE(wireframeResults[0].getTitle() == "Wireframe: Overlay");
     wireframeResults[0].execute();
-    REQUIRE(db.get().getPreferences().getRenderPreferences().getWireframeMode() == 1);
+    RenderPreferences renderPrefs;
+    renderPrefs.fromNode(db.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    })["preferences"]);
+    REQUIRE(renderPrefs.getWireframeMode() == 1);
 
     auto cullingResults = searcher.search("cull back");
     REQUIRE(!cullingResults.empty());
     REQUIRE(cullingResults[0].getTitle() == "Culling: Back");
     cullingResults[0].execute();
-    REQUIRE(db.get().getPreferences().getRenderPreferences().getCullMode() == 2);
+    renderPrefs.fromNode(db.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    })["preferences"]);
+    REQUIRE(renderPrefs.getCullMode() == 2);
 
     auto cameraResults = searcher.search("freecam");
     REQUIRE(!cameraResults.empty());
     REQUIRE(cameraResults[0].getTitle() == "Camera Type: Freecam");
     cameraResults[0].execute();
-    REQUIRE(db.get().getPreferences().getCameraPreferences().getCameraMode() == 1);
+    CameraPreferences cameraPrefs;
+    cameraPrefs.fromNode(db.execute({
+      {    "type", "GetCameraPreferences" },
+      { "version",                      1 }
+    })["preferences"]);
+    REQUIRE(cameraPrefs.getCameraMode() == 1);
 
     auto orthoResults = searcher.search("orthogonally");
     REQUIRE(!orthoResults.empty());
     REQUIRE(orthoResults[0].getTitle() == "Projection: Orthogonal");
     orthoResults[0].execute();
-    REQUIRE(db.get().getPreferences().getCameraPreferences().isOrthographic());
+    cameraPrefs.fromNode(db.execute({
+      {    "type", "GetCameraPreferences" },
+      { "version",                      1 }
+    })["preferences"]);
+    REQUIRE(cameraPrefs.isOrthographic());
 
     auto themeResults = searcher.search("theme light");
     REQUIRE(!themeResults.empty());
     REQUIRE(themeResults[0].getTitle() == "Color Theme: Light");
     themeResults[0].execute();
-    REQUIRE(db.get().getPreferences().getUIPreferences().getThemeIndex() == 1);
+    UIPreferences uiPrefs;
+    uiPrefs.fromNode(db.execute({
+      {    "type", "GetUIPreferences" },
+      { "version",                  1 }
+    })["preferences"]);
+    REQUIRE(uiPrefs.getThemeIndex() == 1);
 }
 #endif

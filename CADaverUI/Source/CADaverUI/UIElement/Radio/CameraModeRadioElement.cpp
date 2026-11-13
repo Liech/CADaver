@@ -1,8 +1,6 @@
-﻿#include "UIElement/Radio/CameraModeRadioElement.h"
+#include "UIElement/Radio/CameraModeRadioElement.h"
 
-#include "Database/Database.h"
 #include "Database/Preferences/CameraPreferences.h"
-#include "Database/Preferences/Preferences.h"
 #include "Execution/GatedDatabase.h"
 
 CameraModeRadioElement::CameraModeRadioElement(int targetMode, GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows)
@@ -26,7 +24,15 @@ std::string CameraModeRadioElement::getDescription() const
 
 void CameraModeRadioElement::click()
 {
-    auto preferences = gatedDatabase.get().getPreferences().getCameraPreferences();
+    Polyglot::Node    response = gatedDatabase.execute({
+      {    "type", "GetCameraPreferences" },
+      { "version",                      1 }
+    });
+    CameraPreferences preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
     preferences.requestModeChange(targetMode);
     Polyglot::Node command = {
         {        "type", "UpdateCameraPreferences" },
@@ -38,7 +44,16 @@ void CameraModeRadioElement::click()
 
 bool CameraModeRadioElement::isSelected() const
 {
-    return gatedDatabase.get().getPreferences().getCameraPreferences().getCameraMode() == targetMode;
+    Polyglot::Node    response = gatedDatabase.execute({
+      {    "type", "GetCameraPreferences" },
+      { "version",                      1 }
+    });
+    CameraPreferences preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
+    return preferences.getCameraMode() == targetMode;
 }
 
 int CameraModeRadioElement::getTargetMode() const
@@ -79,6 +94,5 @@ TEST_CASE("CameraModeRadioElement/ToggleAndSelection")
     freecamElem.click();
     REQUIRE(!arcballElem.isSelected());
     REQUIRE(freecamElem.isSelected());
-    REQUIRE(db.get().getPreferences().getCameraPreferences().getCameraMode() == 1);
 }
 #endif

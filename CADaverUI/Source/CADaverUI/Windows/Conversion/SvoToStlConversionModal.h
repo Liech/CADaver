@@ -1,12 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include "CADacomb/Util/GUID.h"
 #include "Component/AssetComboBox.h"
 #include "Windows/Window.h"
 
 #include <string>
-
-class Project;
 
 // Dialog window for converting a volumetric SVO asset to a blocky triangulation STL asset.
 class SvoToStlConversionModal : public Window
@@ -23,7 +21,7 @@ class SvoToStlConversionModal : public Window
 
   private:
     void executeConversion();
-    void updateMaxDepthFromSelectedAsset(const Project& project, bool resetTargetToMax);
+    void updateMaxDepthFromSelectedAsset(bool resetTargetToMax);
 
     AssetComboBox  assetComboBox;
     CADacomb::GUID lastTrackedGuid;

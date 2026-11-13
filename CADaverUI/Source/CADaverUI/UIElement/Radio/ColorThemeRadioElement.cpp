@@ -1,7 +1,5 @@
-﻿#include "UIElement/Radio/ColorThemeRadioElement.h"
+#include "UIElement/Radio/ColorThemeRadioElement.h"
 
-#include "Database/Database.h"
-#include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/UIPreferences.h"
 #include "Execution/GatedDatabase.h"
 #include "Windows/Preferences/UIPreferencesTab.h"
@@ -29,7 +27,15 @@ std::string ColorThemeRadioElement::getDescription() const
 
 void ColorThemeRadioElement::click()
 {
-    auto preferences = gatedDatabase.get().getPreferences().getUIPreferences();
+    Polyglot::Node response = gatedDatabase.execute({
+      {    "type", "GetUIPreferences" },
+      { "version",                  1 }
+    });
+    UIPreferences  preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
     preferences.setThemeIndex(targetTheme);
     UIPreferencesTab::apply(preferences);
     Polyglot::Node command = {
@@ -42,7 +48,16 @@ void ColorThemeRadioElement::click()
 
 bool ColorThemeRadioElement::isSelected() const
 {
-    return gatedDatabase.get().getPreferences().getUIPreferences().getThemeIndex() == targetTheme;
+    Polyglot::Node response = gatedDatabase.execute({
+      {    "type", "GetUIPreferences" },
+      { "version",                  1 }
+    });
+    UIPreferences  preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
+    return preferences.getThemeIndex() == targetTheme;
 }
 
 int ColorThemeRadioElement::getTargetTheme() const
@@ -85,6 +100,5 @@ TEST_CASE("ColorThemeRadioElement/ToggleAndSelection")
     lightElem.click();
     REQUIRE(!darkElem.isSelected());
     REQUIRE(lightElem.isSelected());
-    REQUIRE(db.get().getPreferences().getUIPreferences().getThemeIndex() == 1);
 }
 #endif

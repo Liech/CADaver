@@ -1,10 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <memory>
 
 class AssetContextMenuFactory;
 class GatedDatabase;
-class Project;
 class Windows;
 
 // UI window displaying the project assets and providing context operations.
@@ -20,7 +19,7 @@ class ProjectWindow
     void  setWidth(float width);
 
   private:
-    void renderMenuBar(const Project& project, Windows& windows);
+    void renderMenuBar(bool hasAssets, Windows& windows);
 
     std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;
     float                                    width = 300.0f;

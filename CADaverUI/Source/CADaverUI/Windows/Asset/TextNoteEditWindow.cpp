@@ -1,4 +1,4 @@
-﻿#include "Windows/Asset/TextNoteEditWindow.h"
+#include "Windows/Asset/TextNoteEditWindow.h"
 
 #include "Database/Asset.h"
 #include "Database/Component/TextNoteComponent.h"
@@ -50,9 +50,7 @@ void TextNoteEditWindow::render()
     if (ImGui::Begin("Edit Text Note", &openState))
     {
         handleEscapeClose();
-        const auto& project = gatedDatabase->get().getProject();
-
-        assetComboBox.render(project);
+        assetComboBox.render(*gatedDatabase);
         CADacomb::GUID selectedAssetGuid = assetComboBox.getSelectedGuid();
 
         if (selectedAssetGuid.toString().empty())
@@ -63,15 +61,19 @@ void TextNoteEditWindow::render()
             return;
         }
 
-        auto asset = project.getAsset(selectedAssetGuid);
-        if (!asset)
+        Polyglot::Node notesResponse = gatedDatabase->execute({
+          {      "type",                   "GetNotes" },
+          {   "version",                            1 },
+          { "assetGuid", selectedAssetGuid.toString() }
+        });
+        nlohmann::json notesJson     = notesResponse.toJson();
+        if (notesJson.value("status", "") != "Success")
         {
             ImGui::End();
             return;
         }
 
-        auto notes = asset->getAttachments<TextNoteComponent>();
-
+        const auto& notes = notesJson["notes"];
         if (notes.empty())
         {
             ImGui::Spacing();
@@ -99,50 +101,55 @@ void TextNoteEditWindow::render()
             return;
         }
 
-        std::shared_ptr<TextNoteComponent> activeNote = nullptr;
-        for (const auto& note : notes)
+        int activeNoteIdx = -1;
+        for (size_t i = 0; i < notes.size(); i++)
         {
-            if (note && note->getGuid() == currentComponentGuid)
+            if (CADacomb::GUID(notes[i].value("componentGuid", "")) == currentComponentGuid)
             {
-                activeNote = note;
+                activeNoteIdx = static_cast<int>(i);
                 break;
             }
         }
 
-        if (!activeNote)
+        if (activeNoteIdx < 0)
         {
-            activeNote           = notes.front();
-            currentComponentGuid = activeNote->getGuid();
+            activeNoteIdx        = 0;
+            currentComponentGuid = CADacomb::GUID(notes[0].value("componentGuid", ""));
             needsSync            = true;
         }
 
-        std::string previewNoteName = activeNote->getName().empty() ? "Untitled Note" : activeNote->getName();
+        const auto& activeNote      = notes[static_cast<size_t>(activeNoteIdx)];
+        std::string activeNoteName  = activeNote.value("name", "");
+        std::string previewNoteName = activeNoteName.empty() ? "Untitled Note" : activeNoteName;
         if (ImGui::BeginCombo("Note", previewNoteName.c_str()))
         {
             for (const auto& note : notes)
             {
-                if (!note)
-                {
-                    continue;
-                }
-
-                bool        isSelected = (note->getGuid() == currentComponentGuid);
-                std::string itemLabel  = (note->getName().empty() ? "Untitled Note" : note->getName()) + "##" + note->getGuid().toString();
+                CADacomb::GUID noteGuid   = CADacomb::GUID(note.value("componentGuid", ""));
+                std::string    noteName   = note.value("name", "");
+                bool           isSelected = (noteGuid == currentComponentGuid);
+                std::string    itemLabel  = (noteName.empty() ? "Untitled Note" : noteName) + "##" + noteGuid.toString();
                 if (ImGui::Selectable(itemLabel.c_str(), isSelected))
                 {
-                    currentComponentGuid = note->getGuid();
-                    activeNote           = note;
+                    currentComponentGuid = noteGuid;
                     needsSync            = true;
                 }
             }
             ImGui::EndCombo();
         }
 
-        if (needsSync && activeNote)
+        if (needsSync)
         {
-            cachedName = activeNote->getName();
-            cachedText = activeNote->getText();
-            needsSync  = false;
+            for (const auto& note : notes)
+            {
+                if (CADacomb::GUID(note.value("componentGuid", "")) == currentComponentGuid)
+                {
+                    cachedName = note.value("name", "");
+                    cachedText = note.value("text", "");
+                    break;
+                }
+            }
+            needsSync = false;
         }
 
         ImGui::Spacing();
@@ -171,11 +178,22 @@ void TextNoteEditWindow::render()
 
         if (ImGui::Button("Save", ImVec2(90.0f, 0.0f)))
         {
-            if (activeNote)
-            {
-                activeNote->setName(cachedName);
-                activeNote->setText(cachedText);
-            }
+            CADacomb::GUID compToUpdate = currentComponentGuid;
+            std::string    updatedName  = cachedName;
+            std::string    updatedText  = cachedText;
+            defer->defer(
+              [this, selectedAssetGuid, compToUpdate, updatedName, updatedText]()
+              {
+                  Polyglot::Node command = {
+                      {          "type",                 "UpdateNote" },
+                      {       "version",                            1 },
+                      {     "assetGuid", selectedAssetGuid.toString() },
+                      { "componentGuid",      compToUpdate.toString() },
+                      {          "name",                  updatedName },
+                      {          "text",                  updatedText }
+                  };
+                  gatedDatabase->execute(command);
+              });
         }
 
         ImGui::SameLine();

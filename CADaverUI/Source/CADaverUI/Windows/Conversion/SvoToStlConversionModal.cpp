@@ -1,13 +1,9 @@
-﻿#include "Windows/Conversion/SvoToStlConversionModal.h"
+#include "Windows/Conversion/SvoToStlConversionModal.h"
 
-#include "Database/Asset/VoxelAsset.h"
-#include "Database/Database.h"
-#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
-#include <memory>
 
 SvoToStlConversionModal::SvoToStlConversionModal()
   : assetComboBox("Voxel")
@@ -47,17 +43,15 @@ void SvoToStlConversionModal::render()
 
     if (ImGui::Begin("Convert to STL##SvoModal", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        const auto& project = gatedDatabase->get().getProject();
-
-        bool changed = assetComboBox.render(project);
+        bool changed = assetComboBox.render(*gatedDatabase);
         if (changed || assetComboBox.getSelectedGuid() != lastTrackedGuid)
         {
             lastTrackedGuid = assetComboBox.getSelectedGuid();
-            updateMaxDepthFromSelectedAsset(project, true);
+            updateMaxDepthFromSelectedAsset(true);
         }
         else
         {
-            updateMaxDepthFromSelectedAsset(project, false);
+            updateMaxDepthFromSelectedAsset(false);
         }
         ImGui::Spacing();
 
@@ -68,7 +62,7 @@ void SvoToStlConversionModal::render()
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool hasTarget = project.hasAsset(assetComboBox.getSelectedGuid());
+        bool hasTarget = !assetComboBox.getSelectedGuid().toString().empty();
         ImGui::BeginDisabled(!hasTarget);
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {
@@ -113,17 +107,31 @@ void SvoToStlConversionModal::executeConversion()
       });
 }
 
-void SvoToStlConversionModal::updateMaxDepthFromSelectedAsset(const Project& project, bool resetTargetToMax)
+void SvoToStlConversionModal::updateMaxDepthFromSelectedAsset(bool resetTargetToMax)
 {
-    auto asset      = project.getAsset(assetComboBox.getSelectedGuid());
-    auto voxelAsset = std::dynamic_pointer_cast<const VoxelAsset>(asset);
-    if (!voxelAsset)
+    if (!gatedDatabase || assetComboBox.getSelectedGuid().toString().empty())
+    {
+        return;
+    }
+
+    Polyglot::Node response = gatedDatabase->execute({
+      {      "type",                             "GetAssetInfo" },
+      {   "version",                                          1 },
+      { "assetGuid", assetComboBox.getSelectedGuid().toString() }
+    });
+    nlohmann::json infoJson = response.toJson();
+    if (infoJson.value("status", "") != "Success")
+    {
+        return;
+    }
+
+    uint32_t dim = infoJson.value("dimension", 0u);
+    if (dim == 0)
     {
         return;
     }
 
     int      computedMax = 6;
-    uint32_t dim         = voxelAsset->getSVO().getDimension();
     uint32_t d           = 0;
     while ((1u << d) < dim)
     {

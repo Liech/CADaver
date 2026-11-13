@@ -1,7 +1,5 @@
-﻿#include "Windows/Conversion/CadToStlConversionModal.h"
+#include "Windows/Conversion/CadToStlConversionModal.h"
 
-#include "Database/Database.h"
-#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
@@ -45,8 +43,7 @@ void CadToStlConversionModal::render()
 
     if (ImGui::Begin("Convert to STL##CadModal", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        const auto& project = gatedDatabase->get().getProject();
-        assetComboBox.render(project);
+        assetComboBox.render(*gatedDatabase);
         ImGui::Spacing();
 
         float p = static_cast<float>(precision);
@@ -60,7 +57,7 @@ void CadToStlConversionModal::render()
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool hasTarget = project.hasAsset(assetComboBox.getSelectedGuid());
+        bool hasTarget = !assetComboBox.getSelectedGuid().toString().empty();
         ImGui::BeginDisabled(!hasTarget);
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {

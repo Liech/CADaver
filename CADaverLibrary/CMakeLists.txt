@@ -65,6 +65,8 @@ set(Command_Project_Files
     "Source/CADaverLibrary/Commands/Project/RemoveAssetCommand.cpp"
     "Source/CADaverLibrary/Commands/Project/GetAssetNamesCommand.h"
     "Source/CADaverLibrary/Commands/Project/GetAssetNamesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Project/GetAssetsCommand.h"
+    "Source/CADaverLibrary/Commands/Project/GetAssetsCommand.cpp"
     "Source/CADaverLibrary/Commands/Project/GetAssetCountCommand.h"
     "Source/CADaverLibrary/Commands/Project/GetAssetCountCommand.cpp"
     "Source/CADaverLibrary/Commands/Project/GetAssetInfoCommand.h"
@@ -75,6 +77,10 @@ source_group("Source/Commands/Project" FILES ${Command_Project_Files})
 set(Command_Component_Files
     "Source/CADaverLibrary/Commands/Component/AddNoteCommand.h"
     "Source/CADaverLibrary/Commands/Component/AddNoteCommand.cpp"
+    "Source/CADaverLibrary/Commands/Component/GetNotesCommand.h"
+    "Source/CADaverLibrary/Commands/Component/GetNotesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Component/UpdateNoteCommand.h"
+    "Source/CADaverLibrary/Commands/Component/UpdateNoteCommand.cpp"
     "Source/CADaverLibrary/Commands/Component/RemoveComponentCommand.h"
     "Source/CADaverLibrary/Commands/Component/RemoveComponentCommand.cpp"
 )
@@ -117,6 +123,8 @@ source_group("Source/Commands/Task" FILES ${Command_Task_Files})
 set(Command_Geometry_Files
     "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.h"
     "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.cpp"
+    "Source/CADaverLibrary/Commands/Geometry/GetProjectAABBCommand.h"
+    "Source/CADaverLibrary/Commands/Geometry/GetProjectAABBCommand.cpp"
 )
 source_group("Source/Commands/Geometry" FILES ${Command_Geometry_Files})
 

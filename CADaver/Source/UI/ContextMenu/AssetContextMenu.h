@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
-class Asset;
+#include "CADacomb/Util/GUID.h"
+
 class GatedDatabase;
 class Windows;
 
@@ -11,5 +12,5 @@ class AssetContextMenu
     AssetContextMenu();
     virtual ~AssetContextMenu();
 
-    virtual void render(GatedDatabase& gatedDatabase, Windows& windows, const Asset& asset) = 0;
+    virtual void render(GatedDatabase& gatedDatabase, Windows& windows, const CADacomb::GUID& assetGuid) = 0;
 };

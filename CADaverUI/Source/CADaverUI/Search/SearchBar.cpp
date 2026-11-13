@@ -1,8 +1,7 @@
-﻿#include "Search/SearchBar.h"
+#include "Search/SearchBar.h"
 
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
-#include "Search/AssetSearcher.h"
 #include "Search/CommandSearcher.h"
 #include "Search/ConceptSearcher.h"
 #include "Search/PreferenceTabSearcher.h"
@@ -23,21 +22,21 @@ SearchBar::SearchBar() {}
 
 SearchBar::~SearchBar() {}
 
-void SearchBar::init(GatedDatabase& gatedDatabase, Windows& windowsRef, UIElementFactory& uiElementFactory)
+void SearchBar::init(GatedDatabase& gatedDatabaseRef, Windows& windowsRef, UIElementFactory& uiElementFactory)
 {
     if (initialized)
     {
         return;
     }
 
-    windows = &windowsRef;
+    gatedDatabase = &gatedDatabaseRef;
+    windows       = &windowsRef;
 
     searchService.addSearcher(std::make_unique<UIElementSearcher>(uiElementFactory));
-    searchService.addSearcher(std::make_unique<AssetSearcher>(gatedDatabase.get()));
     searchService.addSearcher(std::make_unique<WindowSearcher>(windowsRef));
     searchService.addSearcher(std::make_unique<PreferenceTabSearcher>(windowsRef));
     searchService.addSearcher(std::make_unique<ConceptSearcher>());
-    searchService.addSearcher(std::make_unique<CommandSearcher>(gatedDatabase.getCommandFactory()));
+    searchService.addSearcher(std::make_unique<CommandSearcher>(gatedDatabaseRef.getCommandFactory()));
 
     initialized = true;
 }
@@ -123,7 +122,25 @@ void SearchBar::render(Defer& defer)
         lastQuery = query;
         if (!query.empty())
         {
-            results       = searchService.search(query);
+            results = searchService.search(query);
+            if (gatedDatabase)
+            {
+                for (const std::string& cat : { std::string("Asset"), std::string("Note") })
+                {
+                    Polyglot::Node searchRes = gatedDatabase->execute({
+                      {       "type", "Search" },
+                      {    "version",        1 },
+                      {      "query",    query },
+                      {   "category",      cat },
+                      { "maxResults",       20 }
+                    });
+                    nlohmann::json resArray  = searchRes.toJson().value("results", nlohmann::json::array());
+                    for (const auto& item : resArray)
+                    {
+                        results.emplace_back(item.value("title", ""), item.value("category", cat), item.value("summary", ""), nullptr);
+                    }
+                }
+            }
             selectedIndex = -1;
             isOpen        = true;
         }

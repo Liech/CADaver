@@ -1,19 +1,22 @@
-﻿#include "Execution/CommandFactory.h"
+#include "Execution/CommandFactory.h"
 
 #include "Commands/Component/AddNoteCommand.h"
+#include "Commands/Component/GetNotesCommand.h"
 #include "Commands/Component/RemoveComponentCommand.h"
+#include "Commands/Component/UpdateNoteCommand.h"
 #include "Commands/Conversion/ConvertCadToStlCommand.h"
 #include "Commands/Conversion/ConvertCadToSvoCommand.h"
 #include "Commands/Conversion/ConvertStlToSvoCommand.h"
 #include "Commands/Conversion/ConvertSvoToStlCommand.h"
 #include "Commands/Generator/GenerateLandscapeCommand.h"
+#include "Commands/Geometry/GetAssetAABBCommand.h"
+#include "Commands/Geometry/GetProjectAABBCommand.h"
 #include "Commands/IO/LoadStepAssetCommand.h"
 #include "Commands/IO/LoadStlAssetCommand.h"
 #include "Commands/IO/LoadSvoAssetCommand.h"
 #include "Commands/IO/SaveStepAssetCommand.h"
 #include "Commands/IO/SaveStlAssetCommand.h"
 #include "Commands/IO/SaveVoxelAssetCommand.h"
-#include "Commands/Geometry/GetAssetAABBCommand.h"
 #include "Commands/Preferences/Query/GetCameraPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetRenderPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetSVOPreferencesCommand.h"
@@ -26,6 +29,7 @@
 #include "Commands/Project/GetAssetCountCommand.h"
 #include "Commands/Project/GetAssetInfoCommand.h"
 #include "Commands/Project/GetAssetNamesCommand.h"
+#include "Commands/Project/GetAssetsCommand.h"
 #include "Commands/Project/RemoveAssetCommand.h"
 #include "Commands/Search/GetDocumentationCommand.h"
 #include "Commands/Search/SearchCommand.h"
@@ -83,6 +87,8 @@ void CommandFactory::registerCommand(const std::string& name, std::function<std:
 void CommandFactory::registerCommands()
 {
     registerCommand("AddNote", []() { return std::make_unique<AddNoteCommand>(); });
+    registerCommand("GetNotes", []() { return std::make_unique<GetNotesCommand>(); });
+    registerCommand("UpdateNote", []() { return std::make_unique<UpdateNoteCommand>(); });
     registerCommand("RemoveComponent", []() { return std::make_unique<RemoveComponentCommand>(); });
     registerCommand("RemoveAsset", []() { return std::make_unique<RemoveAssetCommand>(); });
     registerCommand("ClearProject", []() { return std::make_unique<ClearProjectCommand>(); });
@@ -104,6 +110,7 @@ void CommandFactory::registerCommands()
     registerCommand("GetAssetCount", []() { return std::make_unique<GetAssetCountCommand>(); });
     registerCommand("GetAssetInfo", []() { return std::make_unique<GetAssetInfoCommand>(); });
     registerCommand("GetAssetNames", []() { return std::make_unique<GetAssetNamesCommand>(); });
+    registerCommand("GetAssets", []() { return std::make_unique<GetAssetsCommand>(); });
     registerCommand("GetCameraPreferences", []() { return std::make_unique<GetCameraPreferencesCommand>(); });
     registerCommand("GetRenderPreferences", []() { return std::make_unique<GetRenderPreferencesCommand>(); });
     registerCommand("GetSVOPreferences", []() { return std::make_unique<GetSVOPreferencesCommand>(); });
@@ -112,6 +119,7 @@ void CommandFactory::registerCommands()
     registerCommand("GetTaskState", []() { return std::make_unique<GetTaskStateCommand>(); });
     registerCommand("CancelTask", []() { return std::make_unique<CancelTaskCommand>(); });
     registerCommand("GetAssetAABB", []() { return std::make_unique<GetAssetAABBCommand>(); });
+    registerCommand("GetProjectAABB", []() { return std::make_unique<GetProjectAABBCommand>(); });
     registerCommand("Search", []() { return std::make_unique<SearchCommand>(); });
     registerCommand("GetDocumentation", []() { return std::make_unique<GetDocumentationCommand>(); });
 }
@@ -128,6 +136,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GetAssetCount") != nullptr);
     CHECK(factory.create("GetAssetInfo") != nullptr);
     CHECK(factory.create("GetAssetNames") != nullptr);
+    CHECK(factory.create("GetAssets") != nullptr);
     CHECK(factory.create("GetCameraPreferences") != nullptr);
     CHECK(factory.create("GetRenderPreferences") != nullptr);
     CHECK(factory.create("GetSVOPreferences") != nullptr);
@@ -136,6 +145,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GetTaskState") != nullptr);
     CHECK(factory.create("CancelTask") != nullptr);
     CHECK(factory.create("GetAssetAABB") != nullptr);
+    CHECK(factory.create("GetProjectAABB") != nullptr);
     CHECK(factory.create("ConvertCadToStl") != nullptr);
     CHECK(factory.create("ConvertCadToSvo") != nullptr);
     CHECK(factory.create("ConvertStlToSvo") != nullptr);
@@ -152,9 +162,11 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("UpdateRenderPreferences") != nullptr);
     CHECK(factory.create("UpdateSVOPreferences") != nullptr);
     CHECK(factory.create("AddNote") != nullptr);
+    CHECK(factory.create("GetNotes") != nullptr);
+    CHECK(factory.create("UpdateNote") != nullptr);
     CHECK(factory.create("RemoveComponent") != nullptr);
     CHECK(factory.create("Search") != nullptr);
     CHECK(factory.create("GetDocumentation") != nullptr);
-    CHECK(factory.getAllCommands().size() == 32);
+    CHECK(factory.getAllCommands().size() == 36);
 }
 #endif

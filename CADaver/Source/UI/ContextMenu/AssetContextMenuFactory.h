@@ -1,8 +1,10 @@
-﻿#pragma once
+#pragma once
+
+#include "CADacomb/Util/GUID.h"
 
 #include <memory>
+#include <string>
 
-class Asset;
 class AssetContextMenu;
 class GatedDatabase;
 class Windows;
@@ -14,7 +16,7 @@ class AssetContextMenuFactory
     AssetContextMenuFactory();
     virtual ~AssetContextMenuFactory();
 
-    std::unique_ptr<AssetContextMenu> create(const std::shared_ptr<const Asset>& asset);
+    std::unique_ptr<AssetContextMenu> create(const std::string& assetType);
 
-    void render(GatedDatabase& gatedDatabase, Windows& windows, const std::shared_ptr<const Asset>& asset);
+    void render(GatedDatabase& gatedDatabase, Windows& windows, const CADacomb::GUID& assetGuid, const std::string& assetType);
 };

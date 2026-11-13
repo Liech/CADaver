@@ -1,4 +1,4 @@
-﻿#include "Windows/Preferences/CameraPreferencesTab.h"
+#include "Windows/Preferences/CameraPreferencesTab.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/CameraPreferences.h"
@@ -26,8 +26,13 @@ std::string CameraPreferencesTab::getDescription() const
 
 bool CameraPreferencesTab::render(GatedDatabase& database, Defer& defer)
 {
-    CameraPreferences preferences = database.get().getPreferences().getCameraPreferences();
-    bool              modified    = false;
+    Polyglot::Node    response = database.execute({
+      {    "type", "GetCameraPreferences" },
+      { "version",                      1 }
+    });
+    CameraPreferences preferences;
+    preferences.fromNode(response["preferences"]);
+    bool modified = false;
 
     ImGui::Text("Camera Controls");
     ImGui::Separator();

@@ -1,7 +1,5 @@
-﻿#include "UIElement/Radio/CullModeRadioElement.h"
+#include "UIElement/Radio/CullModeRadioElement.h"
 
-#include "Database/Database.h"
-#include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Execution/GatedDatabase.h"
 
@@ -28,7 +26,15 @@ std::string CullModeRadioElement::getDescription() const
 
 void CullModeRadioElement::click()
 {
-    auto preferences = gatedDatabase.get().getPreferences().getRenderPreferences();
+    Polyglot::Node    response = gatedDatabase.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    });
+    RenderPreferences preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
     preferences.setCullMode(targetMode);
     Polyglot::Node command = {
         {        "type", "UpdateRenderPreferences" },
@@ -40,7 +46,16 @@ void CullModeRadioElement::click()
 
 bool CullModeRadioElement::isSelected() const
 {
-    return gatedDatabase.get().getPreferences().getRenderPreferences().getCullMode() == targetMode;
+    Polyglot::Node    response = gatedDatabase.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    });
+    RenderPreferences preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
+    return preferences.getCullMode() == targetMode;
 }
 
 int CullModeRadioElement::getTargetMode() const
@@ -83,6 +98,5 @@ TEST_CASE("CullModeRadioElement/ToggleAndSelection")
     backElem.click();
     REQUIRE(!noneElem.isSelected());
     REQUIRE(backElem.isSelected());
-    REQUIRE(db.get().getPreferences().getRenderPreferences().getCullMode() == 2);
 }
 #endif

@@ -52,8 +52,13 @@ void UIPreferencesTab::apply(const UIPreferences& preferences)
 
 bool UIPreferencesTab::render(GatedDatabase& database, Defer& defer)
 {
-    UIPreferences preferences = database.get().getPreferences().getUIPreferences();
-    bool          modified    = false;
+    Polyglot::Node response = database.execute({
+      {    "type", "GetUIPreferences" },
+      { "version",                  1 }
+    });
+    UIPreferences  preferences;
+    preferences.fromNode(response["preferences"]);
+    bool modified = false;
 
     ImGui::Text("Interface Appearance");
     ImGui::Separator();

@@ -1,15 +1,12 @@
-﻿#include "Commands/Project/GetAssetInfoCommand.h"
+#include "Commands/Project/GetAssetInfoCommand.h"
 
 #include "Database/Asset.h"
+#include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
 
-GetAssetInfoCommand::GetAssetInfoCommand()
-{
-}
+GetAssetInfoCommand::GetAssetInfoCommand() {}
 
-GetAssetInfoCommand::~GetAssetInfoCommand()
-{
-}
+GetAssetInfoCommand::~GetAssetInfoCommand() {}
 
 std::string GetAssetInfoCommand::getType() const
 {
@@ -85,23 +82,35 @@ nlohmann::json GetAssetInfoCommand::execute(Database& database)
 
     if (!foundAsset)
     {
-        return createResponse("AssetNotFound", {
+        return createResponse(
+          "AssetNotFound",
+          {
             {      "assetGuid", assetGuid.toString() },
             {      "assetName",            assetName },
             {      "assetType",                   "" },
             {    "sizeInBytes",                    0 },
             {       "revision",                    0 },
-            { "componentCount",                    0 }
+            { "componentCount",                    0 },
+            {      "dimension",                    0 }
         });
     }
 
-    return createResponse("Success", {
-        {      "assetGuid", foundAsset->getGuid().toString() },
-        {      "assetName",             foundAsset->getName() },
-        {      "assetType",             foundAsset->getType() },
-        {    "sizeInBytes",      foundAsset->getSizeInBytes() },
-        {       "revision",         foundAsset->getRevision() },
-        { "componentCount", foundAsset->getAttachments().size() }
+    uint32_t dimension  = 0;
+    auto     voxelAsset = std::dynamic_pointer_cast<const VoxelAsset>(foundAsset);
+    if (voxelAsset)
+    {
+        dimension = voxelAsset->getSVO().getDimension();
+    }
+
+    return createResponse("Success",
+                          {
+                            {      "assetGuid",    foundAsset->getGuid().toString() },
+                            {      "assetName",               foundAsset->getName() },
+                            {      "assetType",               foundAsset->getType() },
+                            {    "sizeInBytes",        foundAsset->getSizeInBytes() },
+                            {       "revision",           foundAsset->getRevision() },
+                            { "componentCount", foundAsset->getAttachments().size() },
+                            {      "dimension",                           dimension }
     });
 }
 
@@ -114,9 +123,9 @@ TEST_CASE("GetAssetInfoCommand/NotFound")
     Database            database;
     GetAssetInfoCommand cmd;
     cmd.setInput({
-        {      "type",    "GetAssetInfo" },
-        {   "version",                 1 },
-        { "assetName", "NonExistent" }
+      {      "type", "GetAssetInfo" },
+      {   "version",              1 },
+      { "assetName",  "NonExistent" }
     });
 
     nlohmann::json result = cmd.execute(database);
@@ -138,9 +147,9 @@ TEST_CASE("GetAssetInfoCommand/FindByGuid")
 
     GetAssetInfoCommand cmd;
     cmd.setInput({
-        {      "type",                   "GetAssetInfo" },
-        {   "version",                                1 },
-        { "assetGuid", asset->getGuid().toString() }
+      {      "type",              "GetAssetInfo" },
+      {   "version",                           1 },
+      { "assetGuid", asset->getGuid().toString() }
     });
 
     nlohmann::json result = cmd.execute(database);
@@ -162,9 +171,9 @@ TEST_CASE("GetAssetInfoCommand/FindByName")
 
     GetAssetInfoCommand cmd;
     cmd.setInput({
-        {      "type", "GetAssetInfo" },
-        {   "version",              1 },
-        { "assetName",   "NamedModel" }
+      {      "type", "GetAssetInfo" },
+      {   "version",              1 },
+      { "assetName",   "NamedModel" }
     });
 
     nlohmann::json result = cmd.execute(database);

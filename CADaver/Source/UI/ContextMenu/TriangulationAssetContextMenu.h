@@ -1,8 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include "UI/ContextMenu/AssetContextMenu.h"
 
-class Asset;
 class GatedDatabase;
 class Windows;
 
@@ -13,5 +12,5 @@ class TriangulationAssetContextMenu : public AssetContextMenu
     TriangulationAssetContextMenu();
     virtual ~TriangulationAssetContextMenu();
 
-    void render(GatedDatabase& gatedDatabase, Windows& windows, const Asset& asset) override;
+    void render(GatedDatabase& gatedDatabase, Windows& windows, const CADacomb::GUID& assetGuid) override;
 };

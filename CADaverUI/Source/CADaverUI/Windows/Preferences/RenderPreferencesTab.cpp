@@ -1,4 +1,4 @@
-﻿#include "Windows/Preferences/RenderPreferencesTab.h"
+#include "Windows/Preferences/RenderPreferencesTab.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/Preferences.h"
@@ -25,8 +25,13 @@ std::string RenderPreferencesTab::getDescription() const
 
 bool RenderPreferencesTab::render(GatedDatabase& database, Defer& defer)
 {
-    RenderPreferences preferences = database.get().getPreferences().getRenderPreferences();
-    bool              modified    = false;
+    Polyglot::Node    response = database.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    });
+    RenderPreferences preferences;
+    preferences.fromNode(response["preferences"]);
+    bool modified = false;
 
     ImGui::Text("Mesh Display");
     ImGui::Separator();

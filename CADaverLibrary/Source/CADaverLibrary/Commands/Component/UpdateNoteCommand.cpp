@@ -57,10 +57,11 @@ nlohmann::json UpdateNoteCommand::execute(Database& database)
     auto asset = database.getProject().getAsset(assetGuid);
     if (!asset)
     {
-        return createResponse("AssetNotFound", {
-                                                 {     "assetGuid",     assetGuid.toString() },
-                                                 { "componentGuid", componentGuid.toString() }
-                                               });
+        return createResponse("AssetNotFound",
+                              {
+                                {     "assetGuid",     assetGuid.toString() },
+                                { "componentGuid", componentGuid.toString() }
+        });
     }
 
     auto notes = asset->getAttachments<TextNoteComponent>();
@@ -73,17 +74,19 @@ nlohmann::json UpdateNoteCommand::execute(Database& database)
             note->setName(newName);
             note->setText(newText);
 
-            return createResponse("Success", {
-                                               {     "assetGuid",     assetGuid.toString() },
-                                               { "componentGuid", componentGuid.toString() }
-                                             });
+            return createResponse("Success",
+                                  {
+                                    {     "assetGuid",     assetGuid.toString() },
+                                    { "componentGuid", componentGuid.toString() }
+            });
         }
     }
 
-    return createResponse("ComponentNotFound", {
-                                                 {     "assetGuid",     assetGuid.toString() },
-                                                 { "componentGuid", componentGuid.toString() }
-                                               });
+    return createResponse("ComponentNotFound",
+                          {
+                            {     "assetGuid",     assetGuid.toString() },
+                            { "componentGuid", componentGuid.toString() }
+    });
 }
 
 bool UpdateNoteCommand::isUndoable() const

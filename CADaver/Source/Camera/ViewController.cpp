@@ -1,4 +1,4 @@
-﻿#include "Camera/ViewController.h"
+#include "Camera/ViewController.h"
 
 #include "Camera/CameraController.h"
 #include "UI/Component/ViewCubeWidget.h"
@@ -60,19 +60,19 @@ void ViewController::keyEvent(const Vulcant::VulcantInputValue& key)
     }
 }
 
-void ViewController::frameOnProject(const Project& project)
+void ViewController::frameOnProject(GatedDatabase& gatedDatabase)
 {
     if (cameraController)
     {
-        cameraController->frameOnProject(project);
+        cameraController->frameOnProject(gatedDatabase);
     }
 }
 
-void ViewController::reset(const CameraPreferences& cameraPreferences, const Project& project)
+void ViewController::reset(const CameraPreferences& cameraPreferences, GatedDatabase& gatedDatabase)
 {
     if (cameraController)
     {
-        cameraController->reset(cameraPreferences, project);
+        cameraController->reset(cameraPreferences, gatedDatabase);
     }
 }
 
@@ -197,9 +197,9 @@ void ViewController::toggleProjection()
     }
 }
 
-void ViewController::resetView(const Project& project)
+void ViewController::resetView(GatedDatabase& gatedDatabase)
 {
-    frameOnProject(project);
+    frameOnProject(gatedDatabase);
 }
 
 void ViewController::registerUIElements(UIElementFactory& factory, GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows)
@@ -216,18 +216,18 @@ void ViewController::registerUIElements(UIElementFactory& factory, GatedDatabase
     factory.registerElement("ViewRotateRight", [this, &gatedDatabase, &undoStack, &windows]() { return std::make_shared<ViewCubeRotateRightMenuEntry>(*this, gatedDatabase, undoStack, windows); });
 }
 
-void ViewController::renderViewCube(const glm::ivec2& resolution, const Project& project, const std::function<void(bool)>& onOrthographicChanged)
+void ViewController::renderViewCube(const glm::ivec2& resolution, GatedDatabase& gatedDatabase, const std::function<void(bool)>& onOrthographicChanged)
 {
     if (viewCubeWidget && cameraController && cameraController->getCamera())
     {
         viewCubeWidget->render(
           cameraController->getCamera(),
           resolution,
-          [this, &project]()
+          [this, &gatedDatabase]()
           {
               if (cameraController)
               {
-                  cameraController->frameOnProject(project);
+                  cameraController->frameOnProject(gatedDatabase);
               }
           },
           onOrthographicChanged);

@@ -72,9 +72,9 @@ nlohmann::json GetProjectAABBCommand::execute(Database& database)
         auto triAsset = std::dynamic_pointer_cast<const TriangulationAsset>(asset);
         if (triAsset && !triAsset->getTriangulation().vertices.empty())
         {
-            auto aabb        = triAsset->getTriangulation().getAABB();
-            overallMin       = glm::min(overallMin, aabb.first);
-            overallMax       = glm::max(overallMax, aabb.second);
+            auto [pos, size] = triAsset->getTriangulation().getAABB();
+            overallMin       = glm::min(overallMin, pos);
+            overallMax       = glm::max(overallMax, pos + size);
             foundValidBounds = true;
             continue;
         }
@@ -82,21 +82,24 @@ nlohmann::json GetProjectAABBCommand::execute(Database& database)
         auto cadAsset = std::dynamic_pointer_cast<const CadAsset>(asset);
         if (cadAsset)
         {
-            try
+            if (!cadAsset->getTriangulation().vertices.empty())
             {
-                auto aabb        = cadAsset->getCadShape().getAABB();
-                overallMin       = glm::min(overallMin, glm::dvec3(aabb.getMin()));
-                overallMax       = glm::max(overallMax, glm::dvec3(aabb.getMax()));
+                auto [pos, size] = cadAsset->getTriangulation().getAABB();
+                overallMin       = glm::min(overallMin, pos);
+                overallMax       = glm::max(overallMax, pos + size);
                 foundValidBounds = true;
             }
-            catch (...)
+            else
             {
-                if (!cadAsset->getTriangulation().vertices.empty())
+                try
                 {
-                    auto aabb        = cadAsset->getTriangulation().getAABB();
-                    overallMin       = glm::min(overallMin, aabb.first);
-                    overallMax       = glm::max(overallMax, aabb.second);
+                    auto aabb        = cadAsset->getCadShape().getAABB();
+                    overallMin       = glm::min(overallMin, glm::dvec3(aabb.getMin()));
+                    overallMax       = glm::max(overallMax, glm::dvec3(aabb.getMax()));
                     foundValidBounds = true;
+                }
+                catch (...)
+                {
                 }
             }
         }
@@ -104,16 +107,18 @@ nlohmann::json GetProjectAABBCommand::execute(Database& database)
 
     if (!foundValidBounds)
     {
-        return createResponse("EmptyProject", {
-                                                { "min", { 0.0, 0.0, 0.0 } },
-                                                { "max", { 0.0, 0.0, 0.0 } }
-                                              });
+        return createResponse("EmptyProject",
+                              {
+                                { "min", { 0.0, 0.0, 0.0 } },
+                                { "max", { 0.0, 0.0, 0.0 } }
+        });
     }
 
-    return createResponse("Success", {
-                                       { "min", { overallMin.x, overallMin.y, overallMin.z } },
-                                       { "max", { overallMax.x, overallMax.y, overallMax.z } }
-                                     });
+    return createResponse("Success",
+                          {
+                            { "min", { overallMin.x, overallMin.y, overallMin.z } },
+                            { "max", { overallMax.x, overallMax.y, overallMax.z } }
+    });
 }
 
 #ifdef ISTESTPROJECT

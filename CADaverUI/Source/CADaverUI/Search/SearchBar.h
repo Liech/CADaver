@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Search/SearchResult.h"
 #include "Search/SearchService.h"
@@ -44,5 +44,6 @@ class SearchBar
     bool                      initialized    = false;
     bool                      isOpen         = false;
     bool                      focusRequested = false;
+    GatedDatabase*            gatedDatabase  = nullptr;
     Windows*                  windows        = nullptr;
 };

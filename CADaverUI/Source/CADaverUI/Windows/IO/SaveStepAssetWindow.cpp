@@ -1,9 +1,6 @@
-﻿#include "Windows/IO/SaveStepAssetWindow.h"
+#include "Windows/IO/SaveStepAssetWindow.h"
 
 #include "Component/SaveFileDialog.h"
-#include "Database/Asset.h"
-#include "Database/Database.h"
-#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
@@ -39,19 +36,27 @@ void SaveStepAssetWindow::setTargetAsset(const CADacomb::GUID& assetGuid)
     assetComboBox.setSelectedGuid(assetGuid);
 }
 
-void SaveStepAssetWindow::browseFile(const Project& project)
+void SaveStepAssetWindow::browseFile()
 {
     SaveFileDialog dialog;
     dialog.addFilter("STEP File", { "step", "stp" });
 
     std::string defaultName = "model.step";
-    auto        asset       = project.getAsset(assetComboBox.getSelectedGuid());
-    if (asset)
+    if (gatedDatabase && !assetComboBox.getSelectedGuid().toString().empty())
     {
-        defaultName = asset->getName();
-        if (std::filesystem::path(defaultName).extension().empty())
+        Polyglot::Node response = gatedDatabase->execute({
+          {      "type",                             "GetAssetInfo" },
+          {   "version",                                          1 },
+          { "assetGuid", assetComboBox.getSelectedGuid().toString() }
+        });
+        nlohmann::json infoJson = response.toJson();
+        if (infoJson.value("status", "") == "Success")
         {
-            defaultName += ".step";
+            defaultName = infoJson.value("assetName", "model.step");
+            if (std::filesystem::path(defaultName).extension().empty())
+            {
+                defaultName += ".step";
+            }
         }
     }
     dialog.setSaveFileName(defaultName);
@@ -105,8 +110,7 @@ void SaveStepAssetWindow::render()
     if (ImGui::Begin("Save STEP Asset##SaveStepWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
         handleEscapeClose();
-        const auto& project = gatedDatabase->get().getProject();
-        assetComboBox.render(project);
+        assetComboBox.render(*gatedDatabase);
         ImGui::Spacing();
 
         char pathBuffer[512];
@@ -118,14 +122,14 @@ void SaveStepAssetWindow::render()
         ImGui::SameLine();
         if (ImGui::Button("Browse..."))
         {
-            browseFile(project);
+            browseFile();
         }
 
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool canSave = project.hasAsset(assetComboBox.getSelectedGuid()) && !filePath.empty();
+        bool canSave = !assetComboBox.getSelectedGuid().toString().empty() && !filePath.empty();
         ImGui::BeginDisabled(!canSave);
         if (ImGui::Button("Save", ImVec2(120.0f, 0.0f)))
         {

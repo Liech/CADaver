@@ -1,7 +1,5 @@
-﻿#include "Windows/Conversion/StlToSvoConversionModal.h"
+#include "Windows/Conversion/StlToSvoConversionModal.h"
 
-#include "Database/Database.h"
-#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
@@ -45,8 +43,7 @@ void StlToSvoConversionModal::render()
 
     if (ImGui::Begin("Convert to SVO##StlModal", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        const auto& project = gatedDatabase->get().getProject();
-        assetComboBox.render(project);
+        assetComboBox.render(*gatedDatabase);
         ImGui::Spacing();
 
         resolutionComboBox.render();
@@ -56,7 +53,7 @@ void StlToSvoConversionModal::render()
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool hasTarget = project.hasAsset(assetComboBox.getSelectedGuid());
+        bool hasTarget = !assetComboBox.getSelectedGuid().toString().empty();
         ImGui::BeginDisabled(!hasTarget);
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {

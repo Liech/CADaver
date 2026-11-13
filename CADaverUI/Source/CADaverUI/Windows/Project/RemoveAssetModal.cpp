@@ -1,4 +1,4 @@
-﻿#include "Windows/Project/RemoveAssetModal.h"
+#include "Windows/Project/RemoveAssetModal.h"
 
 #include "Database/Database.h"
 #include "Database/Project.h"
@@ -64,8 +64,7 @@ void RemoveAssetModal::render()
     if (ImGui::Begin("Remove Asset##RemoveAssetWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
         handleEscapeClose();
-        const auto& project = gatedDatabase->get().getProject();
-        assetComboBox.render(project);
+        assetComboBox.render(*gatedDatabase);
         ImGui::Spacing();
 
         ImGui::Text("Are you sure you want to remove the selected asset?");
@@ -73,7 +72,7 @@ void RemoveAssetModal::render()
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool hasTarget = project.hasAsset(assetComboBox.getSelectedGuid());
+        bool hasTarget = !assetComboBox.getSelectedGuid().toString().empty();
         ImGui::BeginDisabled(!hasTarget);
         if (ImGui::Button("Yes", ImVec2(120.0f, 0.0f)))
         {

@@ -1,17 +1,12 @@
-﻿#include "Windows/IO/SaveVoxelAssetWindow.h"
+#include "Windows/IO/SaveVoxelAssetWindow.h"
 
 #include "Component/SaveFileDialog.h"
-#include "Database/Asset.h"
-#include "Database/Database.h"
-#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
 #include <cstring>
 #include <filesystem>
-#include <fstream>
 #include <imgui.h>
-#include <memory>
 
 SaveVoxelAssetWindow::SaveVoxelAssetWindow()
   : assetComboBox("Voxel")
@@ -41,19 +36,27 @@ void SaveVoxelAssetWindow::setTargetAsset(const CADacomb::GUID& assetGuid)
     assetComboBox.setSelectedGuid(assetGuid);
 }
 
-void SaveVoxelAssetWindow::browseFile(const Project& project)
+void SaveVoxelAssetWindow::browseFile()
 {
     SaveFileDialog dialog;
     dialog.addFilter("SVO File", { "cadacombsvo", "svo" });
 
     std::string defaultName = "volume.cadacombsvo";
-    auto        asset       = project.getAsset(assetComboBox.getSelectedGuid());
-    if (asset)
+    if (gatedDatabase && !assetComboBox.getSelectedGuid().toString().empty())
     {
-        defaultName = asset->getName();
-        if (std::filesystem::path(defaultName).extension().empty())
+        Polyglot::Node response = gatedDatabase->execute({
+          {      "type",                             "GetAssetInfo" },
+          {   "version",                                          1 },
+          { "assetGuid", assetComboBox.getSelectedGuid().toString() }
+        });
+        nlohmann::json infoJson = response.toJson();
+        if (infoJson.value("status", "") == "Success")
         {
-            defaultName += ".cadacombsvo";
+            defaultName = infoJson.value("assetName", "volume.cadacombsvo");
+            if (std::filesystem::path(defaultName).extension().empty())
+            {
+                defaultName += ".cadacombsvo";
+            }
         }
     }
     dialog.setSaveFileName(defaultName);
@@ -107,8 +110,7 @@ void SaveVoxelAssetWindow::render()
     if (ImGui::Begin("Save SVO Asset##SaveSvoWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
         handleEscapeClose();
-        const auto& project = gatedDatabase->get().getProject();
-        assetComboBox.render(project);
+        assetComboBox.render(*gatedDatabase);
         ImGui::Spacing();
 
         char pathBuffer[512];
@@ -120,14 +122,14 @@ void SaveVoxelAssetWindow::render()
         ImGui::SameLine();
         if (ImGui::Button("Browse..."))
         {
-            browseFile(project);
+            browseFile();
         }
 
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool canSave = project.hasAsset(assetComboBox.getSelectedGuid()) && !filePath.empty();
+        bool canSave = !assetComboBox.getSelectedGuid().toString().empty() && !filePath.empty();
         ImGui::BeginDisabled(!canSave);
         if (ImGui::Button("Save", ImVec2(120.0f, 0.0f)))
         {

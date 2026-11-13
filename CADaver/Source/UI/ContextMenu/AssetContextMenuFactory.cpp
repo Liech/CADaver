@@ -1,8 +1,5 @@
-﻿#include "UI/ContextMenu/AssetContextMenuFactory.h"
+#include "UI/ContextMenu/AssetContextMenuFactory.h"
 
-#include "Database/Asset/CadAsset.h"
-#include "Database/Asset/TriangulationAsset.h"
-#include "Database/Asset/VoxelAsset.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/CadAssetContextMenu.h"
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
@@ -16,22 +13,17 @@ AssetContextMenuFactory::AssetContextMenuFactory() {}
 
 AssetContextMenuFactory::~AssetContextMenuFactory() {}
 
-std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::shared_ptr<const Asset>& asset)
+std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::string& assetType)
 {
-    if (!asset)
-    {
-        return nullptr;
-    }
-
-    if (asset->getType() == "Cad")
+    if (assetType == "Cad")
     {
         return std::make_unique<CadAssetContextMenu>();
     }
-    else if (asset->getType() == "Triangulation")
+    else if (assetType == "Triangulation")
     {
         return std::make_unique<TriangulationAssetContextMenu>();
     }
-    else if (asset->getType() == "Voxel")
+    else if (assetType == "Voxel")
     {
         return std::make_unique<VoxelAssetContextMenu>();
     }
@@ -39,30 +31,25 @@ std::unique_ptr<AssetContextMenu> AssetContextMenuFactory::create(const std::sha
     return nullptr;
 }
 
-void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, Windows& windows, const std::shared_ptr<const Asset>& asset)
+void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, Windows& windows, const CADacomb::GUID& assetGuid, const std::string& assetType)
 {
-    if (!asset)
-    {
-        return;
-    }
-
-    std::string popupId = "AssetContextMenu##" + asset->getGuid().toString();
+    std::string popupId = "AssetContextMenu##" + assetGuid.toString();
     if (ImGui::BeginPopupContextItem(popupId.c_str()))
     {
-        auto menu = create(asset);
+        auto menu = create(assetType);
         if (menu)
         {
-            menu->render(gatedDatabase, windows, *asset);
+            menu->render(gatedDatabase, windows, assetGuid);
         }
 
         if (ImGui::MenuItem("Add Note..."))
         {
             Polyglot::Node command = {
-                {      "type",                   "AddNote" },
-                {   "version",                           1 },
-                { "assetGuid", asset->getGuid().toString() },
-                {      "name",                      "Note" },
-                {      "text",                          "" }
+                {      "type",            "AddNote" },
+                {   "version",                    1 },
+                { "assetGuid", assetGuid.toString() },
+                {      "name",               "Note" },
+                {      "text",                   "" }
             };
             gatedDatabase.execute(command);
         }
@@ -74,7 +61,7 @@ void AssetContextMenuFactory::render(GatedDatabase& gatedDatabase, Windows& wind
             auto modal = std::dynamic_pointer_cast<RemoveAssetModal>(windows.get("RemoveAsset"));
             if (modal)
             {
-                modal->setTargetAsset(asset->getGuid());
+                modal->setTargetAsset(assetGuid);
             }
         }
 

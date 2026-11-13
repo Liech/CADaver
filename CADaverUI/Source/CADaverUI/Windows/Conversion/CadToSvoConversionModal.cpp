@@ -1,7 +1,5 @@
-﻿#include "Windows/Conversion/CadToSvoConversionModal.h"
+#include "Windows/Conversion/CadToSvoConversionModal.h"
 
-#include "Database/Database.h"
-#include "Database/Project.h"
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
@@ -46,8 +44,7 @@ void CadToSvoConversionModal::render()
 
     if (ImGui::Begin("Convert to SVO##CadModal", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        const auto& project = gatedDatabase->get().getProject();
-        assetComboBox.render(project);
+        assetComboBox.render(*gatedDatabase);
         ImGui::Spacing();
 
         resolutionComboBox.render();
@@ -63,7 +60,7 @@ void CadToSvoConversionModal::render()
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool hasTarget = project.hasAsset(assetComboBox.getSelectedGuid());
+        bool hasTarget = !assetComboBox.getSelectedGuid().toString().empty();
         ImGui::BeginDisabled(!hasTarget);
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {

@@ -1,11 +1,8 @@
-﻿#include "Camera/CameraController.h"
+#include "Camera/CameraController.h"
 
 #include "CADacomb/Volume/AABB3.h"
-#include "Database/Asset/CadAsset.h"
-#include "Database/Asset/TriangulationAsset.h"
-#include "Database/Asset/VoxelAsset.h"
 #include "Database/Preferences/CameraPreferences.h"
-#include "Database/Project.h"
+#include "Execution/GatedDatabase.h"
 #include "Vulcant/Interface/VulcantInputValue.h"
 #include "Vulcant/Interface/VulcantWindow.h"
 #include "Vulcant/Toolkit/ArcCam.h"
@@ -79,73 +76,27 @@ void CameraController::keyEvent(const Vulcant::VulcantInputValue& key)
     }
 }
 
-void CameraController::frameOnProject(const Project& project)
+void CameraController::frameOnProject(GatedDatabase& gatedDatabase)
 {
-    CADacomb::AABB3 globalAABB;
-    bool            hasBounds = false;
-
-    for (const auto& asset : project.getAssets())
-    {
-        if (asset && asset->getType() == "Triangulation")
-        {
-            auto triAsset = std::dynamic_pointer_cast<const TriangulationAsset>(asset);
-            if (triAsset && !triAsset->getTriangulation().vertices.empty())
-            {
-                auto [pos, size] = triAsset->getTriangulation().getAABB();
-                CADacomb::AABB3 assetAABB(pos, pos + size);
-                if (!hasBounds)
-                {
-                    globalAABB = assetAABB;
-                    hasBounds  = true;
-                }
-                else
-                {
-                    globalAABB.expand(assetAABB);
-                }
-            }
-        }
-        else if (asset && asset->getType() == "Cad")
-        {
-            auto cadAsset = std::dynamic_pointer_cast<const CadAsset>(asset);
-            if (cadAsset && !cadAsset->getTriangulation().vertices.empty())
-            {
-                auto [pos, size] = cadAsset->getTriangulation().getAABB();
-                CADacomb::AABB3 assetAABB(pos, pos + size);
-                if (!hasBounds)
-                {
-                    globalAABB = assetAABB;
-                    hasBounds  = true;
-                }
-                else
-                {
-                    globalAABB.expand(assetAABB);
-                }
-            }
-        }
-        else if (asset && asset->getType() == "Voxel")
-        {
-            auto voxelAsset = std::dynamic_pointer_cast<const VoxelAsset>(asset);
-            if (voxelAsset)
-            {
-                if (!hasBounds)
-                {
-                    globalAABB = voxelAsset->getAABB();
-                    hasBounds  = true;
-                }
-                else
-                {
-                    globalAABB.expand(voxelAsset->getAABB());
-                }
-            }
-        }
-    }
+    Polyglot::Node response  = gatedDatabase.execute({
+      {    "type", "GetProjectAABB" },
+      { "version",                1 }
+    });
+    nlohmann::json aabbJson  = response.toJson();
+    bool           hasBounds = (aabbJson.value("status", "") == "Success");
 
     if (hasBounds && camera)
     {
-        glm::dvec3 center = globalAABB.getCenter();
-        glm::dvec3 size   = globalAABB.getSize();
-        double     maxDim = std::max({ size.x, size.y, size.z });
-        double     dist   = (maxDim > 1e-4) ? maxDim * 1.8 : 5.0;
+        auto       minArr = aabbJson.at("min");
+        auto       maxArr = aabbJson.at("max");
+        glm::dvec3 minPt(minArr[0].get<double>(), minArr[1].get<double>(), minArr[2].get<double>());
+        glm::dvec3 maxPt(maxArr[0].get<double>(), maxArr[1].get<double>(), maxArr[2].get<double>());
+
+        CADacomb::AABB3 globalAABB(minPt, maxPt);
+        glm::dvec3      center = globalAABB.getCenter();
+        glm::dvec3      size   = globalAABB.getSize();
+        double          maxDim = std::max({ size.x, size.y, size.z });
+        double          dist   = (maxDim > 1e-4) ? maxDim * 1.8 : 5.0;
 
         glm::dvec3 curDir = camera->getEye() - camera->getTarget();
         if (glm::length(curDir) > 1e-6)
@@ -179,11 +130,17 @@ void CameraController::frameOnProject(const Project& project)
     }
 }
 
-void CameraController::reset(const CameraPreferences& camPrefs, const Project& project)
+void CameraController::reset(const CameraPreferences& camPrefs, GatedDatabase& gatedDatabase)
 {
-    if (project.getAssetCount() > 0)
+    Polyglot::Node countRes   = gatedDatabase.execute({
+      {    "type", "GetAssetCount" },
+      { "version",               1 }
+    });
+    size_t         assetCount = countRes.toJson().value("count", static_cast<size_t>(0));
+
+    if (assetCount > 0)
     {
-        frameOnProject(project);
+        frameOnProject(gatedDatabase);
     }
     else if (camera)
     {

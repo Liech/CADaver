@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Vulcant/Toolkit/SceneData.h"
 
@@ -17,7 +17,7 @@ namespace Vulcant::Toolkit
 }
 
 class CameraPreferences;
-class Project;
+class GatedDatabase;
 
 // Manages viewport camera lifecycle, mode switching, input events, and scene framing.
 class CameraController
@@ -33,8 +33,8 @@ class CameraController
     void tick(double delta);
     void keyEvent(const Vulcant::VulcantInputValue& key);
 
-    void frameOnProject(const Project& project);
-    void reset(const CameraPreferences& camPrefs, const Project& project);
+    void frameOnProject(GatedDatabase& gatedDatabase);
+    void reset(const CameraPreferences& camPrefs, GatedDatabase& gatedDatabase);
 
     bool isOrthographic() const;
     void setOrthographic(bool ortho);

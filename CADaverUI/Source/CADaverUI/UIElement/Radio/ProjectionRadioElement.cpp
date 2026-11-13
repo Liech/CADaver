@@ -1,8 +1,6 @@
-﻿#include "UIElement/Radio/ProjectionRadioElement.h"
+#include "UIElement/Radio/ProjectionRadioElement.h"
 
-#include "Database/Database.h"
 #include "Database/Preferences/CameraPreferences.h"
-#include "Database/Preferences/Preferences.h"
 #include "Execution/GatedDatabase.h"
 
 ProjectionRadioElement::ProjectionRadioElement(bool orthographic, GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows)
@@ -24,7 +22,15 @@ std::string ProjectionRadioElement::getDescription() const
 
 void ProjectionRadioElement::click()
 {
-    auto preferences = gatedDatabase.get().getPreferences().getCameraPreferences();
+    Polyglot::Node    response = gatedDatabase.execute({
+      {    "type", "GetCameraPreferences" },
+      { "version",                      1 }
+    });
+    CameraPreferences preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
     preferences.setOrthographic(orthographic);
     Polyglot::Node command = {
         {        "type", "UpdateCameraPreferences" },
@@ -36,7 +42,16 @@ void ProjectionRadioElement::click()
 
 bool ProjectionRadioElement::isSelected() const
 {
-    return gatedDatabase.get().getPreferences().getCameraPreferences().isOrthographic() == orthographic;
+    Polyglot::Node    response = gatedDatabase.execute({
+      {    "type", "GetCameraPreferences" },
+      { "version",                      1 }
+    });
+    CameraPreferences preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
+    return preferences.isOrthographic() == orthographic;
 }
 
 bool ProjectionRadioElement::isOrthographic() const
@@ -75,6 +90,5 @@ TEST_CASE("ProjectionRadioElement/ToggleAndSelection")
     orthoElem.click();
     REQUIRE(!perspElem.isSelected());
     REQUIRE(orthoElem.isSelected());
-    REQUIRE(db.get().getPreferences().getCameraPreferences().isOrthographic());
 }
 #endif

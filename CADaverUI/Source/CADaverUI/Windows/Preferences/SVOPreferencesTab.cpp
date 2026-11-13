@@ -1,4 +1,4 @@
-﻿#include "Windows/Preferences/SVOPreferencesTab.h"
+#include "Windows/Preferences/SVOPreferencesTab.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/Preferences.h"
@@ -27,8 +27,13 @@ std::string SVOPreferencesTab::getDescription() const
 
 bool SVOPreferencesTab::render(GatedDatabase& database, Defer& defer)
 {
-    SVOPreferences preferences = database.get().getPreferences().getSVOPreferences();
-    bool           modified    = false;
+    Polyglot::Node response = database.execute({
+      {    "type", "GetSVOPreferences" },
+      { "version",                   1 }
+    });
+    SVOPreferences preferences;
+    preferences.fromNode(response["preferences"]);
+    bool modified = false;
 
     ImGui::Text("SVO Meshing & Capacity");
     ImGui::Separator();

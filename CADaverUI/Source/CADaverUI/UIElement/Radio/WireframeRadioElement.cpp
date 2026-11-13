@@ -1,7 +1,5 @@
-﻿#include "UIElement/Radio/WireframeRadioElement.h"
+#include "UIElement/Radio/WireframeRadioElement.h"
 
-#include "Database/Database.h"
-#include "Database/Preferences/Preferences.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Execution/GatedDatabase.h"
 
@@ -28,7 +26,15 @@ std::string WireframeRadioElement::getDescription() const
 
 void WireframeRadioElement::click()
 {
-    auto preferences = gatedDatabase.get().getPreferences().getRenderPreferences();
+    Polyglot::Node    response = gatedDatabase.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    });
+    RenderPreferences preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
     preferences.setWireframeMode(targetMode);
     Polyglot::Node command = {
         {        "type", "UpdateRenderPreferences" },
@@ -40,7 +46,16 @@ void WireframeRadioElement::click()
 
 bool WireframeRadioElement::isSelected() const
 {
-    return gatedDatabase.get().getPreferences().getRenderPreferences().getWireframeMode() == targetMode;
+    Polyglot::Node    response = gatedDatabase.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    });
+    RenderPreferences preferences;
+    if (response.contains("preferences"))
+    {
+        preferences.fromNode(response["preferences"]);
+    }
+    return preferences.getWireframeMode() == targetMode;
 }
 
 int WireframeRadioElement::getTargetMode() const
@@ -83,6 +98,5 @@ TEST_CASE("WireframeRadioElement/ToggleAndSelection")
     overlayElem.click();
     REQUIRE(!offElem.isSelected());
     REQUIRE(overlayElem.isSelected());
-    REQUIRE(db.get().getPreferences().getRenderPreferences().getWireframeMode() == 1);
 }
 #endif

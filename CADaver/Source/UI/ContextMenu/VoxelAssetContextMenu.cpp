@@ -1,6 +1,5 @@
-﻿#include "UI/ContextMenu/VoxelAssetContextMenu.h"
+#include "UI/ContextMenu/VoxelAssetContextMenu.h"
 
-#include "Database/Asset/VoxelAsset.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
 #include "Windows/IO/SaveVoxelAssetWindow.h"
 #include "Windows/Windows.h"
@@ -12,14 +11,9 @@ VoxelAssetContextMenu::VoxelAssetContextMenu() {}
 
 VoxelAssetContextMenu::~VoxelAssetContextMenu() {}
 
-void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows, const Asset& asset)
+void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows, const CADacomb::GUID& assetGuid)
 {
     (void)gatedDatabase;
-    auto voxelAsset = dynamic_cast<const VoxelAsset*>(&asset);
-    if (!voxelAsset)
-    {
-        return;
-    }
 
     if (ImGui::MenuItem("Save..."))
     {
@@ -27,7 +21,7 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& window
         auto window = std::dynamic_pointer_cast<SaveVoxelAssetWindow>(windows.get("SaveVoxelAsset"));
         if (window)
         {
-            window->setTargetAsset(voxelAsset->getGuid());
+            window->setTargetAsset(assetGuid);
         }
     }
 
@@ -39,7 +33,7 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& window
             auto modal = std::dynamic_pointer_cast<SvoToStlConversionModal>(windows.get("SvoToStlConversion"));
             if (modal)
             {
-                modal->setTargetAsset(voxelAsset->getGuid());
+                modal->setTargetAsset(assetGuid);
             }
         }
         ImGui::EndMenu();

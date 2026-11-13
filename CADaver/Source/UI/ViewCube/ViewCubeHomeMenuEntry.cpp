@@ -1,4 +1,4 @@
-﻿#include "UI/ViewCube/ViewCubeHomeMenuEntry.h"
+#include "UI/ViewCube/ViewCubeHomeMenuEntry.h"
 
 #include "Camera/ViewController.h"
 #include "Execution/GatedDatabase.h"
@@ -23,7 +23,7 @@ std::string ViewCubeHomeMenuEntry::getDescription() const
 
 void ViewCubeHomeMenuEntry::click()
 {
-    viewController.resetView(gatedDatabase.get().getProject());
+    viewController.resetView(gatedDatabase);
 }
 
 #ifdef ISTESTPROJECT

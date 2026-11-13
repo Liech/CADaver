@@ -61,10 +61,11 @@ nlohmann::json GetNotesCommand::execute(Database& database)
     auto           asset      = database.getProject().getAsset(assetGuid);
     if (!asset)
     {
-        return createResponse("AssetNotFound", {
-                                                 { "assetGuid", assetGuid.toString() },
-                                                 {     "notes",           notesArray }
-                                               });
+        return createResponse("AssetNotFound",
+                              {
+                                { "assetGuid", assetGuid.toString() },
+                                {     "notes",           notesArray }
+        });
     }
 
     auto notes = asset->getAttachments<TextNoteComponent>();
@@ -82,10 +83,11 @@ nlohmann::json GetNotesCommand::execute(Database& database)
         });
     }
 
-    return createResponse("Success", {
-                                       { "assetGuid", asset->getGuid().toString() },
-                                       {     "notes",                  notesArray }
-                                     });
+    return createResponse("Success",
+                          {
+                            { "assetGuid", asset->getGuid().toString() },
+                            {     "notes",                  notesArray }
+    });
 }
 
 #ifdef ISTESTPROJECT
@@ -97,8 +99,8 @@ TEST_CASE("GetNotesCommand/AssetNotFound")
     Database        database;
     GetNotesCommand cmd;
     cmd.setInput({
-      {      "type",                         "GetNotes" },
-      {   "version",                                  1 },
+      {      "type",                          "GetNotes" },
+      {   "version",                                   1 },
       { "assetGuid", CADacomb::GUID::random().toString() }
     });
 
@@ -119,8 +121,8 @@ TEST_CASE("GetNotesCommand/ReturnsAttachedNotes")
 
     GetNotesCommand cmd;
     cmd.setInput({
-      {      "type",                   "GetNotes" },
-      {   "version",                            1 },
+      {      "type",                  "GetNotes" },
+      {   "version",                           1 },
       { "assetGuid", asset->getGuid().toString() }
     });
 

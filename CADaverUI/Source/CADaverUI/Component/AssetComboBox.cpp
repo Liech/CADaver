@@ -1,10 +1,9 @@
-﻿#include "Component/AssetComboBox.h"
+#include "Component/AssetComboBox.h"
 
-#include "Database/Asset.h"
-#include "Database/Project.h"
+#include "Execution/GatedDatabase.h"
 
 #include <imgui.h>
-#include <memory>
+#include <utility>
 #include <vector>
 
 AssetComboBox::AssetComboBox()
@@ -20,18 +19,21 @@ AssetComboBox::AssetComboBox(const std::string& filterTypeInput)
 
 AssetComboBox::~AssetComboBox() {}
 
-bool AssetComboBox::render(const Project& project)
+bool AssetComboBox::render(GatedDatabase& gatedDatabase)
 {
-    std::vector<std::shared_ptr<const Asset>> matchingAssets;
-    for (const auto& asset : project.getAssets())
+    Polyglot::Node response   = gatedDatabase.execute({
+      {    "type", "GetAssets" },
+      { "version",           1 }
+    });
+    nlohmann::json assetsJson = response.toJson().value("assets", nlohmann::json::array());
+
+    std::vector<std::pair<CADacomb::GUID, std::string>> matchingAssets;
+    for (const auto& item : assetsJson)
     {
-        if (!asset)
+        std::string itemType = item.value("type", "");
+        if (filterType.empty() || itemType == filterType)
         {
-            continue;
-        }
-        if (filterType.empty() || asset->getType() == filterType)
-        {
-            matchingAssets.push_back(asset);
+            matchingAssets.emplace_back(CADacomb::GUID(item.value("assetGuid", "")), item.value("name", ""));
         }
     }
 
@@ -47,35 +49,35 @@ bool AssetComboBox::render(const Project& project)
         return false;
     }
 
-    std::shared_ptr<const Asset> currentAsset = nullptr;
-    for (const auto& asset : matchingAssets)
+    int currentIdx = -1;
+    for (size_t i = 0; i < matchingAssets.size(); i++)
     {
-        if (asset->getGuid() == selectedGuid)
+        if (matchingAssets[i].first == selectedGuid)
         {
-            currentAsset = asset;
+            currentIdx = static_cast<int>(i);
             break;
         }
     }
 
-    if (!currentAsset)
+    if (currentIdx < 0)
     {
-        currentAsset = matchingAssets.front();
-        selectedGuid = currentAsset->getGuid();
+        currentIdx   = 0;
+        selectedGuid = matchingAssets.front().first;
     }
 
     bool        changed      = false;
-    std::string previewLabel = currentAsset->getName();
+    std::string previewLabel = matchingAssets[static_cast<size_t>(currentIdx)].second;
     if (ImGui::BeginCombo("Target Asset", previewLabel.c_str()))
     {
         for (const auto& asset : matchingAssets)
         {
-            bool        isSelected = (asset->getGuid() == selectedGuid);
-            std::string itemLabel  = asset->getName() + "##" + asset->getGuid().toString();
+            bool        isSelected = (asset.first == selectedGuid);
+            std::string itemLabel  = asset.second + "##" + asset.first.toString();
             if (ImGui::Selectable(itemLabel.c_str(), isSelected))
             {
-                if (selectedGuid != asset->getGuid())
+                if (selectedGuid != asset.first)
                 {
-                    selectedGuid = asset->getGuid();
+                    selectedGuid = asset.first;
                     changed      = true;
                 }
             }

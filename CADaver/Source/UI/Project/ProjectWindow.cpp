@@ -1,9 +1,6 @@
-﻿#include "UI/Project/ProjectWindow.h"
+#include "UI/Project/ProjectWindow.h"
 
-#include "Database/Asset.h"
-#include "Database/Asset/ProgressBarAsset.h"
-#include "Database/AssetComponent.h"
-#include "Database/Project.h"
+#include "CADacomb/Util/GUID.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenuFactory.h"
 #include "Windows/Asset/TextNoteEditWindow.h"
@@ -31,7 +28,12 @@ void ProjectWindow::setWidth(float newWidth)
 
 void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
 {
-    const auto&          project  = gatedDatabase.get().getProject();
+    Polyglot::Node response   = gatedDatabase.execute({
+      {    "type", "GetAssets" },
+      { "version",           1 }
+    });
+    nlohmann::json assetsJson = response.toJson().value("assets", nlohmann::json::array());
+
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
 
@@ -46,127 +48,131 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
     {
         width = ImGui::GetWindowWidth();
 
-        renderMenuBar(project, windows);
+        renderMenuBar(!assetsJson.empty(), windows);
 
-        if (project.getAssetCount() == 0)
+        if (assetsJson.empty())
         {
             ImGui::Spacing();
             ImGui::TextDisabled("No assets loaded");
         }
         else
         {
-            for (const auto& asset : project.getAssets())
+            for (const auto& assetItem : assetsJson)
             {
-                if (!asset)
+                CADacomb::GUID assetGuid(assetItem.value("assetGuid", ""));
+                std::string    assetName = assetItem.value("name", "");
+                std::string    assetType = assetItem.value("type", "");
+
+                if (assetType == "Progress")
                 {
+                    std::string operationName = assetItem.value("operationName", assetName);
+                    float       p             = assetItem.value("progress", 0.0f);
+                    bool        isReady       = assetItem.value("isReady", false);
+
+                    ImGui::TextUnformatted(assetName.c_str());
+                    ImGui::ProgressBar(p, ImVec2(-1.0f, 14.0f));
+
+                    std::string popupId = "ProgressBarContext##" + assetGuid.toString();
+                    if (ImGui::BeginPopupContextItem(popupId.c_str()))
+                    {
+                        if (ImGui::MenuItem("Cancel"))
+                        {
+                            gatedDatabase.execute({
+                              {      "type",         "CancelTask" },
+                              {   "version",                    1 },
+                              { "assetGuid", assetGuid.toString() }
+                            });
+                            windows.open("TaskNotification");
+                            auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
+                            if (modal)
+                            {
+                                modal->setMessage("Operation '" + operationName + "' was canceled.");
+                            }
+                        }
+                        ImGui::EndPopup();
+                    }
+
+                    if (isReady)
+                    {
+                        std::string st = assetItem.value("taskStatus", "");
+                        if (!st.empty() && st != "Success" && st != "Canceled")
+                        {
+                            windows.open("TaskNotification");
+                            auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
+                            if (modal)
+                            {
+                                std::string err = assetItem.value("taskError", "");
+                                if (err.empty())
+                                {
+                                    err = st;
+                                }
+                                modal->setMessage("Operation '" + operationName + "' failed: " + err);
+                            }
+                        }
+                    }
                     continue;
                 }
 
-                if (asset->getType() == "Progress")
-                {
-                    auto progressAsset = std::dynamic_pointer_cast<const ProgressBarAsset>(asset);
-                    if (progressAsset)
-                    {
-                        ImGui::TextUnformatted(progressAsset->getName().c_str());
-                        float p = progressAsset->getProgress();
-                        ImGui::ProgressBar(p, ImVec2(-1.0f, 14.0f));
-
-                        std::string popupId = "ProgressBarContext##" + asset->getGuid().toString();
-                        if (ImGui::BeginPopupContextItem(popupId.c_str()))
-                        {
-                            if (ImGui::MenuItem("Cancel"))
-                            {
-                                progressAsset->cancel();
-                                windows.open("TaskNotification");
-                                auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
-                                if (modal)
-                                {
-                                    modal->setMessage("Operation '" + progressAsset->getOperationName() + "' was canceled.");
-                                }
-                            }
-                            ImGui::EndPopup();
-                        }
-
-                        if (progressAsset->isReady())
-                        {
-                            Polyglot::Node res = progressAsset->getResult();
-                            std::string    st  = res["status"].isString() ? res["status"].asString() : "";
-                            if (!st.empty() && st != "Success" && st != "Canceled")
-                            {
-                                windows.open("TaskNotification");
-                                auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
-                                if (modal)
-                                {
-                                    std::string err = res["error"].isString() ? res["error"].asString() : st;
-                                    modal->setMessage("Operation '" + progressAsset->getOperationName() + "' failed: " + err);
-                                }
-                            }
-                        }
-                        continue;
-                    }
-                }
-
-                auto               attachments = asset->getAttachments();
-                ImGuiTreeNodeFlags nodeFlags   = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-                if (attachments.empty())
+                nlohmann::json     components = assetItem.value("components", nlohmann::json::array());
+                ImGuiTreeNodeFlags nodeFlags  = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+                if (components.empty())
                 {
                     nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
                 }
 
-                std::string assetLabel = asset->getName() + " [" + asset->getType() + "]##" + asset->getGuid().toString();
+                std::string assetLabel = assetName + " [" + assetType + "]##" + assetGuid.toString();
                 bool        nodeOpen   = ImGui::TreeNodeEx(assetLabel.c_str(), nodeFlags);
 
                 if (contextMenuFactory)
                 {
-                    contextMenuFactory->render(gatedDatabase, windows, asset);
+                    contextMenuFactory->render(gatedDatabase, windows, assetGuid, assetType);
                 }
 
-                if (nodeOpen && !attachments.empty())
+                if (nodeOpen && !components.empty())
                 {
-                    for (const auto& comp : attachments)
+                    for (const auto& compItem : components)
                     {
-                        if (!comp)
-                        {
-                            continue;
-                        }
+                        CADacomb::GUID compGuid(compItem.value("componentGuid", ""));
+                        std::string    compName = compItem.value("name", "");
+                        std::string    compType = compItem.value("type", "");
 
-                        std::string        compLabel = comp->getName() + " (" + comp->getType() + ")##" + comp->getGuid().toString();
+                        std::string        compLabel = compName + " (" + compType + ")##" + compGuid.toString();
                         ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
                         ImGui::TreeNodeEx(compLabel.c_str(), leafFlags);
 
                         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
                         {
-                            if (comp->getType() == "TextNote")
+                            if (compType == "TextNote")
                             {
                                 windows.open("TextNoteEdit");
                                 auto editWin = std::dynamic_pointer_cast<TextNoteEditWindow>(windows.get("TextNoteEdit"));
                                 if (editWin)
                                 {
-                                    editWin->setTarget(asset->getGuid(), comp->getGuid());
+                                    editWin->setTarget(assetGuid, compGuid);
                                 }
                             }
                         }
 
-                        std::string compContextId = "ComponentContext##" + comp->getGuid().toString();
+                        std::string compContextId = "ComponentContext##" + compGuid.toString();
                         if (ImGui::BeginPopupContextItem(compContextId.c_str()))
                         {
-                            if (comp->getType() == "TextNote" && ImGui::MenuItem("Edit Note..."))
+                            if (compType == "TextNote" && ImGui::MenuItem("Edit Note..."))
                             {
                                 windows.open("TextNoteEdit");
                                 auto editWin = std::dynamic_pointer_cast<TextNoteEditWindow>(windows.get("TextNoteEdit"));
                                 if (editWin)
                                 {
-                                    editWin->setTarget(asset->getGuid(), comp->getGuid());
+                                    editWin->setTarget(assetGuid, compGuid);
                                 }
                             }
 
                             if (ImGui::MenuItem("Remove Component"))
                             {
                                 Polyglot::Node command = {
-                                    {          "type",           "RemoveComponent" },
-                                    {       "version",                           1 },
-                                    { "componentGuid",  comp->getGuid().toString() },
-                                    {     "assetGuid", asset->getGuid().toString() }
+                                    {          "type",    "RemoveComponent" },
+                                    {       "version",                    1 },
+                                    { "componentGuid",  compGuid.toString() },
+                                    {     "assetGuid", assetGuid.toString() }
                                 };
                                 gatedDatabase.execute(command);
                             }
@@ -181,13 +187,13 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
     ImGui::End();
 }
 
-void ProjectWindow::renderMenuBar(const Project& project, Windows& windows)
+void ProjectWindow::renderMenuBar(bool hasAssets, Windows& windows)
 {
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Clear Project...", nullptr, false, project.getAssetCount() > 0))
+            if (ImGui::MenuItem("Clear Project...", nullptr, false, hasAssets))
             {
                 windows.open("ClearProject");
             }

@@ -1,4 +1,4 @@
-﻿#include "Windows/Preferences/PreferencesWindow.h"
+#include "Windows/Preferences/PreferencesWindow.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/Preferences.h"
@@ -65,7 +65,13 @@ void PreferencesWindow::load(GatedDatabase& database, Defer& deferTarget, const 
     std::ifstream file(filepath);
     if (!file.is_open())
     {
-        UIPreferencesTab::apply(database.get().getPreferences().getUIPreferences());
+        Polyglot::Node uiRes = database.execute({
+          {    "type", "GetUIPreferences" },
+          { "version",                  1 }
+        });
+        UIPreferences  uiPrefs;
+        uiPrefs.fromNode(uiRes["preferences"]);
+        UIPreferencesTab::apply(uiPrefs);
         return;
     }
 
@@ -168,7 +174,28 @@ void PreferencesWindow::render()
 
         if (modified)
         {
-            defer->defer([this]() { save(gatedDatabase->get().getPreferences()); });
+            defer->defer(
+              [this]()
+              {
+                  Preferences prefs;
+                  prefs.getUIPreferences().fromNode(gatedDatabase->execute({
+                    {    "type", "GetUIPreferences" },
+                    { "version",                  1 }
+                  })["preferences"]);
+                  prefs.getCameraPreferences().fromNode(gatedDatabase->execute({
+                    {    "type", "GetCameraPreferences" },
+                    { "version",                      1 }
+                  })["preferences"]);
+                  prefs.getRenderPreferences().fromNode(gatedDatabase->execute({
+                    {    "type", "GetRenderPreferences" },
+                    { "version",                      1 }
+                  })["preferences"]);
+                  prefs.getSVOPreferences().fromNode(gatedDatabase->execute({
+                    {    "type", "GetSVOPreferences" },
+                    { "version",                   1 }
+                  })["preferences"]);
+                  save(prefs);
+              });
         }
     }
     ImGui::End();
