@@ -143,6 +143,7 @@ TEST_CASE("GetAssetInfoCommand/FindByGuid")
     Database database;
     auto     asset = std::make_shared<VoxelAsset>();
     asset->setName("VoxelModel");
+    asset->setSVO(std::make_unique<CADacomb::SVO<bool>>(16, false));
     database.getProject().addAsset(asset);
 
     GetAssetInfoCommand cmd;
@@ -160,6 +161,7 @@ TEST_CASE("GetAssetInfoCommand/FindByGuid")
     CHECK(result.at("sizeInBytes") == asset->getSizeInBytes());
     CHECK(result.at("revision") == asset->getRevision());
     CHECK(result.at("componentCount") == 0);
+    CHECK(result.at("dimension") == 16);
 }
 
 TEST_CASE("GetAssetInfoCommand/FindByName")
@@ -167,6 +169,7 @@ TEST_CASE("GetAssetInfoCommand/FindByName")
     Database database;
     auto     asset = std::make_shared<VoxelAsset>();
     asset->setName("NamedModel");
+    asset->setSVO(std::make_unique<CADacomb::SVO<bool>>(32, false));
     database.getProject().addAsset(asset);
 
     GetAssetInfoCommand cmd;
@@ -181,5 +184,6 @@ TEST_CASE("GetAssetInfoCommand/FindByName")
     CHECK(result.at("assetGuid") == asset->getGuid().toString());
     CHECK(result.at("assetName") == "NamedModel");
     CHECK(result.at("assetType") == "Voxel");
+    CHECK(result.at("dimension") == 32);
 }
 #endif
