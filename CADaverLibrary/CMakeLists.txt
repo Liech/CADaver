@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20...3.30)
+cmake_minimum_required(VERSION 3.20...3.30)
 
 find_package(Catch2 REQUIRED)
 
@@ -95,12 +95,12 @@ set(Command_Project_Files
 source_group("Source/Commands/Project" FILES ${Command_Project_Files})
 
 set(Command_Component_Files
-    "Source/CADaverLibrary/Commands/Component/AddNoteCommand.h"
-    "Source/CADaverLibrary/Commands/Component/AddNoteCommand.cpp"
-    "Source/CADaverLibrary/Commands/Component/GetNotesCommand.h"
-    "Source/CADaverLibrary/Commands/Component/GetNotesCommand.cpp"
-    "Source/CADaverLibrary/Commands/Component/UpdateNoteCommand.h"
-    "Source/CADaverLibrary/Commands/Component/UpdateNoteCommand.cpp"
+    "Source/CADaverLibrary/Commands/Component/AddComponentCommand.h"
+    "Source/CADaverLibrary/Commands/Component/AddComponentCommand.cpp"
+    "Source/CADaverLibrary/Commands/Component/GetComponentCommand.h"
+    "Source/CADaverLibrary/Commands/Component/GetComponentCommand.cpp"
+    "Source/CADaverLibrary/Commands/Component/UpdateComponentCommand.h"
+    "Source/CADaverLibrary/Commands/Component/UpdateComponentCommand.cpp"
     "Source/CADaverLibrary/Commands/Component/RemoveComponentCommand.h"
     "Source/CADaverLibrary/Commands/Component/RemoveComponentCommand.cpp"
 )
@@ -209,6 +209,10 @@ set(Database_Files
     "Source/CADaverLibrary/Database/Asset.cpp"
     "Source/CADaverLibrary/Database/AssetComponent.h"
     "Source/CADaverLibrary/Database/AssetComponent.cpp"
+    "Source/CADaverLibrary/Database/Component/ComponentFactory.h"
+    "Source/CADaverLibrary/Database/Component/ComponentFactory.cpp"
+    "Source/CADaverLibrary/Database/Component/FaceValuesComponent.h"
+    "Source/CADaverLibrary/Database/Component/FaceValuesComponent.cpp"
     "Source/CADaverLibrary/Database/Component/TextNoteComponent.h"
     "Source/CADaverLibrary/Database/Component/TextNoteComponent.cpp"
 )

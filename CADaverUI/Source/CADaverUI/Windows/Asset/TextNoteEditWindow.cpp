@@ -29,7 +29,7 @@ std::string TextNoteEditWindow::getDescription() const
            "  - Note: ComboBox selecting the active note component attached to the chosen asset\n"
            "  - Title: Input field defining the note label\n"
            "  - Body: Multi-line text editor for authoring note content\n\n"
-           "Dispatched Commands: AddNote, RemoveComponent";
+           "Dispatched Commands: AddComponent, UpdateComponent, RemoveComponent";
 }
 
 void TextNoteEditWindow::setTarget(const CADacomb::GUID& targetAssetGuid, const CADacomb::GUID& targetComponentGuid)
@@ -62,18 +62,19 @@ void TextNoteEditWindow::render()
         }
 
         Polyglot::Node notesResponse = gatedDatabase->execute({
-          {      "type",                   "GetNotes" },
-          {   "version",                            1 },
-          { "assetGuid", selectedAssetGuid.toString() }
+          {          "type",               "GetComponent" },
+          {       "version",                            1 },
+          {     "assetGuid", selectedAssetGuid.toString() },
+          { "componentType",                   "TextNote" }
         });
         nlohmann::json notesJson     = notesResponse.toJson();
-        if (notesJson.value("type", "") != "GetNotes")
+        if (notesJson.value("type", "") != "GetComponent")
         {
             ImGui::End();
             return;
         }
 
-        const auto& notes = notesJson["notes"];
+        const auto& notes = notesJson["components"];
         if (notes.empty())
         {
             ImGui::Spacing();
@@ -86,11 +87,12 @@ void TextNoteEditWindow::render()
                   [this, selectedAssetGuid]()
                   {
                       Polyglot::Node command = {
-                          {      "type",                    "AddNote" },
-                          {   "version",                            1 },
-                          { "assetGuid", selectedAssetGuid.toString() },
-                          {      "name",                       "Note" },
-                          {      "text",                           "" }
+                          {          "type",               "AddComponent" },
+                          {       "version",                            1 },
+                          {     "assetGuid", selectedAssetGuid.toString() },
+                          { "componentType",                   "TextNote" },
+                          {          "name",                       "Note" },
+                          {          "data", { { "Version", 1 }, { "text", "" } } }
                       };
                       gatedDatabase->execute(command);
                   });
@@ -145,7 +147,7 @@ void TextNoteEditWindow::render()
                 if (CADacomb::GUID(note.value("componentGuid", "")) == currentComponentGuid)
                 {
                     cachedName = note.value("name", "");
-                    cachedText = note.value("text", "");
+                    cachedText = note.contains("data") ? note["data"].value("text", "") : "";
                     break;
                 }
             }
@@ -185,12 +187,12 @@ void TextNoteEditWindow::render()
               [this, selectedAssetGuid, compToUpdate, updatedName, updatedText]()
               {
                   Polyglot::Node command = {
-                      {          "type",                 "UpdateNote" },
+                      {          "type",            "UpdateComponent" },
                       {       "version",                            1 },
                       {     "assetGuid", selectedAssetGuid.toString() },
                       { "componentGuid",      compToUpdate.toString() },
                       {          "name",                  updatedName },
-                      {          "text",                  updatedText }
+                      {          "data", { { "Version", 1 }, { "text", updatedText } } }
                   };
                   gatedDatabase->execute(command);
               });
@@ -203,11 +205,12 @@ void TextNoteEditWindow::render()
               [this, selectedAssetGuid]()
               {
                   Polyglot::Node command = {
-                      {      "type",                    "AddNote" },
-                      {   "version",                            1 },
-                      { "assetGuid", selectedAssetGuid.toString() },
-                      {      "name",                   "New Note" },
-                      {      "text",                           "" }
+                      {          "type",               "AddComponent" },
+                      {       "version",                            1 },
+                      {     "assetGuid", selectedAssetGuid.toString() },
+                      { "componentType",                   "TextNote" },
+                      {          "name",                   "New Note" },
+                      {          "data", { { "Version", 1 }, { "text", "" } } }
                   };
                   gatedDatabase->execute(command);
               });
@@ -250,6 +253,6 @@ TEST_CASE("TextNoteEditWindow/TypeAndDescription")
     TextNoteEditWindow window;
     CHECK(window.getType() == "TextNoteEdit");
     CHECK(window.getDescription().find("Window: TextNoteEdit") != std::string::npos);
-    CHECK(window.getDescription().find("AddNote, RemoveComponent") != std::string::npos);
+    CHECK(window.getDescription().find("AddComponent, UpdateComponent, RemoveComponent") != std::string::npos);
 }
 #endif

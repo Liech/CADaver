@@ -4,16 +4,17 @@
 #include "Execution/Command.h"
 
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <string>
 
-class TextNoteComponent;
+class AssetComponent;
 
-// Command to add a text note component to a specified asset.
-class AddNoteCommand : public Command
+// Generic command to create and attach any registered AssetComponent to an asset.
+class AddComponentCommand : public Command
 {
   public:
-    AddNoteCommand();
-    virtual ~AddNoteCommand();
+    AddComponentCommand();
+    virtual ~AddComponentCommand();
 
     std::string getType() const override;
     int         getVersion() const override;
@@ -28,8 +29,10 @@ class AddNoteCommand : public Command
     size_t getUndoSize() const override;
 
   private:
-    CADacomb::GUID                     assetGuid;
-    std::string                        name = "Note";
-    std::string                        text = "";
-    std::shared_ptr<TextNoteComponent> addedComponent;
+    CADacomb::GUID                  assetGuid;
+    std::string                     componentType;
+    std::string                     name;
+    nlohmann::json                  data;
+    bool                            hasData = false;
+    std::shared_ptr<AssetComponent> addedComponent;
 };

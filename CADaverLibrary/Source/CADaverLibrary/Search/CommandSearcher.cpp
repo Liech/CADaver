@@ -49,9 +49,9 @@ TEST_CASE("CommandSearcher/SearchMatching")
     auto results = searcher.search("NonExistentCommandXyz");
     REQUIRE(results.empty());
 
-    auto addResults = searcher.search("AddNote");
+    auto addResults = searcher.search("AddComponent");
     REQUIRE(!addResults.empty());
-    REQUIRE(addResults[0].getTitle() == "AddNote");
+    REQUIRE(addResults[0].getTitle() == "AddComponent");
     REQUIRE(addResults[0].getCategory() == "Command");
 }
 #endif

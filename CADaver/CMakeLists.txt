@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 2.8...3.20)
+cmake_minimum_required(VERSION 2.8...3.20)
 project(CadaverExe)
 
 find_package(nlohmann_json REQUIRED)
@@ -29,6 +29,75 @@ set(MCP_Files
 )
 source_group("Source/MCP" FILES ${MCP_Files})
 
+find_program(SLANG_COMPILER NAMES slangc slangc.exe PATH_SUFFIXES tools/shader-slang REQUIRED)
+
+set(SHADER_GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated_shaders")
+file(MAKE_DIRECTORY ${SHADER_GEN_DIR})
+set(GENERATED_SHADER_HEADERS "")
+
+set(Shader_Files
+    "Shaders/Triangulation/SurfaceModifier.slang"
+    "Shaders/Triangulation/DefaultSurfaceModifier.slang"
+    "Shaders/Triangulation/IndexedFaceColorModifier.slang"
+    "Shaders/Triangulation/TriangulationCore.slang"
+    "Shaders/Triangulation/Triangulation_vert.exe.slang"
+    "Shaders/Triangulation/Triangulation_Default_frag.exe.slang"
+    "Shaders/Triangulation/Triangulation_IndexedFaceColor_frag.exe.slang"
+)
+source_group("Shaders" FILES ${Shader_Files})
+
+set(Shader_Dependencies
+    "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Triangulation/SurfaceModifier.slang"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Triangulation/DefaultSurfaceModifier.slang"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Triangulation/IndexedFaceColorModifier.slang"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Triangulation/TriangulationCore.slang"
+)
+
+foreach(SHADER_FILE ${Shader_Files})
+    if(SHADER_FILE MATCHES "\\.exe\\.slang$")
+        set(ABS_SHADER_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SHADER_FILE}")
+        file(RELATIVE_PATH REL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Shaders" "${ABS_SHADER_PATH}")
+
+        get_filename_component(REL_DIR "${REL_PATH}" DIRECTORY)
+        string(REPLACE ".exe.slang" "" BASE_NAME "${REL_PATH}")
+        get_filename_component(FILE_NAME_WE "${BASE_NAME}" NAME)
+
+        set(SUB_DIR "${SHADER_GEN_DIR}/${REL_DIR}")
+        set(OUTPUT_HEADER "${SUB_DIR}/${FILE_NAME_WE}.h")
+
+        file(MAKE_DIRECTORY "${SUB_DIR}")
+
+        set(STAGE_FLAG "")
+        if(SHADER_FILE MATCHES "_vert\\.exe\\.slang$")
+            set(STAGE_FLAG "-stage" "vertex")
+        elseif(SHADER_FILE MATCHES "_frag\\.exe\\.slang$")
+            set(STAGE_FLAG "-stage" "fragment")
+        elseif(SHADER_FILE MATCHES "_comp\\.exe\\.slang$")
+            set(STAGE_FLAG "-stage" "compute")
+        endif()
+
+        add_custom_command(
+            OUTPUT "${OUTPUT_HEADER}"
+            COMMAND "${SLANG_COMPILER}" "${ABS_SHADER_PATH}"
+                    -target spirv
+                    -entry main
+                    ${STAGE_FLAG}
+                    -profile spirv_1_3
+                    -source-embed-style u32
+                    -source-embed-language cpp
+                    -source-embed-name "${FILE_NAME_WE}_spirv"
+                    -o "${OUTPUT_HEADER}"
+                    -I "${CMAKE_CURRENT_SOURCE_DIR}/Shaders"
+                    -I "${CMAKE_CURRENT_SOURCE_DIR}/../../Vulcant/VulcantToolkit/Shaders/ShaderLibrary"
+            DEPENDS "${ABS_SHADER_PATH}" ${Shader_Dependencies}
+            COMMENT "Compiling Slang Entry Point: ${REL_PATH}"
+            VERBATIM
+        )
+
+        list(APPEND GENERATED_SHADER_HEADERS "${OUTPUT_HEADER}")
+    endif()
+endforeach()
+
 set(Rendering_Files
     "Source/Rendering/Renderer.h"
     "Source/Rendering/Renderer.cpp"
@@ -36,6 +105,12 @@ set(Rendering_Files
     "Source/Rendering/AssetRenderer.cpp"
     "Source/Rendering/TriangulationAssetRenderer.h"
     "Source/Rendering/TriangulationAssetRenderer.cpp"
+    "Source/Rendering/Triangulation/TriangulationSurfaceModule.h"
+    "Source/Rendering/Triangulation/TriangulationSurfaceModule.cpp"
+    "Source/Rendering/Triangulation/DefaultSurfaceModule.h"
+    "Source/Rendering/Triangulation/DefaultSurfaceModule.cpp"
+    "Source/Rendering/Triangulation/IndexedFaceColorModule.h"
+    "Source/Rendering/Triangulation/IndexedFaceColorModule.cpp"
     "Source/Rendering/StepAssetRenderer.h"
     "Source/Rendering/StepAssetRenderer.cpp"
     "Source/Rendering/AssetRenderFactory.h"
@@ -130,6 +205,8 @@ set(ALL_FILES
     ${UI_ViewCube_Files}
     ${UI_ContextMenu_Files}
     ${UI_Project_Files}
+    ${Shader_Files}
+    ${GENERATED_SHADER_HEADERS}
 )
 
 add_executable(CadaverExe WIN32 ${ALL_FILES})
@@ -150,6 +227,7 @@ target_link_libraries(CadaverExe
 
 target_include_directories(CadaverExe PUBLIC 
     ./Source/
+    ${SHADER_GEN_DIR}/
 )
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT CadaverExe)

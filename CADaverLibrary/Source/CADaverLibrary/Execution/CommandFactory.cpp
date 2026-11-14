@@ -1,9 +1,9 @@
 ﻿#include "Execution/CommandFactory.h"
 
-#include "Commands/Component/AddNoteCommand.h"
-#include "Commands/Component/GetNotesCommand.h"
+#include "Commands/Component/AddComponentCommand.h"
+#include "Commands/Component/GetComponentCommand.h"
 #include "Commands/Component/RemoveComponentCommand.h"
-#include "Commands/Component/UpdateNoteCommand.h"
+#include "Commands/Component/UpdateComponentCommand.h"
 #include "Commands/Conversion/ConvertCadToStlCommand.h"
 #include "Commands/Conversion/ConvertCadToSvoCommand.h"
 #include "Commands/Conversion/ConvertStlToSvoCommand.h"
@@ -87,9 +87,9 @@ void CommandFactory::registerCommand(const std::string& name, std::function<std:
 
 void CommandFactory::registerCommands()
 {
-    registerCommand("AddNote", []() { return std::make_unique<AddNoteCommand>(); });
-    registerCommand("GetNotes", []() { return std::make_unique<GetNotesCommand>(); });
-    registerCommand("UpdateNote", []() { return std::make_unique<UpdateNoteCommand>(); });
+    registerCommand("AddComponent", []() { return std::make_unique<AddComponentCommand>(); });
+    registerCommand("GetComponent", []() { return std::make_unique<GetComponentCommand>(); });
+    registerCommand("UpdateComponent", []() { return std::make_unique<UpdateComponentCommand>(); });
     registerCommand("RemoveComponent", []() { return std::make_unique<RemoveComponentCommand>(); });
     registerCommand("RemoveAsset", []() { return std::make_unique<RemoveAssetCommand>(); });
     registerCommand("ClearProject", []() { return std::make_unique<ClearProjectCommand>(); });
@@ -159,9 +159,9 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("UpdateUIPreferences") != nullptr);
     CHECK(factory.create("UpdateRenderPreferences") != nullptr);
     CHECK(factory.create("UpdateSVOPreferences") != nullptr);
-    CHECK(factory.create("AddNote") != nullptr);
-    CHECK(factory.create("GetNotes") != nullptr);
-    CHECK(factory.create("UpdateNote") != nullptr);
+    CHECK(factory.create("AddComponent") != nullptr);
+    CHECK(factory.create("GetComponent") != nullptr);
+    CHECK(factory.create("UpdateComponent") != nullptr);
     CHECK(factory.create("RemoveComponent") != nullptr);
     CHECK(factory.create("Search") != nullptr);
     CHECK(factory.create("GetDocumentation") != nullptr);

@@ -194,7 +194,7 @@ TEST_CASE("GetDocumentationCommand/CommandAndConcept")
         {     "type", "GetDocumentation" },
         {  "version",                  1 },
         { "category",          "Command" },
-        {     "name",          "AddNote" }
+        {     "name",     "AddComponent" }
     };
     cmd.setInput(cmdInput);
     auto cmdRes = cmd.execute(db);

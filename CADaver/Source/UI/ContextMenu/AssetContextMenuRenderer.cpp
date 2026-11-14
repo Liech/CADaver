@@ -45,11 +45,12 @@ void AssetContextMenuRenderer::renderMenuContents(GatedDatabase& gatedDatabase, 
     if (ImGui::MenuItem("Add Note..."))
     {
         Polyglot::Node command = {
-            {      "type",            "AddNote" },
-            {   "version",                    1 },
-            { "assetGuid", assetGuid.toString() },
-            {      "name",               "Note" },
-            {      "text",                   "" }
+            {          "type",       "AddComponent" },
+            {       "version",                    1 },
+            {     "assetGuid", assetGuid.toString() },
+            { "componentType",           "TextNote" },
+            {          "name",               "Note" },
+            {          "data", { { "Version", 1 }, { "text", "" } } }
         };
         gatedDatabase.execute(command);
     }

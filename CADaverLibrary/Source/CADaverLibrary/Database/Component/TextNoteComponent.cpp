@@ -34,6 +34,21 @@ bool TextNoteComponent::isCompatible(const std::string&) const
     return true;
 }
 
+nlohmann::json TextNoteComponent::toDataJson() const
+{
+    return {
+        { "Version",    1 },
+        {    "text", text }
+    };
+}
+
+void TextNoteComponent::fromDataJson(const nlohmann::json& jsonObject)
+{
+    jsonObject.at("Version").get<int>();
+    text = jsonObject.at("text").get<std::string>();
+    markModified();
+}
+
 const std::string& TextNoteComponent::getText() const
 {
     return text;
@@ -42,6 +57,7 @@ const std::string& TextNoteComponent::getText() const
 void TextNoteComponent::setText(const std::string& newText)
 {
     text = newText;
+    markModified();
 }
 
 #ifdef ISTESTPROJECT

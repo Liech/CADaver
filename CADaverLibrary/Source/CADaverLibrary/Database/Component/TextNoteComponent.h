@@ -17,6 +17,9 @@ class TextNoteComponent : public AssetComponent
     size_t      getSizeInBytes() const override;
     bool        isCompatible(const std::string& assetType) const override;
 
+    nlohmann::json toDataJson() const override;
+    void           fromDataJson(const nlohmann::json& jsonObject) override;
+
     const std::string& getText() const;
     void               setText(const std::string& text);
 
