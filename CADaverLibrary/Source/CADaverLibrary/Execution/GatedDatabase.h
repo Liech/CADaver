@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CADacomb/Util/GUID.h"
 #include "Database/Database.h"
@@ -24,7 +24,9 @@ class GatedDatabase
     GatedDatabase();
     virtual ~GatedDatabase();
 
-    const Database&       get() const;
+#ifdef CADAVER_ALLOW_GATED_GET
+    const Database& get() const;
+#endif
     CommandFactory&       getCommandFactory();
     const CommandFactory& getCommandFactory() const;
 

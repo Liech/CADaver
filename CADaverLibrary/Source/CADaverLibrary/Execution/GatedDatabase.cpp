@@ -1,3 +1,5 @@
+#define CADAVER_ALLOW_GATED_GET
+
 #include "Execution/GatedDatabase.h"
 
 #include "CADacomb/Util/ProgressBar.h"
@@ -15,10 +17,12 @@ GatedDatabase::GatedDatabase() {}
 
 GatedDatabase::~GatedDatabase() {}
 
+#ifdef CADAVER_ALLOW_GATED_GET
 const Database& GatedDatabase::get() const
 {
     return database;
 }
+#endif
 
 CommandFactory& GatedDatabase::getCommandFactory()
 {

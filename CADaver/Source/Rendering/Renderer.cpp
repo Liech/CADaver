@@ -1,4 +1,6 @@
-﻿#include "Renderer.h"
+#define CADAVER_ALLOW_GATED_GET
+
+#include "Renderer.h"
 
 #include "AssetRenderFactory.h"
 #include "AssetRenderer.h"
