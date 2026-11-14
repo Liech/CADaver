@@ -1,10 +1,13 @@
 ﻿#include "VoxelAssetRenderer.h"
 
 #include "Database/Asset/VoxelAsset.h"
+#include "Database/Preferences/RenderPreferences.h"
 #include "Database/Preferences/SVOPreferences.h"
+#include "Execution/GatedDatabase.h"
 #include "Rendering/Renderer.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
+#include "Vulcant/Interface/VulcantImage.h"
 
 VoxelAssetRenderer::VoxelAssetRenderer() {}
 
@@ -30,7 +33,7 @@ void VoxelAssetRenderer::setAsset(const std::shared_ptr<const Asset>& newAsset)
     dirty = true;
 }
 
-void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
+void VoxelAssetRenderer::rebuildMesh(Renderer& renderer, int chunkSize, int vertexCapacity)
 {
     if (!asset)
     {
@@ -39,9 +42,8 @@ void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
         return;
     }
 
-    const auto& svoPrefs = renderer.getSVOPreferences();
-    lastChunkSize        = svoPrefs.getChunkSize();
-    lastVertexCapacity   = svoPrefs.getVertexCapacity();
+    lastChunkSize      = chunkSize;
+    lastVertexCapacity = vertexCapacity;
 
     lodMesh =
       std::make_unique<CADacomb::Render::SVOLODMesh<bool>>(renderer.getDevice(), asset->getSVO(), asset->getAABB(), static_cast<size_t>(lastVertexCapacity), static_cast<uint32_t>(lastChunkSize));
@@ -50,18 +52,27 @@ void VoxelAssetRenderer::rebuildMesh(Renderer& renderer)
     lastRevision = asset->getRevision();
 }
 
-void VoxelAssetRenderer::render(Renderer& renderer)
+void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData)
 {
     if (!asset)
     {
         return;
     }
 
-    const auto& svoPrefs = renderer.getSVOPreferences();
+    Polyglot::Node svoPrefRes = gatedDatabase.execute({
+      {    "type", "GetSVOPreferences" },
+      { "version",                   1 }
+    });
+    SVOPreferences svoPrefs;
+    if (svoPrefRes.contains("preferences"))
+    {
+        svoPrefs.fromNode(svoPrefRes["preferences"]);
+    }
+
     if (dirty || asset->getRevision() != lastRevision || !lodMesh || lastChunkSize != svoPrefs.getChunkSize() || lastVertexCapacity != svoPrefs.getVertexCapacity() ||
         lastRebuildCounter != svoPrefs.getRebuildCounter())
     {
-        rebuildMesh(renderer);
+        rebuildMesh(renderer, svoPrefs.getChunkSize(), svoPrefs.getVertexCapacity());
         lastRebuildCounter = svoPrefs.getRebuildCounter();
     }
 
@@ -70,22 +81,34 @@ void VoxelAssetRenderer::render(Renderer& renderer)
         return;
     }
 
+    glm::ivec2 targetRes = renderer.getColor().getResolution();
     if (!meshRenderer)
     {
-        meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), renderer.getResolution());
+        meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), targetRes);
         meshRenderer->setClear(false);
         meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
         drawCmd = renderer.getDevice().createGraphicCommand();
     }
-    else if (meshRenderer->getResolution() != renderer.getResolution())
+    else if (meshRenderer->getResolution() != targetRes)
     {
         meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
         drawCmd = renderer.getDevice().createGraphicCommand();
     }
-    meshRenderer->setSceneData(renderer.getSceneData());
-    meshRenderer->setWireframeMode(renderer.getWireframeMode());
-    meshRenderer->setWireframeColor(renderer.getWireframeColor());
-    meshRenderer->setCullMode(renderer.getCullMode());
+
+    Polyglot::Node renderPrefRes = gatedDatabase.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    });
+    RenderPreferences renderPreferences;
+    if (renderPrefRes.contains("preferences"))
+    {
+        renderPreferences.fromNode(renderPrefRes["preferences"]);
+    }
+
+    meshRenderer->setSceneData(sceneData);
+    meshRenderer->setWireframeMode(static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(renderPreferences.getWireframeMode()));
+    meshRenderer->setWireframeColor(renderPreferences.getWireframeColor());
+    meshRenderer->setCullMode(static_cast<Vulcant::VulcantCullMode>(renderPreferences.getCullMode()));
 
     int                    strategyType   = svoPrefs.getStrategyType();
     CADacomb::LODStrategy* activeStrategy = &frustumAdaptiveStrategy;
@@ -123,16 +146,21 @@ void VoxelAssetRenderer::render(Renderer& renderer)
         activeStrategy = &fixedStrategy;
     }
 
-    glm::vec3 meshColor(0.6f, 0.75f, 0.9f);
+    Polyglot::Node selRes = gatedDatabase.execute({
+      {      "type",   "GetAssetSelection" },
+      {   "version",                     1 },
+      { "assetGuid", asset->getGuid().toString() }
+    });
+    bool      selected  = (selRes.toJson().value("status", "") == "Success");
+    glm::vec3 meshColor = selected ? glm::vec3(1.0f, 0.65f, 0.1f) : glm::vec3(0.6f, 0.75f, 0.9f);
     lodMesh->setColor(meshColor);
 
-    lodMesh->update(renderer.getSceneData(), *activeStrategy);
+    lodMesh->update(sceneData, *activeStrategy);
 
     if (lodMesh->getVertexCount() > 0 && drawCmd)
     {
         drawCmd->wait();
         drawCmd->startRecord();
-        drawCmd->setClearColor(renderer.getClearColor());
         meshRenderer->record(*drawCmd, lodMesh->getVertexBuffer(), static_cast<uint32_t>(lodMesh->getVertexCount()));
         drawCmd->endRecord();
         drawCmd->runAsync();

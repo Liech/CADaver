@@ -33,6 +33,11 @@
 #include "Commands/Project/RemoveAssetCommand.h"
 #include "Commands/Search/GetDocumentationCommand.h"
 #include "Commands/Search/SearchCommand.h"
+#include "Commands/Selection/ClearSelectionCommand.h"
+#include "Commands/Selection/GetAssetSelectionCommand.h"
+#include "Commands/Selection/GetSelectedAssetsCommand.h"
+#include "Commands/Selection/PickAssetCommand.h"
+#include "Commands/Selection/SelectAssetCommand.h"
 #include "Commands/Task/CancelTaskCommand.h"
 #include "Commands/Task/GetActiveTasksCommand.h"
 #include "Commands/Task/GetTaskStateCommand.h"
@@ -122,6 +127,11 @@ void CommandFactory::registerCommands()
     registerCommand("GetProjectAABB", []() { return std::make_unique<GetProjectAABBCommand>(); });
     registerCommand("Search", []() { return std::make_unique<SearchCommand>(); });
     registerCommand("GetDocumentation", []() { return std::make_unique<GetDocumentationCommand>(); });
+    registerCommand("SelectAsset", []() { return std::make_unique<SelectAssetCommand>(); });
+    registerCommand("ClearSelection", []() { return std::make_unique<ClearSelectionCommand>(); });
+    registerCommand("GetAssetSelection", []() { return std::make_unique<GetAssetSelectionCommand>(); });
+    registerCommand("GetSelectedAssets", []() { return std::make_unique<GetSelectedAssetsCommand>(); });
+    registerCommand("PickAsset", []() { return std::make_unique<PickAssetCommand>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -167,6 +177,11 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("RemoveComponent") != nullptr);
     CHECK(factory.create("Search") != nullptr);
     CHECK(factory.create("GetDocumentation") != nullptr);
-    CHECK(factory.getAllCommands().size() == 36);
+    CHECK(factory.create("SelectAsset") != nullptr);
+    CHECK(factory.create("ClearSelection") != nullptr);
+    CHECK(factory.create("GetAssetSelection") != nullptr);
+    CHECK(factory.create("GetSelectedAssets") != nullptr);
+    CHECK(factory.create("PickAsset") != nullptr);
+    CHECK(factory.getAllCommands().size() == 41);
 }
 #endif

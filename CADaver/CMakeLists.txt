@@ -82,6 +82,8 @@ set(UI_ContextMenu_Files
     "Source/UI/ContextMenu/VoxelAssetContextMenu.cpp"
     "Source/UI/ContextMenu/AssetContextMenuFactory.h"
     "Source/UI/ContextMenu/AssetContextMenuFactory.cpp"
+    "Source/UI/ContextMenu/AssetContextMenuRenderer.h"
+    "Source/UI/ContextMenu/AssetContextMenuRenderer.cpp"
 )
 source_group("Source/UI/ContextMenu" FILES ${UI_ContextMenu_Files})
 
@@ -111,10 +113,17 @@ set(Camera_Files
 )
 source_group("Source/Camera" FILES ${Camera_Files})
 
+set(Picking_Files
+    "Source/Picking/ViewportPickingController.h"
+    "Source/Picking/ViewportPickingController.cpp"
+)
+source_group("Source/Picking" FILES ${Picking_Files})
+
 set(ALL_FILES
     ${Source_Files}
     ${MCP_Files}
     ${Camera_Files}
+    ${Picking_Files}
     ${Rendering_Files}
     ${UI_Menu_Files}
     ${UI_Component_Files}

@@ -4,7 +4,7 @@
 #include "CADacomb/CAD/Sm/KernelSm.h"
 #include "CADacomb/Triangle/Triangulation.h"
 #include "CADacomb/Util/ProgressBar.h"
-#include "CADacomb/Volume/AABB3.h"
+#include "CADacomb/Util/AABB3.h"
 #include "CADacomb/Volume/SVO/Blocky/SVOBlockyTriangulation.h"
 #include "CADacomb/Volume/SVO/SVO.h"
 #include "CADacomb/Volume/SVO/SVOVoxelizer.h"

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-class AssetContextMenuFactory;
+class AssetContextMenuRenderer;
 class GatedDatabase;
 class Windows;
 
@@ -21,6 +21,6 @@ class ProjectWindow
   private:
     void renderMenuBar(bool hasAssets, Windows& windows);
 
-    std::unique_ptr<AssetContextMenuFactory> contextMenuFactory;
-    float                                    width = 300.0f;
+    std::unique_ptr<AssetContextMenuRenderer> contextMenuRenderer;
+    float                                     width = 300.0f;
 };

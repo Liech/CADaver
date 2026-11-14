@@ -1,22 +1,24 @@
 ﻿#pragma once
 
-#include "CADacomb/Util/GUID.h"
-
+#include <functional>
+#include <map>
 #include <memory>
 #include <string>
 
 class AssetContextMenu;
-class GatedDatabase;
-class Windows;
 
-// Factory for creating and rendering asset context menus based on asset type.
+// Factory for creating asset context menus based on asset type.
 class AssetContextMenuFactory
 {
   public:
     AssetContextMenuFactory();
     virtual ~AssetContextMenuFactory();
 
-    std::unique_ptr<AssetContextMenu> create(const std::string& assetType);
+    std::unique_ptr<AssetContextMenu> create(const std::string& assetType) const;
+    void                              registerMenu(const std::string& assetType, std::function<std::unique_ptr<AssetContextMenu>()> creator);
 
-    void render(GatedDatabase& gatedDatabase, Windows& windows, const CADacomb::GUID& assetGuid, const std::string& assetType);
+  private:
+    void registerMenus();
+
+    std::map<std::string, std::function<std::unique_ptr<AssetContextMenu>()>> creators;
 };

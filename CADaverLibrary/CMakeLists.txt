@@ -128,6 +128,44 @@ set(Command_Geometry_Files
 )
 source_group("Source/Commands/Geometry" FILES ${Command_Geometry_Files})
 
+set(Command_Selection_Files
+    "Source/CADaverLibrary/Commands/Selection/ClearSelectionCommand.h"
+    "Source/CADaverLibrary/Commands/Selection/ClearSelectionCommand.cpp"
+    "Source/CADaverLibrary/Commands/Selection/GetAssetSelectionCommand.h"
+    "Source/CADaverLibrary/Commands/Selection/GetAssetSelectionCommand.cpp"
+    "Source/CADaverLibrary/Commands/Selection/GetSelectedAssetsCommand.h"
+    "Source/CADaverLibrary/Commands/Selection/GetSelectedAssetsCommand.cpp"
+    "Source/CADaverLibrary/Commands/Selection/PickAssetCommand.h"
+    "Source/CADaverLibrary/Commands/Selection/PickAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/Selection/SelectAssetCommand.h"
+    "Source/CADaverLibrary/Commands/Selection/SelectAssetCommand.cpp"
+)
+source_group("Source/Commands/Selection" FILES ${Command_Selection_Files})
+
+set(Picking_Files
+    "Source/CADaverLibrary/Picking/AssetPicker.h"
+    "Source/CADaverLibrary/Picking/AssetPicker.cpp"
+    "Source/CADaverLibrary/Picking/PickResult.h"
+    "Source/CADaverLibrary/Picking/PickResult.cpp"
+)
+source_group("Source/Picking" FILES ${Picking_Files})
+
+set(Picking_AssetRayPicker_Files
+    "Source/CADaverLibrary/Picking/AssetRayPicker/AssetRayPicker.h"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/AssetRayPicker.cpp"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/AssetRayPickerFactory.h"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/AssetRayPickerFactory.cpp"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/CadAssetRayPicker.h"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/CadAssetRayPicker.cpp"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/TriangulationAssetRayPicker.h"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/TriangulationAssetRayPicker.cpp"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/TriangulationRayPicker.h"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/TriangulationRayPicker.cpp"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/VoxelAssetRayPicker.h"
+    "Source/CADaverLibrary/Picking/AssetRayPicker/VoxelAssetRayPicker.cpp"
+)
+source_group("Source/Picking/AssetRayPicker" FILES ${Picking_AssetRayPicker_Files})
+
 set(Database_Preferences_Files
     "Source/CADaverLibrary/Database/Preferences/Preferences.h"
     "Source/CADaverLibrary/Database/Preferences/Preferences.cpp"
@@ -281,6 +319,9 @@ set(ALL_FILES
     ${Command_Preferences_Query_Files}
     ${Command_Task_Files}
     ${Command_Geometry_Files}
+    ${Command_Selection_Files}
+    ${Picking_Files}
+    ${Picking_AssetRayPicker_Files}
     ${Command_Search_Files}
     ${Concept_Files}
     ${Search_Files}

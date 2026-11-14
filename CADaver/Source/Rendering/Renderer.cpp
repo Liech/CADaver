@@ -69,14 +69,8 @@ void Renderer::setResolution(const glm::ivec2& newResolution)
     }
 }
 
-void Renderer::setSceneData(const Vulcant::Toolkit::SceneData& newSceneData)
+void Renderer::render(const Vulcant::Toolkit::SceneData& sceneData)
 {
-    sceneData = newSceneData;
-}
-
-void Renderer::render(const Vulcant::Toolkit::SceneData& newSceneData)
-{
-    setSceneData(newSceneData);
     clear();
 
     const auto& project = gatedDatabase.get().getProject();
@@ -86,7 +80,7 @@ void Renderer::render(const Vulcant::Toolkit::SceneData& newSceneData)
     {
         if (asset)
         {
-            renderAsset(asset);
+            renderAsset(asset, sceneData);
         }
     }
 
@@ -98,7 +92,7 @@ void Renderer::clear()
     recordClearPass();
 }
 
-void Renderer::renderAsset(const std::shared_ptr<const Asset>& asset)
+void Renderer::renderAsset(const std::shared_ptr<const Asset>& asset, const Vulcant::Toolkit::SceneData& sceneData)
 {
     if (!asset)
     {
@@ -118,7 +112,7 @@ void Renderer::renderAsset(const std::shared_ptr<const Asset>& asset)
 
     if (it != renderers.end() && it->second)
     {
-        it->second->render(*this);
+        it->second->render(*this, gatedDatabase, sceneData);
     }
 }
 
@@ -175,34 +169,18 @@ void Renderer::renderUi()
     window.blitImage(resultImage);
 }
 
-const glm::ivec2& Renderer::getResolution() const
-{
-    return resolution;
-}
-
-const Vulcant::Toolkit::SceneData& Renderer::getSceneData() const
-{
-    return sceneData;
-}
-
 glm::vec4 Renderer::getClearColor() const
 {
-    return gatedDatabase.get().getPreferences().getUIPreferences().getBackgroundColor();
-}
-
-Vulcant::Toolkit::MeshRenderer::WireframeMode Renderer::getWireframeMode() const
-{
-    return static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(gatedDatabase.get().getPreferences().getRenderPreferences().getWireframeMode());
-}
-
-glm::vec3 Renderer::getWireframeColor() const
-{
-    return gatedDatabase.get().getPreferences().getRenderPreferences().getWireframeColor();
-}
-
-Vulcant::VulcantCullMode Renderer::getCullMode() const
-{
-    return static_cast<Vulcant::VulcantCullMode>(gatedDatabase.get().getPreferences().getRenderPreferences().getCullMode());
+    Polyglot::Node response = gatedDatabase.execute({
+      {    "type", "GetUIPreferences" },
+      { "version",                  1 }
+    });
+    UIPreferences uiPreferences;
+    if (response.contains("preferences"))
+    {
+        uiPreferences.fromNode(response["preferences"]);
+    }
+    return uiPreferences.getBackgroundColor();
 }
 
 Vulcant::VulcantDevice& Renderer::getDevice() const
@@ -228,11 +206,6 @@ Vulcant::VulcantImage& Renderer::getNormal() const
 Vulcant::VulcantImage& Renderer::getResult() const
 {
     return *colorImage;
-}
-
-const SVOPreferences& Renderer::getSVOPreferences() const
-{
-    return gatedDatabase.get().getPreferences().getSVOPreferences();
 }
 
 void Renderer::recordClearPass()

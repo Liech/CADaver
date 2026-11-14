@@ -13,7 +13,6 @@
 class Asset;
 class AssetRenderer;
 class GatedDatabase;
-class SVOPreferences;
 
 namespace Vulcant
 {
@@ -36,33 +35,25 @@ class Renderer
     void render(const Vulcant::Toolkit::SceneData& sceneData);
     void beginUiFrame();
 
-    const glm::ivec2&                             getResolution() const;
-    const Vulcant::Toolkit::SceneData&            getSceneData() const;
-    glm::vec4                                     getClearColor() const;
-    Vulcant::Toolkit::MeshRenderer::WireframeMode getWireframeMode() const;
-    glm::vec3                                     getWireframeColor() const;
-    Vulcant::VulcantCullMode                      getCullMode() const;
-    Vulcant::VulcantDevice&                       getDevice() const;
-    Vulcant::VulcantImage&                        getColor() const;
-    Vulcant::VulcantImage&                        getDepth() const;
-    Vulcant::VulcantImage&                        getNormal() const;
-    Vulcant::VulcantImage&                        getResult() const;
-    const SVOPreferences&                         getSVOPreferences() const;
+    Vulcant::VulcantDevice& getDevice() const;
+    Vulcant::VulcantImage&  getColor() const;
+    Vulcant::VulcantImage&  getDepth() const;
+    Vulcant::VulcantImage&  getNormal() const;
+    Vulcant::VulcantImage&  getResult() const;
 
   private:
-    void setSceneData(const Vulcant::Toolkit::SceneData& sceneData);
-    void clear();
-    void renderAsset(const std::shared_ptr<const Asset>& asset);
-    void pruneRenderers(const std::vector<std::shared_ptr<const Asset>>& activeAssets);
-    void renderUi();
-    void recordClearPass();
-    void recordUiCommand();
+    glm::vec4 getClearColor() const;
+    void      clear();
+    void      renderAsset(const std::shared_ptr<const Asset>& asset, const Vulcant::Toolkit::SceneData& sceneData);
+    void      pruneRenderers(const std::vector<std::shared_ptr<const Asset>>& activeAssets);
+    void      renderUi();
+    void      recordClearPass();
+    void      recordUiCommand();
 
     Vulcant::VulcantDevice&                                  device;
     Vulcant::VulcantWindow&                                  window;
     glm::ivec2                                               resolution;
     GatedDatabase&                                           gatedDatabase;
-    Vulcant::Toolkit::SceneData                              sceneData;
     std::unique_ptr<Vulcant::VulcantGraphicCommand>          drawCmd;
     std::unique_ptr<Vulcant::VulcantGraphicCommand>          uiCmdG;
     std::unique_ptr<Vulcant::VulcantUi>                      ui;

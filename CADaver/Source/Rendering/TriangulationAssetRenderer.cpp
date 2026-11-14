@@ -1,9 +1,12 @@
 ﻿#include "TriangulationAssetRenderer.h"
 
 #include "Database/Asset/TriangulationAsset.h"
+#include "Database/Preferences/RenderPreferences.h"
+#include "Execution/GatedDatabase.h"
 #include "Rendering/Renderer.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
+#include "Vulcant/Interface/VulcantImage.h"
 
 TriangulationAssetRenderer::TriangulationAssetRenderer() {}
 
@@ -38,6 +41,7 @@ void TriangulationAssetRenderer::rebuildVertices()
 
     const auto& triangulation = asset->getTriangulation();
     lastColor                 = asset->getMeshColor();
+    glm::vec3 renderColor     = lastSelected ? glm::mix(lastColor, glm::vec3(1.0f, 0.65f, 0.1f), 0.65f) : lastColor;
     cachedVertices.reserve(triangulation.indices.size());
 
     for (size_t i = 0; i + 2 < triangulation.indices.size(); i += 3)
@@ -66,40 +70,60 @@ void TriangulationAssetRenderer::rebuildVertices()
             normal = glm::vec3(0.0f, 1.0f, 0.0f);
         }
 
-        cachedVertices.push_back({ p0, normal, lastColor });
-        cachedVertices.push_back({ p1, normal, lastColor });
-        cachedVertices.push_back({ p2, normal, lastColor });
+        cachedVertices.push_back({ p0, normal, renderColor });
+        cachedVertices.push_back({ p1, normal, renderColor });
+        cachedVertices.push_back({ p2, normal, renderColor });
     }
 }
 
-void TriangulationAssetRenderer::render(Renderer& renderer)
+void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData)
 {
     if (!asset)
     {
         return;
     }
 
+    glm::ivec2 targetRes = renderer.getColor().getResolution();
     if (!meshRenderer)
     {
-        meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), renderer.getResolution());
+        meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), targetRes);
         meshRenderer->setClear(false);
         meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
         drawCmd = renderer.getDevice().createGraphicCommand();
         dirty   = true;
     }
-    else if (meshRenderer->getResolution() != renderer.getResolution())
+    else if (meshRenderer->getResolution() != targetRes)
     {
         meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
         drawCmd = renderer.getDevice().createGraphicCommand();
     }
-    meshRenderer->setSceneData(renderer.getSceneData());
-    meshRenderer->setWireframeMode(renderer.getWireframeMode());
-    meshRenderer->setWireframeColor(renderer.getWireframeColor());
-    meshRenderer->setCullMode(renderer.getCullMode());
 
-    if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || meshRenderer->getVertexCount() == 0)
+    Polyglot::Node renderPrefRes = gatedDatabase.execute({
+      {    "type", "GetRenderPreferences" },
+      { "version",                      1 }
+    });
+    RenderPreferences renderPreferences;
+    if (renderPrefRes.contains("preferences"))
     {
-        lastColor = asset->getMeshColor();
+        renderPreferences.fromNode(renderPrefRes["preferences"]);
+    }
+
+    meshRenderer->setSceneData(sceneData);
+    meshRenderer->setWireframeMode(static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(renderPreferences.getWireframeMode()));
+    meshRenderer->setWireframeColor(renderPreferences.getWireframeColor());
+    meshRenderer->setCullMode(static_cast<Vulcant::VulcantCullMode>(renderPreferences.getCullMode()));
+
+    Polyglot::Node selRes = gatedDatabase.execute({
+      {      "type",   "GetAssetSelection" },
+      {   "version",                     1 },
+      { "assetGuid", asset->getGuid().toString() }
+    });
+    bool currentSelected = (selRes.toJson().value("status", "") == "Success");
+
+    if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || currentSelected != lastSelected || meshRenderer->getVertexCount() == 0)
+    {
+        lastColor    = asset->getMeshColor();
+        lastSelected = currentSelected;
         rebuildVertices();
         meshRenderer->setVertices(cachedVertices);
         dirty        = false;
@@ -113,7 +137,6 @@ void TriangulationAssetRenderer::render(Renderer& renderer)
 
     drawCmd->wait();
     drawCmd->startRecord();
-    drawCmd->setClearColor(renderer.getClearColor());
     meshRenderer->record(*drawCmd);
     drawCmd->endRecord();
     drawCmd->runAsync();

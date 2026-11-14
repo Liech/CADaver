@@ -109,7 +109,7 @@ nlohmann::json GetAssetAABBCommand::execute(Database& database)
         {
             auto aabb = triAsset->getTriangulation().getAABB();
             minCorner = aabb.first;
-            maxCorner = aabb.second;
+            maxCorner = aabb.first + aabb.second;
         }
         else
         {
@@ -126,7 +126,7 @@ nlohmann::json GetAssetAABBCommand::execute(Database& database)
                 {
                     auto aabb = cadAsset->getTriangulation().getAABB();
                     minCorner = aabb.first;
-                    maxCorner = aabb.second;
+                    maxCorner = aabb.first + aabb.second;
                 }
             }
         }

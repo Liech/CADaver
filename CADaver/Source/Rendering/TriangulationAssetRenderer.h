@@ -24,7 +24,7 @@ class TriangulationAssetRenderer : public AssetRenderer
     virtual ~TriangulationAssetRenderer();
 
     virtual void setAsset(const std::shared_ptr<const Asset>& asset) override;
-    virtual void render(Renderer& renderer) override;
+    virtual void render(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData) override;
 
     void rebuildVertices();
 
@@ -35,5 +35,6 @@ class TriangulationAssetRenderer : public AssetRenderer
     std::vector<Vulcant::Toolkit::MeshVertex>       cachedVertices;
     glm::vec3                                       lastColor    = glm::vec3(0.0f);
     size_t                                          lastRevision = 0;
+    bool                                            lastSelected = false;
     bool                                            dirty        = true;
 };

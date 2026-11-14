@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 #include <memory>
-#include <string>
 
 namespace Vulcant
 {
@@ -21,6 +20,7 @@ class ProjectWindow;
 class Renderer;
 class TopMenu;
 class ViewController;
+class ViewportPickingController;
 
 // Main application class coordinating windowing, UI, renderer, project, and asset rendering.
 class Cadaver
@@ -49,17 +49,18 @@ class Cadaver
 
     void onKey(const Vulcant::VulcantInputValue& key);
 
-    Vulcant::VulcantDevice&                 device;
-    Defer                                   defer;
-    GatedDatabase                           gatedDatabase;
-    UndoStack                               undoStack;
-    Windows                                 windows;
-    std::unique_ptr<Vulcant::VulcantWindow> window;
-    std::unique_ptr<Renderer>               renderer;
-    std::unique_ptr<ViewController>         viewController;
-    std::unique_ptr<TopMenu>                topMenu;
-    std::unique_ptr<ProjectWindow>          projectWindow;
-    size_t                                  lastAssetCount = 0;
-    glm::ivec2                              resolution;
-    bool                                    quitRequested = false;
+    Vulcant::VulcantDevice&                    device;
+    Defer                                      defer;
+    GatedDatabase                              gatedDatabase;
+    UndoStack                                  undoStack;
+    Windows                                    windows;
+    std::unique_ptr<Vulcant::VulcantWindow>    window;
+    std::unique_ptr<Renderer>                  renderer;
+    std::unique_ptr<ViewController>            viewController;
+    std::unique_ptr<TopMenu>                   topMenu;
+    std::unique_ptr<ProjectWindow>             projectWindow;
+    std::unique_ptr<ViewportPickingController> pickingController;
+    size_t                                     lastAssetCount = 0;
+    glm::ivec2                                 resolution;
+    bool                                       quitRequested = false;
 };

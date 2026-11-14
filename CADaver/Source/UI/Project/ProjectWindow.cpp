@@ -2,7 +2,7 @@
 
 #include "CADacomb/Util/GUID.h"
 #include "Execution/GatedDatabase.h"
-#include "UI/ContextMenu/AssetContextMenuFactory.h"
+#include "UI/ContextMenu/AssetContextMenuRenderer.h"
 #include "Windows/Asset/TextNoteEditWindow.h"
 #include "Windows/Project/TaskNotificationModal.h"
 #include "Windows/Windows.h"
@@ -10,7 +10,7 @@
 #include <imgui.h>
 
 ProjectWindow::ProjectWindow()
-  : contextMenuFactory(std::make_unique<AssetContextMenuFactory>())
+  : contextMenuRenderer(std::make_unique<AssetContextMenuRenderer>())
 {
 }
 
@@ -33,6 +33,12 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
       { "version",           1 }
     });
     nlohmann::json assetsJson = response.toJson().value("assets", nlohmann::json::array());
+
+    Polyglot::Node selectionRes = gatedDatabase.execute({
+      {    "type", "GetSelectedAssets" },
+      { "version",                   1 }
+    });
+    nlohmann::json selectedArr = selectionRes.toJson().value("assetGuids", nlohmann::json::array());
 
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
@@ -113,8 +119,22 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                     continue;
                 }
 
+                bool isSelected = false;
+                for (const auto& selGuid : selectedArr)
+                {
+                    if (selGuid.get<std::string>() == assetGuid.toString())
+                    {
+                        isSelected = true;
+                        break;
+                    }
+                }
+
                 nlohmann::json     components = assetItem.value("components", nlohmann::json::array());
                 ImGuiTreeNodeFlags nodeFlags  = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+                if (isSelected)
+                {
+                    nodeFlags |= ImGuiTreeNodeFlags_Selected;
+                }
                 if (components.empty())
                 {
                     nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
@@ -123,9 +143,21 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                 std::string assetLabel = assetName + " [" + assetType + "]##" + assetGuid.toString();
                 bool        nodeOpen   = ImGui::TreeNodeEx(assetLabel.c_str(), nodeFlags);
 
-                if (contextMenuFactory)
+                if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && (components.empty() || !ImGui::IsItemToggledOpen()))
                 {
-                    contextMenuFactory->render(gatedDatabase, windows, assetGuid, assetType);
+                    const ImGuiIO& io = ImGui::GetIO();
+                    gatedDatabase.execute({
+                      {       "type",                                         "SelectAsset" },
+                      {    "version",                                                     1 },
+                      {  "assetGuid",                                  assetGuid.toString() },
+                      {       "mode", io.KeyCtrl ? "Remove" : (io.KeyShift ? "Add" : "Replace") },
+                      { "subObjects",                                               nullptr }
+                    });
+                }
+
+                if (contextMenuRenderer)
+                {
+                    contextMenuRenderer->render(gatedDatabase, windows, assetGuid, assetType);
                 }
 
                 if (nodeOpen && !components.empty())

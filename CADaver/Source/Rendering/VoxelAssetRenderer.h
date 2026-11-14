@@ -28,9 +28,9 @@ class VoxelAssetRenderer : public AssetRenderer
     virtual ~VoxelAssetRenderer();
 
     virtual void setAsset(const std::shared_ptr<const Asset>& asset) override;
-    virtual void render(Renderer& renderer) override;
+    virtual void render(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData) override;
 
-    void rebuildMesh(Renderer& renderer);
+    void rebuildMesh(Renderer& renderer, int chunkSize, int vertexCapacity);
 
   private:
     std::shared_ptr<const VoxelAsset>                   asset;

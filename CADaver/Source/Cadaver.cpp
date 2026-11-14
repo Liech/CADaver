@@ -2,6 +2,7 @@
 
 #include "Camera/ViewController.h"
 #include "Database/Preferences/CameraPreferences.h"
+#include "Picking/ViewportPickingController.h"
 #include "Rendering/Renderer.h"
 #include "UI/Menu/TopMenu.h"
 #include "UI/Project/ProjectWindow.h"
@@ -167,8 +168,9 @@ void Cadaver::prepare()
 
     renderer = std::make_unique<Renderer>(device, *window, resolution, gatedDatabase);
 
-    projectWindow = std::make_unique<ProjectWindow>();
-    topMenu       = std::make_unique<TopMenu>();
+    projectWindow     = std::make_unique<ProjectWindow>();
+    topMenu           = std::make_unique<TopMenu>();
+    pickingController = std::make_unique<ViewportPickingController>();
 
     PreferencesWindow preferencesWindow;
     preferencesWindow.load(gatedDatabase, defer);
@@ -258,6 +260,8 @@ void Cadaver::renderImGui()
     {
         projectWindow->render(gatedDatabase, windows);
     }
+
+    pickingController->update(gatedDatabase, windows, viewController->getSceneData());
 
     windows.render();
 }
