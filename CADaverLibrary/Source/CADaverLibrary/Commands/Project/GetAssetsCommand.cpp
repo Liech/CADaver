@@ -1,4 +1,4 @@
-#include "Commands/Project/GetAssetsCommand.h"
+﻿#include "Commands/Project/GetAssetsCommand.h"
 
 #include "Database/Asset.h"
 #include "Database/Asset/ProgressBarAsset.h"

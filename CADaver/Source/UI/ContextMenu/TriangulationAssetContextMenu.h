@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "UI/ContextMenu/AssetContextMenu.h"
 

@@ -1,4 +1,4 @@
-#include "UI/ContextMenu/VoxelAssetContextMenu.h"
+﻿#include "UI/ContextMenu/VoxelAssetContextMenu.h"
 
 #include "Windows/Conversion/SvoToStlConversionModal.h"
 #include "Windows/IO/SaveVoxelAssetWindow.h"

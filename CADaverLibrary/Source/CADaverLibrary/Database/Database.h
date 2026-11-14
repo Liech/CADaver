@@ -2,8 +2,9 @@
 
 #include "Database/Preferences/Preferences.h"
 #include "Database/Project.h"
+#include "Database/Selection/Selection.h"
 
-// Headless database holding project and application preferences, guarded by GatedDatabase.
+// Headless database holding project, preferences, and selection, guarded by GatedDatabase.
 class Database
 {
   public:
@@ -16,7 +17,11 @@ class Database
     Preferences&       getPreferences();
     const Preferences& getPreferences() const;
 
+    Selection&       getSelection();
+    const Selection& getSelection() const;
+
   private:
     Project     project;
     Preferences preferences;
+    Selection   selection;
 };

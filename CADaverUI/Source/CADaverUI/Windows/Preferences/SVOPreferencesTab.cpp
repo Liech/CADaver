@@ -1,4 +1,4 @@
-#include "Windows/Preferences/SVOPreferencesTab.h"
+﻿#include "Windows/Preferences/SVOPreferencesTab.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/Preferences.h"

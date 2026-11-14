@@ -1,4 +1,4 @@
-#include "Windows/Preferences/PreferencesWindow.h"
+﻿#include "Windows/Preferences/PreferencesWindow.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/Preferences.h"

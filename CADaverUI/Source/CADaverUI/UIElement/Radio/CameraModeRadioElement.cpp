@@ -1,4 +1,4 @@
-#include "UIElement/Radio/CameraModeRadioElement.h"
+﻿#include "UIElement/Radio/CameraModeRadioElement.h"
 
 #include "Database/Preferences/CameraPreferences.h"
 #include "Execution/GatedDatabase.h"

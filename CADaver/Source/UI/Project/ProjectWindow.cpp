@@ -1,4 +1,4 @@
-#include "UI/Project/ProjectWindow.h"
+﻿#include "UI/Project/ProjectWindow.h"
 
 #include "CADacomb/Util/GUID.h"
 #include "Execution/GatedDatabase.h"

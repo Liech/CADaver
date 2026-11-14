@@ -1,4 +1,4 @@
-#define CADAVER_ALLOW_GATED_GET
+﻿#define CADAVER_ALLOW_GATED_GET
 
 #include "Execution/GatedDatabase.h"
 

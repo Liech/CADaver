@@ -1,4 +1,4 @@
-#include "Windows/Preferences/RenderPreferencesTab.h"
+﻿#include "Windows/Preferences/RenderPreferencesTab.h"
 
 #include "Database/Database.h"
 #include "Database/Preferences/Preferences.h"

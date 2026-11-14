@@ -1,4 +1,4 @@
-#include "Commands/Project/GetAssetInfoCommand.h"
+﻿#include "Commands/Project/GetAssetInfoCommand.h"
 
 #include "Database/Asset.h"
 #include "Database/Asset/VoxelAsset.h"

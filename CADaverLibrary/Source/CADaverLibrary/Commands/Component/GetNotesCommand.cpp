@@ -1,4 +1,4 @@
-#include "Commands/Component/GetNotesCommand.h"
+﻿#include "Commands/Component/GetNotesCommand.h"
 
 #include "Database/Asset.h"
 #include "Database/Component/TextNoteComponent.h"

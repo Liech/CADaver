@@ -1,4 +1,4 @@
-#include "Commands/Geometry/GetProjectAABBCommand.h"
+﻿#include "Commands/Geometry/GetProjectAABBCommand.h"
 
 #include "CADacomb/CAD/Interface/Shape.h"
 #include "Database/Asset/CadAsset.h"

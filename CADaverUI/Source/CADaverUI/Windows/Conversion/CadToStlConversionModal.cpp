@@ -1,4 +1,4 @@
-#include "Windows/Conversion/CadToStlConversionModal.h"
+﻿#include "Windows/Conversion/CadToStlConversionModal.h"
 
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"

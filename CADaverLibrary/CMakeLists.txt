@@ -156,6 +156,22 @@ set(Database_Files
 )
 source_group("Source/Database" FILES ${Database_Files})
 
+set(Database_Selection_Files
+    "Source/CADaverLibrary/Database/Selection/Selection.h"
+    "Source/CADaverLibrary/Database/Selection/Selection.cpp"
+    "Source/CADaverLibrary/Database/Selection/SelectionEntry.h"
+    "Source/CADaverLibrary/Database/Selection/SelectionEntry.cpp"
+    "Source/CADaverLibrary/Database/Selection/SubObjectSelection.h"
+    "Source/CADaverLibrary/Database/Selection/SubObjectSelection.cpp"
+    "Source/CADaverLibrary/Database/Selection/SubObjectSelectionFactory.h"
+    "Source/CADaverLibrary/Database/Selection/SubObjectSelectionFactory.cpp"
+    "Source/CADaverLibrary/Database/Selection/TriangleSubObjectSelection.h"
+    "Source/CADaverLibrary/Database/Selection/TriangleSubObjectSelection.cpp"
+    "Source/CADaverLibrary/Database/Selection/VoxelSubObjectSelection.h"
+    "Source/CADaverLibrary/Database/Selection/VoxelSubObjectSelection.cpp"
+)
+source_group("Source/Database/Selection" FILES ${Database_Selection_Files})
+
 set(Execution_Files
     "Source/CADaverLibrary/Execution/Command.h"
     "Source/CADaverLibrary/Execution/Command.cpp"
@@ -270,6 +286,7 @@ set(ALL_FILES
     ${Search_Files}
     ${Database_Preferences_Files}
     ${Database_Files}
+    ${Database_Selection_Files}
     ${Database_Asset_Files}
     ${Execution_Files}
     ${Utility_Files}

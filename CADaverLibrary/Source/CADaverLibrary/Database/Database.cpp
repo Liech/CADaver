@@ -24,6 +24,16 @@ const Preferences& Database::getPreferences() const
     return preferences;
 }
 
+Selection& Database::getSelection()
+{
+    return selection;
+}
+
+const Selection& Database::getSelection() const
+{
+    return selection;
+}
+
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
@@ -31,5 +41,6 @@ TEST_CASE("Database/DefaultState")
 {
     Database db;
     CHECK(db.getProject().getAssetCount() == 0);
+    CHECK(db.getSelection().getEntries().empty());
 }
 #endif

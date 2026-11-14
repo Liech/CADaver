@@ -1,4 +1,4 @@
-#include "UI/ContextMenu/TriangulationAssetContextMenu.h"
+﻿#include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/IO/SaveStlAssetWindow.h"
