@@ -36,7 +36,6 @@ std::string GetRenderPreferencesCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetRenderPreferences\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"preferences\": <object>\n"
            "}";
 }
@@ -45,7 +44,7 @@ nlohmann::json GetRenderPreferencesCommand::execute(Database& database)
 {
     const auto& renderPreferences = database.getPreferences().getRenderPreferences();
 
-    return createResponse("Success", {
+    return createResponse({
         { "preferences", renderPreferences.toJson() }
     });
 }
@@ -59,7 +58,6 @@ TEST_CASE("GetRenderPreferencesCommand/DefaultPreferences")
     GetRenderPreferencesCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
     CHECK(result.at("type") == "GetRenderPreferences");
     CHECK(result.at("version") == 1);
     CHECK(result.at("preferences").is_object());

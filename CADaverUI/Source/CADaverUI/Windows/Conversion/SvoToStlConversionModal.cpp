@@ -120,7 +120,7 @@ void SvoToStlConversionModal::updateMaxDepthFromSelectedAsset(bool resetTargetTo
       { "assetGuid", assetComboBox.getSelectedGuid().toString() }
     });
     nlohmann::json infoJson = response.toJson();
-    if (infoJson.value("status", "") != "Success")
+    if (infoJson.value("type", "") != "GetAssetInfo")
     {
         return;
     }

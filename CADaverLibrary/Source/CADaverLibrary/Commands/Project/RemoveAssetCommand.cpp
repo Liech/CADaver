@@ -34,7 +34,6 @@ std::string RemoveAssetCommand::getDescription() const
            "{\n"
            "  \"type\": \"RemoveAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"AssetNotFound\",\n"
            "  \"assetGuid\": <string>\n"
            "}";
 }
@@ -49,22 +48,14 @@ nlohmann::json RemoveAssetCommand::execute(Database& database)
     removedAsset = database.getProject().getAsset(assetGuid);
     if (!removedAsset)
     {
-        return {
-            {      "type",            getType() },
-            {   "version",         getVersion() },
-            {    "status",      "AssetNotFound" },
-            { "assetGuid", assetGuid.toString() }
-        };
+        return createErrorResponse("AssetNotFound", "Asset not found: " + assetGuid.toString());
     }
 
     database.getProject().removeAsset(assetGuid);
 
-    return {
-        {      "type",            getType() },
-        {   "version",         getVersion() },
-        {    "status",            "Success" },
+    return createResponse({
         { "assetGuid", assetGuid.toString() }
-    };
+    });
 }
 
 bool RemoveAssetCommand::isUndoable() const

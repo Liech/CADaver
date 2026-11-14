@@ -39,7 +39,6 @@ std::string GetTaskStateCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetTaskState\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"TaskNotFound\",\n"
            "  \"taskGuid\": <string>,\n"
            "  \"assetGuid\": <string>,\n"
            "  \"operationName\": <string>,\n"
@@ -85,16 +84,10 @@ nlohmann::json GetTaskStateCommand::execute(Database& database)
 
     if (!foundTask)
     {
-        return createResponse("TaskNotFound", {
-            {      "taskGuid",  taskGuid.toString() },
-            {     "assetGuid", assetGuid.toString() },
-            { "operationName",                   "" },
-            {      "progress",                 0.0f },
-            {       "isReady",                false }
-        });
+        return createErrorResponse("TaskNotFound", "Task not found");
     }
 
-    return createResponse("Success", {
+    return createResponse({
         {      "taskGuid", foundTask->getTaskGuid().toString() },
         {     "assetGuid",    foundTask->getGuid().toString() },
         { "operationName",        foundTask->getOperationName() },
@@ -117,9 +110,9 @@ TEST_CASE("GetTaskStateCommand/NotFound")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "TaskNotFound");
-    CHECK(result.at("progress") == 0.0f);
-    CHECK(result.at("isReady") == false);
+    CHECK(result.at("type") == "Error");
+    CHECK(result.at("command") == "GetTaskState");
+    CHECK(result.at("errorType") == "TaskNotFound");
 }
 
 TEST_CASE("GetTaskStateCommand/FoundByGuid")
@@ -139,7 +132,7 @@ TEST_CASE("GetTaskStateCommand/FoundByGuid")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetTaskState");
     CHECK(result.at("operationName") == "VoxelizeModel");
     CHECK(result.at("taskGuid") == testTaskGuid.toString());
 }

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20...3.30)
+﻿cmake_minimum_required(VERSION 3.20...3.30)
 project(Solution)
 
 if(NOT DEFINED Python3_EXECUTABLE)

@@ -37,8 +37,8 @@ std::string ClickUIElementCommand::getDescription() const
            "{\n"
            "  \"type\": \"ClickUIElement\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"Failed\",\n"
-           "  \"target\": \"<string>\"\n"
+           "  \"target\": \"<string>\",\n"
+           "  \"matchedType\": \"<string>\"\n"
            "}";
 }
 
@@ -66,10 +66,7 @@ nlohmann::json ClickUIElementCommand::execute(Database& database)
 {
     if (target.empty())
     {
-        return createResponse("Failed",
-                              {
-                                { "error", "Missing 'target' parameter" }
-        });
+        return createErrorResponse("MissingTarget", "Missing 'target' parameter");
     }
 
     auto allElements = factory.getAllElements();
@@ -98,18 +95,14 @@ nlohmann::json ClickUIElementCommand::execute(Database& database)
         if (matches)
         {
             elem->click();
-            return createResponse("Success",
-                                  {
-                                    {      "target",          target },
-                                    { "matchedType", elem->getType() }
+            return createResponse({
+              {      "target",          target },
+              { "matchedType", elem->getType() }
             });
         }
     }
 
-    return createResponse("Failed",
-                          {
-                            { "error", "UIElement '" + target + "' not found" }
-    });
+    return createErrorResponse("NotFound", "UIElement '" + target + "' not found");
 }
 
 #ifdef ISTESTPROJECT
@@ -134,14 +127,16 @@ TEST_CASE("ClickUIElementCommand/Execute")
     cmd.setInput(Polyglot::Node(std::map<std::string, Polyglot::Node>{}));
     Database db;
     auto     resMissing = cmd.execute(db);
-    REQUIRE(resMissing["status"] == "Failed");
+    REQUIRE(resMissing["type"] == "Error");
+    REQUIRE(resMissing["command"] == "ClickUIElement");
+    REQUIRE(resMissing["errorType"] == "MissingTarget");
 
     // Test click by type
     cmd.setInput({
       { "target", "Preferences" }
     });
     auto resType = cmd.execute(db);
-    REQUIRE(resType["status"] == "Success");
+    REQUIRE(resType["type"] == "ClickUIElement");
     REQUIRE(windows.getOpen().count("Preferences") == 1);
 
     // Test click by path
@@ -149,7 +144,7 @@ TEST_CASE("ClickUIElementCommand/Execute")
       { "target", "File/Load" }
     });
     auto resPath = cmd.execute(db);
-    REQUIRE(resPath["status"] == "Success");
+    REQUIRE(resPath["type"] == "ClickUIElement");
     REQUIRE(windows.getOpen().count("LoadAsset") == 1);
 
     // Test click non-existent
@@ -157,6 +152,8 @@ TEST_CASE("ClickUIElementCommand/Execute")
       { "target", "NonExistent" }
     });
     auto resNonExistent = cmd.execute(db);
-    REQUIRE(resNonExistent["status"] == "Failed");
+    REQUIRE(resNonExistent["type"] == "Error");
+    REQUIRE(resNonExistent["command"] == "ClickUIElement");
+    REQUIRE(resNonExistent["errorType"] == "NotFound");
 }
 #endif

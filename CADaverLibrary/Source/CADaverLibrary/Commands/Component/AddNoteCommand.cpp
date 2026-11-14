@@ -53,12 +53,7 @@ nlohmann::json AddNoteCommand::execute(Database& database)
     auto asset = database.getProject().getAsset(assetGuid);
     if (!asset)
     {
-        return {
-            {    "type",         getType() },
-            { "version",      getVersion() },
-            {  "status",          "Failed" },
-            {   "error", "Asset not found" }
-        };
+        return createErrorResponse("AssetNotFound", "Asset not found");
     }
 
     addedComponent = std::make_shared<TextNoteComponent>();
@@ -68,20 +63,12 @@ nlohmann::json AddNoteCommand::execute(Database& database)
     CADacomb::GUID compGuid = asset->addComponent(addedComponent);
     if (compGuid.toString().empty())
     {
-        return {
-            {    "type",                           getType() },
-            { "version",                        getVersion() },
-            {  "status",                            "Failed" },
-            {   "error", "Component incompatible with asset" }
-        };
+        return createErrorResponse("IncompatibleComponent", "Component incompatible with asset");
     }
 
-    return {
-        {          "type",           getType() },
-        {       "version",        getVersion() },
-        {        "status",           "Success" },
+    return createResponse({
         { "componentGuid", compGuid.toString() }
-    };
+    });
 }
 
 bool AddNoteCommand::isUndoable() const
@@ -153,7 +140,7 @@ TEST_CASE("AddNoteCommand/ExecuteAndUndo")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result["status"] == "Success");
+    CHECK(result.at("type") == "AddNote");
     CHECK(asset->getAttachments().size() == 1);
 
     cmd.undo(database);

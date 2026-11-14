@@ -39,7 +39,6 @@ std::string CancelTaskCommand::getDescription() const
            "{\n"
            "  \"type\": \"CancelTask\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"TaskNotFound\",\n"
            "  \"taskGuid\": <string>\n"
            "}";
 }
@@ -81,14 +80,12 @@ nlohmann::json CancelTaskCommand::execute(Database& database)
 
     if (!foundTask)
     {
-        return createResponse("TaskNotFound", {
-            { "taskGuid", taskGuid.toString() }
-        });
+        return createErrorResponse("TaskNotFound", "Task not found");
     }
 
     foundTask->cancel();
 
-    return createResponse("Success", {
+    return createResponse({
         { "taskGuid", foundTask->getTaskGuid().toString() }
     });
 }
@@ -107,7 +104,9 @@ TEST_CASE("CancelTaskCommand/NotFound")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "TaskNotFound");
+    CHECK(result.at("type") == "Error");
+    CHECK(result.at("command") == "CancelTask");
+    CHECK(result.at("errorType") == "TaskNotFound");
 }
 
 TEST_CASE("CancelTaskCommand/CancelSuccess")
@@ -127,7 +126,7 @@ TEST_CASE("CancelTaskCommand/CancelSuccess")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "CancelTask");
     CHECK(result.at("taskGuid") == testTaskGuid.toString());
 }
 #endif

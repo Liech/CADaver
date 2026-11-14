@@ -1,4 +1,4 @@
-#include "LineEndingStaticTest.h"
+﻿#include "LineEndingStaticTest.h"
 
 #include "SourceFileDiscoverer.h"
 

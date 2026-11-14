@@ -38,7 +38,6 @@ std::string SelectAssetCommand::getDescription() const
            "{\n"
            "  \"type\": \"SelectAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"AssetNotFound\" | \"InvalidMode\",\n"
            "  \"assetGuid\": <string>\n"
            "}";
 }
@@ -61,25 +60,20 @@ nlohmann::json SelectAssetCommand::execute(Database& database)
 {
     if (!database.getProject().hasAsset(assetGuid))
     {
-        return createResponse("AssetNotFound", {
-            { "assetGuid", assetGuid.toString() }
-        });
+        return createErrorResponse("AssetNotFound", "Asset not found: " + assetGuid.toString());
     }
 
     if (mode == "Remove")
     {
         database.getSelection().deselect(assetGuid);
-        return createResponse("Success", {
+        return createResponse({
             { "assetGuid", assetGuid.toString() }
         });
     }
 
     if (mode != "Replace" && mode != "Add")
     {
-        return createResponse("InvalidMode", {
-            { "assetGuid", assetGuid.toString() },
-            {      "mode",                 mode }
-        });
+        return createErrorResponse("InvalidMode", "Invalid selection mode: " + mode);
     }
 
     SelectionEntry entry;
@@ -105,7 +99,7 @@ nlohmann::json SelectAssetCommand::execute(Database& database)
         database.getSelection().select(entry);
     }
 
-    return createResponse("Success", {
+    return createResponse({
         { "assetGuid", assetGuid.toString() }
     });
 }
@@ -130,7 +124,7 @@ TEST_CASE("SelectAssetCommand/ReplaceAddRemoveAndInvalidMode")
       {       "mode",                    "Replace" },
       { "subObjects",                      nullptr }
     }));
-    CHECK(cmd.execute(database).at("status").get<std::string>() == "Success");
+    CHECK(cmd.execute(database).at("type").get<std::string>() == "SelectAsset");
     CHECK(database.getSelection().isSelected(assetA->getGuid()));
 
     cmd.setInput(Polyglot::Node({
@@ -138,7 +132,7 @@ TEST_CASE("SelectAssetCommand/ReplaceAddRemoveAndInvalidMode")
       {       "mode",                        "Add" },
       { "subObjects",                      nullptr }
     }));
-    CHECK(cmd.execute(database).at("status").get<std::string>() == "Success");
+    CHECK(cmd.execute(database).at("type").get<std::string>() == "SelectAsset");
     CHECK(database.getSelection().isSelected(assetA->getGuid()));
     CHECK(database.getSelection().isSelected(assetB->getGuid()));
 
@@ -147,7 +141,7 @@ TEST_CASE("SelectAssetCommand/ReplaceAddRemoveAndInvalidMode")
       {       "mode",                     "Remove" },
       { "subObjects",                      nullptr }
     }));
-    CHECK(cmd.execute(database).at("status").get<std::string>() == "Success");
+    CHECK(cmd.execute(database).at("type").get<std::string>() == "SelectAsset");
     CHECK(!database.getSelection().isSelected(assetA->getGuid()));
     CHECK(database.getSelection().isSelected(assetB->getGuid()));
 
@@ -156,6 +150,9 @@ TEST_CASE("SelectAssetCommand/ReplaceAddRemoveAndInvalidMode")
       {       "mode",                    "Unknown" },
       { "subObjects",                      nullptr }
     }));
-    CHECK(cmd.execute(database).at("status").get<std::string>() == "InvalidMode");
+    nlohmann::json invalidRes = cmd.execute(database);
+    CHECK(invalidRes.at("type").get<std::string>() == "Error");
+    CHECK(invalidRes.at("command").get<std::string>() == "SelectAsset");
+    CHECK(invalidRes.at("errorType").get<std::string>() == "InvalidMode");
 }
 #endif

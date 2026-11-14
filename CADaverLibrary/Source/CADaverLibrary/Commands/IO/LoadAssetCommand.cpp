@@ -36,7 +36,6 @@ std::string LoadAssetCommand::getDescription() const
            "{\n"
            "  \"type\": \"LoadAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"UnsupportedType\" | \"LoadFailed\",\n"
            "  \"assetGuid\": \"<string>\",\n"
            "  \"assetType\": \"<string>\",\n"
            "  \"name\": \"<string>\"\n"
@@ -64,33 +63,22 @@ nlohmann::json LoadAssetCommand::execute(Database& database)
     auto               loader       = factory.create(resolvedType);
     if (!loader)
     {
-        return createResponse("UnsupportedType",
-                              {
-                                { "assetGuid",           "" },
-                                { "assetType", resolvedType },
-                                {      "name",         name }
-        });
+        return createErrorResponse("UnsupportedType", "Unsupported asset type: " + resolvedType);
     }
 
     auto asset = loader->load(name, source);
     if (!asset)
     {
-        return createResponse("LoadFailed",
-                              {
-                                { "assetGuid",           "" },
-                                { "assetType", resolvedType },
-                                {      "name",         name }
-        });
+        return createErrorResponse("LoadFailed", "Failed to load asset: " + name);
     }
 
     database.getProject().addAsset(asset);
     createdAsset = asset;
 
-    return createResponse("Success",
-                          {
-                            { "assetGuid", asset->getGuid().toString() },
-                            { "assetType",            asset->getType() },
-                            {      "name",                        name }
+    return createResponse({
+      { "assetGuid", asset->getGuid().toString() },
+      { "assetType",            asset->getType() },
+      {      "name",                        name }
     });
 }
 

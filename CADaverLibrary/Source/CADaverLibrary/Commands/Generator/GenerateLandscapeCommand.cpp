@@ -48,7 +48,6 @@ std::string GenerateLandscapeCommand::getDescription() const
            "{\n"
            "  \"type\": \"GenerateLandscape\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"GenerationFailed\",\n"
            "  \"assetGuid\": <string>\n"
            "}";
 }
@@ -76,10 +75,7 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database)
 
     if (!svo)
     {
-        return createResponse("GenerationFailed",
-                              {
-                                { "assetGuid", "" }
-        });
+        return createErrorResponse("GenerationFailed", "Failed to generate landscape SVO");
     }
 
     auto voxelAsset = std::make_shared<VoxelAsset>();
@@ -90,9 +86,8 @@ nlohmann::json GenerateLandscapeCommand::execute(Database& database)
     database.getProject().addAsset(voxelAsset);
     createdAsset = voxelAsset;
 
-    return createResponse("Success",
-                          {
-                            { "assetGuid", voxelAsset->getGuid().toString() }
+    return createResponse({
+      { "assetGuid", voxelAsset->getGuid().toString() }
     });
 }
 
@@ -156,7 +151,7 @@ TEST_CASE("GenerateLandscapeCommand/ExecuteSuccess")
     });
     nlohmann::json result = cmd.execute(database);
 
-    CHECK(result.at("status").get<std::string>() == "Success");
+    CHECK(result.at("type").get<std::string>() == "GenerateLandscape");
     std::string guidStr = result.at("assetGuid").get<std::string>();
     CHECK_FALSE(guidStr.empty());
 

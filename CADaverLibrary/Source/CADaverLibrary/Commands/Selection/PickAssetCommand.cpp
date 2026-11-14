@@ -37,7 +37,6 @@ std::string PickAssetCommand::getDescription() const
            "{\n"
            "  \"type\": \"PickAsset\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"hit\": <bool>,\n"
            "  \"assetGuid\": <string>,\n"
            "  \"assetType\": <string>,\n"
@@ -69,12 +68,12 @@ nlohmann::json PickAssetCommand::execute(Database& database)
 
     if (!result.isHit())
     {
-        return createResponse("Success", {
+        return createResponse({
             { "hit", false }
         });
     }
 
-    return createResponse("Success", {
+    return createResponse({
         {           "hit", true },
         {     "assetGuid", result.getAssetGuid().toString() },
         {     "assetType", result.getAssetType() },
@@ -114,7 +113,7 @@ TEST_CASE("PickAssetCommand/RayHitAndMiss")
       { "direction", { 0.0, 0.0, -1.0 } }
     }));
     nlohmann::json hitRes = hitCmd.execute(database);
-    CHECK(hitRes.at("status").get<std::string>() == "Success");
+    CHECK(hitRes.at("type").get<std::string>() == "PickAsset");
     CHECK(hitRes.at("hit").get<bool>() == true);
     CHECK(hitRes.at("assetGuid").get<std::string>() == asset->getGuid().toString());
     CHECK(hitRes.at("assetType").get<std::string>() == "Triangulation");
@@ -127,7 +126,7 @@ TEST_CASE("PickAssetCommand/RayHitAndMiss")
       { "direction", {  0.0,  0.0, -1.0 } }
     }));
     nlohmann::json missRes = missCmd.execute(database);
-    CHECK(missRes.at("status").get<std::string>() == "Success");
+    CHECK(missRes.at("type").get<std::string>() == "PickAsset");
     CHECK(missRes.at("hit").get<bool>() == false);
 }
 
@@ -153,7 +152,7 @@ TEST_CASE("PickAssetCommand/OffsetTriangulationBounds")
       { "direction", {   0.0,  0.0,  -1.0 } }
     }));
     nlohmann::json hitRes = hitCmd.execute(database);
-    CHECK(hitRes.at("status").get<std::string>() == "Success");
+    CHECK(hitRes.at("type").get<std::string>() == "PickAsset");
     CHECK(hitRes.at("hit").get<bool>() == true);
     CHECK(hitRes.at("assetGuid").get<std::string>() == asset->getGuid().toString());
 }

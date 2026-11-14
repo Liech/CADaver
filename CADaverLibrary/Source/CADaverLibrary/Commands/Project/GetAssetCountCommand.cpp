@@ -36,7 +36,6 @@ std::string GetAssetCountCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetAssetCount\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"count\": <size_t>\n"
            "}";
 }
@@ -45,7 +44,7 @@ nlohmann::json GetAssetCountCommand::execute(Database& database)
 {
     size_t count = database.getProject().getAssetCount();
 
-    return createResponse("Success", {
+    return createResponse({
         { "count", count }
     });
 }
@@ -60,7 +59,6 @@ TEST_CASE("GetAssetCountCommand/EmptyProject")
     GetAssetCountCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
     CHECK(result.at("type") == "GetAssetCount");
     CHECK(result.at("version") == 1);
     CHECK(result.at("count") == 0);
@@ -75,7 +73,7 @@ TEST_CASE("GetAssetCountCommand/WithAssets")
 
     GetAssetCountCommand cmd;
     nlohmann::json       result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetAssetCount");
     CHECK(result.at("count") == 1);
 }
 #endif

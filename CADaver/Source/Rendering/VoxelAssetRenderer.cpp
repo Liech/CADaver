@@ -151,7 +151,7 @@ void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase
       {   "version",                     1 },
       { "assetGuid", asset->getGuid().toString() }
     });
-    bool      selected  = (selRes.toJson().value("status", "") == "Success");
+    bool      selected  = (selRes.toJson().value("type", "") == "GetAssetSelection");
     glm::vec3 meshColor = selected ? glm::vec3(1.0f, 0.65f, 0.1f) : glm::vec3(0.6f, 0.75f, 0.9f);
     lodMesh->setColor(meshColor);
 

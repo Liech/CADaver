@@ -1,16 +1,15 @@
-# Commands Architecture Rules
+﻿# Commands Architecture Rules
 
 Rules governing all classes, interfaces, and implementations in `Source/Commands`.
 
 ## 1. Commands are glue Code
 * Commands do not implement business logic, they only glue together existing components.
 
-## 2. Mandatory Fields & Status Enums
+## 2. Mandatory Fields & Response Types
 * Every JSON field defined in a command request or response schema is strictly mandatory.
 * Never use optional, conditional, or disappearing fields.
 * Consumers must be able to read all schema fields unconditionally using `json.at("field")`.
-* Operational outcomes are communicated via a mandatory `"status"` string (e.g. `"Success"`, `"NoInputStream"`, `"NoOutputStream"`, `"ParseFailed"`, `"AssetNotFound"`).
-* On non-success status, payload fields still must be present populated with neutral/sentinel values (e.g. `index: -1`).
+* Every command response must have `"type"` set to either the command's type string (`getType()`) on success, or `"Error"` on failure (constructed via `ErrorResult` / `createErrorResponse`). No other `"type"` values are allowed.
 
 ## 3. Unknown Origin Streams (Zero Filesystem)
 * Commands must never include `<filesystem>` or interact with the local filesystem.

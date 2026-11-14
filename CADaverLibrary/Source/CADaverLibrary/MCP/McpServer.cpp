@@ -241,11 +241,7 @@ nlohmann::json McpServer::handleToolsCall(const nlohmann::json& request)
 
     nlohmann::json executionResult = executeJsonCommand(cmdPayload);
 
-    bool isError = false;
-    if (executionResult.value("type", "") == "Error" || executionResult.value("status", "") != "Success")
-    {
-        isError = true;
-    }
+    bool isError = (executionResult.value("type", "") == "Error");
 
     nlohmann::json callResult = {
         { "content", { { { "type", "text" }, { "text", executionResult.dump(2) } } } },
@@ -416,8 +412,8 @@ TEST_CASE("McpServer/CustomExecutor")
       {
           customExecuted = true;
           return {
-              {   "type", "ClearProject" },
-              { "status",      "Success" }
+              {    "type", "ClearProject" },
+              { "version",              1 }
           };
       });
 

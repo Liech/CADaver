@@ -17,7 +17,7 @@ temp_out_path = os.path.abspath("temp_python_stl_test.stl")
 
 # 1. Clear project
 res = cadaver({"type": "ClearProject", "version": 1})
-assert res.get("status") == "Success", f"ClearProject failed: {res}"
+assert res.get("type") == "ClearProject", f"ClearProject failed: {res}"
 
 # 2. Load STL with filepath fallback in source
 load_res = cadaver({
@@ -26,7 +26,7 @@ load_res = cadaver({
     "name": "FileStl",
     "source": stl_path
 })
-assert load_res.get("status") == "Success", f"LoadAsset with filepath failed: {load_res}"
+assert load_res.get("type") == "LoadAsset", f"LoadAsset with filepath failed: {load_res}"
 asset_guid = load_res.get("assetGuid")
 assert asset_guid, "Missing assetGuid"
 
@@ -42,12 +42,12 @@ save_res = cadaver({
     "assetGuid": asset_guid,
     "destination": save_dest
 })
-assert save_res.get("status") == "Success", f"SaveAsset with callback failed: {save_res}"
+assert save_res.get("type") == "SaveAsset", f"SaveAsset with callback failed: {save_res}"
 assert saved_data is not None and len(saved_data) > 0, "Callback did not receive binary data"
 
 # 4. Clear project
 res = cadaver({"type": "ClearProject", "version": 1})
-assert res.get("status") == "Success"
+assert res.get("type") == "ClearProject"
 
 # 5. Load STL using source callback returning binary data
 def load_source(*args):
@@ -60,7 +60,7 @@ cb_load_res = cadaver({
     "assetType": "Triangulation",
     "source": load_source
 })
-assert cb_load_res.get("status") == "Success", f"LoadAsset with callback failed: {cb_load_res}"
+assert cb_load_res.get("type") == "LoadAsset", f"LoadAsset with callback failed: {cb_load_res}"
 cb_asset_guid = cb_load_res.get("assetGuid")
 assert cb_asset_guid, "Missing assetGuid from callback load"
 
@@ -71,7 +71,7 @@ save_file_res = cadaver({
     "assetGuid": cb_asset_guid,
     "destination": temp_out_path
 })
-assert save_file_res.get("status") == "Success", f"SaveAsset with filepath failed: {save_file_res}"
+assert save_file_res.get("type") == "SaveAsset", f"SaveAsset with filepath failed: {save_file_res}"
 assert os.path.exists(temp_out_path), "Destination file was not created"
 assert os.path.getsize(temp_out_path) > 0, "Destination file is empty"
 

@@ -49,7 +49,6 @@ std::string GetDocumentationCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetDocumentation\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"NotFound\" | \"InvalidCategory\",\n"
            "  \"category\": \"<string>\",\n"
            "  \"name\": \"<string>\",\n"
            "  \"content\": \"<string>\"\n"
@@ -71,19 +70,13 @@ nlohmann::json GetDocumentationCommand::execute(Database& database)
         auto           cmd = factory.create(name);
         if (cmd)
         {
-            return createResponse("Success",
-                                  {
-                                    { "category",              category },
-                                    {     "name",                  name },
-                                    {  "content", cmd->getDescription() }
+            return createResponse({
+              { "category",              category },
+              {     "name",                  name },
+              {  "content", cmd->getDescription() }
             });
         }
-        return createResponse("NotFound",
-                              {
-                                { "category", category },
-                                {     "name",     name },
-                                {  "content",       "" }
-        });
+        return createErrorResponse("NotFound", "Command not found: " + name);
     }
 
     if (category == "Concept")
@@ -92,19 +85,13 @@ nlohmann::json GetDocumentationCommand::execute(Database& database)
         auto           item = factory.create(name);
         if (item)
         {
-            return createResponse("Success",
-                                  {
-                                    { "category",               category },
-                                    {     "name",                   name },
-                                    {  "content", item->getDescription() }
+            return createResponse({
+              { "category",               category },
+              {     "name",                   name },
+              {  "content", item->getDescription() }
             });
         }
-        return createResponse("NotFound",
-                              {
-                                { "category", category },
-                                {     "name",     name },
-                                {  "content",       "" }
-        });
+        return createErrorResponse("NotFound", "Concept not found: " + name);
     }
 
     if (category == "Asset")
@@ -153,21 +140,15 @@ nlohmann::json GetDocumentationCommand::execute(Database& database)
                     }
                 }
 
-                return createResponse("Success",
-                                      {
-                                        { "category", category },
-                                        {     "name",     name },
-                                        {  "content",  content }
+                return createResponse({
+                  { "category", category },
+                  {     "name",     name },
+                  {  "content",  content }
                 });
             }
         }
 
-        return createResponse("NotFound",
-                              {
-                                { "category", category },
-                                {     "name",     name },
-                                {  "content",       "" }
-        });
+        return createErrorResponse("NotFound", "Asset not found: " + name);
     }
 
     if (category == "Note")
@@ -186,30 +167,19 @@ nlohmann::json GetDocumentationCommand::execute(Database& database)
                 {
                     std::string content = "Parent Asset: " + asset->getName() + " (" + asset->getType() + ")\n" + "Note Name: " + note->getName() + "\n" + "Note GUID: " + note->getGuid().toString() +
                                           "\n\n" + "Content:\n" + note->getText();
-                    return createResponse("Success",
-                                          {
-                                            { "category", category },
-                                            {     "name",     name },
-                                            {  "content",  content }
+                    return createResponse({
+                      { "category", category },
+                      {     "name",     name },
+                      {  "content",  content }
                     });
                 }
             }
         }
 
-        return createResponse("NotFound",
-                              {
-                                { "category", category },
-                                {     "name",     name },
-                                {  "content",       "" }
-        });
+        return createErrorResponse("NotFound", "Note not found: " + name);
     }
 
-    return createResponse("InvalidCategory",
-                          {
-                            { "category", category },
-                            {     "name",     name },
-                            {  "content",       "" }
-    });
+    return createErrorResponse("InvalidCategory", "Invalid documentation category: " + category);
 }
 
 #ifdef ISTESTPROJECT
@@ -229,7 +199,7 @@ TEST_CASE("GetDocumentationCommand/CommandAndConcept")
     cmd.setInput(cmdInput);
     auto cmdRes = cmd.execute(db);
 
-    REQUIRE(cmdRes.at("status") == "Success");
+    REQUIRE(cmdRes.at("type") == "GetDocumentation");
     REQUIRE(!cmdRes.at("content").get<std::string>().empty());
 
     nlohmann::json conceptInput = {
@@ -241,7 +211,7 @@ TEST_CASE("GetDocumentationCommand/CommandAndConcept")
     cmd.setInput(conceptInput);
     auto conceptRes = cmd.execute(db);
 
-    REQUIRE(conceptRes.at("status") == "Success");
+    REQUIRE(conceptRes.at("type") == "GetDocumentation");
     REQUIRE(!conceptRes.at("content").get<std::string>().empty());
 
     nlohmann::json notFoundInput = {
@@ -252,7 +222,8 @@ TEST_CASE("GetDocumentationCommand/CommandAndConcept")
     };
     cmd.setInput(notFoundInput);
     auto notFoundRes = cmd.execute(db);
-    REQUIRE(notFoundRes.at("status") == "NotFound");
-    REQUIRE(notFoundRes.at("content") == "");
+    REQUIRE(notFoundRes.at("type") == "Error");
+    REQUIRE(notFoundRes.at("command") == "GetDocumentation");
+    REQUIRE(notFoundRes.at("errorType") == "NotFound");
 }
 #endif

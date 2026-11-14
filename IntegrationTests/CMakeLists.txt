@@ -1,4 +1,4 @@
-find_package(Catch2 REQUIRED)
+﻿find_package(Catch2 REQUIRED)
 
 set(Script_Python_Files
     "Scripts/Python/test_clear_project.py"

@@ -17,7 +17,7 @@ void ScriptBridge::bind(Polyglot::Engine& engine, GatedDatabase& gatedDatabase)
         Polyglot::Node result = gatedDatabase.execute(input);
         if (static_cast<std::string>(result["type"]) == "Error")
         {
-            throw std::runtime_error(static_cast<std::string>(result["error"]));
+            throw std::runtime_error(static_cast<std::string>(result["message"]));
         }
 
         return result;
@@ -47,7 +47,7 @@ TEST_CASE("ScriptBridge/BindAndExecuteLua")
     engine.executeString("result = cadaver({type = \"ClearProject\", version = 1})");
     Polyglot::Node result = engine.getVar("result");
     nlohmann::json json   = result.toJson();
-    CHECK(json["status"] == "Success");
+    CHECK(json["type"] == "ClearProject");
 }
 
 TEST_CASE("ScriptBridge/BindAndExecutePython")
@@ -60,7 +60,7 @@ TEST_CASE("ScriptBridge/BindAndExecutePython")
     engine.executeString("result = cadaver({\"type\": \"ClearProject\", \"version\": 1})");
     Polyglot::Node result = engine.getVar("result");
     nlohmann::json json   = result.toJson();
-    CHECK(json["status"] == "Success");
+    CHECK(json["type"] == "ClearProject");
 }
 
 TEST_CASE("ScriptBridge/ExecuteConvenience")
@@ -72,7 +72,7 @@ TEST_CASE("ScriptBridge/ExecuteConvenience")
     bridge.execute(engine, gatedDatabase, "result = cadaver({type = \"ClearProject\", version = 1})");
     Polyglot::Node result = engine.getVar("result");
     nlohmann::json json   = result.toJson();
-    CHECK(json["status"] == "Success");
+    CHECK(json["type"] == "ClearProject");
 }
 
 TEST_CASE("ScriptBridge/ExecuteErrorThrowsLua")

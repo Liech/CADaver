@@ -37,7 +37,6 @@ std::string GetAssetNamesCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetAssetNames\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"assetNames\": [<string>]\n"
            "}";
 }
@@ -55,7 +54,7 @@ nlohmann::json GetAssetNamesCommand::execute(Database& database)
         }
     }
 
-    return createResponse("Success", {
+    return createResponse({
         { "assetNames", assetNames }
     });
 }
@@ -70,7 +69,6 @@ TEST_CASE("GetAssetNamesCommand/EmptyProject")
     GetAssetNamesCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
     CHECK(result.at("type") == "GetAssetNames");
     CHECK(result.at("version") == 1);
     CHECK(result.at("assetNames").empty());
@@ -89,7 +87,7 @@ TEST_CASE("GetAssetNamesCommand/WithAssets")
 
     GetAssetNamesCommand cmd;
     nlohmann::json       result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetAssetNames");
     std::vector<std::string> names = result.at("assetNames").get<std::vector<std::string>>();
     REQUIRE(names.size() == 2);
     CHECK(names[0] == "FirstAsset");

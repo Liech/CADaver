@@ -42,7 +42,6 @@ std::string GetAssetAABBCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetAssetAABB\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"AssetNotFound\",\n"
            "  \"assetGuid\": <string>,\n"
            "  \"min\": [<double>, <double>, <double>],\n"
            "  \"max\": [<double>, <double>, <double>]\n"
@@ -85,11 +84,7 @@ nlohmann::json GetAssetAABBCommand::execute(Database& database)
 
     if (!foundAsset)
     {
-        return createResponse("AssetNotFound", {
-            { "assetGuid", assetGuid.toString() },
-            {       "min",          { 0, 0, 0 } },
-            {       "max",          { 0, 0, 0 } }
-        });
+        return createErrorResponse("AssetNotFound", "Asset not found");
     }
 
     glm::dvec3 minCorner(0.0);
@@ -132,7 +127,7 @@ nlohmann::json GetAssetAABBCommand::execute(Database& database)
         }
     }
 
-    return createResponse("Success", {
+    return createResponse({
         { "assetGuid", foundAsset->getGuid().toString() },
         {       "min",    { minCorner.x, minCorner.y, minCorner.z } },
         {       "max",    { maxCorner.x, maxCorner.y, maxCorner.z } }
@@ -153,7 +148,9 @@ TEST_CASE("GetAssetAABBCommand/NotFound")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "AssetNotFound");
+    CHECK(result.at("type") == "Error");
+    CHECK(result.at("command") == "GetAssetAABB");
+    CHECK(result.at("errorType") == "AssetNotFound");
 }
 
 TEST_CASE("GetAssetAABBCommand/VoxelAABB")
@@ -172,7 +169,7 @@ TEST_CASE("GetAssetAABBCommand/VoxelAABB")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetAssetAABB");
     CHECK(result.at("min")[0] == -5.0);
     CHECK(result.at("max")[0] == 5.0);
 }

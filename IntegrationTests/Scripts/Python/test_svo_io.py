@@ -5,7 +5,7 @@ temp_out_path = os.path.abspath("temp_python_svo_test.svo")
 
 # 1. Clear project
 res = cadaver({"type": "ClearProject", "version": 1})
-assert res.get("status") == "Success", f"ClearProject failed: {res}"
+assert res.get("type") == "ClearProject", f"ClearProject failed: {res}"
 
 # 2. Generate a small landscape to produce an SVO voxel asset
 gen_res = cadaver({
@@ -25,7 +25,7 @@ gen_res = cadaver({
     "caveThreshold": 0.12,
     "solidThreshold": 0.0
 })
-assert gen_res.get("status") == "Success", f"GenerateLandscape failed: {gen_res}"
+assert gen_res.get("type") == "GenerateLandscape", f"GenerateLandscape failed: {gen_res}"
 asset_guid = gen_res.get("assetGuid")
 assert asset_guid, "Missing assetGuid"
 
@@ -41,12 +41,12 @@ save_res = cadaver({
     "assetGuid": asset_guid,
     "destination": save_dest
 })
-assert save_res.get("status") == "Success", f"SaveAsset with callback failed: {save_res}"
+assert save_res.get("type") == "SaveAsset", f"SaveAsset with callback failed: {save_res}"
 assert saved_data is not None and len(saved_data) > 0, "Callback did not receive binary data"
 
 # 4. Clear project
 res = cadaver({"type": "ClearProject", "version": 1})
-assert res.get("status") == "Success"
+assert res.get("type") == "ClearProject"
 
 # 5. Load SVO using source callback returning binary data
 def load_source(*args):
@@ -59,7 +59,7 @@ cb_load_res = cadaver({
     "assetType": "Voxel",
     "source": load_source
 })
-assert cb_load_res.get("status") == "Success", f"LoadAsset with callback failed: {cb_load_res}"
+assert cb_load_res.get("type") == "LoadAsset", f"LoadAsset with callback failed: {cb_load_res}"
 cb_asset_guid = cb_load_res.get("assetGuid")
 assert cb_asset_guid, "Missing assetGuid from callback load"
 
@@ -70,13 +70,13 @@ save_file_res = cadaver({
     "assetGuid": cb_asset_guid,
     "destination": temp_out_path
 })
-assert save_file_res.get("status") == "Success", f"SaveAsset with filepath failed: {save_file_res}"
+assert save_file_res.get("type") == "SaveAsset", f"SaveAsset with filepath failed: {save_file_res}"
 assert os.path.exists(temp_out_path), "Destination file was not created"
 assert os.path.getsize(temp_out_path) > 0, "Destination file is empty"
 
 # 7. Clear project and load SVO with filepath fallback
 res = cadaver({"type": "ClearProject", "version": 1})
-assert res.get("status") == "Success"
+assert res.get("type") == "ClearProject"
 
 file_load_res = cadaver({
     "type": "LoadAsset",
@@ -84,7 +84,7 @@ file_load_res = cadaver({
     "name": "FileSvo",
     "source": temp_out_path
 })
-assert file_load_res.get("status") == "Success", f"LoadAsset with filepath failed: {file_load_res}"
+assert file_load_res.get("type") == "LoadAsset", f"LoadAsset with filepath failed: {file_load_res}"
 assert file_load_res.get("assetGuid"), "Missing assetGuid from file load"
 
 # 8. Clean up

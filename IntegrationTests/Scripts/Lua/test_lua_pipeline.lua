@@ -1,5 +1,5 @@
 ﻿local clearRes = cadaver({type = "ClearProject", version = 1})
-assert(clearRes.status == "Success", "ClearProject failed in Lua")
+assert(clearRes.type == "ClearProject", "ClearProject failed in Lua")
 
 local genRes = cadaver({
     type = "GenerateLandscape",
@@ -18,16 +18,16 @@ local genRes = cadaver({
     caveThreshold = 0.12,
     solidThreshold = 0.0
 })
-assert(genRes.status == "Success", "GenerateLandscape failed in Lua")
+assert(genRes.type == "GenerateLandscape", "GenerateLandscape failed in Lua")
 assert(genRes.assetGuid ~= nil, "Expected assetGuid in Lua result")
 
 local countRes = cadaver({type = "GetAssetCount", version = 1})
-assert(countRes.status == "Success", "GetAssetCount failed in Lua")
+assert(countRes.type == "GetAssetCount", "GetAssetCount failed in Lua")
 assert(countRes.count >= 1, "Expected at least 1 asset in Lua")
 
 local namesRes = cadaver({type = "GetAssetNames", version = 1})
-assert(namesRes.status == "Success", "GetAssetNames failed in Lua")
+assert(namesRes.type == "GetAssetNames", "GetAssetNames failed in Lua")
 
 local infoRes = cadaver({type = "GetAssetInfo", version = 1, assetName = "LuaLandscape"})
-assert(infoRes.status == "Success", "GetAssetInfo by name failed in Lua")
+assert(infoRes.type == "GetAssetInfo", "GetAssetInfo by name failed in Lua")
 assert(infoRes.assetGuid == genRes.assetGuid, "GUID mismatch in Lua")

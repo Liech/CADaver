@@ -83,7 +83,7 @@ void CameraController::frameOnProject(GatedDatabase& gatedDatabase)
       { "version",                1 }
     });
     nlohmann::json aabbJson  = response.toJson();
-    bool           hasBounds = (aabbJson.value("status", "") == "Success");
+    bool           hasBounds = (aabbJson.value("type", "") == "GetProjectAABB");
 
     if (hasBounds && camera)
     {

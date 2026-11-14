@@ -37,8 +37,7 @@ std::string UpdateUIPreferencesCommand::getDescription() const
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"UpdateUIPreferences\",\n"
-           "  \"version\": 1,\n"
-           "  \"status\": \"Success\"\n"
+           "  \"version\": 1\n"
            "}";
 }
 
@@ -54,11 +53,7 @@ nlohmann::json UpdateUIPreferencesCommand::execute(Database& database)
     uiPreferences.fromNode(preferencesData);
     newPreferences = uiPreferences;
 
-    return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" }
-    };
+    return createResponse();
 }
 
 bool UpdateUIPreferencesCommand::isUndoable() const

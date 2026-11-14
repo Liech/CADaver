@@ -39,7 +39,6 @@ std::string GetProjectAABBCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetProjectAABB\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"EmptyProject\",\n"
            "  \"min\": [<double>, <double>, <double>],\n"
            "  \"max\": [<double>, <double>, <double>]\n"
            "}";
@@ -107,17 +106,12 @@ nlohmann::json GetProjectAABBCommand::execute(Database& database)
 
     if (!foundValidBounds)
     {
-        return createResponse("EmptyProject",
-                              {
-                                { "min", { 0.0, 0.0, 0.0 } },
-                                { "max", { 0.0, 0.0, 0.0 } }
-        });
+        return createErrorResponse("EmptyProject", "Project contains no assets with valid bounds");
     }
 
-    return createResponse("Success",
-                          {
-                            { "min", { overallMin.x, overallMin.y, overallMin.z } },
-                            { "max", { overallMax.x, overallMax.y, overallMax.z } }
+    return createResponse({
+      { "min", { overallMin.x, overallMin.y, overallMin.z } },
+      { "max", { overallMax.x, overallMax.y, overallMax.z } }
     });
 }
 
@@ -130,7 +124,9 @@ TEST_CASE("GetProjectAABBCommand/EmptyProject")
     GetProjectAABBCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "EmptyProject");
+    CHECK(result.at("type") == "Error");
+    CHECK(result.at("command") == "GetProjectAABB");
+    CHECK(result.at("errorType") == "EmptyProject");
 }
 
 TEST_CASE("GetProjectAABBCommand/CombinedBounds")
@@ -145,7 +141,7 @@ TEST_CASE("GetProjectAABBCommand/CombinedBounds")
 
     GetProjectAABBCommand cmd;
     nlohmann::json        result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetProjectAABB");
     CHECK(result.at("min")[0] == -2.0);
     CHECK(result.at("min")[1] == -3.0);
     CHECK(result.at("min")[2] == -4.0);

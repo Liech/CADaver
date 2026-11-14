@@ -31,8 +31,7 @@ std::string ClearSelectionCommand::getDescription() const
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"ClearSelection\",\n"
-           "  \"version\": 1,\n"
-           "  \"status\": \"Success\"\n"
+           "  \"version\": 1\n"
            "}";
 }
 
@@ -41,5 +40,5 @@ void ClearSelectionCommand::setInput(const Polyglot::Node& node) {}
 nlohmann::json ClearSelectionCommand::execute(Database& database)
 {
     database.getSelection().clear();
-    return createResponse("Success", nlohmann::json::object());
+    return createResponse();
 }

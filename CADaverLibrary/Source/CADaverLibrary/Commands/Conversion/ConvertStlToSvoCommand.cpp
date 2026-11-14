@@ -63,28 +63,19 @@ nlohmann::json ConvertStlToSvoCommand::execute(Database& database)
     auto baseAsset = database.getProject().getAsset(assetGuid);
     if (!baseAsset || bar.isCanceled())
     {
-        return createResponse("AssetNotFound",
-                              {
-                                { "assetGuid", "" }
-        });
+        return createErrorResponse("AssetNotFound", "Asset not found: " + assetGuid.toString());
     }
 
     auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(baseAsset);
     if (!triAsset || bar.isCanceled())
     {
-        return createResponse("NotTriangulationAsset",
-                              {
-                                { "assetGuid", "" }
-        });
+        return createErrorResponse("NotTriangulationAsset", "Asset is not a TriangulationAsset");
     }
 
     auto svoAsset = AssetConverter::stlToSvo(*triAsset, dimension);
     if (!svoAsset || bar.isCanceled())
     {
-        return createResponse("ConversionFailed",
-                              {
-                                { "assetGuid", "" }
-        });
+        return createErrorResponse("ConversionFailed", "Failed to convert STL asset to SVO");
     }
 
     bar.addProgress(1);
@@ -98,9 +89,8 @@ nlohmann::json ConvertStlToSvoCommand::execute(Database& database)
         database.getProject().removeAsset(assetGuid);
     }
 
-    return createResponse("Success",
-                          {
-                            { "assetGuid", svoAsset->getGuid().toString() }
+    return createResponse({
+        { "assetGuid", svoAsset->getGuid().toString() }
     });
 }
 

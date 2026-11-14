@@ -98,7 +98,7 @@ void SaveAssetWindow::browseFile()
             { "assetGuid", assetComboBox.getSelectedGuid().toString() }
         };
         Polyglot::Node infoRes = gatedDatabase->execute(infoCmd);
-        if (infoRes["status"].asString() == "Success")
+        if (infoRes["type"].asString() == "GetAssetInfo")
         {
             defaultName = infoRes["assetName"].asString();
             assetType   = infoRes["assetType"].asString();
@@ -150,7 +150,7 @@ void SaveAssetWindow::executeSave()
             { "assetGuid", selectedGuid.toString() }
         };
         Polyglot::Node infoRes = gatedDatabase->execute(infoCmd);
-        if (infoRes["status"].asString() == "Success")
+        if (infoRes["type"].asString() == "GetAssetInfo")
         {
             savePath += getDefaultExtension(infoRes["assetType"].asString());
         }

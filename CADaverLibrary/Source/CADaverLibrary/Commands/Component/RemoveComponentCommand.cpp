@@ -50,32 +50,18 @@ nlohmann::json RemoveComponentCommand::execute(Database& database)
     auto targetAsset = database.getProject().getAsset(assetGuid);
     if (!targetAsset)
     {
-        return {
-            {    "type",         getType() },
-            { "version",      getVersion() },
-            {  "status",          "Failed" },
-            {   "error", "Asset not found" }
-        };
+        return createErrorResponse("AssetNotFound", "Asset not found");
     }
 
     removedComponent = targetAsset->getComponent(componentGuid);
     if (!removedComponent)
     {
-        return {
-            {    "type",             getType() },
-            { "version",          getVersion() },
-            {  "status",              "Failed" },
-            {   "error", "Component not found" }
-        };
+        return createErrorResponse("ComponentNotFound", "Component not found");
     }
 
     targetAsset->removeComponent(componentGuid);
 
-    return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" }
-    };
+    return createResponse();
 }
 
 bool RemoveComponentCommand::isUndoable() const
@@ -151,7 +137,7 @@ TEST_CASE("RemoveComponentCommand/ExecuteAndUndo")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result["status"] == "Success");
+    CHECK(result.at("type") == "RemoveComponent");
     CHECK(asset->getAttachments().empty());
 
     cmd.undo(database);

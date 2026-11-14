@@ -19,7 +19,7 @@ local temp_out_path = "temp_lua_step_test.step"
 
 -- 1. Clear project
 local res = cadaver({type = "ClearProject", version = 1})
-assert(res.status == "Success", "ClearProject failed in Lua")
+assert(res.type == "ClearProject", "ClearProject failed in Lua")
 
 -- 2. Load STEP with filepath fallback in source
 local load_res = cadaver({
@@ -28,7 +28,7 @@ local load_res = cadaver({
     name = "LuaFileStep",
     source = step_path
 })
-assert(load_res.status == "Success", "LoadAsset with filepath failed in Lua")
+assert(load_res.type == "LoadAsset", "LoadAsset with filepath failed in Lua")
 local asset_guid = load_res.assetGuid
 assert(asset_guid ~= nil, "Missing assetGuid")
 
@@ -44,13 +44,13 @@ local save_res = cadaver({
     assetGuid = asset_guid,
     destination = save_dest
 })
-assert(save_res.status == "Success", "SaveAsset with callback failed in Lua")
+assert(save_res.type == "SaveAsset", "SaveAsset with callback failed in Lua")
 assert(saved_buf ~= nil, "Callback did not receive buffer")
 assert(#saved_buf > 0, "Received buffer is empty")
 
 -- 4. Clear project
 res = cadaver({type = "ClearProject", version = 1})
-assert(res.status == "Success")
+assert(res.type == "ClearProject")
 
 -- 5. Load STEP using source callback returning buffer
 local function load_source()
@@ -64,7 +64,7 @@ local cb_load_res = cadaver({
     assetType = "Cad",
     source = load_source
 })
-assert(cb_load_res.status == "Success", "LoadAsset with callback failed in Lua")
+assert(cb_load_res.type == "LoadAsset", "LoadAsset with callback failed in Lua")
 local cb_asset_guid = cb_load_res.assetGuid
 assert(cb_asset_guid ~= nil, "Missing cb_asset_guid")
 
@@ -75,11 +75,11 @@ local save_file_res = cadaver({
     assetGuid = cb_asset_guid,
     destination = temp_out_path
 })
-assert(save_file_res.status == "Success", "SaveAsset with filepath failed in Lua")
+assert(save_file_res.type == "SaveAsset", "SaveAsset with filepath failed in Lua")
 
 -- 7. Clear project and load STEP with filepath fallback
 res = cadaver({type = "ClearProject", version = 1})
-assert(res.status == "Success")
+assert(res.type == "ClearProject")
 
 local file_load_res = cadaver({
     type = "LoadAsset",
@@ -87,7 +87,7 @@ local file_load_res = cadaver({
     name = "LuaSavedFileStep",
     source = temp_out_path
 })
-assert(file_load_res.status == "Success", "LoadAsset with saved file failed in Lua")
+assert(file_load_res.type == "LoadAsset", "LoadAsset with saved file failed in Lua")
 
 -- 8. Clean up
 os.remove(temp_out_path)

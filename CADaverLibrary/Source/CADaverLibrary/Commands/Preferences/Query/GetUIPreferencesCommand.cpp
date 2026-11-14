@@ -36,7 +36,6 @@ std::string GetUIPreferencesCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetUIPreferences\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"preferences\": <object>\n"
            "}";
 }
@@ -45,7 +44,7 @@ nlohmann::json GetUIPreferencesCommand::execute(Database& database)
 {
     const auto& uiPreferences = database.getPreferences().getUIPreferences();
 
-    return createResponse("Success", {
+    return createResponse({
         { "preferences", uiPreferences.toJson() }
     });
 }
@@ -59,7 +58,6 @@ TEST_CASE("GetUIPreferencesCommand/DefaultPreferences")
     GetUIPreferencesCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
     CHECK(result.at("type") == "GetUIPreferences");
     CHECK(result.at("version") == 1);
     CHECK(result.at("preferences").is_object());

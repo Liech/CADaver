@@ -34,8 +34,7 @@ std::string SaveAssetCommand::getDescription() const
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"SaveAsset\",\n"
-           "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"AssetNotFound\" | \"UnsupportedType\" | \"WriteFailed\"\n"
+           "  \"version\": 1\n"
            "}";
 }
 
@@ -55,22 +54,22 @@ nlohmann::json SaveAssetCommand::execute(Database& database)
     auto baseAsset = database.getProject().getAsset(assetGuid);
     if (!baseAsset)
     {
-        return createResponse("AssetNotFound");
+        return createErrorResponse("AssetNotFound", "Asset not found: " + assetGuid.toString());
     }
 
     AssetSaverFactory factory;
     auto              saver = factory.create(baseAsset->getType());
     if (!saver)
     {
-        return createResponse("UnsupportedType");
+        return createErrorResponse("UnsupportedType", "Unsupported asset type: " + baseAsset->getType());
     }
 
     if (!saver->save(*baseAsset, destination))
     {
-        return createResponse("WriteFailed");
+        return createErrorResponse("WriteFailed", "Failed to save asset: " + baseAsset->getName());
     }
 
-    return createResponse("Success");
+    return createResponse();
 }
 
 #ifdef ISTESTPROJECT

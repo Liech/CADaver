@@ -40,8 +40,7 @@ std::string UpdateCameraPreferencesCommand::getDescription() const
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"UpdateCameraPreferences\",\n"
-           "  \"version\": 1,\n"
-           "  \"status\": \"Success\"\n"
+           "  \"version\": 1\n"
            "}";
 }
 
@@ -57,11 +56,7 @@ nlohmann::json UpdateCameraPreferencesCommand::execute(Database& database)
     cameraPreferences.fromNode(preferencesData);
     newPreferences = cameraPreferences;
 
-    return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" }
-    };
+    return createResponse();
 }
 
 bool UpdateCameraPreferencesCommand::isUndoable() const

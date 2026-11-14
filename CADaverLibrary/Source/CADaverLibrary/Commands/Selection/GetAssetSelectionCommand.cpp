@@ -33,7 +33,6 @@ std::string GetAssetSelectionCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetAssetSelection\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\" | \"NotSelected\",\n"
            "  \"selection\": <object>\n"
            "}";
 }
@@ -49,15 +48,13 @@ nlohmann::json GetAssetSelectionCommand::execute(Database& database)
     {
         if (entry.getTargetGuid() == assetGuid)
         {
-            return createResponse("Success", {
+            return createResponse({
                 { "selection", entry.toJson() }
             });
         }
     }
 
-    return createResponse("NotSelected", {
-        { "assetGuid", assetGuid.toString() }
-    });
+    return createErrorResponse("NotSelected", "Asset is not selected: " + assetGuid.toString());
 }
 
 #ifdef ISTESTPROJECT
@@ -85,7 +82,7 @@ TEST_CASE("GetAssetSelectionCommand/ReturnsEntryForGuidOrNotSelected")
       { "assetGuid", guidA.toString() }
     }));
     nlohmann::json resA = cmdA.execute(database);
-    CHECK(resA.at("status").get<std::string>() == "Success");
+    CHECK(resA.at("type").get<std::string>() == "GetAssetSelection");
     CHECK(resA.at("selection").at("targetGuid").get<std::string>() == guidA.toString());
     REQUIRE(resA.at("selection").at("subObjects").size() == 1);
 
@@ -94,6 +91,8 @@ TEST_CASE("GetAssetSelectionCommand/ReturnsEntryForGuidOrNotSelected")
       { "assetGuid", guidB.toString() }
     }));
     nlohmann::json resB = cmdB.execute(database);
-    CHECK(resB.at("status").get<std::string>() == "NotSelected");
+    CHECK(resB.at("type").get<std::string>() == "Error");
+    CHECK(resB.at("command").get<std::string>() == "GetAssetSelection");
+    CHECK(resB.at("errorType").get<std::string>() == "NotSelected");
 }
 #endif

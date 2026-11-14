@@ -35,7 +35,6 @@ std::string GetAssetsCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetAssets\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"assets\": [\n"
            "    {\n"
            "      \"assetGuid\": <string>,\n"
@@ -97,18 +96,25 @@ nlohmann::json GetAssetsCommand::execute(Database& database)
             assetJson["isReady"]       = progressAsset->isReady();
             if (progressAsset->isReady())
             {
-                Polyglot::Node res      = progressAsset->getResult();
-                assetJson["taskStatus"] = res["status"].isString() ? res["status"].asString() : "";
-                assetJson["taskError"]  = res["error"].isString() ? res["error"].asString() : "";
+                Polyglot::Node res = progressAsset->getResult();
+                if (res.contains("type") && res["type"].isString() && res["type"].asString() == "Error")
+                {
+                    assetJson["taskStatus"] = res.contains("errorType") && res["errorType"].isString() ? res["errorType"].asString() : "Error";
+                    assetJson["taskError"]  = res.contains("message") && res["message"].isString() ? res["message"].asString() : "";
+                }
+                else
+                {
+                    assetJson["taskStatus"] = "Success";
+                    assetJson["taskError"]  = "";
+                }
             }
         }
 
         assetArray.push_back(assetJson);
     }
 
-    return createResponse("Success",
-                          {
-                            { "assets", assetArray }
+    return createResponse({
+      { "assets", assetArray }
     });
 }
 
@@ -123,7 +129,7 @@ TEST_CASE("GetAssetsCommand/EmptyProject")
     GetAssetsCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetAssets");
     CHECK(result.at("assets").empty());
 }
 
@@ -139,7 +145,7 @@ TEST_CASE("GetAssetsCommand/WithAssetAndComponent")
 
     GetAssetsCommand cmd;
     nlohmann::json   result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetAssets");
     REQUIRE(result.at("assets").size() == 1);
     CHECK(result.at("assets")[0].at("name") == "Terrain");
     CHECK(result.at("assets")[0].at("type") == "Voxel");

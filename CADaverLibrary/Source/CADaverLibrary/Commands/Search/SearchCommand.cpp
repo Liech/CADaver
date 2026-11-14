@@ -44,7 +44,6 @@ std::string SearchCommand::getDescription() const
            "{\n"
            "  \"type\": \"Search\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"results\": [\n"
            "    {\n"
            "      \"title\": \"<string>\",\n"
@@ -107,9 +106,8 @@ nlohmann::json SearchCommand::execute(Database& database)
         }
     }
 
-    return createResponse("Success",
-                          {
-                            { "results", resultsJson }
+    return createResponse({
+      { "results", resultsJson }
     });
 }
 
@@ -131,7 +129,7 @@ TEST_CASE("SearchCommand/CoarseSearch")
     cmd.setInput(input);
     auto response = cmd.execute(db);
 
-    REQUIRE(response.at("status") == "Success");
+    REQUIRE(response.at("type") == "Search");
     REQUIRE(response.at("results").is_array());
     REQUIRE(!response.at("results").empty());
     REQUIRE(response.at("results").size() <= 5);
@@ -151,7 +149,7 @@ TEST_CASE("SearchCommand/CategoryFilter")
     cmd.setInput(input);
     auto response = cmd.execute(db);
 
-    REQUIRE(response.at("status") == "Success");
+    REQUIRE(response.at("type") == "Search");
     for (const auto& r : response.at("results"))
     {
         REQUIRE(r.at("category") == "Concept");

@@ -61,11 +61,7 @@ nlohmann::json GetNotesCommand::execute(Database& database)
     auto           asset      = database.getProject().getAsset(assetGuid);
     if (!asset)
     {
-        return createResponse("AssetNotFound",
-                              {
-                                { "assetGuid", assetGuid.toString() },
-                                {     "notes",           notesArray }
-        });
+        return createErrorResponse("AssetNotFound", "Asset not found: " + assetGuid.toString());
     }
 
     auto notes = asset->getAttachments<TextNoteComponent>();
@@ -83,10 +79,9 @@ nlohmann::json GetNotesCommand::execute(Database& database)
         });
     }
 
-    return createResponse("Success",
-                          {
-                            { "assetGuid", asset->getGuid().toString() },
-                            {     "notes",                  notesArray }
+    return createResponse({
+        { "assetGuid", asset->getGuid().toString() },
+        {     "notes",                  notesArray }
     });
 }
 
@@ -105,8 +100,8 @@ TEST_CASE("GetNotesCommand/AssetNotFound")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "AssetNotFound");
-    CHECK(result.at("notes").empty());
+    CHECK(result.at("type") == "Error");
+    CHECK(result.at("errorType") == "AssetNotFound");
 }
 
 TEST_CASE("GetNotesCommand/ReturnsAttachedNotes")
@@ -127,7 +122,7 @@ TEST_CASE("GetNotesCommand/ReturnsAttachedNotes")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetNotes");
     REQUIRE(result.at("notes").size() == 1);
     CHECK(result.at("notes")[0].at("name") == "Header");
     CHECK(result.at("notes")[0].at("text") == "Body content");

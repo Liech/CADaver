@@ -1,4 +1,4 @@
-# AI Guidelines for Volumetric Workspace
+﻿# AI Guidelines for Volumetric Workspace
 
 Guidelines for AI agents and developers working on this codebase.
 

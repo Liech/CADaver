@@ -37,8 +37,7 @@ std::string UpdateRenderPreferencesCommand::getDescription() const
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"UpdateRenderPreferences\",\n"
-           "  \"version\": 1,\n"
-           "  \"status\": \"Success\"\n"
+           "  \"version\": 1\n"
            "}";
 }
 
@@ -54,11 +53,7 @@ nlohmann::json UpdateRenderPreferencesCommand::execute(Database& database)
     renderPreferences.fromNode(preferencesData);
     newPreferences = renderPreferences;
 
-    return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" }
-    };
+    return createResponse();
 }
 
 bool UpdateRenderPreferencesCommand::isUndoable() const

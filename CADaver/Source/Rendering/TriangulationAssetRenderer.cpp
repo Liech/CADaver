@@ -118,7 +118,7 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
       {   "version",                     1 },
       { "assetGuid", asset->getGuid().toString() }
     });
-    bool currentSelected = (selRes.toJson().value("status", "") == "Success");
+    bool currentSelected = (selRes.toJson().value("type", "") == "GetAssetSelection");
 
     if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || currentSelected != lastSelected || meshRenderer->getVertexCount() == 0)
     {

@@ -32,5 +32,6 @@ class Command
     virtual size_t getUndoSize() const;
 
   protected:
-    nlohmann::json createResponse(const std::string& status, const nlohmann::json& payload = nlohmann::json::object()) const;
+    nlohmann::json createResponse(const nlohmann::json& payload = nlohmann::json::object()) const;
+    nlohmann::json createErrorResponse(const std::string& errorType, const std::string& message) const;
 };

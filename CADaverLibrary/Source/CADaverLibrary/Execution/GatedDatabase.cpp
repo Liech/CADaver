@@ -5,6 +5,7 @@
 #include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/ProgressBarAsset.h"
 #include "Execution/Command.h"
+#include "Execution/ErrorResult.h"
 #include "Execution/UndoContainer.h"
 
 #include <algorithm>
@@ -54,35 +55,22 @@ Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command)
     Polyglot::Node commandNode = command;
     if (recursionLock)
     {
-        Polyglot::Node result = {
-            {    "type",                                      "Error" },
-            { "command",                                           "" },
-            { "version",                                            0 },
-            {  "status",                                     "Locked" },
-            {   "error", "Only one command can be executed at a time" }
-        };
+        Polyglot::Node result = ErrorResult("", "Locked", "Only one command can be executed at a time").toNode();
         log("OUT: " + result.toJson().dump(4));
         return result;
     }
 
     std::string commandType;
-    int         commandVersion = 0;
     log("IN: " + commandNode.toJson().dump(4));
     try
     {
-        commandType    = static_cast<std::string>(commandNode["type"]);
-        commandVersion = static_cast<int>(commandNode["version"]);
+        commandType = static_cast<std::string>(commandNode["type"]);
+        (void)static_cast<int>(commandNode["version"]);
 
         auto cmd = commandFactory.create(commandType);
         if (!cmd)
         {
-            Polyglot::Node result = {
-                {    "type",                                "Error" },
-                { "command",                            commandType },
-                { "version",                         commandVersion },
-                {  "status",                       "UnknownCommand" },
-                {   "error", "Unknown command type: " + commandType }
-            };
+            Polyglot::Node result = ErrorResult(commandType, "UnknownCommand", "Unknown command type: " + commandType).toNode();
             log("OUT: " + result.toJson().dump(4));
             return result;
         }
@@ -92,8 +80,11 @@ Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command)
         recursionLock         = true;
         nlohmann::json result = cmd->execute(database);
         recursionLock         = false;
-        assert(result.at("type").get<std::string>() == cmd->getType());
-        if (undoCallback && result.value("status", "") == "Success" && cmd->isUndoable())
+
+        std::string resultType = result.at("type").get<std::string>();
+        assert(resultType == cmd->getType() || resultType == "Error");
+
+        if (undoCallback && resultType == cmd->getType() && cmd->isUndoable())
         {
             undoCallback(std::make_unique<UndoContainer>(std::move(cmd)));
         }
@@ -103,13 +94,7 @@ Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command)
     catch (const std::exception& e)
     {
         recursionLock         = false;
-        Polyglot::Node result = {
-            {    "type",        "Error" },
-            { "command",    commandType },
-            { "version", commandVersion },
-            {  "status",    "Exception" },
-            {   "error",       e.what() }
-        };
+        Polyglot::Node result = ErrorResult(commandType, "Exception", e.what()).toNode();
         log("OUT: " + result.toJson().dump(4));
         return result;
     }
@@ -168,19 +153,14 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
 {
     Polyglot::Node commandNode = command;
     log("IN: " + commandNode.toJson().dump(4));
-    std::string commandType    = static_cast<std::string>(commandNode["type"]);
-    int         commandVersion = static_cast<int>(commandNode["version"]);
+    std::string commandType = static_cast<std::string>(commandNode["type"]);
+    (void)static_cast<int>(commandNode["version"]);
 
     auto cmd = commandFactory.create(commandType);
     if (!cmd)
     {
         std::promise<Polyglot::Node> p;
-        Polyglot::Node               result = {
-            {    "type",                            commandType },
-            { "version",                         commandVersion },
-            {  "status",                       "UnknownCommand" },
-            {   "error", "Unknown command type: " + commandType }
-        };
+        Polyglot::Node               result = ErrorResult(commandType, "UnknownCommand", "Unknown command type: " + commandType).toNode();
         log("OUT: " + result.toJson().dump(4));
         p.set_value(result);
         return p.get_future();
@@ -247,23 +227,21 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
 
           try
           {
-              executionResult = (*cmdHolder)->execute(isolatedDb);
-              success         = (executionResult.value("status", "") == "Success");
+              executionResult        = (*cmdHolder)->execute(isolatedDb);
+              std::string resultType = executionResult.at("type").get<std::string>();
+              assert(resultType == (*cmdHolder)->getType() || resultType == "Error");
+              success = (resultType == (*cmdHolder)->getType());
           }
           catch (const std::exception& e)
           {
-              executionResult = {
-                  {    "type",    (*cmdHolder)->getType() },
-                  { "version", (*cmdHolder)->getVersion() },
-                  {  "status",                "Exception" },
-                  {   "error",                   e.what() }
-              };
+              executionResult = ErrorResult((*cmdHolder)->getType(), "Exception", e.what()).toJson();
+              success         = false;
           }
 
           if (CADacomb::ProgressBar::isCanceled(taskGuid))
           {
-              executionResult["status"] = "Canceled";
-              success                   = false;
+              executionResult = ErrorResult((*cmdHolder)->getType(), "Canceled", "Command execution was canceled").toJson();
+              success         = false;
           }
 
           std::vector<std::shared_ptr<Asset>> resultAssets;

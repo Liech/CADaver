@@ -36,7 +36,6 @@ std::string GetCameraPreferencesCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetCameraPreferences\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"preferences\": <object>\n"
            "}";
 }
@@ -45,7 +44,7 @@ nlohmann::json GetCameraPreferencesCommand::execute(Database& database)
 {
     const auto& cameraPreferences = database.getPreferences().getCameraPreferences();
 
-    return createResponse("Success", {
+    return createResponse({
         { "preferences", cameraPreferences.toJson() }
     });
 }
@@ -59,7 +58,6 @@ TEST_CASE("GetCameraPreferencesCommand/DefaultPreferences")
     GetCameraPreferencesCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
     CHECK(result.at("type") == "GetCameraPreferences");
     CHECK(result.at("version") == 1);
     CHECK(result.at("preferences").is_object());

@@ -1,5 +1,7 @@
 ﻿#include "Execution/Command.h"
 
+#include "Execution/ErrorResult.h"
+
 Command::Command() {}
 
 Command::~Command() {}
@@ -25,16 +27,20 @@ size_t Command::getUndoSize() const
     return sizeof(Command);
 }
 
-nlohmann::json Command::createResponse(const std::string& status, const nlohmann::json& payload) const
+nlohmann::json Command::createResponse(const nlohmann::json& payload) const
 {
     nlohmann::json result = {
         {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",       status }
+        { "version", getVersion() }
     };
     for (auto it = payload.begin(); it != payload.end(); ++it)
     {
         result[it.key()] = it.value();
     }
     return result;
+}
+
+nlohmann::json Command::createErrorResponse(const std::string& errorType, const std::string& message) const
+{
+    return ErrorResult(getType(), errorType, message).toJson();
 }

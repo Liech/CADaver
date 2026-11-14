@@ -63,28 +63,19 @@ nlohmann::json ConvertCadToStlCommand::execute(Database& database)
     auto baseAsset = database.getProject().getAsset(assetGuid);
     if (!baseAsset || bar.isCanceled())
     {
-        return createResponse("AssetNotFound",
-                              {
-                                { "assetGuid", "" }
-        });
+        return createErrorResponse("AssetNotFound", "Asset not found: " + assetGuid.toString());
     }
 
     auto cadAsset = std::dynamic_pointer_cast<CadAsset>(baseAsset);
     if (!cadAsset || bar.isCanceled())
     {
-        return createResponse("NotCadAsset",
-                              {
-                                { "assetGuid", "" }
-        });
+        return createErrorResponse("NotCadAsset", "Asset is not a CadAsset");
     }
 
     auto stlAsset = AssetConverter::cadToStl(*cadAsset, precision);
     if (!stlAsset || bar.isCanceled())
     {
-        return createResponse("ConversionFailed",
-                              {
-                                { "assetGuid", "" }
-        });
+        return createErrorResponse("ConversionFailed", "Failed to convert CAD asset to STL");
     }
 
     bar.addProgress(1);
@@ -98,9 +89,8 @@ nlohmann::json ConvertCadToStlCommand::execute(Database& database)
         database.getProject().removeAsset(assetGuid);
     }
 
-    return createResponse("Success",
-                          {
-                            { "assetGuid", stlAsset->getGuid().toString() }
+    return createResponse({
+        { "assetGuid", stlAsset->getGuid().toString() }
     });
 }
 

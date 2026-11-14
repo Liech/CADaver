@@ -36,7 +36,6 @@ std::string GetSVOPreferencesCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetSVOPreferences\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"preferences\": <object>\n"
            "}";
 }
@@ -45,7 +44,7 @@ nlohmann::json GetSVOPreferencesCommand::execute(Database& database)
 {
     const auto& svoPreferences = database.getPreferences().getSVOPreferences();
 
-    return createResponse("Success", {
+    return createResponse({
         { "preferences", svoPreferences.toJson() }
     });
 }
@@ -59,7 +58,6 @@ TEST_CASE("GetSVOPreferencesCommand/DefaultPreferences")
     GetSVOPreferencesCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
     CHECK(result.at("type") == "GetSVOPreferences");
     CHECK(result.at("version") == 1);
     CHECK(result.at("preferences").is_object());

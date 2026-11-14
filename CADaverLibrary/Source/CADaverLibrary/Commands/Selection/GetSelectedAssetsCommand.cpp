@@ -32,7 +32,6 @@ std::string GetSelectedAssetsCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetSelectedAssets\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"assetGuids\": [<string>, ...]\n"
            "}";
 }
@@ -47,7 +46,7 @@ nlohmann::json GetSelectedAssetsCommand::execute(Database& database)
         guidsJson.push_back(entry.getTargetGuid().toString());
     }
 
-    return createResponse("Success", {
+    return createResponse({
         { "assetGuids", guidsJson }
     });
 }
@@ -79,7 +78,7 @@ TEST_CASE("GetSelectedAssetsCommand/ReturnsOnlyGuids")
     GetSelectedAssetsCommand cmd;
     nlohmann::json           result = cmd.execute(database);
 
-    CHECK(result.at("status").get<std::string>() == "Success");
+    CHECK(result.at("type").get<std::string>() == "GetSelectedAssets");
     const auto& guids = result.at("assetGuids");
     REQUIRE(guids.size() == 2);
 }

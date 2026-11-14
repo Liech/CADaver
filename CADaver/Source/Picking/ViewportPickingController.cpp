@@ -83,7 +83,7 @@ void ViewportPickingController::update(GatedDatabase& gatedDatabase, Windows& wi
                       { "assetGuid", contextMenuGuid.toString() }
                     });
 
-                    if (selCheck.toJson().value("status", "") != "Success")
+                    if (selCheck.toJson().value("type", "") != "GetAssetSelection")
                     {
                         gatedDatabase.execute({
                           {       "type",                "SelectAsset" },

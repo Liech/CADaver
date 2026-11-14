@@ -44,8 +44,7 @@ std::string UpdateSVOPreferencesCommand::getDescription() const
            "Output Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"UpdateSVOPreferences\",\n"
-           "  \"version\": 1,\n"
-           "  \"status\": \"Success\"\n"
+           "  \"version\": 1\n"
            "}";
 }
 
@@ -61,11 +60,7 @@ nlohmann::json UpdateSVOPreferencesCommand::execute(Database& database)
     svoPreferences.fromNode(preferencesData);
     newPreferences = svoPreferences;
 
-    return {
-        {    "type",    getType() },
-        { "version", getVersion() },
-        {  "status",    "Success" }
-    };
+    return createResponse();
 }
 
 bool UpdateSVOPreferencesCommand::isUndoable() const

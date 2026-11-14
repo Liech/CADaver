@@ -1,4 +1,4 @@
-#include "VoidCastStaticTest.h"
+﻿#include "VoidCastStaticTest.h"
 
 #include "SourceFile.h"
 #include "SourceFileDiscoverer.h"

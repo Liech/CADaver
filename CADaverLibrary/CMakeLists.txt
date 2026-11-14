@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20...3.30)
+﻿cmake_minimum_required(VERSION 3.20...3.30)
 
 find_package(Catch2 REQUIRED)
 
@@ -237,6 +237,8 @@ set(Execution_Files
     "Source/CADaverLibrary/Execution/CommandFactory.cpp"
     "Source/CADaverLibrary/Execution/Defer.h"
     "Source/CADaverLibrary/Execution/Defer.cpp"
+    "Source/CADaverLibrary/Execution/ErrorResult.h"
+    "Source/CADaverLibrary/Execution/ErrorResult.cpp"
     "Source/CADaverLibrary/Execution/GatedDatabase.h"
     "Source/CADaverLibrary/Execution/GatedDatabase.cpp"
     "Source/CADaverLibrary/Execution/ScriptBridge.h"

@@ -67,7 +67,7 @@ void TextNoteEditWindow::render()
           { "assetGuid", selectedAssetGuid.toString() }
         });
         nlohmann::json notesJson     = notesResponse.toJson();
-        if (notesJson.value("status", "") != "Success")
+        if (notesJson.value("type", "") != "GetNotes")
         {
             ImGui::End();
             return;

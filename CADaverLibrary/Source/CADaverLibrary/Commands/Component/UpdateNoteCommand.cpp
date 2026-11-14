@@ -57,11 +57,7 @@ nlohmann::json UpdateNoteCommand::execute(Database& database)
     auto asset = database.getProject().getAsset(assetGuid);
     if (!asset)
     {
-        return createResponse("AssetNotFound",
-                              {
-                                {     "assetGuid",     assetGuid.toString() },
-                                { "componentGuid", componentGuid.toString() }
-        });
+        return createErrorResponse("AssetNotFound", "Asset not found: " + assetGuid.toString());
     }
 
     auto notes = asset->getAttachments<TextNoteComponent>();
@@ -74,19 +70,14 @@ nlohmann::json UpdateNoteCommand::execute(Database& database)
             note->setName(newName);
             note->setText(newText);
 
-            return createResponse("Success",
-                                  {
-                                    {     "assetGuid",     assetGuid.toString() },
-                                    { "componentGuid", componentGuid.toString() }
+            return createResponse({
+                {     "assetGuid",     assetGuid.toString() },
+                { "componentGuid", componentGuid.toString() }
             });
         }
     }
 
-    return createResponse("ComponentNotFound",
-                          {
-                            {     "assetGuid",     assetGuid.toString() },
-                            { "componentGuid", componentGuid.toString() }
-    });
+    return createErrorResponse("ComponentNotFound", "Component not found: " + componentGuid.toString());
 }
 
 bool UpdateNoteCommand::isUndoable() const
@@ -164,7 +155,7 @@ TEST_CASE("UpdateNoteCommand/ExecuteUndoRedo")
     });
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "UpdateNote");
     CHECK(note->getName() == "NewName");
     CHECK(note->getText() == "NewText");
 

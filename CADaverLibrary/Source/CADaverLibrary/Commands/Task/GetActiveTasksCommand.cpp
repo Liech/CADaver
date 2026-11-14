@@ -37,7 +37,6 @@ std::string GetActiveTasksCommand::getDescription() const
            "{\n"
            "  \"type\": \"GetActiveTasks\",\n"
            "  \"version\": 1,\n"
-           "  \"status\": \"Success\",\n"
            "  \"tasks\": [\n"
            "    {\n"
            "      \"taskGuid\": <string>,\n"
@@ -69,7 +68,7 @@ nlohmann::json GetActiveTasksCommand::execute(Database& database)
         }
     }
 
-    return createResponse("Success", {
+    return createResponse({
         { "tasks", taskList }
     });
 }
@@ -83,7 +82,6 @@ TEST_CASE("GetActiveTasksCommand/NoTasks")
     GetActiveTasksCommand cmd;
 
     nlohmann::json result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
     CHECK(result.at("type") == "GetActiveTasks");
     CHECK(result.at("version") == 1);
     CHECK(result.at("tasks").empty());
@@ -99,7 +97,7 @@ TEST_CASE("GetActiveTasksCommand/WithTasks")
 
     GetActiveTasksCommand cmd;
     nlohmann::json        result = cmd.execute(database);
-    CHECK(result.at("status") == "Success");
+    CHECK(result.at("type") == "GetActiveTasks");
     REQUIRE(result.at("tasks").size() == 1);
     CHECK(result.at("tasks")[0].at("operationName") == "LandscapeGeneration");
 }
