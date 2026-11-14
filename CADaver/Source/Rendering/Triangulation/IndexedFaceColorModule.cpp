@@ -64,15 +64,10 @@ std::vector<glm::vec4> IndexedFaceColorModule::evaluatePalette(const FaceValuesC
         try
         {
             luaEngine.setVar("entry", Polyglot::Node(entry));
-            luaEngine.executeString("__cadaverFaceColor = getColor(entry, meta)");
-            Polyglot::Node result = luaEngine.getVar("__cadaverFaceColor");
-            if (result.isArray() && result.asArray().size() >= 3)
-            {
-                const auto& arr = result.asArray();
-                color.r         = std::clamp(arr[0].asFloat(), 0.0f, 1.0f);
-                color.g         = std::clamp(arr[1].asFloat(), 0.0f, 1.0f);
-                color.b         = std::clamp(arr[2].asFloat(), 0.0f, 1.0f);
-            }
+            luaEngine.executeString("local __c = getColor(entry, meta)\n__cadaverR = __c[1]\n__cadaverG = __c[2]\n__cadaverB = __c[3]\n");
+            color.r = std::clamp(static_cast<float>(luaEngine.getVar("__cadaverR").asDouble()), 0.0f, 1.0f);
+            color.g = std::clamp(static_cast<float>(luaEngine.getVar("__cadaverG").asDouble()), 0.0f, 1.0f);
+            color.b = std::clamp(static_cast<float>(luaEngine.getVar("__cadaverB").asDouble()), 0.0f, 1.0f);
         }
         catch (const std::exception&)
         {
@@ -138,3 +133,27 @@ std::vector<std::shared_ptr<Vulcant::VulcantResource>> IndexedFaceColorModule::g
 
     return { faceValueIndicesBuffer->asResource(), paletteColorsBuffer->asResource() };
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("IndexedFaceColorModule/EvaluatesDefaultLuaPalette")
+{
+    FaceValuesComponent faceValues;
+    faceValues.setValues({
+      { { "cluster", 0 }, { "faceCount", 2 } },
+      { { "cluster", 1 }, { "faceCount", 1 } }
+    });
+    faceValues.setMetadata({
+      { "componentCount", 2 },
+      {      "faceCount", 3 }
+    });
+
+    IndexedFaceColorModule module;
+    std::vector<glm::vec4> palette = module.evaluatePalette(faceValues);
+    REQUIRE(palette.size() == 2);
+    CHECK(palette[0].r > 0.8f);
+    CHECK(palette[0].g < 0.3f);
+    CHECK(palette[1].g > 0.7f);
+}
+#endif

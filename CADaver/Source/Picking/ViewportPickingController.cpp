@@ -6,6 +6,7 @@
 #include "Windows/Windows.h"
 
 #include <imgui.h>
+#include <ImGuizmo.h>
 #include <nlohmann/json.hpp>
 
 ViewportPickingController::ViewportPickingController()
@@ -22,7 +23,7 @@ void ViewportPickingController::update(GatedDatabase& gatedDatabase, Windows& wi
     const ImGuiViewport* viewport      = ImGui::GetMainViewport();
     glm::vec2            mousePos(io.MousePos.x - viewport->Pos.x, io.MousePos.y - viewport->Pos.y);
 
-    if (!io.WantCaptureMouse)
+    if (!io.WantCaptureMouse && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
     {
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
         {

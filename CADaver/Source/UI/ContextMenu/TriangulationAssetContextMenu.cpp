@@ -1,5 +1,6 @@
 ﻿#include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 
+#include "Execution/GatedDatabase.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Windows.h"
@@ -13,8 +14,6 @@ TriangulationAssetContextMenu::~TriangulationAssetContextMenu() {}
 
 void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows, const CADacomb::GUID& assetGuid)
 {
-    (void)gatedDatabase;
-
     if (ImGui::MenuItem("Save..."))
     {
         windows.open("SaveAsset");
@@ -37,5 +36,15 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
             }
         }
         ImGui::EndMenu();
+    }
+
+    if (ImGui::MenuItem("Calculate Connected Components"))
+    {
+        Polyglot::Node command = {
+            {      "type", "CalculateConnectedComponents" },
+            {   "version",                              1 },
+            { "assetGuid",           assetGuid.toString() }
+        };
+        gatedDatabase.execute(command);
     }
 }

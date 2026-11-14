@@ -28,10 +28,9 @@ class IndexedFaceColorModule : public TriangulationSurfaceModule
     bool                                                   isCompatible(const std::string& componentType) const override;
     void                                                   update(Vulcant::VulcantDevice& device, const TriangulationAsset& asset, const AssetComponent* component) override;
     std::vector<std::shared_ptr<Vulcant::VulcantResource>> getSet1Resources() const override;
+    std::vector<glm::vec4>                                 evaluatePalette(const FaceValuesComponent& faceValues) const;
 
   private:
-    std::vector<glm::vec4> evaluatePalette(const FaceValuesComponent& faceValues) const;
-
     std::unique_ptr<Vulcant::VulcantBuffer> faceValueIndicesBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> paletteColorsBuffer;
     CADacomb::GUID                          lastComponentGuid;

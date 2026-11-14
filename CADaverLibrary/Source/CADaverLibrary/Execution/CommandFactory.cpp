@@ -9,6 +9,7 @@
 #include "Commands/Conversion/ConvertStlToSvoCommand.h"
 #include "Commands/Conversion/ConvertSvoToStlCommand.h"
 #include "Commands/Generator/GenerateLandscapeCommand.h"
+#include "Commands/Geometry/CalculateConnectedComponentsCommand.h"
 #include "Commands/Geometry/GetAssetAABBCommand.h"
 #include "Commands/Geometry/GetProjectAABBCommand.h"
 #include "Commands/IO/LoadAssetCommand.h"
@@ -115,6 +116,7 @@ void CommandFactory::registerCommands()
     registerCommand("GetActiveTasks", []() { return std::make_unique<GetActiveTasksCommand>(); });
     registerCommand("GetTaskState", []() { return std::make_unique<GetTaskStateCommand>(); });
     registerCommand("CancelTask", []() { return std::make_unique<CancelTaskCommand>(); });
+    registerCommand("CalculateConnectedComponents", []() { return std::make_unique<CalculateConnectedComponentsCommand>(); });
     registerCommand("GetAssetAABB", []() { return std::make_unique<GetAssetAABBCommand>(); });
     registerCommand("GetProjectAABB", []() { return std::make_unique<GetProjectAABBCommand>(); });
     registerCommand("Search", []() { return std::make_unique<SearchCommand>(); });
@@ -170,6 +172,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GetAssetSelection") != nullptr);
     CHECK(factory.create("GetSelectedAssets") != nullptr);
     CHECK(factory.create("PickAsset") != nullptr);
-    CHECK(factory.getAllCommands().size() == 37);
+    CHECK(factory.create("CalculateConnectedComponents") != nullptr);
+    CHECK(factory.getAllCommands().size() == 38);
 }
 #endif

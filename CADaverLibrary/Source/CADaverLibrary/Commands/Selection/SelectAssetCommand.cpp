@@ -58,7 +58,20 @@ void SelectAssetCommand::setInput(const Polyglot::Node& node)
 
 nlohmann::json SelectAssetCommand::execute(Database& database)
 {
-    if (!database.getProject().hasAsset(assetGuid))
+    bool targetExists = database.getProject().hasAsset(assetGuid);
+    if (!targetExists)
+    {
+        for (const auto& asset : database.getProject().getAssets())
+        {
+            if (asset && asset->getComponent(assetGuid))
+            {
+                targetExists = true;
+                break;
+            }
+        }
+    }
+
+    if (!targetExists)
     {
         return createErrorResponse("AssetNotFound", "Asset not found: " + assetGuid.toString());
     }

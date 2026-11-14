@@ -168,9 +168,35 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                         std::string    compName = compItem.value("name", "");
                         std::string    compType = compItem.value("type", "");
 
+                        bool compSelected = false;
+                        for (const auto& selGuid : selectedArr)
+                        {
+                            if (selGuid.get<std::string>() == compGuid.toString())
+                            {
+                                compSelected = true;
+                                break;
+                            }
+                        }
+
                         std::string        compLabel = compName + " (" + compType + ")##" + compGuid.toString();
                         ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
+                        if (compSelected)
+                        {
+                            leafFlags |= ImGuiTreeNodeFlags_Selected;
+                        }
                         ImGui::TreeNodeEx(compLabel.c_str(), leafFlags);
+
+                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+                        {
+                            const ImGuiIO& io = ImGui::GetIO();
+                            gatedDatabase.execute({
+                              {       "type",                                         "SelectAsset" },
+                              {    "version",                                                     1 },
+                              {  "assetGuid",                                   compGuid.toString() },
+                              {       "mode", io.KeyCtrl ? "Remove" : (io.KeyShift ? "Add" : "Replace") },
+                              { "subObjects",                                               nullptr }
+                            });
+                        }
 
                         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
                         {

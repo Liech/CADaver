@@ -295,6 +295,11 @@ void ViewCubeWidget::render(Vulcant::Toolkit::Camera* camera, const glm::ivec2& 
     ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
     ImGuizmo::ViewManipulate(glm::value_ptr(viewMatrix), static_cast<float>(dist), ImVec2(posX, posY), ImVec2(cubeSize, cubeSize), 0x10101010);
 
+    if (ImGui::IsMouseHoveringRect(ImVec2(posX, posY), ImVec2(posX + cubeSize, posY + cubeSize), false) || viewMatrix != origMatrix)
+    {
+        ImGui::GetIO().WantCaptureMouse = true;
+    }
+
     if (viewMatrix != origMatrix)
     {
         glm::mat4  invView    = glm::inverse(viewMatrix);

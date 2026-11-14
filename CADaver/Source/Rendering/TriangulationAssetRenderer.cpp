@@ -131,7 +131,7 @@ void TriangulationAssetRenderer::ensureModulePipeline(Renderer& renderer, Triang
 
     if (pipelines.find(key) == pipelines.end())
     {
-        std::vector<Vulcant::VulcantShader*> shaders          = { vertShader.get(), fragShaders[key].get() };
+        std::vector<Vulcant::VulcantShader*> shaders          = { fragShaders[key].get(), vertShader.get() };
         std::vector<Vulcant::VulcantImage*>  colorAttachments = { &renderer.getColor(), &renderer.getNormal() };
 
         Vulcant::VulcantRasterizationConfig rasterConfig;
