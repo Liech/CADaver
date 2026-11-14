@@ -52,13 +52,7 @@ void FileMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Window
 
     if (ImGui::BeginMenu("File"))
     {
-        if (ImGui::BeginMenu("Load"))
-        {
-            get("STL").render();
-            get("STEP").render();
-            get("SVO").render();
-            ImGui::EndMenu();
-        }
+        get("LoadAsset").render();
 
         ImGui::Separator();
         get("Preferences").render();
@@ -82,14 +76,12 @@ TEST_CASE("FileMenu/GetAndInvoke")
     FileMenu      menu;
     menu.init(db, us, windows, quitFlag);
 
-    REQUIRE(menu.get("SVO").getType() == "SVO");
-    REQUIRE(menu.get("STL").getType() == "STL");
-    REQUIRE(menu.get("STEP").getType() == "STEP");
+    REQUIRE(menu.get("LoadAsset").getType() == "LoadAsset");
     REQUIRE(menu.get("Preferences").getType() == "Preferences");
     REQUIRE(menu.get("Quit").getType() == "Quit");
 
-    menu.get("SVO").click();
-    REQUIRE(windows.getOpen().count("LoadSvoAsset") == 1);
+    menu.get("LoadAsset").click();
+    REQUIRE(windows.getOpen().count("LoadAsset") == 1);
 
     menu.get("Quit").click();
     REQUIRE(quitFlag);

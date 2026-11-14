@@ -1,7 +1,7 @@
 ﻿#include "UI/ContextMenu/VoxelAssetContextMenu.h"
 
 #include "Windows/Conversion/SvoToStlConversionModal.h"
-#include "Windows/IO/SaveVoxelAssetWindow.h"
+#include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Windows.h"
 
 #include <imgui.h>
@@ -17,8 +17,8 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& window
 
     if (ImGui::MenuItem("Save..."))
     {
-        windows.open("SaveVoxelAsset");
-        auto window = std::dynamic_pointer_cast<SaveVoxelAssetWindow>(windows.get("SaveVoxelAsset"));
+        windows.open("SaveAsset");
+        auto window = std::dynamic_pointer_cast<SaveAssetWindow>(windows.get("SaveAsset"));
         if (window)
         {
             window->setTargetAsset(assetGuid);

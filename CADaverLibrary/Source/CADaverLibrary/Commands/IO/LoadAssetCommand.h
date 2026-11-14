@@ -8,17 +8,16 @@
 
 class Asset;
 
-// Command to load a STEP CAD asset into the project.
-class LoadStepAssetCommand : public Command
+// Loads any supported asset (Cad, Triangulation, Voxel) into the project.
+class LoadAssetCommand : public Command
 {
   public:
-    LoadStepAssetCommand();
-    virtual ~LoadStepAssetCommand();
+    LoadAssetCommand();
+    virtual ~LoadAssetCommand();
 
-    virtual std::string getType() const override;
-    virtual int         getVersion() const override;
-    virtual std::string getDescription() const override;
-
+    virtual std::string    getType() const override;
+    virtual int            getVersion() const override;
+    virtual std::string    getDescription() const override;
     virtual void           setInput(const Polyglot::Node& node) override;
     virtual nlohmann::json execute(Database& database) override;
 
@@ -29,6 +28,7 @@ class LoadStepAssetCommand : public Command
 
   private:
     std::string            name;
+    std::string            assetType;
     Polyglot::Node         source;
     std::shared_ptr<Asset> createdAsset;
 };

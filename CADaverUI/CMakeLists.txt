@@ -68,18 +68,10 @@ set(Windows_Generator_Files
 source_group("Source/Windows/Generator" FILES ${Windows_Generator_Files})
 
 set(Windows_IO_Files
-    "Source/CADaverUI/Windows/IO/LoadStepAssetWindow.h"
-    "Source/CADaverUI/Windows/IO/LoadStepAssetWindow.cpp"
-    "Source/CADaverUI/Windows/IO/LoadStlAssetWindow.h"
-    "Source/CADaverUI/Windows/IO/LoadStlAssetWindow.cpp"
-    "Source/CADaverUI/Windows/IO/LoadSvoAssetWindow.h"
-    "Source/CADaverUI/Windows/IO/LoadSvoAssetWindow.cpp"
-    "Source/CADaverUI/Windows/IO/SaveStepAssetWindow.h"
-    "Source/CADaverUI/Windows/IO/SaveStepAssetWindow.cpp"
-    "Source/CADaverUI/Windows/IO/SaveStlAssetWindow.h"
-    "Source/CADaverUI/Windows/IO/SaveStlAssetWindow.cpp"
-    "Source/CADaverUI/Windows/IO/SaveVoxelAssetWindow.h"
-    "Source/CADaverUI/Windows/IO/SaveVoxelAssetWindow.cpp"
+    "Source/CADaverUI/Windows/IO/LoadAssetWindow.h"
+    "Source/CADaverUI/Windows/IO/LoadAssetWindow.cpp"
+    "Source/CADaverUI/Windows/IO/SaveAssetWindow.h"
+    "Source/CADaverUI/Windows/IO/SaveAssetWindow.cpp"
 )
 source_group("Source/Windows/IO" FILES ${Windows_IO_Files})
 
@@ -154,12 +146,8 @@ set(UIElement_Menu_Files
 source_group("Source/UIElement/Menu" FILES ${UIElement_Menu_Files})
 
 set(UIElement_Menu_File_Files
-    "Source/CADaverUI/UIElement/Menu/File/LoadStepMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/File/LoadStepMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/File/LoadStlMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/File/LoadStlMenuEntry.cpp"
-    "Source/CADaverUI/UIElement/Menu/File/LoadSvoMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/File/LoadSvoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/File/LoadAssetMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/File/LoadAssetMenuEntry.cpp"
     "Source/CADaverUI/UIElement/Menu/File/QuitMenuEntry.h"
     "Source/CADaverUI/UIElement/Menu/File/QuitMenuEntry.cpp"
 )

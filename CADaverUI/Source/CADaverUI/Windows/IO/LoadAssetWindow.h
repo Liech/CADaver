@@ -4,12 +4,12 @@
 
 #include <string>
 
-// Dialog window for loading a STEP/STP CAD file into the project.
-class LoadStepAssetWindow : public Window
+// Dialog window for loading a CAD (STEP), mesh (STL), or voxel (SVO) file into the project.
+class LoadAssetWindow : public Window
 {
   public:
-    LoadStepAssetWindow();
-    virtual ~LoadStepAssetWindow();
+    LoadAssetWindow();
+    virtual ~LoadAssetWindow();
 
     virtual std::string getType() const override;
     virtual std::string getDescription() const override;

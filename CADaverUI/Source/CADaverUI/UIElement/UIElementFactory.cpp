@@ -6,9 +6,7 @@
 #include "UIElement/Menu/Edit/PreferencesMenuEntry.h"
 #include "UIElement/Menu/Edit/RedoMenuEntry.h"
 #include "UIElement/Menu/Edit/UndoMenuEntry.h"
-#include "UIElement/Menu/File/LoadStepMenuEntry.h"
-#include "UIElement/Menu/File/LoadStlMenuEntry.h"
-#include "UIElement/Menu/File/LoadSvoMenuEntry.h"
+#include "UIElement/Menu/File/LoadAssetMenuEntry.h"
 #include "UIElement/Menu/File/QuitMenuEntry.h"
 #include "UIElement/Menu/Help/AboutMenuEntry.h"
 #include "UIElement/Menu/Help/CommandsInfoMenuEntry.h"
@@ -29,9 +27,7 @@ UIElementFactory::~UIElementFactory() {}
 
 void UIElementFactory::registerDefaults(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows, bool& quitRequested)
 {
-    registerElement("STL", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LoadStlMenuEntry>(gatedDatabase, undoStack, windows); });
-    registerElement("STEP", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LoadStepMenuEntry>(gatedDatabase, undoStack, windows); });
-    registerElement("SVO", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LoadSvoMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("LoadAsset", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LoadAssetMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Preferences", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<PreferencesMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Quit", [&gatedDatabase, &undoStack, &windows, &quitRequested]() { return std::make_shared<QuitMenuEntry>(gatedDatabase, undoStack, windows, quitRequested); });
     registerElement("Undo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<UndoMenuEntry>(gatedDatabase, undoStack, windows); });
@@ -115,9 +111,7 @@ TEST_CASE("UIElementFactory/Defaults")
     UIElementFactory factory;
     factory.registerDefaults(db, us, windows, quitFlag);
 
-    REQUIRE(factory.create("SVO") != nullptr);
-    REQUIRE(factory.create("STL") != nullptr);
-    REQUIRE(factory.create("STEP") != nullptr);
+    REQUIRE(factory.create("LoadAsset") != nullptr);
     REQUIRE(factory.create("Preferences") != nullptr);
     REQUIRE(factory.create("Quit") != nullptr);
     REQUIRE(factory.create("Undo") != nullptr);
@@ -133,6 +127,6 @@ TEST_CASE("UIElementFactory/Defaults")
     REQUIRE(factory.create("Projection: Orthogonal") != nullptr);
     REQUIRE(factory.create("Color Theme: Light") != nullptr);
     REQUIRE(factory.create("Unknown") == nullptr);
-    REQUIRE(factory.getAllElements().size() == 25);
+    REQUIRE(factory.getAllElements().size() == 23);
 }
 #endif

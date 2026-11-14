@@ -6,12 +6,12 @@
 
 #include <string>
 
-// Dialog window for exporting a triangulation asset to an STL file on disk.
-class SaveStlAssetWindow : public Window
+// Dialog window for exporting a project asset to disk.
+class SaveAssetWindow : public Window
 {
   public:
-    SaveStlAssetWindow();
-    virtual ~SaveStlAssetWindow();
+    SaveAssetWindow();
+    virtual ~SaveAssetWindow();
 
     virtual std::string getType() const override;
     virtual std::string getDescription() const override;
@@ -20,8 +20,9 @@ class SaveStlAssetWindow : public Window
     void setTargetAsset(const CADacomb::GUID& assetGuid);
 
   private:
-    void browseFile();
-    void executeSave();
+    void        browseFile();
+    void        executeSave();
+    std::string getDefaultExtension(const std::string& assetType) const;
 
     AssetComboBox assetComboBox;
     std::string   filePath;

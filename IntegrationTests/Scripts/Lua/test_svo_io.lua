@@ -33,12 +33,12 @@ local function save_dest(buf)
 end
 
 local save_res = cadaver({
-    type = "SaveVoxelAsset",
+    type = "SaveAsset",
     version = 1,
     assetGuid = asset_guid,
     destination = save_dest
 })
-assert(save_res.status == "Success", "SaveVoxelAsset with callback failed in Lua")
+assert(save_res.status == "Success", "SaveAsset with callback failed in Lua")
 assert(saved_buf ~= nil, "Callback did not receive buffer")
 assert(#saved_buf > 0, "Received buffer is empty")
 
@@ -52,35 +52,36 @@ local function load_source()
 end
 
 local cb_load_res = cadaver({
-    type = "LoadSvoAsset",
+    type = "LoadAsset",
     version = 1,
     name = "LuaCallbackSvo",
+    assetType = "Voxel",
     source = load_source
 })
-assert(cb_load_res.status == "Success", "LoadSvoAsset with callback failed in Lua")
+assert(cb_load_res.status == "Success", "LoadAsset with callback failed in Lua")
 local cb_asset_guid = cb_load_res.assetGuid
 assert(cb_asset_guid ~= nil, "Missing cb_asset_guid")
 
 -- 6. Save SVO with filepath fallback in destination
 local save_file_res = cadaver({
-    type = "SaveVoxelAsset",
+    type = "SaveAsset",
     version = 1,
     assetGuid = cb_asset_guid,
     destination = temp_out_path
 })
-assert(save_file_res.status == "Success", "SaveVoxelAsset with filepath failed in Lua")
+assert(save_file_res.status == "Success", "SaveAsset with filepath failed in Lua")
 
 -- 7. Clear project and load SVO with filepath fallback
 res = cadaver({type = "ClearProject", version = 1})
 assert(res.status == "Success")
 
 local file_load_res = cadaver({
-    type = "LoadSvoAsset",
+    type = "LoadAsset",
     version = 1,
     name = "LuaFileSvo",
     source = temp_out_path
 })
-assert(file_load_res.status == "Success", "LoadSvoAsset with filepath failed in Lua")
+assert(file_load_res.status == "Success", "LoadAsset with filepath failed in Lua")
 assert(file_load_res.assetGuid ~= nil, "Missing assetGuid from file load")
 
 -- 8. Clean up

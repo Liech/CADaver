@@ -11,12 +11,8 @@
 #include "Commands/Generator/GenerateLandscapeCommand.h"
 #include "Commands/Geometry/GetAssetAABBCommand.h"
 #include "Commands/Geometry/GetProjectAABBCommand.h"
-#include "Commands/IO/LoadStepAssetCommand.h"
-#include "Commands/IO/LoadStlAssetCommand.h"
-#include "Commands/IO/LoadSvoAssetCommand.h"
-#include "Commands/IO/SaveStepAssetCommand.h"
-#include "Commands/IO/SaveStlAssetCommand.h"
-#include "Commands/IO/SaveVoxelAssetCommand.h"
+#include "Commands/IO/LoadAssetCommand.h"
+#include "Commands/IO/SaveAssetCommand.h"
 #include "Commands/Preferences/Query/GetCameraPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetRenderPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetSVOPreferencesCommand.h"
@@ -102,12 +98,8 @@ void CommandFactory::registerCommands()
     registerCommand("ConvertStlToSvo", []() { return std::make_unique<ConvertStlToSvoCommand>(); });
     registerCommand("ConvertSvoToStl", []() { return std::make_unique<ConvertSvoToStlCommand>(); });
     registerCommand("GenerateLandscape", []() { return std::make_unique<GenerateLandscapeCommand>(); });
-    registerCommand("LoadStlAsset", []() { return std::make_unique<LoadStlAssetCommand>(); });
-    registerCommand("SaveStlAsset", []() { return std::make_unique<SaveStlAssetCommand>(); });
-    registerCommand("LoadStepAsset", []() { return std::make_unique<LoadStepAssetCommand>(); });
-    registerCommand("SaveStepAsset", []() { return std::make_unique<SaveStepAssetCommand>(); });
-    registerCommand("LoadSvoAsset", []() { return std::make_unique<LoadSvoAssetCommand>(); });
-    registerCommand("SaveVoxelAsset", []() { return std::make_unique<SaveVoxelAssetCommand>(); });
+    registerCommand("LoadAsset", []() { return std::make_unique<LoadAssetCommand>(); });
+    registerCommand("SaveAsset", []() { return std::make_unique<SaveAssetCommand>(); });
     registerCommand("UpdateCameraPreferences", []() { return std::make_unique<UpdateCameraPreferencesCommand>(); });
     registerCommand("UpdateUIPreferences", []() { return std::make_unique<UpdateUIPreferencesCommand>(); });
     registerCommand("UpdateRenderPreferences", []() { return std::make_unique<UpdateRenderPreferencesCommand>(); });
@@ -161,12 +153,8 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("ConvertStlToSvo") != nullptr);
     CHECK(factory.create("ConvertSvoToStl") != nullptr);
     CHECK(factory.create("GenerateLandscape") != nullptr);
-    CHECK(factory.create("LoadStlAsset") != nullptr);
-    CHECK(factory.create("SaveStlAsset") != nullptr);
-    CHECK(factory.create("LoadStepAsset") != nullptr);
-    CHECK(factory.create("SaveStepAsset") != nullptr);
-    CHECK(factory.create("LoadSvoAsset") != nullptr);
-    CHECK(factory.create("SaveVoxelAsset") != nullptr);
+    CHECK(factory.create("LoadAsset") != nullptr);
+    CHECK(factory.create("SaveAsset") != nullptr);
     CHECK(factory.create("UpdateCameraPreferences") != nullptr);
     CHECK(factory.create("UpdateUIPreferences") != nullptr);
     CHECK(factory.create("UpdateRenderPreferences") != nullptr);
@@ -182,6 +170,6 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GetAssetSelection") != nullptr);
     CHECK(factory.create("GetSelectedAssets") != nullptr);
     CHECK(factory.create("PickAsset") != nullptr);
-    CHECK(factory.getAllCommands().size() == 41);
+    CHECK(factory.getAllCommands().size() == 37);
 }
 #endif

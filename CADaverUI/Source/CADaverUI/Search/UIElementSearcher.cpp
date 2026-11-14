@@ -88,7 +88,7 @@ TEST_CASE("UIElementSearcher/SearchAndInvoke")
 
     REQUIRE(svoResults[0].getAction() != nullptr);
     svoResults[0].execute();
-    REQUIRE(windows.getOpen().count("LoadSvoAsset") == 1);
+    REQUIRE(windows.getOpen().count("LoadAsset") == 1);
 
     auto wireframeResults = searcher.search("wireframe overlay");
     REQUIRE(!wireframeResults.empty());

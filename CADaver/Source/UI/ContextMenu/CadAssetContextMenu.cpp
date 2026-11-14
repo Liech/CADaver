@@ -2,7 +2,7 @@
 
 #include "Windows/Conversion/CadToStlConversionModal.h"
 #include "Windows/Conversion/CadToSvoConversionModal.h"
-#include "Windows/IO/SaveStepAssetWindow.h"
+#include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Windows.h"
 
 #include <imgui.h>
@@ -18,8 +18,8 @@ void CadAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows,
 
     if (ImGui::MenuItem("Save..."))
     {
-        windows.open("SaveStepAsset");
-        auto window = std::dynamic_pointer_cast<SaveStepAssetWindow>(windows.get("SaveStepAsset"));
+        windows.open("SaveAsset");
+        auto window = std::dynamic_pointer_cast<SaveAssetWindow>(windows.get("SaveAsset"));
         if (window)
         {
             window->setTargetAsset(assetGuid);

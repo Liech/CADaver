@@ -23,7 +23,7 @@ std::string McpConcept::getDescription() const
            "  - cadaver_list_commands: Lists all registered commands, versions, and descriptions.\n"
            "  - cadaver_get_documentation: Queries full documentation for any Command, Concept, Asset, or Note.\n"
            "  - cadaver_execute_command: Executes any command by type name and JSON arguments.\n"
-           "  - Direct Command Tools: Every command registered in CommandFactory (e.g. GenerateLandscape, LoadStlAsset, ConvertCadToSvo, AddNote) is also exposed as a direct MCP tool.";
+           "  - Direct Command Tools: Every command registered in CommandFactory (e.g. GenerateLandscape, LoadAsset, ConvertCadToSvo, AddNote) is also exposed as a direct MCP tool.";
 }
 
 #ifdef ISTESTPROJECT

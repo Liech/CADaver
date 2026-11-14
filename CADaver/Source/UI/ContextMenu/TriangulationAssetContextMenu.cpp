@@ -1,7 +1,7 @@
 ﻿#include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 
 #include "Windows/Conversion/StlToSvoConversionModal.h"
-#include "Windows/IO/SaveStlAssetWindow.h"
+#include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Windows.h"
 
 #include <imgui.h>
@@ -17,8 +17,8 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
 
     if (ImGui::MenuItem("Save..."))
     {
-        windows.open("SaveStlAsset");
-        auto window = std::dynamic_pointer_cast<SaveStlAssetWindow>(windows.get("SaveStlAsset"));
+        windows.open("SaveAsset");
+        auto window = std::dynamic_pointer_cast<SaveAssetWindow>(windows.get("SaveAsset"));
         if (window)
         {
             window->setTargetAsset(assetGuid);

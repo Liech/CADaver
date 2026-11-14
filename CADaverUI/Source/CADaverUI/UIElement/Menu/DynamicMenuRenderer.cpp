@@ -153,7 +153,7 @@ TEST_CASE("DynamicMenuRenderer/TreeBuilding")
 
     REQUIRE(roots[0]->getChildren().size() == 3);
     REQUIRE(roots[0]->getChildren()[0]->getName() == "Load");
-    REQUIRE(roots[0]->getChildren()[0]->getChildren().size() == 3);
+    REQUIRE(roots[0]->getChildren()[0]->getChildren().empty());
     REQUIRE(roots[0]->getChildren()[1]->getName() == "Preferences");
     REQUIRE(roots[0]->getChildren()[2]->getName() == "Quit");
 }

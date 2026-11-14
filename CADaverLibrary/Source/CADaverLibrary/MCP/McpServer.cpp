@@ -132,7 +132,7 @@ nlohmann::json McpServer::handleToolsList(const nlohmann::json& request)
       { "inputSchema",
        { { "type", "object" },
        { "properties",
-       { { "type", { { "type", "string" }, { "description", "Command type name (e.g. LoadStlAsset, ClearProject)" } } },
+       { { "type", { { "type", "string" }, { "description", "Command type name (e.g. LoadAsset, ClearProject)" } } },
        { "version", { { "type", "integer" }, { "description", "Command version (default 1)" } } } } },
        { "required", { "type" } } }                                              }
     });

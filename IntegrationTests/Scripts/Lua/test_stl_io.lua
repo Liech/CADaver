@@ -23,12 +23,12 @@ assert(res.status == "Success", "ClearProject failed in Lua")
 
 -- 2. Load STL with filepath fallback
 local load_res = cadaver({
-    type = "LoadStlAsset",
+    type = "LoadAsset",
     version = 1,
     name = "LuaFileStl",
     source = stl_path
 })
-assert(load_res.status == "Success", "LoadStlAsset with filepath failed in Lua")
+assert(load_res.status == "Success", "LoadAsset with filepath failed in Lua")
 local asset_guid = load_res.assetGuid
 assert(asset_guid ~= nil, "Missing assetGuid")
 
@@ -39,12 +39,12 @@ local function save_dest(buf)
 end
 
 local save_res = cadaver({
-    type = "SaveStlAsset",
+    type = "SaveAsset",
     version = 1,
     assetGuid = asset_guid,
     destination = save_dest
 })
-assert(save_res.status == "Success", "SaveStlAsset with callback failed in Lua")
+assert(save_res.status == "Success", "SaveAsset with callback failed in Lua")
 assert(saved_buf ~= nil, "Callback did not receive buffer")
 assert(#saved_buf > 0, "Received buffer is empty")
 
@@ -58,23 +58,24 @@ local function load_source()
 end
 
 local cb_load_res = cadaver({
-    type = "LoadStlAsset",
+    type = "LoadAsset",
     version = 1,
     name = "LuaCallbackStl",
+    assetType = "Triangulation",
     source = load_source
 })
-assert(cb_load_res.status == "Success", "LoadStlAsset with callback failed in Lua")
+assert(cb_load_res.status == "Success", "LoadAsset with callback failed in Lua")
 local cb_asset_guid = cb_load_res.assetGuid
 assert(cb_asset_guid ~= nil, "Missing cb_asset_guid")
 
 -- 6. Save STL with filepath fallback in destination
 local save_file_res = cadaver({
-    type = "SaveStlAsset",
+    type = "SaveAsset",
     version = 1,
     assetGuid = cb_asset_guid,
     destination = temp_out_path
 })
-assert(save_file_res.status == "Success", "SaveStlAsset with filepath failed in Lua")
+assert(save_file_res.status == "Success", "SaveAsset with filepath failed in Lua")
 
 local check_file = io.open(temp_out_path, "rb")
 assert(check_file ~= nil, "Destination file was not created")

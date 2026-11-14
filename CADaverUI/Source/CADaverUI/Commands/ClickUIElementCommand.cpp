@@ -29,7 +29,7 @@ std::string ClickUIElementCommand::getDescription() const
            "{\n"
            "  \"type\": \"ClickUIElement\",\n"
            "  \"version\": 1,\n"
-           "  \"target\": \"<string>\" // matches type (e.g. \"STL\", \"Undo\", \"ViewHome\"), path (\"File/Load/STL\"), or label (\"STL...\")\n"
+           "  \"target\": \"<string>\" // matches type (e.g. \"LoadAsset\", \"Undo\", \"ViewHome\"), path (\"File/Load\"), or label (\"Load...\")\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -146,11 +146,11 @@ TEST_CASE("ClickUIElementCommand/Execute")
 
     // Test click by path
     cmd.setInput({
-      { "target", "File/Load/SVO" }
+      { "target", "File/Load" }
     });
     auto resPath = cmd.execute(db);
     REQUIRE(resPath["status"] == "Success");
-    REQUIRE(windows.getOpen().count("LoadSvoAsset") == 1);
+    REQUIRE(windows.getOpen().count("LoadAsset") == 1);
 
     // Test click non-existent
     cmd.setInput({

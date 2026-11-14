@@ -36,12 +36,12 @@ def save_dest(data):
     saved_data = data
 
 save_res = cadaver({
-    "type": "SaveVoxelAsset",
+    "type": "SaveAsset",
     "version": 1,
     "assetGuid": asset_guid,
     "destination": save_dest
 })
-assert save_res.get("status") == "Success", f"SaveVoxelAsset with callback failed: {save_res}"
+assert save_res.get("status") == "Success", f"SaveAsset with callback failed: {save_res}"
 assert saved_data is not None and len(saved_data) > 0, "Callback did not receive binary data"
 
 # 4. Clear project
@@ -53,23 +53,24 @@ def load_source(*args):
     return saved_data
 
 cb_load_res = cadaver({
-    "type": "LoadSvoAsset",
+    "type": "LoadAsset",
     "version": 1,
     "name": "CallbackSvo",
+    "assetType": "Voxel",
     "source": load_source
 })
-assert cb_load_res.get("status") == "Success", f"LoadSvoAsset with callback failed: {cb_load_res}"
+assert cb_load_res.get("status") == "Success", f"LoadAsset with callback failed: {cb_load_res}"
 cb_asset_guid = cb_load_res.get("assetGuid")
 assert cb_asset_guid, "Missing assetGuid from callback load"
 
 # 6. Save SVO with filepath fallback in destination
 save_file_res = cadaver({
-    "type": "SaveVoxelAsset",
+    "type": "SaveAsset",
     "version": 1,
     "assetGuid": cb_asset_guid,
     "destination": temp_out_path
 })
-assert save_file_res.get("status") == "Success", f"SaveVoxelAsset with filepath failed: {save_file_res}"
+assert save_file_res.get("status") == "Success", f"SaveAsset with filepath failed: {save_file_res}"
 assert os.path.exists(temp_out_path), "Destination file was not created"
 assert os.path.getsize(temp_out_path) > 0, "Destination file is empty"
 
@@ -78,12 +79,12 @@ res = cadaver({"type": "ClearProject", "version": 1})
 assert res.get("status") == "Success"
 
 file_load_res = cadaver({
-    "type": "LoadSvoAsset",
+    "type": "LoadAsset",
     "version": 1,
     "name": "FileSvo",
     "source": temp_out_path
 })
-assert file_load_res.get("status") == "Success", f"LoadSvoAsset with filepath failed: {file_load_res}"
+assert file_load_res.get("status") == "Success", f"LoadAsset with filepath failed: {file_load_res}"
 assert file_load_res.get("assetGuid"), "Missing assetGuid from file load"
 
 # 8. Clean up

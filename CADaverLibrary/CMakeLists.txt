@@ -43,20 +43,40 @@ set(Command_Generator_Files
 source_group("Source/Commands/Generator" FILES ${Command_Generator_Files})
 
 set(Command_IO_Files
-    "Source/CADaverLibrary/Commands/IO/LoadStepAssetCommand.h"
-    "Source/CADaverLibrary/Commands/IO/LoadStepAssetCommand.cpp"
-    "Source/CADaverLibrary/Commands/IO/LoadStlAssetCommand.h"
-    "Source/CADaverLibrary/Commands/IO/LoadStlAssetCommand.cpp"
-    "Source/CADaverLibrary/Commands/IO/LoadSvoAssetCommand.h"
-    "Source/CADaverLibrary/Commands/IO/LoadSvoAssetCommand.cpp"
-    "Source/CADaverLibrary/Commands/IO/SaveStepAssetCommand.h"
-    "Source/CADaverLibrary/Commands/IO/SaveStepAssetCommand.cpp"
-    "Source/CADaverLibrary/Commands/IO/SaveStlAssetCommand.h"
-    "Source/CADaverLibrary/Commands/IO/SaveStlAssetCommand.cpp"
-    "Source/CADaverLibrary/Commands/IO/SaveVoxelAssetCommand.h"
-    "Source/CADaverLibrary/Commands/IO/SaveVoxelAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/IO/LoadAssetCommand.h"
+    "Source/CADaverLibrary/Commands/IO/LoadAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/IO/SaveAssetCommand.h"
+    "Source/CADaverLibrary/Commands/IO/SaveAssetCommand.cpp"
 )
 source_group("Source/Commands/IO" FILES ${Command_IO_Files})
+
+set(IO_AssetLoader_Files
+    "Source/CADaverLibrary/IO/AssetLoader/AssetLoader.h"
+    "Source/CADaverLibrary/IO/AssetLoader/AssetLoader.cpp"
+    "Source/CADaverLibrary/IO/AssetLoader/AssetLoaderFactory.h"
+    "Source/CADaverLibrary/IO/AssetLoader/AssetLoaderFactory.cpp"
+    "Source/CADaverLibrary/IO/AssetLoader/CadAssetLoader.h"
+    "Source/CADaverLibrary/IO/AssetLoader/CadAssetLoader.cpp"
+    "Source/CADaverLibrary/IO/AssetLoader/TriangulationAssetLoader.h"
+    "Source/CADaverLibrary/IO/AssetLoader/TriangulationAssetLoader.cpp"
+    "Source/CADaverLibrary/IO/AssetLoader/VoxelAssetLoader.h"
+    "Source/CADaverLibrary/IO/AssetLoader/VoxelAssetLoader.cpp"
+)
+source_group("Source/IO/AssetLoader" FILES ${IO_AssetLoader_Files})
+
+set(IO_AssetSaver_Files
+    "Source/CADaverLibrary/IO/AssetSaver/AssetSaver.h"
+    "Source/CADaverLibrary/IO/AssetSaver/AssetSaver.cpp"
+    "Source/CADaverLibrary/IO/AssetSaver/AssetSaverFactory.h"
+    "Source/CADaverLibrary/IO/AssetSaver/AssetSaverFactory.cpp"
+    "Source/CADaverLibrary/IO/AssetSaver/CadAssetSaver.h"
+    "Source/CADaverLibrary/IO/AssetSaver/CadAssetSaver.cpp"
+    "Source/CADaverLibrary/IO/AssetSaver/TriangulationAssetSaver.h"
+    "Source/CADaverLibrary/IO/AssetSaver/TriangulationAssetSaver.cpp"
+    "Source/CADaverLibrary/IO/AssetSaver/VoxelAssetSaver.h"
+    "Source/CADaverLibrary/IO/AssetSaver/VoxelAssetSaver.cpp"
+)
+source_group("Source/IO/AssetSaver" FILES ${IO_AssetSaver_Files})
 
 set(Command_Project_Files
     "Source/CADaverLibrary/Commands/Project/ClearProjectCommand.h"
@@ -313,6 +333,8 @@ set(ALL_FILES
     ${Command_Conversion_Files}
     ${Command_Generator_Files}
     ${Command_IO_Files}
+    ${IO_AssetLoader_Files}
+    ${IO_AssetSaver_Files}
     ${Command_Project_Files}
     ${Command_Component_Files}
     ${Command_Preferences_Files}

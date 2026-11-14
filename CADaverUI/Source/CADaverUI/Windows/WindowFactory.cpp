@@ -11,12 +11,8 @@
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
 #include "Windows/Generator/LandscapeGeneratorWindow.h"
-#include "Windows/IO/LoadStepAssetWindow.h"
-#include "Windows/IO/LoadStlAssetWindow.h"
-#include "Windows/IO/LoadSvoAssetWindow.h"
-#include "Windows/IO/SaveStepAssetWindow.h"
-#include "Windows/IO/SaveStlAssetWindow.h"
-#include "Windows/IO/SaveVoxelAssetWindow.h"
+#include "Windows/IO/LoadAssetWindow.h"
+#include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Preferences/PreferencesWindow.h"
 #include "Windows/Project/ClearProjectModal.h"
 #include "Windows/Project/RemoveAssetModal.h"
@@ -82,12 +78,8 @@ void WindowFactory::registerWindows()
     registerWindow("StlToSvoConversion", []() { return std::make_shared<StlToSvoConversionModal>(); });
     registerWindow("SvoToStlConversion", []() { return std::make_shared<SvoToStlConversionModal>(); });
     registerWindow("LandscapeGenerator", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
-    registerWindow("LoadStepAsset", []() { return std::make_shared<LoadStepAssetWindow>(); });
-    registerWindow("LoadStlAsset", []() { return std::make_shared<LoadStlAssetWindow>(); });
-    registerWindow("LoadSvoAsset", []() { return std::make_shared<LoadSvoAssetWindow>(); });
-    registerWindow("SaveStepAsset", []() { return std::make_shared<SaveStepAssetWindow>(); });
-    registerWindow("SaveStlAsset", []() { return std::make_shared<SaveStlAssetWindow>(); });
-    registerWindow("SaveVoxelAsset", []() { return std::make_shared<SaveVoxelAssetWindow>(); });
+    registerWindow("LoadAsset", []() { return std::make_shared<LoadAssetWindow>(); });
+    registerWindow("SaveAsset", []() { return std::make_shared<SaveAssetWindow>(); });
     registerWindow("ClearProject", []() { return std::make_shared<ClearProjectModal>(); });
     registerWindow("RemoveAsset", []() { return std::make_shared<RemoveAssetModal>(); });
     registerWindow("Preferences", []() { return std::make_shared<PreferencesWindow>(); });
@@ -113,12 +105,8 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("StlToSvoConversion") != nullptr);
     CHECK(factory.create("SvoToStlConversion") != nullptr);
     CHECK(factory.create("LandscapeGenerator") != nullptr);
-    CHECK(factory.create("LoadStepAsset") != nullptr);
-    CHECK(factory.create("LoadStlAsset") != nullptr);
-    CHECK(factory.create("LoadSvoAsset") != nullptr);
-    CHECK(factory.create("SaveStepAsset") != nullptr);
-    CHECK(factory.create("SaveStlAsset") != nullptr);
-    CHECK(factory.create("SaveVoxelAsset") != nullptr);
+    CHECK(factory.create("LoadAsset") != nullptr);
+    CHECK(factory.create("SaveAsset") != nullptr);
     CHECK(factory.create("ClearProject") != nullptr);
     CHECK(factory.create("Preferences") != nullptr);
     CHECK(factory.create("RemoveAsset") != nullptr);
@@ -126,6 +114,6 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("TextNoteEdit") != nullptr);
     CHECK(factory.create("Script") != nullptr);
     CHECK(factory.create("Console") != nullptr);
-    CHECK(factory.getAllWindows().size() == 22);
+    CHECK(factory.getAllWindows().size() == 18);
 }
 #endif
