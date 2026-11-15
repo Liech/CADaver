@@ -6,6 +6,7 @@
 #include "Commands/Component/UpdateComponentCommand.h"
 #include "Commands/Conversion/ConvertCadToStlCommand.h"
 #include "Commands/Conversion/ConvertCadToSvoCommand.h"
+#include "Commands/Conversion/ConvertClusteringToCadCommand.h"
 #include "Commands/Conversion/ConvertStlToSvoCommand.h"
 #include "Commands/Conversion/ConvertSvoToStlCommand.h"
 #include "Commands/Generator/GenerateLandscapeCommand.h"
@@ -98,6 +99,7 @@ void CommandFactory::registerCommands()
     registerCommand("ClearProject", []() { return std::make_unique<ClearProjectCommand>(); });
     registerCommand("ConvertCadToStl", []() { return std::make_unique<ConvertCadToStlCommand>(); });
     registerCommand("ConvertCadToSvo", []() { return std::make_unique<ConvertCadToSvoCommand>(); });
+    registerCommand("ConvertClusteringToCad", []() { return std::make_unique<ConvertClusteringToCadCommand>(); });
     registerCommand("ConvertStlToSvo", []() { return std::make_unique<ConvertStlToSvoCommand>(); });
     registerCommand("ConvertSvoToStl", []() { return std::make_unique<ConvertSvoToStlCommand>(); });
     registerCommand("GenerateLandscape", []() { return std::make_unique<GenerateLandscapeCommand>(); });
@@ -179,6 +181,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("CalculateConnectedComponents") != nullptr);
     CHECK(factory.create("ClusterByNormal") != nullptr);
     CHECK(factory.create("SplitClustersToAssets") != nullptr);
-    CHECK(factory.getAllCommands().size() == 40);
+    CHECK(factory.create("ConvertClusteringToCad") != nullptr);
+    CHECK(factory.getAllCommands().size() == 41);
 }
 #endif

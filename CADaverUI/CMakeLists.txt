@@ -54,6 +54,8 @@ set(Windows_Conversion_Files
     "Source/CADaverUI/Windows/Conversion/CadToStlConversionModal.cpp"
     "Source/CADaverUI/Windows/Conversion/CadToSvoConversionModal.h"
     "Source/CADaverUI/Windows/Conversion/CadToSvoConversionModal.cpp"
+    "Source/CADaverUI/Windows/Conversion/ConvertClusteringToCadWindow.h"
+    "Source/CADaverUI/Windows/Conversion/ConvertClusteringToCadWindow.cpp"
     "Source/CADaverUI/Windows/Conversion/StlToSvoConversionModal.h"
     "Source/CADaverUI/Windows/Conversion/StlToSvoConversionModal.cpp"
     "Source/CADaverUI/Windows/Conversion/SvoToStlConversionModal.h"

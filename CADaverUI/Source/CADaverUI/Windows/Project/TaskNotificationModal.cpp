@@ -38,9 +38,11 @@ void TaskNotificationModal::render()
         return;
     }
 
+    ImGui::SetNextWindowSizeConstraints(ImVec2(360.0f, 0.0f), ImVec2(760.0f, 400.0f));
     if (ImGui::Begin("Task Notification##TaskNotificationWindow", &openState, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::TextUnformatted(message.c_str());
+        const std::string displayMessage = message.empty() ? "An unknown error occurred." : message;
+        ImGui::TextWrapped("%s", displayMessage.c_str());
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
