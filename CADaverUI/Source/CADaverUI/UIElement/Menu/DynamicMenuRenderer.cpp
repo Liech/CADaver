@@ -151,11 +151,13 @@ TEST_CASE("DynamicMenuRenderer/TreeBuilding")
     REQUIRE(roots[2]->getName() == "Create");
     REQUIRE(roots[3]->getName() == "Help");
 
-    REQUIRE(roots[0]->getChildren().size() == 3);
-    REQUIRE(roots[0]->getChildren()[0]->getName() == "Load");
-    REQUIRE(roots[0]->getChildren()[0]->getChildren().empty());
-    REQUIRE(roots[0]->getChildren()[1]->getName() == "Preferences");
-    REQUIRE(roots[0]->getChildren()[2]->getName() == "Quit");
+    REQUIRE(roots[0]->getChildren().size() == 4);
+    REQUIRE(roots[0]->getChildren()[0]->getName() == "New");
+    REQUIRE(roots[0]->getChildren()[0]->getChildren().size() == 16);
+    REQUIRE(roots[0]->getChildren()[1]->getName() == "Load");
+    REQUIRE(roots[0]->getChildren()[1]->getChildren().empty());
+    REQUIRE(roots[0]->getChildren()[2]->getName() == "Preferences");
+    REQUIRE(roots[0]->getChildren()[3]->getName() == "Quit");
 }
 
 TEST_CASE("DynamicMenuRenderer/MenuRanking")

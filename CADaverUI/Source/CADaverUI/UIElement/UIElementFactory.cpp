@@ -6,6 +6,7 @@
 #include "UIElement/Menu/Edit/PreferencesMenuEntry.h"
 #include "UIElement/Menu/Edit/RedoMenuEntry.h"
 #include "UIElement/Menu/Edit/UndoMenuEntry.h"
+#include "UIElement/Menu/File/BaseShapeMenuEntry.h"
 #include "UIElement/Menu/File/LoadAssetMenuEntry.h"
 #include "UIElement/Menu/File/QuitMenuEntry.h"
 #include "UIElement/Menu/Help/AboutMenuEntry.h"
@@ -27,6 +28,22 @@ UIElementFactory::~UIElementFactory() {}
 
 void UIElementFactory::registerDefaults(GatedDatabase& gatedDatabase, UndoStack& undoStack, Windows& windows, bool& quitRequested)
 {
+    registerElement("NewCube", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("cube", "NewCube", "Cube", "File/New/Cube", gatedDatabase, undoStack, windows); });
+    registerElement("NewBox", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("box", "NewBox", "Box", "File/New/Box", gatedDatabase, undoStack, windows); });
+    registerElement("NewPyramid", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("pyramid", "NewPyramid", "Pyramid", "File/New/Pyramid", gatedDatabase, undoStack, windows); });
+    registerElement("NewCylinder", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("cylinder", "NewCylinder", "Cylinder", "File/New/Cylinder", gatedDatabase, undoStack, windows); });
+    registerElement("NewCone", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("cone", "NewCone", "Cone", "File/New/Cone", gatedDatabase, undoStack, windows); });
+    registerElement("NewFrustum", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("frustum", "NewFrustum", "Frustum", "File/New/Frustum", gatedDatabase, undoStack, windows); });
+    registerElement("NewSphere", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("sphere", "NewSphere", "Sphere", "File/New/Sphere", gatedDatabase, undoStack, windows); });
+    registerElement("NewTorus", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("torus", "NewTorus", "Torus", "File/New/Torus", gatedDatabase, undoStack, windows); });
+    registerElement("NewCapsule", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("capsule", "NewCapsule", "Capsule", "File/New/Capsule", gatedDatabase, undoStack, windows); });
+    registerElement("NewPrism", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("prism", "NewPrism", "Prism", "File/New/Prism", gatedDatabase, undoStack, windows); });
+    registerElement("NewOctahedron", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("octahedron", "NewOctahedron", "Octahedron", "File/New/Octahedron", gatedDatabase, undoStack, windows); });
+    registerElement("NewCubeWithHole", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("cubeWithHole", "NewCubeWithHole", "Cube With Hole", "File/New/Cube With Hole", gatedDatabase, undoStack, windows); });
+    registerElement("NewLBracket", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("lBracket", "NewLBracket", "L-Bracket", "File/New/L-Bracket", gatedDatabase, undoStack, windows); });
+    registerElement("NewSteppedBlock", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("steppedBlock", "NewSteppedBlock", "Stepped Block", "File/New/Stepped Block", gatedDatabase, undoStack, windows); });
+    registerElement("NewPlateWithHoles", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("plateWithHoles", "NewPlateWithHoles", "Plate With Holes", "File/New/Plate With Holes", gatedDatabase, undoStack, windows); });
+    registerElement("NewShapeGenerator", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<BaseShapeMenuEntry>("", "NewShapeGenerator", "Shape Generator...", "File/New/Shape Generator...", gatedDatabase, undoStack, windows); });
     registerElement("LoadAsset", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LoadAssetMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Preferences", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<PreferencesMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Quit", [&gatedDatabase, &undoStack, &windows, &quitRequested]() { return std::make_shared<QuitMenuEntry>(gatedDatabase, undoStack, windows, quitRequested); });
@@ -126,7 +143,9 @@ TEST_CASE("UIElementFactory/Defaults")
     REQUIRE(factory.create("Camera Type: Freecam") != nullptr);
     REQUIRE(factory.create("Projection: Orthogonal") != nullptr);
     REQUIRE(factory.create("Color Theme: Light") != nullptr);
+    REQUIRE(factory.create("NewCube") != nullptr);
+    REQUIRE(factory.create("NewShapeGenerator") != nullptr);
     REQUIRE(factory.create("Unknown") == nullptr);
-    REQUIRE(factory.getAllElements().size() == 23);
+    REQUIRE(factory.getAllElements().size() == 39);
 }
 #endif

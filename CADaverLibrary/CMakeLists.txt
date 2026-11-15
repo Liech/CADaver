@@ -41,6 +41,8 @@ set(Command_Conversion_Files
 source_group("Source/Commands/Conversion" FILES ${Command_Conversion_Files})
 
 set(Command_Generator_Files
+    "Source/CADaverLibrary/Commands/Generator/GenerateBaseShapeCommand.h"
+    "Source/CADaverLibrary/Commands/Generator/GenerateBaseShapeCommand.cpp"
     "Source/CADaverLibrary/Commands/Generator/GenerateLandscapeCommand.h"
     "Source/CADaverLibrary/Commands/Generator/GenerateLandscapeCommand.cpp"
 )
