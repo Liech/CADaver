@@ -50,6 +50,11 @@ void GatedDatabase::setLogCallback(std::function<void(const std::string&)> callb
     logCallback = std::move(callback);
 }
 
+void GatedDatabase::setErrorCallback(std::function<void(const std::string&, const std::string&)> callback)
+{
+    errorCallback = std::move(callback);
+}
+
 Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command)
 {
     Polyglot::Node commandNode = command;
@@ -285,6 +290,18 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
                   for (const auto& orig : abductedAssets)
                   {
                       database.getProject().addAsset(orig);
+                  }
+
+                  std::string errorType    = executionResult.value("errorType", "");
+                  std::string errorMessage = executionResult.value("message", "");
+                  if (errorCallback && errorType != "Canceled")
+                  {
+                      if (errorMessage.empty())
+                      {
+                          errorMessage = errorType.empty() ? "Unknown error" : errorType;
+                      }
+                      std::string opName = *cmdHolder ? (*cmdHolder)->getType() : "Command";
+                      errorCallback(opName, errorMessage);
                   }
               }
 

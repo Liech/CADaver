@@ -1,4 +1,4 @@
-﻿#include "Commands/Conversion/ConvertClusteringToCadCommand.h"
+#include "Commands/Conversion/ConvertClusteringToCadCommand.h"
 
 #include "CADacomb/CAD/Conversion/ClusterToCadConverter.h"
 #include "CADacomb/CAD/Interface/Shape.h"
@@ -160,7 +160,7 @@ nlohmann::json ConvertClusteringToCadCommand::execute(Database& database)
 
     CADacomb::CAD::KernelSm               kernel;
     CADacomb::CAD::ClusterToCadConverter  converter;
-    std::unique_ptr<CADacomb::CAD::Shape> shape = converter.convertPlanar(kernel, tri, clusters, planarityTolerance, boundarySimplifyTolerance, stitchTolerance, tryMakeSolid);
+    std::unique_ptr<CADacomb::CAD::Shape> shape = converter.convert(kernel, tri, clusters, planarityTolerance, boundarySimplifyTolerance, stitchTolerance, tryMakeSolid);
     bar.addProgress(1);
 
     createdAsset = std::make_shared<CadAsset>();
@@ -263,5 +263,49 @@ TEST_CASE("ConvertClusteringToCadCommand/BoxToCadAsset")
 
     cmd.redo(db);
     REQUIRE(db.getProject().getAsset(createdGuid) != nullptr);
+}
+
+#include "CADacomb/CAD/Interface/Solid.h"
+#include "CADacomb/CAD/Interface/TessellationOptions.h"
+
+TEST_CASE("ConvertClusteringToCadCommand/CylinderToCadAsset")
+{
+    Database                db;
+    CADacomb::CAD::KernelSm kernel;
+    auto                    cylSolid = kernel.createCylinder(glm::dvec3(0.0, 0.0, 0.0), 5.0, 10.0);
+
+    CADacomb::CAD::TessellationOptions tessOpts;
+    auto                               tri      = kernel.tessellate(*cylSolid, tessOpts);
+    auto                               triAsset = std::make_shared<TriangulationAsset>();
+    triAsset->setName("Cylinder");
+    triAsset->setTriangulation(std::move(tri));
+
+    std::vector<std::vector<size_t>> clusters = CADacomb::Clustering::clusterByNormal(triAsset->getTriangulation(), 0.70);
+    REQUIRE(clusters.size() == 3);
+
+    std::vector<uint32_t> faceValueIndices(triAsset->getTriangulation().indices.size() / 3, 0);
+    for (size_t c = 0; c < clusters.size(); c++)
+    {
+        for (size_t triIdx : clusters[c])
+        {
+            faceValueIndices[triIdx] = static_cast<uint32_t>(c);
+        }
+    }
+
+    auto comp = std::make_shared<FaceValuesComponent>();
+    comp->setFaceValueIndices(faceValueIndices);
+    triAsset->addComponent(comp);
+    db.getProject().addAsset(triAsset);
+
+    ConvertClusteringToCadCommand cmd;
+    cmd.setInput(Polyglot::Node(nlohmann::json{
+      {          "type",         "ConvertClusteringToCad" },
+      {       "version",                                1 },
+      {     "assetGuid", triAsset->getGuid().toString() },
+      { "componentGuid",     comp->getGuid().toString() }
+    }));
+
+    nlohmann::json res = cmd.execute(db);
+    REQUIRE(res.at("type") == "ConvertClusteringToCad");
 }
 #endif

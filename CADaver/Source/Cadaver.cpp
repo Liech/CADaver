@@ -15,6 +15,7 @@
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "Vulcant/Wrapper/Window.h"
 #include "Windows/Preferences/PreferencesWindow.h"
+#include "Windows/Project/TaskNotificationModal.h"
 
 #include <imgui.h>
 
@@ -163,6 +164,16 @@ void Cadaver::onKey(const Vulcant::VulcantInputValue& key)
 void Cadaver::prepare()
 {
     gatedDatabase.setDispatchCallback([this](std::function<void()> task) { defer.defer(std::move(task)); });
+    gatedDatabase.setErrorCallback(
+      [this](const std::string& operationName, const std::string& errorMessage)
+      {
+          windows.open("TaskNotification");
+          auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
+          if (modal)
+          {
+              modal->setMessage("Operation '" + operationName + "' failed: " + errorMessage);
+          }
+      });
 
     windows.setInput(gatedDatabase, defer);
 
