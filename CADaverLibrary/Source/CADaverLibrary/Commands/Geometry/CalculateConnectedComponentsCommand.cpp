@@ -2,6 +2,7 @@
 
 #include "CADacomb/Triangle/Clustering.h"
 #include "CADacomb/Triangle/Triangulation.h"
+#include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Component/FaceValuesComponent.h"
 #include "Database/Database.h"
@@ -43,6 +44,11 @@ std::string CalculateConnectedComponentsCommand::getDescription() const
            "}";
 }
 
+std::vector<CADacomb::GUID> CalculateConnectedComponentsCommand::getRequiredAssets() const
+{
+    return { assetGuid };
+}
+
 void CalculateConnectedComponentsCommand::setInput(const Polyglot::Node& node)
 {
     assetGuid = CADacomb::GUID(node["assetGuid"].asString());
@@ -51,6 +57,8 @@ void CalculateConnectedComponentsCommand::setInput(const Polyglot::Node& node)
 
 nlohmann::json CalculateConnectedComponentsCommand::execute(Database& database)
 {
+    CADacomb::ProgressBar bar(2, "Calculating connected components");
+
     auto asset = database.getProject().getAsset(assetGuid);
     if (!asset)
     {
@@ -66,26 +74,40 @@ nlohmann::json CalculateConnectedComponentsCommand::execute(Database& database)
     const CADacomb::Triangulation&   tri          = triAsset->getTriangulation();
     size_t                           numTriangles = tri.indices.size() / 3;
     std::vector<std::vector<size_t>> patches      = CADacomb::Clustering::cluster(tri, [](size_t, size_t, const CADacomb::Triangulation&) { return true; });
+    if (bar.isCanceled())
+    {
+        return createErrorResponse("Canceled", "Connected components calculation was canceled");
+    }
+    bar.addProgress(1);
 
     std::vector<nlohmann::json> values;
     values.reserve(patches.size());
     std::vector<uint32_t> faceValueIndices(numTriangles, 0);
 
-    for (size_t patchIdx = 0; patchIdx < patches.size(); patchIdx++)
     {
-        values.push_back({
-          {   "cluster",            patchIdx },
-          { "faceCount", patches[patchIdx].size() }
-        });
-
-        for (size_t faceIdx : patches[patchIdx])
+        CADacomb::ProgressBar assignBar(patches.size(), "Assigning component values");
+        for (size_t patchIdx = 0; patchIdx < patches.size(); patchIdx++)
         {
-            if (faceIdx < numTriangles)
+            if (assignBar.isCanceled())
             {
-                faceValueIndices[faceIdx] = static_cast<uint32_t>(patchIdx);
+                return createErrorResponse("Canceled", "Connected components calculation was canceled");
             }
+            values.push_back({
+              {   "cluster",                 patchIdx },
+              { "faceCount", patches[patchIdx].size() }
+            });
+
+            for (size_t faceIdx : patches[patchIdx])
+            {
+                if (faceIdx < numTriangles)
+                {
+                    faceValueIndices[faceIdx] = static_cast<uint32_t>(patchIdx);
+                }
+            }
+            assignBar.addProgress(1);
         }
     }
+    bar.addProgress(1);
 
     addedComponent = std::make_shared<FaceValuesComponent>();
     addedComponent->setName(name.empty() ? "Connected Components" : name);

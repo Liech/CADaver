@@ -1,5 +1,7 @@
 ﻿#include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 
+#include "Windows/Geometry/ClusterByNormalWindow.h"
+
 #include "Execution/GatedDatabase.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/IO/SaveAssetWindow.h"
@@ -45,6 +47,16 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
             {   "version",                              1 },
             { "assetGuid",           assetGuid.toString() }
         };
-        gatedDatabase.execute(command);
+        gatedDatabase.executeAsync(command);
+    }
+
+    if (ImGui::MenuItem("Cluster by Normal..."))
+    {
+        windows.open("ClusterByNormal");
+        auto window = std::dynamic_pointer_cast<ClusterByNormalWindow>(windows.get("ClusterByNormal"));
+        if (window)
+        {
+            window->setTargetAsset(assetGuid);
+        }
     }
 }

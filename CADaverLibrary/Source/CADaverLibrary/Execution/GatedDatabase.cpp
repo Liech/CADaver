@@ -211,12 +211,15 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
 
     auto cmdHolder = std::make_shared<std::unique_ptr<Command>>(std::move(cmd));
 
+    Selection initialSelection = database.getSelection();
+
     std::thread worker(
-      [this, taskGuid, progressAsset, abductedAssets, cmdHolder, callerPromise, progressPromise]()
+      [this, taskGuid, progressAsset, abductedAssets, cmdHolder, callerPromise, progressPromise, initialSelection]()
       {
           CADacomb::ProgressBar::setThreadGuid(taskGuid);
 
           Database isolatedDb;
+          isolatedDb.getSelection() = initialSelection;
           for (const auto& asset : abductedAssets)
           {
               isolatedDb.getProject().addAsset(asset);
@@ -245,16 +248,20 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
           }
 
           std::vector<std::shared_ptr<Asset>> resultAssets;
+          Selection                           resultSelection;
+          bool                                selectionChanged = false;
           if (success)
           {
-              resultAssets = isolatedDb.getProject().getAssets();
+              resultAssets     = isolatedDb.getProject().getAssets();
+              resultSelection  = isolatedDb.getSelection();
+              selectionChanged = (resultSelection.toJson() != initialSelection.toJson());
           }
 
           Polyglot::Node resultNode(executionResult);
           callerPromise->set_value(resultNode);
           progressPromise->set_value(resultNode);
 
-          auto completion = [this, taskGuid, progressAsset, abductedAssets, resultAssets, cmdHolder, executionResult, success]()
+          auto completion = [this, taskGuid, progressAsset, abductedAssets, resultAssets, resultSelection, selectionChanged, cmdHolder, executionResult, success]()
           {
               database.getProject().removeAsset(progressAsset->getGuid());
 
@@ -263,6 +270,10 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
                   for (const auto& asset : resultAssets)
                   {
                       database.getProject().addAsset(asset);
+                  }
+                  if (selectionChanged)
+                  {
+                      database.getSelection() = resultSelection;
                   }
                   if (undoCallback && *cmdHolder && (*cmdHolder)->isUndoable())
                   {

@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20...3.30)
+cmake_minimum_required(VERSION 3.20...3.30)
 
 find_package(Catch2 REQUIRED)
 
@@ -66,6 +66,12 @@ set(Windows_Generator_Files
     "Source/CADaverUI/Windows/Generator/LandscapeGeneratorWindow.cpp"
 )
 source_group("Source/Windows/Generator" FILES ${Windows_Generator_Files})
+
+set(Windows_Geometry_Files
+    "Source/CADaverUI/Windows/Geometry/ClusterByNormalWindow.h"
+    "Source/CADaverUI/Windows/Geometry/ClusterByNormalWindow.cpp"
+)
+source_group("Source/Windows/Geometry" FILES ${Windows_Geometry_Files})
 
 set(Windows_IO_Files
     "Source/CADaverUI/Windows/IO/LoadAssetWindow.h"
@@ -222,6 +228,7 @@ set(ALL_FILES
     ${Windows_About_Files}
     ${Windows_Conversion_Files}
     ${Windows_Generator_Files}
+    ${Windows_Geometry_Files}
     ${Windows_IO_Files}
     ${Windows_Preferences_Files}
     ${Windows_Asset_Files}

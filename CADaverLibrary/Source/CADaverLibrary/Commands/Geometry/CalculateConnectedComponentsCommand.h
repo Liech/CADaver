@@ -20,6 +20,8 @@ class CalculateConnectedComponentsCommand : public Command
     int         getVersion() const override;
     std::string getDescription() const override;
 
+    std::vector<CADacomb::GUID> getRequiredAssets() const override;
+
     void           setInput(const Polyglot::Node& node) override;
     nlohmann::json execute(Database& database) override;
 

@@ -143,6 +143,8 @@ source_group("Source/Commands/Task" FILES ${Command_Task_Files})
 set(Command_Geometry_Files
     "Source/CADaverLibrary/Commands/Geometry/CalculateConnectedComponentsCommand.h"
     "Source/CADaverLibrary/Commands/Geometry/CalculateConnectedComponentsCommand.cpp"
+    "Source/CADaverLibrary/Commands/Geometry/ClusterByNormalCommand.h"
+    "Source/CADaverLibrary/Commands/Geometry/ClusterByNormalCommand.cpp"
     "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.h"
     "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.cpp"
     "Source/CADaverLibrary/Commands/Geometry/GetProjectAABBCommand.h"

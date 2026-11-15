@@ -11,6 +11,7 @@
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
 #include "Windows/Generator/LandscapeGeneratorWindow.h"
+#include "Windows/Geometry/ClusterByNormalWindow.h"
 #include "Windows/IO/LoadAssetWindow.h"
 #include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Preferences/PreferencesWindow.h"
@@ -78,6 +79,7 @@ void WindowFactory::registerWindows()
     registerWindow("StlToSvoConversion", []() { return std::make_shared<StlToSvoConversionModal>(); });
     registerWindow("SvoToStlConversion", []() { return std::make_shared<SvoToStlConversionModal>(); });
     registerWindow("LandscapeGenerator", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
+    registerWindow("ClusterByNormal", []() { return std::make_shared<ClusterByNormalWindow>(); });
     registerWindow("LoadAsset", []() { return std::make_shared<LoadAssetWindow>(); });
     registerWindow("SaveAsset", []() { return std::make_shared<SaveAssetWindow>(); });
     registerWindow("ClearProject", []() { return std::make_shared<ClearProjectModal>(); });
@@ -105,6 +107,7 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("StlToSvoConversion") != nullptr);
     CHECK(factory.create("SvoToStlConversion") != nullptr);
     CHECK(factory.create("LandscapeGenerator") != nullptr);
+    CHECK(factory.create("ClusterByNormal") != nullptr);
     CHECK(factory.create("LoadAsset") != nullptr);
     CHECK(factory.create("SaveAsset") != nullptr);
     CHECK(factory.create("ClearProject") != nullptr);
@@ -114,6 +117,6 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("TextNoteEdit") != nullptr);
     CHECK(factory.create("Script") != nullptr);
     CHECK(factory.create("Console") != nullptr);
-    CHECK(factory.getAllWindows().size() == 18);
+    CHECK(factory.getAllWindows().size() == 19);
 }
 #endif
