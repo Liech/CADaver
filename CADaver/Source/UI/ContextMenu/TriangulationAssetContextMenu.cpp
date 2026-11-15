@@ -1,5 +1,6 @@
 ﻿#include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 
+#include "Windows/Geometry/CalculateConnectedComponentsWindow.h"
 #include "Windows/Geometry/ClusterByNormalWindow.h"
 
 #include "Execution/GatedDatabase.h"
@@ -40,14 +41,14 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
         ImGui::EndMenu();
     }
 
-    if (ImGui::MenuItem("Calculate Connected Components"))
+    if (ImGui::MenuItem("Calculate Connected Components..."))
     {
-        Polyglot::Node command = {
-            {      "type", "CalculateConnectedComponents" },
-            {   "version",                              1 },
-            { "assetGuid",           assetGuid.toString() }
-        };
-        gatedDatabase.executeAsync(command);
+        windows.open("CalculateConnectedComponents");
+        auto window = std::dynamic_pointer_cast<CalculateConnectedComponentsWindow>(windows.get("CalculateConnectedComponents"));
+        if (window)
+        {
+            window->setTargetAsset(assetGuid);
+        }
     }
 
     if (ImGui::MenuItem("Cluster by Normal..."))

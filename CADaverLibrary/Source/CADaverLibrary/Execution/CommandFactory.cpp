@@ -11,6 +11,7 @@
 #include "Commands/Generator/GenerateLandscapeCommand.h"
 #include "Commands/Geometry/CalculateConnectedComponentsCommand.h"
 #include "Commands/Geometry/ClusterByNormalCommand.h"
+#include "Commands/Geometry/SplitClustersToAssetsCommand.h"
 #include "Commands/Geometry/GetAssetAABBCommand.h"
 #include "Commands/Geometry/GetProjectAABBCommand.h"
 #include "Commands/IO/LoadAssetCommand.h"
@@ -119,6 +120,7 @@ void CommandFactory::registerCommands()
     registerCommand("CancelTask", []() { return std::make_unique<CancelTaskCommand>(); });
     registerCommand("CalculateConnectedComponents", []() { return std::make_unique<CalculateConnectedComponentsCommand>(); });
     registerCommand("ClusterByNormal", []() { return std::make_unique<ClusterByNormalCommand>(); });
+    registerCommand("SplitClustersToAssets", []() { return std::make_unique<SplitClustersToAssetsCommand>(); });
     registerCommand("GetAssetAABB", []() { return std::make_unique<GetAssetAABBCommand>(); });
     registerCommand("GetProjectAABB", []() { return std::make_unique<GetProjectAABBCommand>(); });
     registerCommand("Search", []() { return std::make_unique<SearchCommand>(); });
@@ -176,6 +178,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("PickAsset") != nullptr);
     CHECK(factory.create("CalculateConnectedComponents") != nullptr);
     CHECK(factory.create("ClusterByNormal") != nullptr);
-    CHECK(factory.getAllCommands().size() == 39);
+    CHECK(factory.create("SplitClustersToAssets") != nullptr);
+    CHECK(factory.getAllCommands().size() == 40);
 }
 #endif

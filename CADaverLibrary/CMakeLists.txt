@@ -145,6 +145,8 @@ set(Command_Geometry_Files
     "Source/CADaverLibrary/Commands/Geometry/CalculateConnectedComponentsCommand.cpp"
     "Source/CADaverLibrary/Commands/Geometry/ClusterByNormalCommand.h"
     "Source/CADaverLibrary/Commands/Geometry/ClusterByNormalCommand.cpp"
+    "Source/CADaverLibrary/Commands/Geometry/SplitClustersToAssetsCommand.h"
+    "Source/CADaverLibrary/Commands/Geometry/SplitClustersToAssetsCommand.cpp"
     "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.h"
     "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.cpp"
     "Source/CADaverLibrary/Commands/Geometry/GetProjectAABBCommand.h"

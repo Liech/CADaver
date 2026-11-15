@@ -68,6 +68,8 @@ set(Windows_Generator_Files
 source_group("Source/Windows/Generator" FILES ${Windows_Generator_Files})
 
 set(Windows_Geometry_Files
+    "Source/CADaverUI/Windows/Geometry/CalculateConnectedComponentsWindow.h"
+    "Source/CADaverUI/Windows/Geometry/CalculateConnectedComponentsWindow.cpp"
     "Source/CADaverUI/Windows/Geometry/ClusterByNormalWindow.h"
     "Source/CADaverUI/Windows/Geometry/ClusterByNormalWindow.cpp"
 )
