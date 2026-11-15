@@ -5,6 +5,7 @@
 
 #include "Execution/GatedDatabase.h"
 #include "Windows/Conversion/ConvertClusteringToCadWindow.h"
+#include "Windows/Conversion/ConvertStlToCadWindow.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Windows.h"
@@ -43,6 +44,15 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
         {
             windows.open("ConvertClusteringToCad");
             auto window = std::dynamic_pointer_cast<ConvertClusteringToCadWindow>(windows.get("ConvertClusteringToCad"));
+            if (window)
+            {
+                window->setTargetAsset(assetGuid);
+            }
+        }
+        if (ImGui::MenuItem("CAD (Naive)..."))
+        {
+            windows.open("ConvertStlToCad");
+            auto window = std::dynamic_pointer_cast<ConvertStlToCadWindow>(windows.get("ConvertStlToCad"));
             if (window)
             {
                 window->setTargetAsset(assetGuid);

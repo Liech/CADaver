@@ -9,6 +9,7 @@
 #include "Windows/Conversion/CadToStlConversionModal.h"
 #include "Windows/Conversion/CadToSvoConversionModal.h"
 #include "Windows/Conversion/ConvertClusteringToCadWindow.h"
+#include "Windows/Conversion/ConvertStlToCadWindow.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
 #include "Windows/Generator/LandscapeGeneratorWindow.h"
@@ -80,6 +81,7 @@ void WindowFactory::registerWindows()
     registerWindow("CadToStlConversion", []() { return std::make_shared<CadToStlConversionModal>(); });
     registerWindow("CadToSvoConversion", []() { return std::make_shared<CadToSvoConversionModal>(); });
     registerWindow("ConvertClusteringToCad", []() { return std::make_shared<ConvertClusteringToCadWindow>(); });
+    registerWindow("ConvertStlToCad", []() { return std::make_shared<ConvertStlToCadWindow>(); });
     registerWindow("StlToSvoConversion", []() { return std::make_shared<StlToSvoConversionModal>(); });
     registerWindow("SvoToStlConversion", []() { return std::make_shared<SvoToStlConversionModal>(); });
     registerWindow("LandscapeGenerator", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
@@ -126,6 +128,6 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("TextNoteEdit") != nullptr);
     CHECK(factory.create("Script") != nullptr);
     CHECK(factory.create("Console") != nullptr);
-    CHECK(factory.getAllWindows().size() == 22);
+    CHECK(factory.getAllWindows().size() == 23);
 }
 #endif

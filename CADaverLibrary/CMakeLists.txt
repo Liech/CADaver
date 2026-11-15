@@ -31,6 +31,8 @@ set(Command_Conversion_Files
     "Source/CADaverLibrary/Commands/Conversion/ConvertCadToSvoCommand.cpp"
     "Source/CADaverLibrary/Commands/Conversion/ConvertClusteringToCadCommand.h"
     "Source/CADaverLibrary/Commands/Conversion/ConvertClusteringToCadCommand.cpp"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertStlToCadCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertStlToCadCommand.cpp"
     "Source/CADaverLibrary/Commands/Conversion/ConvertStlToSvoCommand.h"
     "Source/CADaverLibrary/Commands/Conversion/ConvertStlToSvoCommand.cpp"
     "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlCommand.h"

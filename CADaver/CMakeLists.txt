@@ -43,6 +43,8 @@ set(Shader_Files
     "Shaders/Triangulation/Triangulation_vert.exe.slang"
     "Shaders/Triangulation/Triangulation_Default_frag.exe.slang"
     "Shaders/Triangulation/Triangulation_IndexedFaceColor_frag.exe.slang"
+    "Shaders/Cad/CadOutline_vert.exe.slang"
+    "Shaders/Cad/CadOutline_frag.exe.slang"
 )
 source_group("Shaders" FILES ${Shader_Files})
 
