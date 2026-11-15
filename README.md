@@ -1,5 +1,3 @@
-﻿![image](https://github.com/user-attachments/assets/baa67416-4072-4ff2-ab30-78724f8d7c56)
-
 # CADaver - Now
 
 CADaver is currently a STL/STEP/voxel file viewer with conversions between everything. The STL->CAD conversion is very unfinisheed.
