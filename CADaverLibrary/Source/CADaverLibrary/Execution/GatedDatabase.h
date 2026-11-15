@@ -43,6 +43,7 @@ class GatedDatabase
     void setDispatchCallback(std::function<void(std::function<void()>)> callback);
     void setLogCallback(std::function<void(const std::string&)> callback);
     void setErrorCallback(std::function<void(const std::string&, const std::string&)> callback);
+    void setSuccessCallback(std::function<void(const std::string&)> callback);
 
   private:
     void log(const std::string& msg);
@@ -53,6 +54,7 @@ class GatedDatabase
     std::function<void(std::function<void()>)>                     dispatchCallback;
     std::function<void(const std::string&)>                        logCallback;
     std::function<void(const std::string&, const std::string&)>    errorCallback;
+    std::function<void(const std::string&)>                        successCallback;
     mutable std::mutex                                             tasksMutex;
     std::vector<CADacomb::GUID>                         activeTaskGuids;
     bool                                                recursionLock = false;

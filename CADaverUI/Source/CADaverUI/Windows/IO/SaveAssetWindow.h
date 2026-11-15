@@ -26,4 +26,5 @@ class SaveAssetWindow : public Window
 
     AssetComboBox assetComboBox;
     std::string   filePath;
+    bool          browseOnOpen = true;
 };

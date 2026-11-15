@@ -32,6 +32,7 @@ void LoadAssetWindow::render()
 {
     if (!openState || !gatedDatabase)
     {
+        browseOnOpen = true;
         return;
     }
 
@@ -39,6 +40,12 @@ void LoadAssetWindow::render()
     if (ImGui::Begin("Load Asset", &openState))
     {
         handleEscapeClose();
+
+        if (browseOnOpen)
+        {
+            browseOnOpen = false;
+            browseFile();
+        }
 
         std::vector<char> pathBuf(512, 0);
         size_t            pathLen = filePath.size() < pathBuf.size() - 1 ? filePath.size() : pathBuf.size() - 1;

@@ -3,6 +3,7 @@
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
 
+#include <algorithm>
 #include <imgui.h>
 
 ClusterByNormalWindow::ClusterByNormalWindow() : assetComboBox("Triangulation")
@@ -47,12 +48,22 @@ void ClusterByNormalWindow::render()
 
         ImGui::Checkbox("Neighbor Threshold", &neighborThresholdActive);
         ImGui::BeginDisabled(!neighborThresholdActive);
-        ImGui::SliderFloat("Neighbor Angle (deg)", &neighborThreshold, 0.0f, 180.0f, "%.1f");
+        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+        ImGui::SliderFloat("##NeighborAngleSlider", &neighborThreshold, 0.0f, 180.0f, "%.1f");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(80.0f);
+        ImGui::InputFloat("Neighbor Angle (deg)", &neighborThreshold, 0.0f, 0.0f, "%.2f");
+        neighborThreshold = std::clamp(neighborThreshold, 0.0f, 180.0f);
         ImGui::EndDisabled();
 
         ImGui::Checkbox("Overall Deviation Threshold", &overallThresholdActive);
         ImGui::BeginDisabled(!overallThresholdActive);
-        ImGui::SliderFloat("Overall Angle (deg)", &overallThreshold, 0.0f, 180.0f, "%.1f");
+        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+        ImGui::SliderFloat("##OverallAngleSlider", &overallThreshold, 0.0f, 180.0f, "%.1f");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(80.0f);
+        ImGui::InputFloat("Overall Angle (deg)", &overallThreshold, 0.0f, 0.0f, "%.2f");
+        overallThreshold = std::clamp(overallThreshold, 0.0f, 180.0f);
         ImGui::EndDisabled();
 
         ImGui::Checkbox("Without Holes", &withoutHoles);

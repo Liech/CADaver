@@ -3,6 +3,7 @@
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenu.h"
 #include "UI/ContextMenu/AssetContextMenuFactory.h"
+#include "Windows/Asset/TextNoteEditWindow.h"
 #include "Windows/Project/RemoveAssetModal.h"
 #include "Windows/Windows.h"
 
@@ -52,7 +53,16 @@ void AssetContextMenuRenderer::renderMenuContents(GatedDatabase& gatedDatabase, 
             {          "name",               "Note" },
             {          "data", { { "Version", 1 }, { "text", "" } } }
         };
-        gatedDatabase.execute(command);
+        Polyglot::Node result = gatedDatabase.execute(command);
+        if (result["type"].asString() == "AddComponent")
+        {
+            windows.open("TextNoteEdit");
+            auto editWindow = std::dynamic_pointer_cast<TextNoteEditWindow>(windows.get("TextNoteEdit"));
+            if (editWindow)
+            {
+                editWindow->setTarget(assetGuid, CADacomb::GUID(result["componentGuid"].asString()));
+            }
+        }
     }
 
     ImGui::Separator();

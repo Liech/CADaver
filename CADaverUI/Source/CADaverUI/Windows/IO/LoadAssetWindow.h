@@ -21,4 +21,5 @@ class LoadAssetWindow : public Window
 
     std::string filePath;
     std::string assetName;
+    bool        browseOnOpen = true;
 };

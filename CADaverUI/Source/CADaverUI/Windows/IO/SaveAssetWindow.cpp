@@ -32,6 +32,7 @@ void SaveAssetWindow::render()
 {
     if (!openState || !gatedDatabase)
     {
+        browseOnOpen = true;
         return;
     }
 
@@ -41,6 +42,12 @@ void SaveAssetWindow::render()
         handleEscapeClose();
 
         assetComboBox.render(*gatedDatabase);
+
+        if (browseOnOpen)
+        {
+            browseOnOpen = false;
+            browseFile();
+        }
 
         std::vector<char> pathBuf(512, 0);
         size_t            pathLen = filePath.size() < pathBuf.size() - 1 ? filePath.size() : pathBuf.size() - 1;

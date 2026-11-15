@@ -1,4 +1,4 @@
-#include "Commands/Conversion/ConvertClusteringToCadCommand.h"
+﻿#include "Commands/Conversion/ConvertClusteringToCadCommand.h"
 
 #include "CADacomb/CAD/Conversion/ClusterToCadConverter.h"
 #include "CADacomb/CAD/Interface/Shape.h"

@@ -174,6 +174,14 @@ void Cadaver::prepare()
               modal->setMessage("Operation '" + operationName + "' failed: " + errorMessage);
           }
       });
+    gatedDatabase.setSuccessCallback(
+      [this](const std::string& operationName)
+      {
+          if (operationName == "LoadAsset" && viewController)
+          {
+              viewController->resetView(gatedDatabase);
+          }
+      });
 
     windows.setInput(gatedDatabase, defer);
 

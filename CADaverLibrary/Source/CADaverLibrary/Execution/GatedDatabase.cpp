@@ -55,6 +55,11 @@ void GatedDatabase::setErrorCallback(std::function<void(const std::string&, cons
     errorCallback = std::move(callback);
 }
 
+void GatedDatabase::setSuccessCallback(std::function<void(const std::string&)> callback)
+{
+    successCallback = std::move(callback);
+}
+
 Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command)
 {
     Polyglot::Node commandNode = command;
@@ -272,6 +277,7 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
 
               if (success)
               {
+                   std::string operationName = (*cmdHolder)->getType();
                   for (const auto& asset : resultAssets)
                   {
                       database.getProject().addAsset(asset);
@@ -283,6 +289,10 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
                   if (undoCallback && *cmdHolder && (*cmdHolder)->isUndoable())
                   {
                       undoCallback(std::make_unique<UndoContainer>(std::move(*cmdHolder)));
+                  }
+                  if (successCallback)
+                  {
+                      successCallback(operationName);
                   }
               }
               else
