@@ -2,6 +2,7 @@
 
 #include "Execution/Defer.h"
 #include "Execution/GatedDatabase.h"
+#include "Windows/Conversion/DefaultCadConversion.h"
 
 #include <imgui.h>
 
@@ -56,7 +57,7 @@ void ConvertClusteringToCadWindow::render()
         ImGui::Separator();
         ImGui::Spacing();
 
-        bool canConvert = !assetComboBox.getSelectedGuid().toString().empty() && !selectedComponentGuid.toString().empty();
+        bool canConvert = !assetComboBox.getSelectedGuid().toString().empty() && (!selectedComponentGuid.toString().empty() || useDefaultClustering);
         ImGui::BeginDisabled(!canConvert);
         if (ImGui::Button("Convert", ImVec2(120.0f, 0.0f)))
         {
@@ -77,6 +78,33 @@ void ConvertClusteringToCadWindow::setTargetAsset(const CADacomb::GUID& assetGui
 {
     assetComboBox.setSelectedGuid(assetGuid);
     selectedComponentGuid = CADacomb::GUID("");
+    useDefaultClustering  = false;
+}
+
+void ConvertClusteringToCadWindow::startDefault(const CADacomb::GUID& assetGuid)
+{
+    DefaultCadConversion::start(*gatedDatabase, *defer, assetGuid);
+}
+
+void ConvertClusteringToCadWindow::createDefaultClustering()
+{
+    CADacomb::GUID selectedGuid = assetComboBox.getSelectedGuid();
+    if (!gatedDatabase || !defer || selectedGuid.toString().empty())
+    {
+        return;
+    }
+
+    GatedDatabase* db = gatedDatabase;
+    defer->defer(
+      [db, selectedGuid]()
+      {
+          Polyglot::Node command = {
+              {      "type", "ClusterByNormal" },
+              {   "version",                 1 },
+              { "assetGuid", selectedGuid.toString() }
+          };
+          db->executeAsync(command);
+      });
 }
 
 void ConvertClusteringToCadWindow::renderComponentComboBox()
@@ -85,6 +113,7 @@ void ConvertClusteringToCadWindow::renderComponentComboBox()
     if (!gatedDatabase || selectedAssetGuid.toString().empty())
     {
         selectedComponentGuid = CADacomb::GUID("");
+        useDefaultClustering  = false;
         ImGui::BeginDisabled();
         if (ImGui::BeginCombo("Clustering", "No asset selected"))
         {
@@ -126,40 +155,68 @@ void ConvertClusteringToCadWindow::renderComponentComboBox()
 
     if (matchingComponents.empty())
     {
+        useDefaultClustering  = true;
         selectedComponentGuid = CADacomb::GUID("");
-        ImGui::BeginDisabled();
-        if (ImGui::BeginCombo("Clustering", "No FaceValues components"))
+        if (ImGui::BeginCombo("Clustering", "<Default Clustering>"))
         {
+            if (ImGui::Selectable("<Default Clustering>", true))
+            {
+                useDefaultClustering = true;
+            }
             ImGui::EndCombo();
         }
-        ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::Button("Create Default Clustering"))
+        {
+            createDefaultClustering();
+        }
         return;
     }
 
     int currentIdx = -1;
-    for (size_t i = 0; i < matchingComponents.size(); i++)
+    if (useDefaultClustering)
     {
-        if (matchingComponents[i].first == selectedComponentGuid)
+        currentIdx = 0;
+    }
+    else
+    {
+        for (size_t i = 0; i < matchingComponents.size(); i++)
         {
-            currentIdx = static_cast<int>(i);
-            break;
+            if (matchingComponents[i].first == selectedComponentGuid)
+            {
+                currentIdx = static_cast<int>(i) + 1;
+                break;
+            }
         }
     }
 
     if (currentIdx < 0)
     {
-        currentIdx            = 0;
+        currentIdx            = 1;
+        useDefaultClustering  = false;
         selectedComponentGuid = matchingComponents.front().first;
     }
 
-    std::string previewLabel = matchingComponents[static_cast<size_t>(currentIdx)].second;
+    std::string previewLabel = (currentIdx == 0) ? "<Default Clustering>" : matchingComponents[static_cast<size_t>(currentIdx - 1)].second;
     if (ImGui::BeginCombo("Clustering", previewLabel.c_str()))
     {
+        bool isDefaultSelected = (currentIdx == 0);
+        if (ImGui::Selectable("<Default Clustering>", isDefaultSelected))
+        {
+            useDefaultClustering  = true;
+            selectedComponentGuid = CADacomb::GUID("");
+        }
+        if (isDefaultSelected)
+        {
+            ImGui::SetItemDefaultFocus();
+        }
+
         for (size_t i = 0; i < matchingComponents.size(); i++)
         {
-            bool isSelected = (static_cast<int>(i) == currentIdx);
+            bool isSelected = (currentIdx == static_cast<int>(i) + 1);
             if (ImGui::Selectable(matchingComponents[i].second.c_str(), isSelected))
             {
+                useDefaultClustering  = false;
                 selectedComponentGuid = matchingComponents[i].first;
             }
             if (isSelected)
@@ -169,22 +226,34 @@ void ConvertClusteringToCadWindow::renderComponentComboBox()
         }
         ImGui::EndCombo();
     }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Create Default Clustering"))
+    {
+        createDefaultClustering();
+    }
 }
 
 void ConvertClusteringToCadWindow::executeConvert()
 {
     CADacomb::GUID selectedGuid = assetComboBox.getSelectedGuid();
-    if (!gatedDatabase || !defer || selectedGuid.toString().empty() || selectedComponentGuid.toString().empty())
+    if (!gatedDatabase || !defer || selectedGuid.toString().empty())
     {
         return;
     }
 
-    GatedDatabase* db            = gatedDatabase;
-    CADacomb::GUID compGuid      = selectedComponentGuid;
-    double         planarityTol  = static_cast<double>(planarityTolerance);
-    double         simplifyTol   = static_cast<double>(boundarySimplifyTolerance);
-    double         stitchTol     = static_cast<double>(stitchTolerance);
-    bool           makeSolid     = tryMakeSolid;
+    if (useDefaultClustering || selectedComponentGuid.toString().empty())
+    {
+        startDefault(selectedGuid);
+        return;
+    }
+
+    GatedDatabase* db           = gatedDatabase;
+    CADacomb::GUID compGuid     = selectedComponentGuid;
+    double         planarityTol = static_cast<double>(planarityTolerance);
+    double         simplifyTol  = static_cast<double>(boundarySimplifyTolerance);
+    double         stitchTol    = static_cast<double>(stitchTolerance);
+    bool           makeSolid    = tryMakeSolid;
 
     defer->defer(
       [db, selectedGuid, compGuid, planarityTol, simplifyTol, stitchTol, makeSolid]()

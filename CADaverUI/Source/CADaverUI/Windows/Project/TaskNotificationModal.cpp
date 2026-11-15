@@ -51,6 +51,12 @@ void TaskNotificationModal::render()
         {
             close();
         }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Copy", ImVec2(120.0f, 0.0f)))
+        {
+            ImGui::SetClipboardText(displayMessage.c_str());
+        }
     }
     ImGui::End();
 }

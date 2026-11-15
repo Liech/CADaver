@@ -18,10 +18,12 @@ class ConvertClusteringToCadWindow : public Window
     void        render() override;
 
     void setTargetAsset(const CADacomb::GUID& assetGuid);
+    void startDefault(const CADacomb::GUID& assetGuid);
 
   private:
     void renderComponentComboBox();
     void executeConvert();
+    void createDefaultClustering();
 
     AssetComboBox  assetComboBox;
     CADacomb::GUID selectedComponentGuid;
@@ -29,4 +31,5 @@ class ConvertClusteringToCadWindow : public Window
     float          boundarySimplifyTolerance = 0.0001f;
     float          stitchTolerance           = 0.001f;
     bool           tryMakeSolid              = true;
+    bool           useDefaultClustering      = false;
 };

@@ -61,23 +61,27 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
         ImGui::EndMenu();
     }
 
-    if (ImGui::MenuItem("Calculate Connected Components..."))
+    if (ImGui::BeginMenu("Clustering"))
     {
-        windows.open("CalculateConnectedComponents");
-        auto window = std::dynamic_pointer_cast<CalculateConnectedComponentsWindow>(windows.get("CalculateConnectedComponents"));
-        if (window)
+        if (ImGui::MenuItem("Calculate Connected Components..."))
         {
-            window->setTargetAsset(assetGuid);
+            windows.open("CalculateConnectedComponents");
+            auto window = std::dynamic_pointer_cast<CalculateConnectedComponentsWindow>(windows.get("CalculateConnectedComponents"));
+            if (window)
+            {
+                window->setTargetAsset(assetGuid);
+            }
         }
-    }
 
-    if (ImGui::MenuItem("Cluster by Normal..."))
-    {
-        windows.open("ClusterByNormal");
-        auto window = std::dynamic_pointer_cast<ClusterByNormalWindow>(windows.get("ClusterByNormal"));
-        if (window)
+        if (ImGui::MenuItem("Cluster by Normal..."))
         {
-            window->setTargetAsset(assetGuid);
+            windows.open("ClusterByNormal");
+            auto window = std::dynamic_pointer_cast<ClusterByNormalWindow>(windows.get("ClusterByNormal"));
+            if (window)
+            {
+                window->setTargetAsset(assetGuid);
+            }
         }
+        ImGui::EndMenu();
     }
 }
