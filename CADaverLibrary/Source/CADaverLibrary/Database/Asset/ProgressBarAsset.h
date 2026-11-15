@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CADacomb/Util/GUID.h"
+#include "CADacomb/Util/ProgressBar.h"
 #include "Database/Asset.h"
 #include "Polyglot/Node.h"
 
@@ -24,7 +25,8 @@ class ProgressBarAsset : public Asset
     const std::string& getOperationName() const;
     void               setOperationName(const std::string& operationName);
 
-    float getProgress() const;
+    float                                    getProgress() const;
+    std::vector<CADacomb::ProgressBarStatus> getProgressTiers() const;
 
     std::vector<std::shared_ptr<const Asset>> getAbductedAssets() const;
     void                                      setAbductedAssets(const std::vector<std::shared_ptr<Asset>>& abductedAssets);

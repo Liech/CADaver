@@ -43,7 +43,8 @@ std::string GetTaskStateCommand::getDescription() const
            "  \"assetGuid\": <string>,\n"
            "  \"operationName\": <string>,\n"
            "  \"progress\": <float>,\n"
-           "  \"isReady\": <bool>\n"
+           "  \"isReady\": <bool>,\n"
+           "  \"tiers\": [ { \"current\": <size_t>, \"max\": <size_t>, \"progress\": <float>, \"message\": <string> } ]\n"
            "}";
 }
 
@@ -87,12 +88,25 @@ nlohmann::json GetTaskStateCommand::execute(Database& database)
         return createErrorResponse("TaskNotFound", "Task not found");
     }
 
+    nlohmann::json tiersArray = nlohmann::json::array();
+    for (const CADacomb::ProgressBarStatus& tier : foundTask->getProgressTiers())
+    {
+        float tierProgress = (tier.max > 0) ? (static_cast<float>(tier.current) / static_cast<float>(tier.max)) : 0.0f;
+        tiersArray.push_back({
+          {  "current", tier.current },
+          {      "max",     tier.max },
+          { "progress", tierProgress },
+          {  "message", tier.message }
+        });
+    }
+
     return createResponse({
         {      "taskGuid", foundTask->getTaskGuid().toString() },
         {     "assetGuid",    foundTask->getGuid().toString() },
         { "operationName",        foundTask->getOperationName() },
         {      "progress",            foundTask->getProgress() },
-        {       "isReady",            foundTask->isReady() }
+        {       "isReady",            foundTask->isReady() },
+        {         "tiers",                          tiersArray }
     });
 }
 
@@ -135,5 +149,6 @@ TEST_CASE("GetTaskStateCommand/FoundByGuid")
     CHECK(result.at("type") == "GetTaskState");
     CHECK(result.at("operationName") == "VoxelizeModel");
     CHECK(result.at("taskGuid") == testTaskGuid.toString());
+    CHECK(result.at("tiers").is_array());
 }
 #endif

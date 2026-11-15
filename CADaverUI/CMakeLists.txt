@@ -124,6 +124,8 @@ source_group("Source/Windows/Console" FILES ${Windows_Console_Files})
 set(Windows_Project_Files
     "Source/CADaverUI/Windows/Project/ClearProjectModal.h"
     "Source/CADaverUI/Windows/Project/ClearProjectModal.cpp"
+    "Source/CADaverUI/Windows/Project/ProgressWindow.h"
+    "Source/CADaverUI/Windows/Project/ProgressWindow.cpp"
     "Source/CADaverUI/Windows/Project/RemoveAssetModal.h"
     "Source/CADaverUI/Windows/Project/RemoveAssetModal.cpp"
     "Source/CADaverUI/Windows/Project/TaskNotificationModal.h"

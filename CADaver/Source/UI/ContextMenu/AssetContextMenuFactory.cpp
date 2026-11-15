@@ -1,6 +1,7 @@
 ﻿#include "UI/ContextMenu/AssetContextMenuFactory.h"
 
 #include "UI/ContextMenu/CadAssetContextMenu.h"
+#include "UI/ContextMenu/ProgressAssetContextMenu.h"
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
 #include "UI/ContextMenu/VoxelAssetContextMenu.h"
 
@@ -30,6 +31,7 @@ void AssetContextMenuFactory::registerMenu(const std::string& assetType, std::fu
 void AssetContextMenuFactory::registerMenus()
 {
     registerMenu("Cad", []() { return std::make_unique<CadAssetContextMenu>(); });
+    registerMenu("Progress", []() { return std::make_unique<ProgressAssetContextMenu>(); });
     registerMenu("Triangulation", []() { return std::make_unique<TriangulationAssetContextMenu>(); });
     registerMenu("Voxel", []() { return std::make_unique<VoxelAssetContextMenu>(); });
 }

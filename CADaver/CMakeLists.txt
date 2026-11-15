@@ -155,6 +155,8 @@ set(UI_ContextMenu_Files
     "Source/UI/ContextMenu/CadAssetContextMenu.cpp"
     "Source/UI/ContextMenu/VoxelAssetContextMenu.h"
     "Source/UI/ContextMenu/VoxelAssetContextMenu.cpp"
+    "Source/UI/ContextMenu/ProgressAssetContextMenu.h"
+    "Source/UI/ContextMenu/ProgressAssetContextMenu.cpp"
     "Source/UI/ContextMenu/AssetContextMenuFactory.h"
     "Source/UI/ContextMenu/AssetContextMenuFactory.cpp"
     "Source/UI/ContextMenu/AssetContextMenuRenderer.h"

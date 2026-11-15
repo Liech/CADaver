@@ -3,6 +3,7 @@
 #include "CADacomb/Util/GUID.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenuRenderer.h"
+#include "UI/ContextMenu/ProgressAssetContextMenu.h"
 #include "Windows/Asset/TextNoteEditWindow.h"
 #include "Windows/Project/TaskNotificationModal.h"
 #include "Windows/Windows.h"
@@ -81,20 +82,8 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                     std::string popupId = "ProgressBarContext##" + assetGuid.toString();
                     if (ImGui::BeginPopupContextItem(popupId.c_str()))
                     {
-                        if (ImGui::MenuItem("Cancel"))
-                        {
-                            gatedDatabase.execute({
-                              {      "type",         "CancelTask" },
-                              {   "version",                    1 },
-                              { "assetGuid", assetGuid.toString() }
-                            });
-                            windows.open("TaskNotification");
-                            auto modal = std::dynamic_pointer_cast<TaskNotificationModal>(windows.get("TaskNotification"));
-                            if (modal)
-                            {
-                                modal->setMessage("Operation '" + operationName + "' was canceled.");
-                            }
-                        }
+                        ProgressAssetContextMenu progressMenu;
+                        progressMenu.render(gatedDatabase, windows, assetGuid);
                         ImGui::EndPopup();
                     }
 

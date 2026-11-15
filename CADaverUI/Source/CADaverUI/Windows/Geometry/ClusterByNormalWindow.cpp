@@ -22,10 +22,11 @@ std::string ClusterByNormalWindow::getDescription() const
 {
     return "Window: ClusterByNormal\n"
            "Title: Cluster by Normal\n"
-           "Purpose: Non-modal dialog for clustering faces of a Triangulation asset by normal angle threshold.\n\n"
+           "Purpose: Non-modal dialog for clustering faces of a Triangulation asset by optional neighbor and overall normal angle thresholds.\n\n"
            "Parameters:\n"
            "  - Target Asset: Triangulation asset to cluster\n"
-           "  - Max Angle (deg): Maximum angle between adjacent face normals\n"
+           "  - Neighbor Threshold: Enable/adjust maximum angle between adjacent face normals\n"
+           "  - Overall Deviation Threshold: Enable/adjust maximum angle from the cluster seed normal\n"
            "  - Without Holes: Restrict clustering to hole-free manifold regions\n\n"
            "Dispatched Command: ClusterByNormal (async)";
 }
@@ -37,14 +38,23 @@ void ClusterByNormalWindow::render()
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(420.0f, 175.0f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(440.0f, 240.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Cluster by Normal", &openState))
     {
         handleEscapeClose();
 
         assetComboBox.render(*gatedDatabase);
 
-        ImGui::SliderFloat("Max Angle (deg)", &maxAngleDegrees, 0.0f, 180.0f, "%.1f");
+        ImGui::Checkbox("Neighbor Threshold", &neighborThresholdActive);
+        ImGui::BeginDisabled(!neighborThresholdActive);
+        ImGui::SliderFloat("Neighbor Angle (deg)", &neighborThreshold, 0.0f, 180.0f, "%.1f");
+        ImGui::EndDisabled();
+
+        ImGui::Checkbox("Overall Deviation Threshold", &overallThresholdActive);
+        ImGui::BeginDisabled(!overallThresholdActive);
+        ImGui::SliderFloat("Overall Angle (deg)", &overallThreshold, 0.0f, 180.0f, "%.1f");
+        ImGui::EndDisabled();
+
         ImGui::Checkbox("Without Holes", &withoutHoles);
 
         ImGui::Spacing();
@@ -81,18 +91,24 @@ void ClusterByNormalWindow::executeCluster()
         return;
     }
 
-    GatedDatabase* db            = gatedDatabase;
-    double         angleDegrees  = static_cast<double>(maxAngleDegrees);
-    bool           noHoles       = withoutHoles;
+    GatedDatabase* db                      = gatedDatabase;
+    bool           neighborActive          = neighborThresholdActive;
+    double         neighborAngleDegrees    = static_cast<double>(neighborThreshold);
+    bool           overallActive           = overallThresholdActive;
+    double         overallAngleDegrees     = static_cast<double>(overallThreshold);
+    bool           noHoles                 = withoutHoles;
     defer->defer(
-      [db, selectedGuid, angleDegrees, noHoles]()
+      [db, selectedGuid, neighborActive, neighborAngleDegrees, overallActive, overallAngleDegrees, noHoles]()
       {
           Polyglot::Node command = {
-              {            "type",         "ClusterByNormal" },
-              {         "version",                         1 },
-              {       "assetGuid",   selectedGuid.toString() },
-              { "maxAngleDegrees",              angleDegrees },
-              {    "withoutHoles",                   noHoles }
+              {                    "type",    "ClusterByNormal" },
+              {                 "version",                    1 },
+              {               "assetGuid", selectedGuid.toString() },
+              { "neighborThresholdActive",       neighborActive },
+              {       "neighborThreshold", neighborAngleDegrees },
+              {  "overallThresholdActive",        overallActive },
+              {        "overallThreshold",  overallAngleDegrees },
+              {            "withoutHoles",              noHoles }
           };
           db->executeAsync(command);
       });

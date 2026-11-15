@@ -23,6 +23,9 @@ class ClusterByNormalWindow : public Window
     void executeCluster();
 
     AssetComboBox assetComboBox;
-    float         maxAngleDegrees = 35.0f;
-    bool          withoutHoles    = false;
+    bool          neighborThresholdActive = true;
+    float         neighborThreshold       = 35.0f;
+    bool          overallThresholdActive  = false;
+    float         overallThreshold        = 45.0f;
+    bool          withoutHoles            = false;
 };

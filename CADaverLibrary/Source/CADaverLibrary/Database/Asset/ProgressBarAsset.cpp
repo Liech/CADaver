@@ -37,7 +37,7 @@ void ProgressBarAsset::setOperationName(const std::string& newOperationName)
 
 float ProgressBarAsset::getProgress() const
 {
-    auto statuses = CADacomb::ProgressBar::getProgress(taskGuid);
+    auto statuses = getProgressTiers();
     if (statuses.empty())
     {
         return 0.0f;
@@ -48,6 +48,11 @@ float ProgressBarAsset::getProgress() const
         return 0.0f;
     }
     return static_cast<float>(status.current) / static_cast<float>(status.max);
+}
+
+std::vector<CADacomb::ProgressBarStatus> ProgressBarAsset::getProgressTiers() const
+{
+    return CADacomb::ProgressBar::getProgress(taskGuid);
 }
 
 std::vector<std::shared_ptr<const Asset>> ProgressBarAsset::getAbductedAssets() const

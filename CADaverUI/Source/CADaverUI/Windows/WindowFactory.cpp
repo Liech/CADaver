@@ -16,6 +16,7 @@
 #include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Preferences/PreferencesWindow.h"
 #include "Windows/Project/ClearProjectModal.h"
+#include "Windows/Project/ProgressWindow.h"
 #include "Windows/Project/RemoveAssetModal.h"
 #include "Windows/Project/TaskNotificationModal.h"
 #include "Windows/Script/ScriptWindow.h"
@@ -83,6 +84,7 @@ void WindowFactory::registerWindows()
     registerWindow("LoadAsset", []() { return std::make_shared<LoadAssetWindow>(); });
     registerWindow("SaveAsset", []() { return std::make_shared<SaveAssetWindow>(); });
     registerWindow("ClearProject", []() { return std::make_shared<ClearProjectModal>(); });
+    registerWindow("Progress", []() { return std::make_shared<ProgressWindow>(); });
     registerWindow("RemoveAsset", []() { return std::make_shared<RemoveAssetModal>(); });
     registerWindow("Preferences", []() { return std::make_shared<PreferencesWindow>(); });
     registerWindow("TaskNotification", []() { return std::make_shared<TaskNotificationModal>(); });
@@ -111,12 +113,13 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("LoadAsset") != nullptr);
     CHECK(factory.create("SaveAsset") != nullptr);
     CHECK(factory.create("ClearProject") != nullptr);
+    CHECK(factory.create("Progress") != nullptr);
     CHECK(factory.create("Preferences") != nullptr);
     CHECK(factory.create("RemoveAsset") != nullptr);
     CHECK(factory.create("TaskNotification") != nullptr);
     CHECK(factory.create("TextNoteEdit") != nullptr);
     CHECK(factory.create("Script") != nullptr);
     CHECK(factory.create("Console") != nullptr);
-    CHECK(factory.getAllWindows().size() == 19);
+    CHECK(factory.getAllWindows().size() == 20);
 }
 #endif

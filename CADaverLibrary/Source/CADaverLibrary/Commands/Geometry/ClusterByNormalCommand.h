@@ -33,9 +33,12 @@ class ClusterByNormalCommand : public Command
 
   private:
     CADacomb::GUID                       assetGuid;
-    double                               maxAngleDegrees = 35.0;
-    bool                                 withoutHoles    = false;
-    std::string                          componentName   = "Normal Clusters";
+    bool                                 neighborThresholdActive = true;
+    double                               neighborThreshold       = 35.0;
+    bool                                 overallThresholdActive  = false;
+    double                               overallThreshold        = 45.0;
+    bool                                 withoutHoles            = false;
+    std::string                          componentName           = "Normal Clusters";
     std::shared_ptr<FaceValuesComponent> addedComponent;
     CADacomb::GUID                       addedComponentGuid;
     std::vector<SelectionEntry>          previousSelection;
