@@ -1,6 +1,7 @@
 ﻿#include "Picking/ViewportPickingController.h"
 
 #include "CADacomb/Util/Ray.h"
+#include "Camera/CameraController.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenuRenderer.h"
 #include "Windows/Windows.h"
@@ -16,7 +17,7 @@ ViewportPickingController::ViewportPickingController()
 
 ViewportPickingController::~ViewportPickingController() {}
 
-void ViewportPickingController::update(GatedDatabase& gatedDatabase, Windows& windows, const Vulcant::Toolkit::SceneData& sceneData)
+void ViewportPickingController::update(GatedDatabase& gatedDatabase, Windows& windows, CameraController& cameraController, const Vulcant::Toolkit::SceneData& sceneData)
 {
     const float          dragThreshold = 4.0f;
     ImGuiIO&             io            = ImGui::GetIO();
@@ -25,6 +26,25 @@ void ViewportPickingController::update(GatedDatabase& gatedDatabase, Windows& wi
 
     if (!io.WantCaptureMouse && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
     {
+        if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+        {
+            CADacomb::Ray  ray     = CADacomb::Ray::fromScreen(mousePos, sceneData.resolution, sceneData.invViewMatrix, sceneData.invProjectionMatrix);
+            Polyglot::Node pickRes = gatedDatabase.execute(Polyglot::Node(nlohmann::json{
+              {      "type", "PickAsset" },
+              {   "version",           1 },
+              {    "origin", { ray.getOrigin().x, ray.getOrigin().y, ray.getOrigin().z } },
+              { "direction", { ray.getDirection().x, ray.getDirection().y, ray.getDirection().z } }
+            }));
+            nlohmann::json pickJson = pickRes.toJson();
+
+            if (pickJson.value("hit", false))
+            {
+                auto       hitPointJson = pickJson.at("hitPoint");
+                glm::dvec3 hitPoint(hitPointJson.at(0).get<double>(), hitPointJson.at(1).get<double>(), hitPointJson.at(2).get<double>());
+                cameraController.setFocusPoint(hitPoint);
+            }
+        }
+
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
         {
             ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left, 0.0f);

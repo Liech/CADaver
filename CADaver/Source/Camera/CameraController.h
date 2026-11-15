@@ -34,6 +34,7 @@ class CameraController
     void keyEvent(const Vulcant::VulcantInputValue& key);
 
     void frameOnProject(GatedDatabase& gatedDatabase);
+    void setFocusPoint(const glm::dvec3& point);
     void reset(const CameraPreferences& camPrefs, GatedDatabase& gatedDatabase);
 
     bool isOrthographic() const;

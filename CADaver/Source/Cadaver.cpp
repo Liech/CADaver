@@ -261,7 +261,7 @@ void Cadaver::renderImGui()
         projectWindow->render(gatedDatabase, windows);
     }
 
-    pickingController->update(gatedDatabase, windows, viewController->getSceneData());
+    pickingController->update(gatedDatabase, windows, viewController->getCameraController(), viewController->getSceneData());
 
     windows.render();
 }

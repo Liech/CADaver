@@ -130,6 +130,14 @@ void CameraController::frameOnProject(GatedDatabase& gatedDatabase)
     }
 }
 
+void CameraController::setFocusPoint(const glm::dvec3& point)
+{
+    if (camera)
+    {
+        camera->setTarget(point);
+    }
+}
+
 void CameraController::reset(const CameraPreferences& camPrefs, GatedDatabase& gatedDatabase)
 {
     Polyglot::Node countRes   = gatedDatabase.execute({

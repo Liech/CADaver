@@ -7,6 +7,7 @@
 #include <string>
 
 class AssetContextMenuRenderer;
+class CameraController;
 class GatedDatabase;
 class Windows;
 
@@ -17,7 +18,7 @@ class ViewportPickingController
     ViewportPickingController();
     virtual ~ViewportPickingController();
 
-    void update(GatedDatabase& gatedDatabase, Windows& windows, const Vulcant::Toolkit::SceneData& sceneData);
+    void update(GatedDatabase& gatedDatabase, Windows& windows, CameraController& cameraController, const Vulcant::Toolkit::SceneData& sceneData);
 
   private:
     std::unique_ptr<AssetContextMenuRenderer> contextMenuRenderer;
