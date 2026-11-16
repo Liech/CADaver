@@ -43,6 +43,8 @@
 #include "Commands/Task/CancelTaskCommand.h"
 #include "Commands/Task/GetActiveTasksCommand.h"
 #include "Commands/Task/GetTaskStateCommand.h"
+#include "Commands/Transform/GetTransformationAssetCommand.h"
+#include "Commands/Transform/TransformAssetCommand.h"
 
 #include <algorithm>
 
@@ -134,6 +136,8 @@ void CommandFactory::registerCommands()
     registerCommand("SelectAsset", []() { return std::make_unique<SelectAssetCommand>(); });
     registerCommand("ClearSelection", []() { return std::make_unique<ClearSelectionCommand>(); });
     registerCommand("GetAssetSelection", []() { return std::make_unique<GetAssetSelectionCommand>(); });
+    registerCommand("TransformAsset", []() { return std::make_unique<TransformAssetCommand>(); });
+    registerCommand("GetTransformationAsset", []() { return std::make_unique<GetTransformationAssetCommand>(); });
     registerCommand("GetSelectedAssets", []() { return std::make_unique<GetSelectedAssetsCommand>(); });
     registerCommand("PickAsset", []() { return std::make_unique<PickAssetCommand>(); });
 }
@@ -180,6 +184,8 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("SelectAsset") != nullptr);
     CHECK(factory.create("ClearSelection") != nullptr);
     CHECK(factory.create("GetAssetSelection") != nullptr);
+    CHECK(factory.create("TransformAsset") != nullptr);
+    CHECK(factory.create("GetTransformationAsset") != nullptr);
     CHECK(factory.create("GetSelectedAssets") != nullptr);
     CHECK(factory.create("PickAsset") != nullptr);
     CHECK(factory.create("CalculateConnectedComponents") != nullptr);
@@ -187,6 +193,6 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("SplitClustersToAssets") != nullptr);
     CHECK(factory.create("ConvertClusteringToCad") != nullptr);
     CHECK(factory.create("GenerateBaseShape") != nullptr);
-    CHECK(factory.getAllCommands().size() == 43);
+    CHECK(factory.getAllCommands().size() == 45);
 }
 #endif

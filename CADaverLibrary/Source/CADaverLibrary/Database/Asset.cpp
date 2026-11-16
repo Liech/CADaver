@@ -28,6 +28,17 @@ size_t Asset::getRevision() const
     return revision;
 }
 
+const glm::dmat4& Asset::getTransformation() const
+{
+    return transformation;
+}
+
+void Asset::setTransformation(const glm::dmat4& newTransformation)
+{
+    transformation = newTransformation;
+    markModified();
+}
+
 void Asset::markModified()
 {
     revision++;

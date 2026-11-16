@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "AssetMeshParams.h"
+#include "AssetOutlineParams.h"
 #include "AssetRenderer.h"
 #include "Vulcant/Interface/VulcantCullMode.h"
 #include "Vulcant/Toolkit/MeshRenderer.h"
@@ -68,7 +70,7 @@ class StepAssetRenderer : public AssetRenderer
     std::unique_ptr<Vulcant::VulcantGraphicCommand> drawCmd;
     std::vector<Vulcant::Toolkit::MeshVertex>       cachedSurfaceVertices;
     std::vector<Vulcant::Toolkit::MeshVertex>       cachedOutlineVertices;
-    Vulcant::Toolkit::MeshShaderParams              meshParams{};
+    AssetMeshParams                                 meshParams{};
     glm::ivec2                                      lastResolution     = glm::ivec2(0, 0);
     Vulcant::VulcantCullMode                        lastCullMode       = Vulcant::VulcantCullMode::None;
     glm::vec3                                       lastColor          = glm::vec3(0.0f);

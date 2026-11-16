@@ -269,6 +269,12 @@ source_group("Source/Execution" FILES ${Execution_Files})
 set(Utility_Files
     "Source/CADaverLibrary/Utility/IOValueGrabber.h"
     "Source/CADaverLibrary/Utility/IOValueGrabber.cpp"
+    "Source/CADaverLibrary/Utility/MatrixJson.h"
+    "Source/CADaverLibrary/Utility/MatrixJson.cpp"
+    "Source/CADaverLibrary/Commands/Transform/TransformAssetCommand.h"
+    "Source/CADaverLibrary/Commands/Transform/TransformAssetCommand.cpp"
+    "Source/CADaverLibrary/Commands/Transform/GetTransformationAssetCommand.h"
+    "Source/CADaverLibrary/Commands/Transform/GetTransformationAssetCommand.cpp"
 )
 source_group("Source/Utility" FILES ${Utility_Files})
 

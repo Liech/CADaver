@@ -3,6 +3,7 @@
 #include "CADacomb/Util/GUID.h"
 #include "Database/AssetComponent.h"
 
+#include <glm/glm.hpp>
 #include <map>
 #include <memory>
 #include <string>
@@ -26,6 +27,9 @@ class Asset
 
     size_t getRevision() const;
 
+    const glm::dmat4& getTransformation() const;
+    void              setTransformation(const glm::dmat4& transformation);
+
     CADacomb::GUID                               addComponent(std::shared_ptr<AssetComponent> component);
     bool                                         removeComponent(const CADacomb::GUID& componentGuid);
     std::shared_ptr<AssetComponent>              getComponent(const CADacomb::GUID& componentGuid) const;
@@ -44,6 +48,7 @@ class Asset
     std::map<CADacomb::GUID, std::shared_ptr<AssetComponent>> components;
     CADacomb::GUID                                            guid;
     std::string                                               name;
+    glm::dmat4                                                transformation{ 1.0 };
     size_t                                                    revision = 0;
 };
 

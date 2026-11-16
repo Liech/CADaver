@@ -52,12 +52,18 @@ void VoxelAssetRenderer::rebuildMesh(Renderer& renderer, int chunkSize, int vert
     lastRevision = asset->getRevision();
 }
 
-void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData)
+void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& worldSceneData)
 {
     if (!asset)
     {
         return;
     }
+
+    glm::mat4                  model = glm::mat4(asset->getTransformation());
+    Vulcant::Toolkit::SceneData sceneData = worldSceneData;
+    sceneData.viewMatrix                 = worldSceneData.viewMatrix * model;
+    sceneData.invViewMatrix              = glm::inverse(sceneData.viewMatrix);
+    sceneData.cameraPos                  = glm::vec4(glm::vec3(sceneData.invViewMatrix[3]), 1.0f);
 
     Polyglot::Node svoPrefRes = gatedDatabase.execute({
       {    "type", "GetSVOPreferences" },

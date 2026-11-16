@@ -55,8 +55,8 @@ void StepAssetRenderer::initializeResources(Renderer& renderer)
 {
     Vulcant::VulcantDevice& device = renderer.getDevice();
     sceneDataUbo                   = device.createUniform(1, sizeof(Vulcant::Toolkit::SceneData));
-    meshParamsUbo                  = device.createUniform(1, sizeof(Vulcant::Toolkit::MeshShaderParams));
-    outlineParamsUbo               = device.createUniform(1, sizeof(std::array<glm::vec4, 2>));
+    meshParamsUbo                  = device.createUniform(1, sizeof(AssetMeshParams));
+    outlineParamsUbo               = device.createUniform(1, sizeof(AssetOutlineParams));
     surfaceIndirectBuffer          = device.createIndirectBuffer(1, sizeof(uint32_t) * 4);
     outlineIndirectBuffer          = device.createIndirectBuffer(1, sizeof(uint32_t) * 4);
 
@@ -279,15 +279,15 @@ void StepAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase,
 
     sceneDataUbo->uploadToGPU(&sceneData, 1);
 
-    meshParams.wireframeColor = glm::vec4(renderPreferences.getWireframeColor(), 1.5f);
-    meshParams.wireframeMode  = renderPreferences.getWireframeMode();
+    meshParams.params.wireframeColor = glm::vec4(renderPreferences.getWireframeColor(), 1.5f);
+    meshParams.params.wireframeMode  = renderPreferences.getWireframeMode();
+    meshParams.setTransformation(asset->getTransformation());
     meshParamsUbo->uploadToGPU(&meshParams, 1);
 
-    std::array<glm::vec4, 2> outlineParams = {
-        glm::vec4(0.05f, 0.05f, 0.05f, 2.0f),
-        glm::vec4(static_cast<float>(targetRes.x), static_cast<float>(targetRes.y), 0.0f, 0.0f)
-    };
-    outlineParamsUbo->uploadToGPU(outlineParams.data(), 1);
+    AssetOutlineParams outlineParams;
+    outlineParams.viewportSize = glm::vec2(targetRes);
+    outlineParams.setTransformation(asset->getTransformation());
+    outlineParamsUbo->uploadToGPU(&outlineParams, 1);
 
     Polyglot::Node selRes = gatedDatabase.execute({
       {      "type",   "GetAssetSelection" },

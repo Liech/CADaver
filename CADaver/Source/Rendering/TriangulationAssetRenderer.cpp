@@ -104,7 +104,7 @@ void TriangulationAssetRenderer::initializeResources(Renderer& renderer)
 {
     Vulcant::VulcantDevice& device = renderer.getDevice();
     sceneDataUbo                   = device.createUniform(1, sizeof(Vulcant::Toolkit::SceneData));
-    meshParamsUbo                  = device.createUniform(1, sizeof(Vulcant::Toolkit::MeshShaderParams));
+    meshParamsUbo                  = device.createUniform(1, sizeof(AssetMeshParams));
     indirectBuffer                 = device.createIndirectBuffer(1, sizeof(uint32_t) * 4);
 
     auto vertSpirv = std::vector<uint32_t>(Triangulation_vert_spirv, Triangulation_vert_spirv + Triangulation_vert_spirv_sizeInBytes / sizeof(uint32_t));
@@ -227,8 +227,9 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
 
     sceneDataUbo->uploadToGPU(&sceneData, 1);
 
-    meshParams.wireframeColor = glm::vec4(renderPreferences.getWireframeColor(), 1.5f);
-    meshParams.wireframeMode  = renderPreferences.getWireframeMode();
+    meshParams.params.wireframeColor = glm::vec4(renderPreferences.getWireframeColor(), 1.5f);
+    meshParams.params.wireframeMode  = renderPreferences.getWireframeMode();
+    meshParams.setTransformation(asset->getTransformation());
     meshParamsUbo->uploadToGPU(&meshParams, 1);
 
     Polyglot::Node selRes = gatedDatabase.execute({

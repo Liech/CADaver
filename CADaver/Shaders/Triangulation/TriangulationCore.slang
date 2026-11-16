@@ -7,9 +7,13 @@ import Triangulation.SurfaceModifier;
 
 public struct MeshParams
 {
-    public float4 wireframeColor;
-    public int    wireframeMode;
-    public float3 padding;
+    public float4   wireframeColor;
+    public int      wireframeMode;
+    public float    padding0;
+    public float    padding1;
+    public float    padding2;
+    public float4x4 modelMatrix;
+    public float4x4 normalMatrix;
 };
 
 [[vk::binding(1, 0)]] public ConstantBuffer<MeshParams> meshParams;
@@ -42,7 +46,7 @@ public TriangulationVertexOutput buildVertexOutput(TriangulationVertexInput inpu
 {
     TriangulationVertexOutput output;
 
-    float4 worldPos = float4(input.position, 1.0);
+    float4 worldPos = mul(meshParams.modelMatrix, float4(input.position, 1.0));
     float4 viewPos  = mul(scene.viewMatrix, worldPos);
 
     output.position = mul(scene.projectionMatrix, viewPos);
@@ -52,8 +56,8 @@ public TriangulationVertexOutput buildVertexOutput(TriangulationVertexInput inpu
     }
 
     output.color      = float4(input.color, 1.0);
-    output.normalView = normalize(mul((float3x3)scene.viewMatrix, input.normal));
-    output.posWorld   = input.position;
+    output.normalView = normalize(mul((float3x3)scene.viewMatrix, mul((float3x3)meshParams.normalMatrix, input.normal)));
+    output.posWorld   = worldPos.xyz;
 
     uint corner        = vertexID % 3u;
     output.barycentric = (corner == 0u) ? float3(1.0, 0.0, 0.0) : ((corner == 1u) ? float3(0.0, 1.0, 0.0) : float3(0.0, 0.0, 1.0));

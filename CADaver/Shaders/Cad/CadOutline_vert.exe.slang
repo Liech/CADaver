@@ -7,6 +7,7 @@ struct CadOutlineParams
     float4 lineColor;
     float2 viewportSize;
     float2 padding;
+    float4x4 modelMatrix;
 };
 
 [[vk::binding(1, 0)]] ConstantBuffer<CadOutlineParams> outlineParams;
@@ -29,8 +30,8 @@ CadOutlineVertexOutput main(CadOutlineVertexInput input)
 {
     CadOutlineVertexOutput output;
 
-    float4 clip0 = mul(scene.projectionMatrix, mul(scene.viewMatrix, float4(input.position, 1.0)));
-    float4 clip1 = mul(scene.projectionMatrix, mul(scene.viewMatrix, float4(input.otherPos, 1.0)));
+    float4 clip0 = mul(scene.projectionMatrix, mul(scene.viewMatrix, mul(outlineParams.modelMatrix, float4(input.position, 1.0))));
+    float4 clip1 = mul(scene.projectionMatrix, mul(scene.viewMatrix, mul(outlineParams.modelMatrix, float4(input.otherPos, 1.0))));
 
     float2 ndc0 = clip0.xy / max(abs(clip0.w), 1e-5);
     float2 ndc1 = clip1.xy / max(abs(clip1.w), 1e-5);

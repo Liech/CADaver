@@ -7,6 +7,7 @@ struct CadOutlineParams
     float4 lineColor;
     float2 viewportSize;
     float2 padding;
+    float4x4 modelMatrix;
 };
 
 [[vk::binding(1, 0)]] ConstantBuffer<CadOutlineParams> outlineParams;
