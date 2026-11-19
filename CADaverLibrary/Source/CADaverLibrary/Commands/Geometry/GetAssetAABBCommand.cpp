@@ -1,10 +1,9 @@
 ﻿#include "Commands/Geometry/GetAssetAABBCommand.h"
 
-#include "CADacomb/CAD/Interface/Shape.h"
-#include "Database/Asset/CadAsset.h"
-#include "Database/Asset/TriangulationAsset.h"
-#include "Database/Asset/VoxelAsset.h"
+#include "CADacomb/Util/AABB3.h"
 #include "Database/Database.h"
+#include "Picking/AssetRayPicker/AssetRayPicker.h"
+#include "Picking/AssetRayPicker/AssetRayPickerFactory.h"
 
 GetAssetAABBCommand::GetAssetAABBCommand()
 {
@@ -87,55 +86,30 @@ nlohmann::json GetAssetAABBCommand::execute(Database& database)
         return createErrorResponse("AssetNotFound", "Asset not found");
     }
 
-    glm::dvec3 minCorner(0.0);
-    glm::dvec3 maxCorner(0.0);
-
-    auto voxelAsset = std::dynamic_pointer_cast<VoxelAsset>(foundAsset);
-    if (voxelAsset)
+    CADacomb::AABB3       worldBounds;
+    AssetRayPickerFactory pickerFactory;
+    auto                  picker = pickerFactory.create(foundAsset->getType());
+    if (picker)
     {
-        const auto& aabb = voxelAsset->getAABB();
-        minCorner        = aabb.getMin();
-        maxCorner        = aabb.getMax();
-    }
-    else
-    {
-        auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(foundAsset);
-        if (triAsset)
+        CADacomb::AABB3 localBounds = picker->getAABB(*foundAsset);
+        if (localBounds.getMin().x <= localBounds.getMax().x)
         {
-            auto aabb = triAsset->getTriangulation().getAABB();
-            minCorner = aabb.first;
-            maxCorner = aabb.first + aabb.second;
-        }
-        else
-        {
-            auto cadAsset = std::dynamic_pointer_cast<CadAsset>(foundAsset);
-            if (cadAsset)
-            {
-                try
-                {
-                    auto aabb = cadAsset->getCadShape().getAABB();
-                    minCorner = aabb.getMin();
-                    maxCorner = aabb.getMax();
-                }
-                catch (...)
-                {
-                    auto aabb = cadAsset->getTriangulation().getAABB();
-                    minCorner = aabb.first;
-                    maxCorner = aabb.first + aabb.second;
-                }
-            }
+            worldBounds = localBounds.transformed(foundAsset->getTransformation());
         }
     }
 
     return createResponse({
         { "assetGuid", foundAsset->getGuid().toString() },
-        {       "min",    { minCorner.x, minCorner.y, minCorner.z } },
-        {       "max",    { maxCorner.x, maxCorner.y, maxCorner.z } }
+        {       "min", { worldBounds.getMin().x, worldBounds.getMin().y, worldBounds.getMin().z } },
+        {       "max", { worldBounds.getMax().x, worldBounds.getMax().y, worldBounds.getMax().z } }
     });
 }
 
 #ifdef ISTESTPROJECT
+#include "Database/Asset/VoxelAsset.h"
+
 #include <catch2/catch_test_macros.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 TEST_CASE("GetAssetAABBCommand/NotFound")
 {
@@ -159,6 +133,7 @@ TEST_CASE("GetAssetAABBCommand/VoxelAABB")
     auto     voxelAsset = std::make_shared<VoxelAsset>();
     voxelAsset->setName("BoxModel");
     voxelAsset->setAABB(CADacomb::AABB3(glm::vec3(-5, -5, -5), glm::vec3(5, 5, 5)));
+    voxelAsset->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(10.0, 0.0, 0.0)));
     database.getProject().addAsset(voxelAsset);
 
     GetAssetAABBCommand cmd;
@@ -170,7 +145,7 @@ TEST_CASE("GetAssetAABBCommand/VoxelAABB")
 
     nlohmann::json result = cmd.execute(database);
     CHECK(result.at("type") == "GetAssetAABB");
-    CHECK(result.at("min")[0] == -5.0);
-    CHECK(result.at("max")[0] == 5.0);
+    CHECK(result.at("min")[0] == 5.0);
+    CHECK(result.at("max")[0] == 15.0);
 }
 #endif

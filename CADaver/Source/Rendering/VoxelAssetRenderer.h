@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "AssetMeshParams.h"
 #include "AssetRenderer.h"
 #include "CADacomb/Volume/LODStrategy/CapacityTargetLODStrategy.h"
 #include "CADacomb/Volume/LODStrategy/DistanceBandLODStrategy.h"
@@ -7,13 +8,19 @@
 #include "CADacomb/Volume/LODStrategy/FrustumAdaptiveLODStrategy.h"
 #include "CADacomb/Volume/LODStrategy/ScreenSpaceLODStrategy.h"
 #include "CADacombRender/SVOLODMesh.h"
-#include "Vulcant/Toolkit/MeshRenderer.h"
+#include "Vulcant/Interface/VulcantCullMode.h"
+#include "Vulcant/Toolkit/SceneData.h"
 
+#include <glm/glm.hpp>
 #include <memory>
 
 namespace Vulcant
 {
+    class VulcantBuffer;
     class VulcantGraphicCommand;
+    class VulcantGraphicPipeline;
+    class VulcantSet;
+    class VulcantShader;
 }
 
 class Renderer;
@@ -33,9 +40,19 @@ class VoxelAssetRenderer : public AssetRenderer
     void rebuildMesh(Renderer& renderer, int chunkSize, int vertexCapacity);
 
   private:
+    void initializeResources(Renderer& renderer);
+    void ensurePipeline(Renderer& renderer);
+    void invalidatePipeline();
+
     std::shared_ptr<const VoxelAsset>                   asset;
     std::unique_ptr<CADacomb::Render::SVOLODMesh<bool>> lodMesh;
-    std::unique_ptr<Vulcant::Toolkit::MeshRenderer>     meshRenderer;
+    std::unique_ptr<Vulcant::VulcantShader>             vertShader;
+    std::unique_ptr<Vulcant::VulcantShader>             fragShader;
+    std::unique_ptr<Vulcant::VulcantGraphicPipeline>    pipeline;
+    std::unique_ptr<Vulcant::VulcantSet>                descriptorSet;
+    std::unique_ptr<Vulcant::VulcantBuffer>             sceneDataUbo;
+    std::unique_ptr<Vulcant::VulcantBuffer>             meshParamsUbo;
+    std::unique_ptr<Vulcant::VulcantBuffer>             indirectBuffer;
     std::unique_ptr<Vulcant::VulcantGraphicCommand>     drawCmd;
 
     CADacomb::FrustumAdaptiveLODStrategy frustumAdaptiveStrategy;
@@ -44,9 +61,12 @@ class VoxelAssetRenderer : public AssetRenderer
     CADacomb::DistanceBandLODStrategy    distanceBandStrategy;
     CADacomb::FixedLODStrategy           fixedStrategy;
 
-    int    lastChunkSize      = 32;
-    int    lastVertexCapacity = 500000;
-    size_t lastRevision       = 0;
-    size_t lastRebuildCounter = 0;
-    bool   dirty              = true;
+    AssetMeshParams          meshParams{};
+    glm::ivec2               lastResolution     = glm::ivec2(0, 0);
+    Vulcant::VulcantCullMode lastCullMode       = Vulcant::VulcantCullMode::None;
+    int                      lastChunkSize      = 32;
+    int                      lastVertexCapacity = 500000;
+    size_t                   lastRevision       = 0;
+    size_t                   lastRebuildCounter = 0;
+    bool                     dirty              = true;
 };

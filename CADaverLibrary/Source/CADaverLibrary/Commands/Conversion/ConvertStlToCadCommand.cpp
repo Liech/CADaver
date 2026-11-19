@@ -96,6 +96,7 @@ nlohmann::json ConvertStlToCadCommand::execute(Database& database)
     createdAsset = std::make_shared<CadAsset>();
     createdAsset->setName(triAsset->getName() + "_CAD");
     createdAsset->setCadShape(std::shared_ptr<CADacomb::CAD::Shape>(std::move(shape)));
+    createdAsset->setTransformation(triAsset->getTransformation());
     project.addAsset(createdAsset);
     bar.addProgress(1);
 

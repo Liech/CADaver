@@ -122,13 +122,6 @@ int InteractiveMcpRunner::run(const CommandLineArgs& args)
         stopMcpListener();
         return EXIT_FAILURE;
     }
-    catch (...)
-    {
-        startupInProgress.store(false);
-        std::cerr << "Interactive MCP unknown error" << std::endl;
-        stopMcpListener();
-        return EXIT_FAILURE;
-    }
 
     return EXIT_SUCCESS;
 }

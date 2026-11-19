@@ -1,12 +1,10 @@
 ﻿#include "Commands/Geometry/GetProjectAABBCommand.h"
 
-#include "CADacomb/CAD/Interface/Shape.h"
-#include "Database/Asset/CadAsset.h"
-#include "Database/Asset/TriangulationAsset.h"
-#include "Database/Asset/VoxelAsset.h"
+#include "CADacomb/Util/AABB3.h"
 #include "Database/Database.h"
+#include "Picking/AssetRayPicker/AssetRayPicker.h"
+#include "Picking/AssetRayPicker/AssetRayPickerFactory.h"
 
-#include <algorithm>
 #include <limits>
 
 GetProjectAABBCommand::GetProjectAABBCommand() {}
@@ -46,10 +44,10 @@ std::string GetProjectAABBCommand::getDescription() const
 
 nlohmann::json GetProjectAABBCommand::execute(Database& database)
 {
-    const auto& assets = database.getProject().getAssets();
-    glm::dvec3  overallMin(std::numeric_limits<double>::max());
-    glm::dvec3  overallMax(std::numeric_limits<double>::lowest());
-    bool        foundValidBounds = false;
+    const auto&           assets = database.getProject().getAssets();
+    CADacomb::AABB3       overallBounds;
+    bool                  foundValidBounds = false;
+    AssetRayPickerFactory pickerFactory;
 
     for (const auto& asset : assets)
     {
@@ -58,48 +56,24 @@ nlohmann::json GetProjectAABBCommand::execute(Database& database)
             continue;
         }
 
-        auto voxelAsset = std::dynamic_pointer_cast<const VoxelAsset>(asset);
-        if (voxelAsset)
+        auto picker = pickerFactory.create(asset->getType());
+        if (!picker)
         {
-            const auto& aabb = voxelAsset->getAABB();
-            overallMin       = glm::min(overallMin, glm::dvec3(aabb.getMin()));
-            overallMax       = glm::max(overallMax, glm::dvec3(aabb.getMax()));
-            foundValidBounds = true;
             continue;
         }
 
-        auto triAsset = std::dynamic_pointer_cast<const TriangulationAsset>(asset);
-        if (triAsset && !triAsset->getTriangulation().vertices.empty())
+        CADacomb::AABB3 localBounds = picker->getAABB(*asset);
+        if (localBounds.getMin().x <= localBounds.getMax().x)
         {
-            auto [pos, size] = triAsset->getTriangulation().getAABB();
-            overallMin       = glm::min(overallMin, pos);
-            overallMax       = glm::max(overallMax, pos + size);
-            foundValidBounds = true;
-            continue;
-        }
-
-        auto cadAsset = std::dynamic_pointer_cast<const CadAsset>(asset);
-        if (cadAsset)
-        {
-            if (!cadAsset->getTriangulation().vertices.empty())
+            CADacomb::AABB3 worldBounds = localBounds.transformed(asset->getTransformation());
+            if (!foundValidBounds)
             {
-                auto [pos, size] = cadAsset->getTriangulation().getAABB();
-                overallMin       = glm::min(overallMin, pos);
-                overallMax       = glm::max(overallMax, pos + size);
+                overallBounds    = worldBounds;
                 foundValidBounds = true;
             }
             else
             {
-                try
-                {
-                    auto aabb        = cadAsset->getCadShape().getAABB();
-                    overallMin       = glm::min(overallMin, glm::dvec3(aabb.getMin()));
-                    overallMax       = glm::max(overallMax, glm::dvec3(aabb.getMax()));
-                    foundValidBounds = true;
-                }
-                catch (...)
-                {
-                }
+                overallBounds.expand(worldBounds);
             }
         }
     }
@@ -110,13 +84,16 @@ nlohmann::json GetProjectAABBCommand::execute(Database& database)
     }
 
     return createResponse({
-      { "min", { overallMin.x, overallMin.y, overallMin.z } },
-      { "max", { overallMax.x, overallMax.y, overallMax.z } }
+      { "min", { overallBounds.getMin().x, overallBounds.getMin().y, overallBounds.getMin().z } },
+      { "max", { overallBounds.getMax().x, overallBounds.getMax().y, overallBounds.getMax().z } }
     });
 }
 
 #ifdef ISTESTPROJECT
+#include "Database/Asset/VoxelAsset.h"
+
 #include <catch2/catch_test_macros.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 TEST_CASE("GetProjectAABBCommand/EmptyProject")
 {
@@ -136,6 +113,7 @@ TEST_CASE("GetProjectAABBCommand/CombinedBounds")
     a1->setAABB(CADacomb::AABB3(glm::vec3(-2.0f, -3.0f, -4.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
     auto a2 = std::make_shared<VoxelAsset>();
     a2->setAABB(CADacomb::AABB3(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(5.0f, 6.0f, 7.0f)));
+    a2->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(2.0, 0.0, 0.0)));
     database.getProject().addAsset(a1);
     database.getProject().addAsset(a2);
 
@@ -145,7 +123,7 @@ TEST_CASE("GetProjectAABBCommand/CombinedBounds")
     CHECK(result.at("min")[0] == -2.0);
     CHECK(result.at("min")[1] == -3.0);
     CHECK(result.at("min")[2] == -4.0);
-    CHECK(result.at("max")[0] == 5.0);
+    CHECK(result.at("max")[0] == 7.0);
     CHECK(result.at("max")[1] == 6.0);
     CHECK(result.at("max")[2] == 7.0);
 }

@@ -55,6 +55,7 @@ std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& ass
     auto resultAsset = std::make_shared<TriangulationAsset>();
     resultAsset->setName(newName);
     resultAsset->setTriangulation(std::move(newTri));
+    resultAsset->setTransformation(asset.getTransformation());
     return resultAsset;
 }
 
@@ -114,6 +115,7 @@ std::shared_ptr<VoxelAsset> AssetConverter::stlToSvo(const TriangulationAsset& a
     resultAsset->setName(newName);
     resultAsset->setSVO(std::move(svo));
     resultAsset->setAABB(bounds);
+    resultAsset->setTransformation(asset.getTransformation());
     return resultAsset;
 }
 
@@ -152,5 +154,6 @@ std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlBlocky(const VoxelAs
     auto resultAsset = std::make_shared<TriangulationAsset>();
     resultAsset->setName(newName);
     resultAsset->setTriangulation(std::move(triangulation));
+    resultAsset->setTransformation(asset.getTransformation());
     return resultAsset;
 }

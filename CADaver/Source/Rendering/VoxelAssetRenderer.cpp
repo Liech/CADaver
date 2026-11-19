@@ -5,9 +5,17 @@
 #include "Database/Preferences/SVOPreferences.h"
 #include "Execution/GatedDatabase.h"
 #include "Rendering/Renderer.h"
+#include "Triangulation/Triangulation_Default_frag.h"
+#include "Triangulation/Triangulation_vert.h"
+#include "Vulcant/Interface/VulcantBuffer.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
+#include "Vulcant/Interface/VulcantGraphicPipeline.h"
 #include "Vulcant/Interface/VulcantImage.h"
+#include "Vulcant/Interface/VulcantRasterizationConfig.h"
+#include "Vulcant/Interface/VulcantResource.h"
+#include "Vulcant/Interface/VulcantSet.h"
+#include "Vulcant/Interface/VulcantShader.h"
 
 VoxelAssetRenderer::VoxelAssetRenderer() {}
 
@@ -24,7 +32,10 @@ VoxelAssetRenderer::~VoxelAssetRenderer()
         drawCmd.reset();
     }
     lodMesh.reset();
-    meshRenderer.reset();
+    descriptorSet.reset();
+    pipeline.reset();
+    fragShader.reset();
+    vertShader.reset();
 }
 
 void VoxelAssetRenderer::setAsset(const std::shared_ptr<const Asset>& newAsset)
@@ -52,6 +63,50 @@ void VoxelAssetRenderer::rebuildMesh(Renderer& renderer, int chunkSize, int vert
     lastRevision = asset->getRevision();
 }
 
+void VoxelAssetRenderer::initializeResources(Renderer& renderer)
+{
+    Vulcant::VulcantDevice& device = renderer.getDevice();
+    sceneDataUbo                   = device.createUniform(1, sizeof(Vulcant::Toolkit::SceneData));
+    meshParamsUbo                  = device.createUniform(1, sizeof(AssetMeshParams));
+    indirectBuffer                 = device.createIndirectBuffer(1, sizeof(uint32_t) * 4);
+
+    auto vertSpirv = std::vector<uint32_t>(Triangulation_vert_spirv, Triangulation_vert_spirv + Triangulation_vert_spirv_sizeInBytes / sizeof(uint32_t));
+    auto fragSpirv = std::vector<uint32_t>(Triangulation_Default_frag_spirv, Triangulation_Default_frag_spirv + Triangulation_Default_frag_spirv_sizeInBytes / sizeof(uint32_t));
+    vertShader     = device.createShader(vertSpirv);
+    fragShader     = device.createShader(fragSpirv);
+    drawCmd        = device.createGraphicCommand();
+}
+
+void VoxelAssetRenderer::invalidatePipeline()
+{
+    descriptorSet.reset();
+    pipeline.reset();
+}
+
+void VoxelAssetRenderer::ensurePipeline(Renderer& renderer)
+{
+    Vulcant::VulcantDevice& device = renderer.getDevice();
+
+    if (!pipeline)
+    {
+        std::vector<Vulcant::VulcantShader*> shaders          = { fragShader.get(), vertShader.get() };
+        std::vector<Vulcant::VulcantImage*>  colorAttachments = { &renderer.getColor(), &renderer.getNormal() };
+
+        Vulcant::VulcantRasterizationConfig rasterConfig;
+        rasterConfig.setCullMode(lastCullMode);
+        rasterConfig.setClear(false);
+
+        pipeline = device.createVulcanGraphicPipeline(shaders, colorAttachments, &renderer.getDepth(), nullptr, rasterConfig);
+    }
+
+    if (!descriptorSet)
+    {
+        std::vector<std::vector<std::shared_ptr<Vulcant::VulcantResource>>> sets;
+        sets.push_back({ sceneDataUbo->asResource(), meshParamsUbo->asResource() });
+        descriptorSet = device.createSet(sets, *fragShader);
+    }
+}
+
 void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& worldSceneData)
 {
     if (!asset)
@@ -59,11 +114,17 @@ void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase
         return;
     }
 
-    glm::mat4                  model = glm::mat4(asset->getTransformation());
-    Vulcant::Toolkit::SceneData sceneData = worldSceneData;
-    sceneData.viewMatrix                 = worldSceneData.viewMatrix * model;
-    sceneData.invViewMatrix              = glm::inverse(sceneData.viewMatrix);
-    sceneData.cameraPos                  = glm::vec4(glm::vec3(sceneData.invViewMatrix[3]), 1.0f);
+    if (!vertShader)
+    {
+        initializeResources(renderer);
+        dirty = true;
+    }
+
+    glm::mat4                   model          = glm::mat4(asset->getTransformation());
+    Vulcant::Toolkit::SceneData localSceneData = worldSceneData;
+    localSceneData.viewMatrix                  = worldSceneData.viewMatrix * model;
+    localSceneData.invViewMatrix               = glm::inverse(localSceneData.viewMatrix);
+    localSceneData.cameraPos                   = glm::vec4(glm::vec3(localSceneData.invViewMatrix[3]), 1.0f);
 
     Polyglot::Node svoPrefRes = gatedDatabase.execute({
       {    "type", "GetSVOPreferences" },
@@ -87,20 +148,6 @@ void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase
         return;
     }
 
-    glm::ivec2 targetRes = renderer.getColor().getResolution();
-    if (!meshRenderer)
-    {
-        meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(renderer.getDevice(), targetRes);
-        meshRenderer->setClear(false);
-        meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
-        drawCmd = renderer.getDevice().createGraphicCommand();
-    }
-    else if (meshRenderer->getResolution() != targetRes)
-    {
-        meshRenderer->setOutputTextures(renderer.getColor(), renderer.getDepth(), renderer.getNormal());
-        drawCmd = renderer.getDevice().createGraphicCommand();
-    }
-
     Polyglot::Node renderPrefRes = gatedDatabase.execute({
       {    "type", "GetRenderPreferences" },
       { "version",                      1 }
@@ -111,10 +158,25 @@ void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase
         renderPreferences.fromNode(renderPrefRes["preferences"]);
     }
 
-    meshRenderer->setSceneData(sceneData);
-    meshRenderer->setWireframeMode(static_cast<Vulcant::Toolkit::MeshRenderer::WireframeMode>(renderPreferences.getWireframeMode()));
-    meshRenderer->setWireframeColor(renderPreferences.getWireframeColor());
-    meshRenderer->setCullMode(static_cast<Vulcant::VulcantCullMode>(renderPreferences.getCullMode()));
+    glm::ivec2               targetRes      = renderer.getColor().getResolution();
+    Vulcant::VulcantCullMode targetCullMode = static_cast<Vulcant::VulcantCullMode>(renderPreferences.getCullMode());
+    if (targetRes != lastResolution || targetCullMode != lastCullMode)
+    {
+        lastResolution = targetRes;
+        lastCullMode   = targetCullMode;
+        invalidatePipeline();
+        if (targetRes.x > 0 && targetRes.y > 0)
+        {
+            drawCmd = renderer.getDevice().createGraphicCommand();
+        }
+    }
+
+    sceneDataUbo->uploadToGPU(&worldSceneData, 1);
+
+    meshParams.params.wireframeColor = glm::vec4(renderPreferences.getWireframeColor(), 1.5f);
+    meshParams.params.wireframeMode  = renderPreferences.getWireframeMode();
+    meshParams.setTransformation(asset->getTransformation());
+    meshParamsUbo->uploadToGPU(&meshParams, 1);
 
     int                    strategyType   = svoPrefs.getStrategyType();
     CADacomb::LODStrategy* activeStrategy = &frustumAdaptiveStrategy;
@@ -161,13 +223,21 @@ void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase
     glm::vec3 meshColor = selected ? glm::vec3(1.0f, 0.65f, 0.1f) : glm::vec3(0.6f, 0.75f, 0.9f);
     lodMesh->setColor(meshColor);
 
-    lodMesh->update(sceneData, *activeStrategy);
+    lodMesh->update(localSceneData, *activeStrategy);
 
-    if (lodMesh->getVertexCount() > 0 && drawCmd)
+    uint32_t vertexCount = static_cast<uint32_t>(lodMesh->getVertexCount());
+    if (vertexCount > 0 && drawCmd)
     {
+        ensurePipeline(renderer);
+        uint32_t indirectCmd[4] = { vertexCount, 1u, 0u, 0u };
+        indirectBuffer->uploadToGPU(indirectCmd, 1);
+
         drawCmd->wait();
         drawCmd->startRecord();
-        meshRenderer->record(*drawCmd, lodMesh->getVertexBuffer(), static_cast<uint32_t>(lodMesh->getVertexCount()));
+        drawCmd->beginRendering(*pipeline);
+        drawCmd->setViewportAndScissor(glm::uvec2(targetRes.x, targetRes.y));
+        drawCmd->drawIndirect(*indirectBuffer, descriptorSet.get(), &lodMesh->getVertexBuffer());
+        drawCmd->endRendering();
         drawCmd->endRecord();
         drawCmd->runAsync();
         drawCmd->wait();

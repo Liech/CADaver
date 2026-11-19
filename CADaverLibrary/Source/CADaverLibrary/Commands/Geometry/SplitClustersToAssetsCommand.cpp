@@ -172,6 +172,7 @@ nlohmann::json SplitClustersToAssetsCommand::execute(Database& database)
             std::shared_ptr<TriangulationAsset> newAsset = std::make_shared<TriangulationAsset>();
             newAsset->setName(triAsset->getName() + "_" + std::to_string(clusterId));
             newAsset->setTriangulation(std::move(subTri));
+            newAsset->setTransformation(triAsset->getTransformation());
             project.addAsset(newAsset);
 
             createdGuids.push_back(newAsset->getGuid().toString());

@@ -1,4 +1,4 @@
-﻿find_package(Catch2 REQUIRED)
+find_package(Catch2 REQUIRED)
 
 set(Source_Files
     "Source/testMain.cpp"
@@ -28,6 +28,8 @@ set(Source_Files
     "Source/VoidCastStaticTest.cpp"
     "Source/LineEndingStaticTest.h"
     "Source/LineEndingStaticTest.cpp"
+    "Source/CatchEllipsisStaticTest.h"
+    "Source/CatchEllipsisStaticTest.cpp"
 )
 source_group("Source" FILES ${Source_Files})
 

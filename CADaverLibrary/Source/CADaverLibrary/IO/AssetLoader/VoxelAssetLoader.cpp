@@ -18,6 +18,7 @@ std::shared_ptr<Asset> VoxelAssetLoader::load(const std::string& name, const Pol
 
     CADacomb::AABB3                      bounds;
     std::unique_ptr<CADacomb::SVO<bool>> svo;
+    glm::dmat4                           transformation(1.0);
 
     std::vector<uint8_t> bytes = IOValueGrabber::grabBytes(source);
     bar.addProgress(1);
@@ -26,7 +27,7 @@ std::shared_ptr<Asset> VoxelAssetLoader::load(const std::string& name, const Pol
     {
         std::string        str(bytes.begin(), bytes.end());
         std::istringstream stream(str, std::ios::binary);
-        svo = CADacomb::SVOFile::load<bool>(stream, bounds);
+        svo = CADacomb::SVOFile::load<bool>(stream, bounds, transformation);
     }
     bar.addProgress(1);
 
@@ -44,6 +45,7 @@ std::shared_ptr<Asset> VoxelAssetLoader::load(const std::string& name, const Pol
     asset->setName(name);
     asset->setSVO(std::move(svo));
     asset->setAABB(bounds);
+    asset->setTransformation(transformation);
 
     bar.addProgress(1);
     return asset;
