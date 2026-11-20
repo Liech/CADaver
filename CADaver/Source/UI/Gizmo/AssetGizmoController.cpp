@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
+
 #include <ImGuizmo.h>
 #include <nlohmann/json.hpp>
 
@@ -58,6 +59,7 @@ void AssetGizmoController::render(GatedDatabase& gatedDatabase, UndoStack& undoS
     {
         glm::dvec3 pivot = overlay.isRotatingAroundCenter() ? aabbCenter : glm::dvec3(assetTransform * glm::dvec4(localHitPoint, 1.0));
         gizmoStart       = glm::dmat4(glm::mat4(BuildGizmoMatrix(pivot, assetTransform, overlay.isLocalSpace() || mode == GizmoMode::Scale)));
+        gizmoCurrent     = gizmoStart;
         assetStart       = assetTransform;
     }
 
@@ -83,25 +85,23 @@ void AssetGizmoController::render(GatedDatabase& gatedDatabase, UndoStack& undoS
         snap[2]   = 0.1f;
     }
 
-    glm::mat4 gizmoMatrix(gizmoStart);
-    if (dragging)
-    {
-        gizmoMatrix = glm::mat4(gizmoCurrent);
-    }
+    glm::mat4            gizmoMatrix(gizmoCurrent);
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
     ImGuizmo::SetOrthographic(projection[3][3] == 1.0f);
     ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
-    ImGuizmo::Manipulate(glm::value_ptr(view),
-                         glm::value_ptr(projection),
-                         operation,
-                         overlay.isLocalSpace() ? ImGuizmo::LOCAL : ImGuizmo::WORLD,
-                         glm::value_ptr(gizmoMatrix),
-                         nullptr,
-                         ImGui::GetIO().KeyCtrl ? snap : nullptr);
+    ImGuizmo::SetRect(viewport->Pos.x, viewport->Pos.y, sceneData.resolution.x, sceneData.resolution.y);
+    bool manipulated = ImGuizmo::Manipulate(glm::value_ptr(view),
+                                            glm::value_ptr(projection),
+                                            operation,
+                                            overlay.isLocalSpace() ? ImGuizmo::LOCAL : ImGuizmo::WORLD,
+                                            glm::value_ptr(gizmoMatrix),
+                                            nullptr,
+                                            ImGui::GetIO().KeyCtrl ? snap : nullptr);
 
     bool       isUsing = ImGuizmo::IsUsing();
     glm::dmat4 current(gizmoMatrix);
-    if (isUsing && current != gizmoStart)
+    if (isUsing && (manipulated || current != gizmoCurrent))
     {
         gizmoCurrent = current;
         if (dragHasCommand)
@@ -112,7 +112,7 @@ void AssetGizmoController::render(GatedDatabase& gatedDatabase, UndoStack& undoS
           { "type", "TransformAsset" },
           { "version", 1 },
           { "assetGuid", assetGuid.toString() },
-          { "transformation", MatrixJson::toJson(ComposeAssetTransform(current, gizmoStart, assetStart)) }
+          { "transformation", MatrixJson::toJson(ComposeAssetTransform(gizmoCurrent, gizmoStart, assetStart)) }
         });
         dragHasCommand = true;
         recordUndoSizes(undoStack);
