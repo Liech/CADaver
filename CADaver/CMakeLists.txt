@@ -170,6 +170,15 @@ set(UI_ContextMenu_Files
 )
 source_group("Source/UI/ContextMenu" FILES ${UI_ContextMenu_Files})
 
+set(UI_Gizmo_Files
+    "Source/UI/Gizmo/GizmoMode.h"
+    "Source/UI/Gizmo/GizmoOverlay.h"
+    "Source/UI/Gizmo/GizmoOverlay.cpp"
+    "Source/UI/Gizmo/AssetGizmoController.h"
+    "Source/UI/Gizmo/AssetGizmoController.cpp"
+)
+source_group("Source/UI/Gizmo" FILES ${UI_Gizmo_Files})
+
 set(UI_Project_Files
     "Source/UI/Project/ProjectWindow.h"
     "Source/UI/Project/ProjectWindow.cpp"
@@ -212,6 +221,7 @@ set(ALL_FILES
     ${UI_Component_Files}
     ${UI_ViewCube_Files}
     ${UI_ContextMenu_Files}
+    ${UI_Gizmo_Files}
     ${UI_Project_Files}
     ${Shader_Files}
     ${GENERATED_SHADER_HEADERS}

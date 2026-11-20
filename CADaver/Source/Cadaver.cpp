@@ -1,4 +1,4 @@
-﻿#include "Cadaver.h"
+#include "Cadaver.h"
 
 #include "Camera/ViewController.h"
 #include "Database/Preferences/CameraPreferences.h"
@@ -280,7 +280,7 @@ void Cadaver::renderImGui()
         projectWindow->render(gatedDatabase, windows);
     }
 
-    pickingController->update(gatedDatabase, windows, viewController->getCameraController(), viewController->getSceneData());
+    pickingController->update(gatedDatabase, undoStack, windows, viewController->getCameraController(), viewController->getSceneData());
 
     windows.render();
 }
