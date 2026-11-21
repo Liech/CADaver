@@ -1,6 +1,7 @@
 ﻿#include "Database/Physics/PhysicsSimulation.h"
 
 #include "CADacomb/Physics/Jolt/PhysicsJ.h"
+#include "Database/Asset/CadAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Component/RigidBodyComponent.h"
 #include "Database/Project.h"
@@ -55,19 +56,28 @@ void PhysicsSimulation::rebuildWorld(Project& project)
 
     for (const auto& asset : project.getAssets())
     {
-        auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(asset);
-        if (!triAsset)
-        {
-            continue;
-        }
-
-        auto rbAttachments = triAsset->getAttachments<RigidBodyComponent>();
+        auto rbAttachments = asset->getAttachments<RigidBodyComponent>();
         if (rbAttachments.empty())
         {
             continue;
         }
 
-        auto body                   = physics->createRigidBody(triAsset->getTriangulation(), triAsset->getTransformation(), rbAttachments.front()->isStatic());
-        bodies[triAsset->getGuid()] = body;
+        const CADacomb::Triangulation* triangulation = nullptr;
+        if (auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(asset))
+        {
+            triangulation = &triAsset->getTriangulation();
+        }
+        else if (auto cadAsset = std::dynamic_pointer_cast<CadAsset>(asset))
+        {
+            triangulation = &cadAsset->getTriangulation();
+        }
+
+        if (!triangulation)
+        {
+            continue;
+        }
+
+        auto body                = physics->createRigidBody(*triangulation, asset->getTransformation(), rbAttachments.front()->isStatic());
+        bodies[asset->getGuid()] = body;
     }
 }

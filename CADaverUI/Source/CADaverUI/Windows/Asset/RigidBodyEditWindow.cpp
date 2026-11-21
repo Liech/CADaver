@@ -5,10 +5,7 @@
 
 #include <imgui.h>
 
-RigidBodyEditWindow::RigidBodyEditWindow()
-  : assetComboBox("Triangulation")
-{
-}
+RigidBodyEditWindow::RigidBodyEditWindow() {}
 
 RigidBodyEditWindow::~RigidBodyEditWindow() {}
 
@@ -21,9 +18,9 @@ std::string RigidBodyEditWindow::getDescription() const
 {
     return "Window: RigidBodyEdit\n"
            "Title: RigidBody\n"
-           "Purpose: Small dialog for viewing and editing the RigidBody physics component attached to a triangulation asset, including a checkbox for whether the body is static.\n\n"
+           "Purpose: Small dialog for viewing and editing the RigidBody physics component attached to a triangulation or CAD asset, including a checkbox for whether the body is static.\n\n"
            "Parameters:\n"
-           "  - Target Asset: ComboBox selecting the triangulation asset within the project\n"
+           "  - Target Asset: ComboBox selecting the asset within the project\n"
            "  - Static: Checkbox controlling whether the rigid body is static (immovable) or dynamic\n\n"
            "Dispatched Commands: AddComponent, UpdateComponent, RemoveComponent";
 }
@@ -56,7 +53,7 @@ void RigidBodyEditWindow::render()
         if (selectedAssetGuid.toString().empty())
         {
             ImGui::Spacing();
-            ImGui::TextDisabled("No triangulation assets available.");
+            ImGui::TextDisabled("No assets available.");
             ImGui::End();
             return;
         }

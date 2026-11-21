@@ -143,6 +143,9 @@ double StepPhysicsCommand::getDeltaTime() const
 }
 
 #ifdef ISTESTPROJECT
+#include "CADacomb/CAD/Sm/KernelSm.h"
+#include "Database/Asset/CadAsset.h"
+#include "Database/Component/RigidBodyComponent.h"
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"
 #include "Utility/MatrixJson.h"
@@ -269,5 +272,38 @@ TEST_CASE("StepPhysicsCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
       { "assetGuid",              incCubeGuid }
     });
     CHECK(MatrixJson::fromJson(redoneRes["transformation"].toJson()) == incFinalTransform);
+}
+
+TEST_CASE("StepPhysicsCommand/CadAssetRigidBodySimulation")
+{
+    Database db;
+
+    CADacomb::CAD::KernelSm kernel;
+    auto                    floorSolid = kernel.createBox(glm::dvec3(-10.0, -0.5, -10.0), glm::dvec3(20.0, 1.0, 20.0));
+    auto                    floorAsset = std::make_shared<CadAsset>();
+    floorAsset->setName("CadFloor");
+    floorAsset->setCadShape(std::shared_ptr<CADacomb::CAD::Shape>(std::move(floorSolid)));
+    floorAsset->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, -1.0, 0.0)));
+    floorAsset->addComponent(std::make_shared<RigidBodyComponent>(true));
+    db.getProject().addAsset(floorAsset);
+
+    auto boxSolid = kernel.createBox(glm::dvec3(-0.5, -0.5, -0.5), glm::dvec3(1.0, 1.0, 1.0));
+    auto boxAsset = std::make_shared<CadAsset>();
+    boxAsset->setName("CadBox");
+    boxAsset->setCadShape(std::shared_ptr<CADacomb::CAD::Shape>(std::move(boxSolid)));
+    boxAsset->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, 3.0, 0.0)));
+    boxAsset->addComponent(std::make_shared<RigidBodyComponent>(false));
+    db.getProject().addAsset(boxAsset);
+
+    StepPhysicsCommand stepCmd;
+    stepCmd.setInput({
+      {      "type", "StepPhysics" },
+      {   "version",             1 },
+      { "deltaTime",           0.5 }
+    });
+    nlohmann::json res = stepCmd.execute(db);
+    CHECK(res.at("type").get<std::string>() == "StepPhysics");
+    CHECK(boxAsset->getTransformation()[3].y < 3.0);
+    CHECK(floorAsset->getTransformation()[3].y == -1.0);
 }
 #endif
