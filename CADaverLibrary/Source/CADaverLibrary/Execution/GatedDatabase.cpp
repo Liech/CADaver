@@ -85,6 +85,10 @@ Polyglot::Node GatedDatabase::execute(const Polyglot::Node& command)
             return result;
         }
 
+        if (commandNode.contains("mergeGuid"))
+        {
+            cmd->setMergeGuid(CADacomb::GUID(commandNode["mergeGuid"].asString()));
+        }
         cmd->setInput(commandNode);
 
         recursionLock         = true;
@@ -176,6 +180,10 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
         return p.get_future();
     }
 
+    if (commandNode.contains("mergeGuid"))
+    {
+        cmd->setMergeGuid(CADacomb::GUID(commandNode["mergeGuid"].asString()));
+    }
     cmd->setInput(commandNode);
 
     auto                                requiredGuids = cmd->getRequiredAssets();
@@ -277,7 +285,7 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
 
               if (success)
               {
-                   std::string operationName = (*cmdHolder)->getType();
+                  std::string operationName = (*cmdHolder)->getType();
                   for (const auto& asset : resultAssets)
                   {
                       database.getProject().addAsset(asset);

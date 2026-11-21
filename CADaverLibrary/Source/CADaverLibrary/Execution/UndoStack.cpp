@@ -17,6 +17,18 @@ void UndoStack::push(std::unique_ptr<UndoContainer> container)
         return;
     }
     redoHistory.clear();
+    if (!undoHistory.empty())
+    {
+        auto& top = undoHistory.back();
+        if (top && top->isMergeable() && container->isMergeable() && !isZeroGuid(top->getMergeGuid()) && top->getMergeGuid() == container->getMergeGuid())
+        {
+            if (top->merge(*container))
+            {
+                prune();
+                return;
+            }
+        }
+    }
     undoHistory.push_back(std::move(container));
     prune();
 }
@@ -126,8 +138,24 @@ void UndoStack::prune()
     }
 }
 
+bool UndoStack::isZeroGuid(const CADacomb::GUID& guid) const
+{
+    for (char c : guid.toString())
+    {
+        if (c != '0' && c != '-')
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 #ifdef ISTESTPROJECT
+#include "Database/Asset/TriangulationAsset.h"
+#include "Utility/MatrixJson.h"
+
 #include <catch2/catch_test_macros.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 TEST_CASE("UndoStack/InitialState")
 {
@@ -137,5 +165,98 @@ TEST_CASE("UndoStack/InitialState")
     REQUIRE_FALSE(stack.canUndo());
     REQUIRE_FALSE(stack.canRedo());
     REQUIRE(stack.getTotalMemoryBytes() == 0);
+}
+
+TEST_CASE("UndoStack/MergesTransformCommandsWithSameMergeGuid")
+{
+    GatedDatabase gatedDatabase;
+    UndoStack     stack(gatedDatabase);
+
+    Polyglot::Node genRes    = gatedDatabase.execute({
+      {    "type", "GenerateBaseShape" },
+      { "version",                   1 },
+      {   "shape",              "cube" }
+    });
+    std::string    assetGuid = genRes["assetGuid"].asString();
+    stack.clear();
+
+    CADacomb::GUID mergeGuid = CADacomb::GUID::random();
+    glm::dmat4     t1        = glm::translate(glm::dmat4(1.0), glm::dvec3(1.0, 0.0, 0.0));
+    glm::dmat4     t2        = glm::translate(glm::dmat4(1.0), glm::dvec3(5.0, 0.0, 0.0));
+
+    gatedDatabase.execute({
+      {           "type",       "TransformAsset" },
+      {        "version",                      1 },
+      {      "assetGuid",              assetGuid },
+      { "transformation", MatrixJson::toJson(t1) },
+      {      "mergeGuid",   mergeGuid.toString() }
+    });
+    gatedDatabase.execute({
+      {           "type",       "TransformAsset" },
+      {        "version",                      1 },
+      {      "assetGuid",              assetGuid },
+      { "transformation", MatrixJson::toJson(t2) },
+      {      "mergeGuid",   mergeGuid.toString() }
+    });
+
+    REQUIRE(stack.getUndoHistory().size() == 1);
+
+    stack.undo();
+    Polyglot::Node afterUndo = gatedDatabase.execute({
+      {      "type", "GetTransformationAsset" },
+      {   "version",                        1 },
+      { "assetGuid",                assetGuid }
+    });
+    CHECK(MatrixJson::fromJson(afterUndo["transformation"].toJson()) == glm::dmat4(1.0));
+
+    stack.redo();
+    Polyglot::Node afterRedo = gatedDatabase.execute({
+      {      "type", "GetTransformationAsset" },
+      {   "version",                        1 },
+      { "assetGuid",                assetGuid }
+    });
+    CHECK(MatrixJson::fromJson(afterRedo["transformation"].toJson()) == t2);
+}
+
+TEST_CASE("UndoStack/DoesNotMergeWithZeroOrDifferentMergeGuid")
+{
+    GatedDatabase gatedDatabase;
+    UndoStack     stack(gatedDatabase);
+
+    Polyglot::Node genRes    = gatedDatabase.execute({
+      {    "type", "GenerateBaseShape" },
+      { "version",                   1 },
+      {   "shape",              "cube" }
+    });
+    std::string    assetGuid = genRes["assetGuid"].asString();
+    stack.clear();
+
+    glm::dmat4 t1 = glm::translate(glm::dmat4(1.0), glm::dvec3(1.0, 0.0, 0.0));
+    glm::dmat4 t2 = glm::translate(glm::dmat4(1.0), glm::dvec3(2.0, 0.0, 0.0));
+    glm::dmat4 t3 = glm::translate(glm::dmat4(1.0), glm::dvec3(3.0, 0.0, 0.0));
+
+    gatedDatabase.execute({
+      {           "type",                       "TransformAsset" },
+      {        "version",                                      1 },
+      {      "assetGuid",                              assetGuid },
+      { "transformation",                 MatrixJson::toJson(t1) },
+      {      "mergeGuid", "00000000-0000-0000-0000-000000000000" }
+    });
+    gatedDatabase.execute({
+      {           "type",                       "TransformAsset" },
+      {        "version",                                      1 },
+      {      "assetGuid",                              assetGuid },
+      { "transformation",                 MatrixJson::toJson(t2) },
+      {      "mergeGuid", "00000000-0000-0000-0000-000000000000" }
+    });
+    gatedDatabase.execute({
+      {           "type",                    "TransformAsset" },
+      {        "version",                                   1 },
+      {      "assetGuid",                           assetGuid },
+      { "transformation",              MatrixJson::toJson(t3) },
+      {      "mergeGuid", CADacomb::GUID::random().toString() }
+    });
+
+    CHECK(stack.getUndoHistory().size() == 3);
 }
 #endif

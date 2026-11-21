@@ -31,7 +31,16 @@ class Command
     virtual void   redo(Database& database);
     virtual size_t getUndoSize() const;
 
+    virtual bool isMergeable() const;
+    virtual bool merge(const Command& other);
+
+    const CADacomb::GUID& getMergeGuid() const;
+    void                  setMergeGuid(const CADacomb::GUID& guid);
+
   protected:
     nlohmann::json createResponse(const nlohmann::json& payload = nlohmann::json::object()) const;
     nlohmann::json createErrorResponse(const std::string& errorType, const std::string& message) const;
+
+  private:
+    CADacomb::GUID mergeGuid{ "00000000-0000-0000-0000-000000000000" };
 };

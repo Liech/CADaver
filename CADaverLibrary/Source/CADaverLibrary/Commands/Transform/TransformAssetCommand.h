@@ -26,6 +26,9 @@ class TransformAssetCommand : public Command
     virtual void   redo(Database& database) override;
     virtual size_t getUndoSize() const override;
 
+    virtual bool isMergeable() const override;
+    virtual bool merge(const Command& other) override;
+
   private:
     CADacomb::GUID assetGuid;
     glm::dmat4     transformation{ 1.0 };

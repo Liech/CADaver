@@ -27,6 +27,26 @@ size_t Command::getUndoSize() const
     return sizeof(Command);
 }
 
+bool Command::isMergeable() const
+{
+    return false;
+}
+
+bool Command::merge(const Command&)
+{
+    return false;
+}
+
+const CADacomb::GUID& Command::getMergeGuid() const
+{
+    return mergeGuid;
+}
+
+void Command::setMergeGuid(const CADacomb::GUID& guid)
+{
+    mergeGuid = guid;
+}
+
 nlohmann::json Command::createResponse(const nlohmann::json& payload) const
 {
     nlohmann::json result = {

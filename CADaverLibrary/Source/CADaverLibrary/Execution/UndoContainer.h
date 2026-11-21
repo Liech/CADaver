@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "CADacomb/Util/GUID.h"
+
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -14,9 +16,12 @@ class UndoContainer
     UndoContainer(std::unique_ptr<Command> command);
     virtual ~UndoContainer();
 
-    std::string getType() const;
-    size_t      getUndoSize() const;
+    std::string           getType() const;
+    size_t                getUndoSize() const;
+    bool                  isMergeable() const;
+    const CADacomb::GUID& getMergeGuid() const;
 
+    bool merge(const UndoContainer& other);
     void undo(Database& database);
     void redo(Database& database);
 

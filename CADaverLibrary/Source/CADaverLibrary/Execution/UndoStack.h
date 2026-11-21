@@ -38,6 +38,7 @@ class UndoStack
 
   private:
     void prune();
+    bool isZeroGuid(const CADacomb::GUID& guid) const;
 
     GatedDatabase&                              gatedDatabase;
     std::vector<std::unique_ptr<UndoContainer>> undoHistory;

@@ -19,6 +19,21 @@ size_t UndoContainer::getUndoSize() const
     return command->getUndoSize();
 }
 
+bool UndoContainer::isMergeable() const
+{
+    return command->isMergeable();
+}
+
+const CADacomb::GUID& UndoContainer::getMergeGuid() const
+{
+    return command->getMergeGuid();
+}
+
+bool UndoContainer::merge(const UndoContainer& other)
+{
+    return command->merge(*other.command);
+}
+
 void UndoContainer::undo(Database& database)
 {
     command->undo(database);

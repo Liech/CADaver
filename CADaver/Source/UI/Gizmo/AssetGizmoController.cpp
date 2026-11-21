@@ -18,12 +18,12 @@ AssetGizmoController::~AssetGizmoController() {}
 void AssetGizmoController::activate(const CADacomb::GUID& guid, const glm::dvec3& hitPoint, GizmoMode mode)
 {
     assetGuid       = guid;
+    dragMergeGuid   = CADacomb::GUID::random();
     hitPointWorld   = hitPoint;
     active          = true;
     needsRefresh    = true;
     localHitPending = true;
     dragging        = false;
-    dragHasCommand  = false;
     overlay.setMode(mode);
 }
 
@@ -61,6 +61,7 @@ void AssetGizmoController::render(GatedDatabase& gatedDatabase, UndoStack& undoS
         gizmoStart       = glm::dmat4(glm::mat4(BuildGizmoMatrix(pivot, assetTransform, overlay.isLocalSpace() || mode == GizmoMode::Scale)));
         gizmoCurrent     = gizmoStart;
         assetStart       = assetTransform;
+        dragMergeGuid    = CADacomb::GUID::random();
     }
 
     glm::mat4 view       = sceneData.viewMatrix;
@@ -104,23 +105,18 @@ void AssetGizmoController::render(GatedDatabase& gatedDatabase, UndoStack& undoS
     if (isUsing && (manipulated || current != gizmoCurrent))
     {
         gizmoCurrent = current;
-        if (dragHasCommand)
-        {
-            undoStack.undo();
-        }
         gatedDatabase.execute({
           { "type", "TransformAsset" },
           { "version", 1 },
           { "assetGuid", assetGuid.toString() },
-          { "transformation", MatrixJson::toJson(ComposeAssetTransform(gizmoCurrent, gizmoStart, assetStart)) }
+          { "transformation", MatrixJson::toJson(ComposeAssetTransform(gizmoCurrent, gizmoStart, assetStart)) },
+          { "mergeGuid", dragMergeGuid.toString() }
         });
-        dragHasCommand = true;
         recordUndoSizes(undoStack);
     }
     else if (!isUsing && dragging)
     {
-        dragHasCommand = false;
-        needsRefresh   = true;
+        needsRefresh = true;
     }
     dragging = isUsing;
 }

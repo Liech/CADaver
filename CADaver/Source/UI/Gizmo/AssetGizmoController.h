@@ -10,8 +10,7 @@
 class GatedDatabase;
 class UndoStack;
 
-// Drives an ImGuizmo transform handle for a single asset. Each drag frame undoes the previous TransformAsset of the drag and executes a new one with the full current transformation, so one drag is
-// one undo step.
+// Drives an ImGuizmo transform handle for a single asset. Each drag frame executes a TransformAsset command with a shared merge GUID so one drag is merged into one undo step.
 class AssetGizmoController
 {
   public:
@@ -30,6 +29,7 @@ class AssetGizmoController
 
     GizmoOverlay   overlay;
     CADacomb::GUID assetGuid;
+    CADacomb::GUID dragMergeGuid;
     glm::dvec3     hitPointWorld   = glm::dvec3(0.0);
     glm::dvec3     localHitPoint   = glm::dvec3(0.0);
     glm::dvec3     aabbCenter      = glm::dvec3(0.0);
@@ -43,5 +43,4 @@ class AssetGizmoController
     bool           needsRefresh    = false;
     bool           localHitPending = false;
     bool           dragging        = false;
-    bool           dragHasCommand  = false;
 };
