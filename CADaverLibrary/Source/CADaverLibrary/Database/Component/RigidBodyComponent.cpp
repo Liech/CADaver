@@ -17,8 +17,8 @@ std::string RigidBodyComponent::getType() const
 std::string RigidBodyComponent::getDescription() const
 {
     return "Component: RigidBody\n"
-           "Purpose: Attaches rigid body physics properties to a triangulation or CAD asset for physics simulation.\n"
-           "Compatibility: Compatible with Triangulation and Cad assets.\n\n"
+           "Purpose: Attaches rigid body physics properties to a triangulation, CAD, or voxel SVO asset for physics simulation.\n"
+           "Compatibility: Compatible with Triangulation, Cad, and Voxel assets.\n\n"
            "Data Members:\n"
            "  - isStatic: Whether the rigid body is static (immovable) or dynamic (affected by gravity and collisions)";
 }
@@ -30,7 +30,7 @@ size_t RigidBodyComponent::getSizeInBytes() const
 
 bool RigidBodyComponent::isCompatible(const std::string& assetType) const
 {
-    return assetType == "Triangulation" || assetType == "Cad";
+    return assetType == "Triangulation" || assetType == "Cad" || assetType == "Voxel";
 }
 
 nlohmann::json RigidBodyComponent::toDataJson() const
@@ -69,7 +69,8 @@ TEST_CASE("RigidBodyComponent/BasicPropertiesAndSerialization")
     CHECK(comp.isStatic() == true);
     CHECK(comp.isCompatible("Triangulation") == true);
     CHECK(comp.isCompatible("Cad") == true);
-    CHECK(comp.isCompatible("Voxel") == false);
+    CHECK(comp.isCompatible("Voxel") == true);
+    CHECK(comp.isCompatible("Progress") == false);
 
     comp.setStatic(false);
     CHECK(comp.isStatic() == false);

@@ -1,5 +1,7 @@
 ﻿#include "UI/ContextMenu/VoxelAssetContextMenu.h"
 
+#include "Execution/GatedDatabase.h"
+#include "Windows/Asset/RigidBodyEditWindow.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
 #include "Windows/Conversion/SvoToStlMarchingCubesConversionModal.h"
 #include "Windows/Conversion/SvoToStlSurfaceNetsConversionModal.h"
@@ -15,8 +17,6 @@ VoxelAssetContextMenu::~VoxelAssetContextMenu() {}
 
 void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& windows, const CADacomb::GUID& assetGuid)
 {
-    (void)gatedDatabase;
-
     if (ImGui::MenuItem("Save..."))
     {
         windows.open("SaveAsset");
@@ -57,5 +57,27 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& window
             }
         }
         ImGui::EndMenu();
+    }
+
+    if (ImGui::MenuItem("Add RigidBody..."))
+    {
+        Polyglot::Node command = {
+            {          "type",                              "AddComponent" },
+            {       "version",                                           1 },
+            {     "assetGuid",                        assetGuid.toString() },
+            { "componentType",                                 "RigidBody" },
+            {          "name",                                 "RigidBody" },
+            {          "data", { { "Version", 1 }, { "isStatic", false } } }
+        };
+        Polyglot::Node result = gatedDatabase.execute(command);
+        if (result["type"].asString() == "AddComponent")
+        {
+            windows.open("RigidBodyEdit");
+            auto editWindow = std::dynamic_pointer_cast<RigidBodyEditWindow>(windows.get("RigidBodyEdit"));
+            if (editWindow)
+            {
+                editWindow->setTarget(assetGuid, CADacomb::GUID(result["componentGuid"].asString()));
+            }
+        }
     }
 }

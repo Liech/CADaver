@@ -145,6 +145,7 @@ double StepPhysicsCommand::getDeltaTime() const
 #ifdef ISTESTPROJECT
 #include "CADacomb/CAD/Sm/KernelSm.h"
 #include "Database/Asset/CadAsset.h"
+#include "Database/Asset/VoxelAsset.h"
 #include "Database/Component/RigidBodyComponent.h"
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"
@@ -305,5 +306,126 @@ TEST_CASE("StepPhysicsCommand/CadAssetRigidBodySimulation")
     CHECK(res.at("type").get<std::string>() == "StepPhysics");
     CHECK(boxAsset->getTransformation()[3].y < 3.0);
     CHECK(floorAsset->getTransformation()[3].y == -1.0);
+}
+
+TEST_CASE("StepPhysicsCommand/VoxelAssetSVORigidBodyAndDynamicChange")
+{
+    Database db;
+
+    auto floorSvo = std::make_unique<CADacomb::SVO<bool>>(16, false);
+    for (int x = 0; x < 16; x++)
+    {
+        for (int z = 0; z < 16; z++)
+        {
+            floorSvo->setVoxel(glm::ivec3(x, 7, z), true);
+        }
+    }
+    auto floorAsset = std::make_shared<VoxelAsset>();
+    floorAsset->setName("VoxelFloor");
+    floorAsset->setSVO(std::move(floorSvo));
+    floorAsset->setAABB(CADacomb::AABB3(glm::dvec3(-8.0, -8.0, -8.0), glm::dvec3(8.0, 8.0, 8.0)));
+    floorAsset->addComponent(std::make_shared<RigidBodyComponent>(true));
+    db.getProject().addAsset(floorAsset);
+
+    auto blockSvo   = std::make_unique<CADacomb::SVO<bool>>(4, true);
+    auto blockAsset = std::make_shared<VoxelAsset>();
+    blockAsset->setName("VoxelBlock");
+    blockAsset->setSVO(std::move(blockSvo));
+    blockAsset->setAABB(CADacomb::AABB3(glm::dvec3(-0.5, -0.5, -0.5), glm::dvec3(0.5, 0.5, 0.5)));
+    blockAsset->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, 2.0, 0.0)));
+    blockAsset->addComponent(std::make_shared<RigidBodyComponent>(false));
+    db.getProject().addAsset(blockAsset);
+
+    CADacomb::GUID sessionGuid = CADacomb::GUID::random();
+
+    StepPhysicsCommand step1;
+    step1.setInput({
+      {      "type",          "StepPhysics" },
+      {   "version",                      1 },
+      { "deltaTime",                    1.0 },
+      { "mergeGuid", sessionGuid.toString() }
+    });
+    step1.execute(db);
+
+    double restingY = blockAsset->getTransformation()[3].y;
+    CHECK(restingY < 1.5);
+    CHECK(restingY > -0.2);
+
+    for (int x = 0; x < 16; x++)
+    {
+        for (int z = 0; z < 16; z++)
+        {
+            floorAsset->getSVO().setVoxel(glm::ivec3(x, 7, z), false);
+        }
+    }
+    floorAsset->setAABB(floorAsset->getAABB());
+
+    StepPhysicsCommand step2;
+    step2.setInput({
+      {      "type",          "StepPhysics" },
+      {   "version",                      1 },
+      { "deltaTime",                    1.0 },
+      { "mergeGuid", sessionGuid.toString() }
+    });
+    step2.execute(db);
+
+    CHECK(blockAsset->getTransformation()[3].y < -2.0);
+}
+
+TEST_CASE("StepPhysicsCommand/SteppedMultiLeafSVOTerrainCollision")
+{
+    Database db;
+
+    auto terrainSvo = std::make_unique<CADacomb::SVO<bool>>(32, false);
+    for (int x = 0; x < 32; x++)
+    {
+        for (int z = 0; z < 32; z++)
+        {
+            int maxH = 8 + ((x + z) % 5);
+            for (int y = 0; y <= maxH; y++)
+            {
+                terrainSvo->setVoxel(glm::ivec3(x, y, z), true);
+            }
+        }
+    }
+    auto terrainAsset = std::make_shared<VoxelAsset>();
+    terrainAsset->setName("SteppedTerrain");
+    terrainAsset->setSVO(std::move(terrainSvo));
+    terrainAsset->setAABB(CADacomb::AABB3(glm::dvec3(-16.0, -16.0, -16.0), glm::dvec3(16.0, 16.0, 16.0)));
+    terrainAsset->addComponent(std::make_shared<RigidBodyComponent>(true));
+    db.getProject().addAsset(terrainAsset);
+
+    auto fallingSvo = std::make_unique<CADacomb::SVO<bool>>(8, false);
+    for (int x = 1; x < 7; x++)
+    {
+        for (int y = 1; y < 7; y++)
+        {
+            for (int z = 1; z < 7; z++)
+            {
+                if ((x + y + z) % 2 == 0)
+                {
+                    fallingSvo->setVoxel(glm::ivec3(x, y, z), true);
+                }
+            }
+        }
+    }
+    auto fallingAsset = std::make_shared<VoxelAsset>();
+    fallingAsset->setName("MultiLeafFalling");
+    fallingAsset->setSVO(std::move(fallingSvo));
+    fallingAsset->setAABB(CADacomb::AABB3(glm::dvec3(-2.0, -2.0, -2.0), glm::dvec3(2.0, 2.0, 2.0)));
+    fallingAsset->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, 2.0, 0.0)));
+    fallingAsset->addComponent(std::make_shared<RigidBodyComponent>(false));
+    db.getProject().addAsset(fallingAsset);
+
+    StepPhysicsCommand stepCmd;
+    stepCmd.setInput({
+      {      "type", "StepPhysics" },
+      {   "version",             1 },
+      { "deltaTime",           1.0 }
+    });
+    nlohmann::json res = stepCmd.execute(db);
+    CHECK(res.at("type").get<std::string>() == "StepPhysics");
+    CHECK(fallingAsset->getTransformation()[3].y < 2.0);
+    CHECK(fallingAsset->getTransformation()[3].y > -6.0);
 }
 #endif

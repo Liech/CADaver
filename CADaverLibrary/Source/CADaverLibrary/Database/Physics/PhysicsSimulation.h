@@ -4,6 +4,7 @@
 #include "CADacomb/Physics/Interface/RigidBody.h"
 #include "CADacomb/Util/GUID.h"
 
+#include <cstddef>
 #include <map>
 #include <memory>
 
@@ -25,5 +26,6 @@ class PhysicsSimulation
 
     std::unique_ptr<CADacomb::Physics::Physics>                             physics;
     std::map<CADacomb::GUID, std::shared_ptr<CADacomb::Physics::RigidBody>> bodies;
+    std::map<CADacomb::GUID, size_t>                                        assetRevisions;
     CADacomb::GUID                                                          activeSessionGuid;
 };
