@@ -51,7 +51,7 @@ nlohmann::json GetProjectAABBCommand::execute(Database& database)
 
     for (const auto& asset : assets)
     {
-        if (!asset)
+        if (!asset || !asset->getVisible())
         {
             continue;
         }
@@ -126,5 +126,12 @@ TEST_CASE("GetProjectAABBCommand/CombinedBounds")
     CHECK(result.at("max")[0] == 7.0);
     CHECK(result.at("max")[1] == 6.0);
     CHECK(result.at("max")[2] == 7.0);
+
+    a2->setVisible(false);
+    nlohmann::json hiddenResult = cmd.execute(database);
+    CHECK(hiddenResult.at("type") == "GetProjectAABB");
+    CHECK(hiddenResult.at("max")[0] == 1.0);
+    CHECK(hiddenResult.at("max")[1] == 1.0);
+    CHECK(hiddenResult.at("max")[2] == 1.0);
 }
 #endif

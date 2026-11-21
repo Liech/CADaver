@@ -20,7 +20,7 @@ PickResult AssetPicker::pickRay(const CADacomb::Ray& ray, const Project& project
 
     for (const auto& asset : project.getAssets())
     {
-        if (!asset)
+        if (!asset || !asset->getVisible())
         {
             continue;
         }
@@ -138,5 +138,24 @@ TEST_CASE("AssetPicker/PicksInTransformedAssetSpace")
 
     PickResult miss = picker.pickRay(CADacomb::Ray(glm::dvec3(6.5, 20.0, 4.5), glm::dvec3(0.0, -1.0, 0.0)), project);
     CHECK_FALSE(miss.isHit());
+}
+
+TEST_CASE("AssetPicker/SkipsHiddenAssets")
+{
+    auto asset = std::make_shared<VoxelAsset>();
+    auto svo   = std::make_unique<CADacomb::SVO<bool>>(8, false);
+    svo->setVoxel(glm::ivec3(4, 4, 4), true);
+    asset->setSVO(std::move(svo));
+    asset->setAABB(CADacomb::AABB3(glm::dvec3(0.0), glm::dvec3(8.0)));
+
+    Project project;
+    project.addAsset(asset);
+    AssetPicker picker;
+
+    CADacomb::Ray ray(glm::dvec3(4.5, 20.0, 4.5), glm::dvec3(0.0, -1.0, 0.0));
+    REQUIRE(picker.pickRay(ray, project).isHit());
+
+    asset->setVisible(false);
+    CHECK_FALSE(picker.pickRay(ray, project).isHit());
 }
 #endif
