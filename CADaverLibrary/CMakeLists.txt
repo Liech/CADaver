@@ -37,6 +37,10 @@ set(Command_Conversion_Files
     "Source/CADaverLibrary/Commands/Conversion/ConvertStlToSvoCommand.cpp"
     "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlCommand.h"
     "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlCommand.cpp"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlMarchingCubesCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlMarchingCubesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlSurfaceNetsCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSvoToStlSurfaceNetsCommand.cpp"
 )
 source_group("Source/Commands/Conversion" FILES ${Command_Conversion_Files})
 
@@ -155,6 +159,8 @@ set(Command_Geometry_Files
     "Source/CADaverLibrary/Commands/Geometry/CalculateConnectedComponentsCommand.cpp"
     "Source/CADaverLibrary/Commands/Geometry/ClusterByNormalCommand.h"
     "Source/CADaverLibrary/Commands/Geometry/ClusterByNormalCommand.cpp"
+    "Source/CADaverLibrary/Commands/Geometry/SimplifyMeshCommand.h"
+    "Source/CADaverLibrary/Commands/Geometry/SimplifyMeshCommand.cpp"
     "Source/CADaverLibrary/Commands/Geometry/SplitClustersToAssetsCommand.h"
     "Source/CADaverLibrary/Commands/Geometry/SplitClustersToAssetsCommand.cpp"
     "Source/CADaverLibrary/Commands/Geometry/GetAssetAABBCommand.h"

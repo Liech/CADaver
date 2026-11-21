@@ -64,6 +64,10 @@ set(Windows_Conversion_Files
     "Source/CADaverUI/Windows/Conversion/StlToSvoConversionModal.cpp"
     "Source/CADaverUI/Windows/Conversion/SvoToStlConversionModal.h"
     "Source/CADaverUI/Windows/Conversion/SvoToStlConversionModal.cpp"
+    "Source/CADaverUI/Windows/Conversion/SvoToStlMarchingCubesConversionModal.h"
+    "Source/CADaverUI/Windows/Conversion/SvoToStlMarchingCubesConversionModal.cpp"
+    "Source/CADaverUI/Windows/Conversion/SvoToStlSurfaceNetsConversionModal.h"
+    "Source/CADaverUI/Windows/Conversion/SvoToStlSurfaceNetsConversionModal.cpp"
 )
 source_group("Source/Windows/Conversion" FILES ${Windows_Conversion_Files})
 
@@ -80,6 +84,8 @@ set(Windows_Geometry_Files
     "Source/CADaverUI/Windows/Geometry/CalculateConnectedComponentsWindow.cpp"
     "Source/CADaverUI/Windows/Geometry/ClusterByNormalWindow.h"
     "Source/CADaverUI/Windows/Geometry/ClusterByNormalWindow.cpp"
+    "Source/CADaverUI/Windows/Geometry/SimplifyMeshWindow.h"
+    "Source/CADaverUI/Windows/Geometry/SimplifyMeshWindow.cpp"
 )
 source_group("Source/Windows/Geometry" FILES ${Windows_Geometry_Files})
 

@@ -2,6 +2,7 @@
 
 #include "Windows/Geometry/CalculateConnectedComponentsWindow.h"
 #include "Windows/Geometry/ClusterByNormalWindow.h"
+#include "Windows/Geometry/SimplifyMeshWindow.h"
 
 #include "Execution/GatedDatabase.h"
 #include "Windows/Conversion/ConvertClusteringToCadWindow.h"
@@ -23,6 +24,16 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
     {
         windows.open("SaveAsset");
         auto window = std::dynamic_pointer_cast<SaveAssetWindow>(windows.get("SaveAsset"));
+        if (window)
+        {
+            window->setTargetAsset(assetGuid);
+        }
+    }
+
+    if (ImGui::MenuItem("Simplify Mesh..."))
+    {
+        windows.open("SimplifyMesh");
+        auto window = std::dynamic_pointer_cast<SimplifyMeshWindow>(windows.get("SimplifyMesh"));
         if (window)
         {
             window->setTargetAsset(assetGuid);

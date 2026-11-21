@@ -1,6 +1,8 @@
 ﻿#include "UI/ContextMenu/VoxelAssetContextMenu.h"
 
 #include "Windows/Conversion/SvoToStlConversionModal.h"
+#include "Windows/Conversion/SvoToStlMarchingCubesConversionModal.h"
+#include "Windows/Conversion/SvoToStlSurfaceNetsConversionModal.h"
 #include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Windows.h"
 
@@ -31,6 +33,24 @@ void VoxelAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows& window
         {
             windows.open("SvoToStlConversion");
             auto modal = std::dynamic_pointer_cast<SvoToStlConversionModal>(windows.get("SvoToStlConversion"));
+            if (modal)
+            {
+                modal->setTargetAsset(assetGuid);
+            }
+        }
+        if (ImGui::MenuItem("STL (SurfaceNets)..."))
+        {
+            windows.open("SvoToStlSurfaceNetsConversion");
+            auto modal = std::dynamic_pointer_cast<SvoToStlSurfaceNetsConversionModal>(windows.get("SvoToStlSurfaceNetsConversion"));
+            if (modal)
+            {
+                modal->setTargetAsset(assetGuid);
+            }
+        }
+        if (ImGui::MenuItem("STL (Marching Cubes)..."))
+        {
+            windows.open("SvoToStlMarchingCubesConversion");
+            auto modal = std::dynamic_pointer_cast<SvoToStlMarchingCubesConversionModal>(windows.get("SvoToStlMarchingCubesConversion"));
             if (modal)
             {
                 modal->setTargetAsset(assetGuid);

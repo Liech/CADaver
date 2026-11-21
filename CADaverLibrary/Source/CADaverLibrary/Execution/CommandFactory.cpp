@@ -10,13 +10,16 @@
 #include "Commands/Conversion/ConvertStlToCadCommand.h"
 #include "Commands/Conversion/ConvertStlToSvoCommand.h"
 #include "Commands/Conversion/ConvertSvoToStlCommand.h"
+#include "Commands/Conversion/ConvertSvoToStlMarchingCubesCommand.h"
+#include "Commands/Conversion/ConvertSvoToStlSurfaceNetsCommand.h"
 #include "Commands/Generator/GenerateBaseShapeCommand.h"
 #include "Commands/Generator/GenerateLandscapeCommand.h"
 #include "Commands/Geometry/CalculateConnectedComponentsCommand.h"
 #include "Commands/Geometry/ClusterByNormalCommand.h"
-#include "Commands/Geometry/SplitClustersToAssetsCommand.h"
 #include "Commands/Geometry/GetAssetAABBCommand.h"
 #include "Commands/Geometry/GetProjectAABBCommand.h"
+#include "Commands/Geometry/SimplifyMeshCommand.h"
+#include "Commands/Geometry/SplitClustersToAssetsCommand.h"
 #include "Commands/IO/LoadAssetCommand.h"
 #include "Commands/IO/SaveAssetCommand.h"
 #include "Commands/Preferences/Query/GetCameraPreferencesCommand.h"
@@ -109,6 +112,8 @@ void CommandFactory::registerCommands()
     registerCommand("ConvertStlToCad", []() { return std::make_unique<ConvertStlToCadCommand>(); });
     registerCommand("ConvertStlToSvo", []() { return std::make_unique<ConvertStlToSvoCommand>(); });
     registerCommand("ConvertSvoToStl", []() { return std::make_unique<ConvertSvoToStlCommand>(); });
+    registerCommand("ConvertSvoToStlMarchingCubes", []() { return std::make_unique<ConvertSvoToStlMarchingCubesCommand>(); });
+    registerCommand("ConvertSvoToStlSurfaceNets", []() { return std::make_unique<ConvertSvoToStlSurfaceNetsCommand>(); });
     registerCommand("GenerateBaseShape", []() { return std::make_unique<GenerateBaseShapeCommand>(); });
     registerCommand("GenerateLandscape", []() { return std::make_unique<GenerateLandscapeCommand>(); });
     registerCommand("LoadAsset", []() { return std::make_unique<LoadAssetCommand>(); });
@@ -132,6 +137,7 @@ void CommandFactory::registerCommands()
     registerCommand("CancelTask", []() { return std::make_unique<CancelTaskCommand>(); });
     registerCommand("CalculateConnectedComponents", []() { return std::make_unique<CalculateConnectedComponentsCommand>(); });
     registerCommand("ClusterByNormal", []() { return std::make_unique<ClusterByNormalCommand>(); });
+    registerCommand("SimplifyMesh", []() { return std::make_unique<SimplifyMeshCommand>(); });
     registerCommand("SplitClustersToAssets", []() { return std::make_unique<SplitClustersToAssetsCommand>(); });
     registerCommand("GetAssetAABB", []() { return std::make_unique<GetAssetAABBCommand>(); });
     registerCommand("GetProjectAABB", []() { return std::make_unique<GetProjectAABBCommand>(); });
@@ -174,6 +180,8 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("ConvertCadToSvo") != nullptr);
     CHECK(factory.create("ConvertStlToSvo") != nullptr);
     CHECK(factory.create("ConvertSvoToStl") != nullptr);
+    CHECK(factory.create("ConvertSvoToStlMarchingCubes") != nullptr);
+    CHECK(factory.create("ConvertSvoToStlSurfaceNets") != nullptr);
     CHECK(factory.create("GenerateLandscape") != nullptr);
     CHECK(factory.create("LoadAsset") != nullptr);
     CHECK(factory.create("SaveAsset") != nullptr);
@@ -196,9 +204,10 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("PickAsset") != nullptr);
     CHECK(factory.create("CalculateConnectedComponents") != nullptr);
     CHECK(factory.create("ClusterByNormal") != nullptr);
+    CHECK(factory.create("SimplifyMesh") != nullptr);
     CHECK(factory.create("SplitClustersToAssets") != nullptr);
     CHECK(factory.create("ConvertClusteringToCad") != nullptr);
     CHECK(factory.create("GenerateBaseShape") != nullptr);
-    CHECK(factory.getAllCommands().size() == 47);
+    CHECK(factory.getAllCommands().size() == 50);
 }
 #endif

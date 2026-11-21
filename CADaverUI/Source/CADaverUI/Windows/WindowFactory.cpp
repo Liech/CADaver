@@ -12,10 +12,13 @@
 #include "Windows/Conversion/ConvertStlToCadWindow.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
 #include "Windows/Conversion/SvoToStlConversionModal.h"
+#include "Windows/Conversion/SvoToStlMarchingCubesConversionModal.h"
+#include "Windows/Conversion/SvoToStlSurfaceNetsConversionModal.h"
 #include "Windows/Generator/BaseShapeGeneratorWindow.h"
 #include "Windows/Generator/LandscapeGeneratorWindow.h"
 #include "Windows/Geometry/CalculateConnectedComponentsWindow.h"
 #include "Windows/Geometry/ClusterByNormalWindow.h"
+#include "Windows/Geometry/SimplifyMeshWindow.h"
 #include "Windows/IO/LoadAssetWindow.h"
 #include "Windows/IO/SaveAssetWindow.h"
 #include "Windows/Preferences/PreferencesWindow.h"
@@ -85,10 +88,13 @@ void WindowFactory::registerWindows()
     registerWindow("ConvertStlToCad", []() { return std::make_shared<ConvertStlToCadWindow>(); });
     registerWindow("StlToSvoConversion", []() { return std::make_shared<StlToSvoConversionModal>(); });
     registerWindow("SvoToStlConversion", []() { return std::make_shared<SvoToStlConversionModal>(); });
+    registerWindow("SvoToStlMarchingCubesConversion", []() { return std::make_shared<SvoToStlMarchingCubesConversionModal>(); });
+    registerWindow("SvoToStlSurfaceNetsConversion", []() { return std::make_shared<SvoToStlSurfaceNetsConversionModal>(); });
     registerWindow("BaseShapeGenerator", []() { return std::make_shared<BaseShapeGeneratorWindow>(); });
     registerWindow("LandscapeGenerator", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
     registerWindow("CalculateConnectedComponents", []() { return std::make_shared<CalculateConnectedComponentsWindow>(); });
     registerWindow("ClusterByNormal", []() { return std::make_shared<ClusterByNormalWindow>(); });
+    registerWindow("SimplifyMesh", []() { return std::make_shared<SimplifyMeshWindow>(); });
     registerWindow("LoadAsset", []() { return std::make_shared<LoadAssetWindow>(); });
     registerWindow("SaveAsset", []() { return std::make_shared<SaveAssetWindow>(); });
     registerWindow("ClearProject", []() { return std::make_shared<ClearProjectModal>(); });
@@ -117,9 +123,12 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("ConvertClusteringToCad") != nullptr);
     CHECK(factory.create("StlToSvoConversion") != nullptr);
     CHECK(factory.create("SvoToStlConversion") != nullptr);
+    CHECK(factory.create("SvoToStlMarchingCubesConversion") != nullptr);
+    CHECK(factory.create("SvoToStlSurfaceNetsConversion") != nullptr);
     CHECK(factory.create("LandscapeGenerator") != nullptr);
     CHECK(factory.create("CalculateConnectedComponents") != nullptr);
     CHECK(factory.create("ClusterByNormal") != nullptr);
+    CHECK(factory.create("SimplifyMesh") != nullptr);
     CHECK(factory.create("LoadAsset") != nullptr);
     CHECK(factory.create("SaveAsset") != nullptr);
     CHECK(factory.create("ClearProject") != nullptr);
@@ -131,6 +140,6 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("Script") != nullptr);
     CHECK(factory.create("BaseShapeGenerator") != nullptr);
     CHECK(factory.create("Console") != nullptr);
-    CHECK(factory.getAllWindows().size() == 24);
+    CHECK(factory.getAllWindows().size() == 27);
 }
 #endif
