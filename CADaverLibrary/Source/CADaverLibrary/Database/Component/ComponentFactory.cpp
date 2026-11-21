@@ -1,6 +1,7 @@
 ﻿#include "Database/Component/ComponentFactory.h"
 
 #include "Database/Component/FaceValuesComponent.h"
+#include "Database/Component/RigidBodyComponent.h"
 #include "Database/Component/TextNoteComponent.h"
 
 ComponentFactory::ComponentFactory()
@@ -40,6 +41,7 @@ void ComponentFactory::registerComponents()
 {
     registerComponent("TextNote", []() { return std::make_shared<TextNoteComponent>(); });
     registerComponent("FaceValues", []() { return std::make_shared<FaceValuesComponent>(); });
+    registerComponent("RigidBody", []() { return std::make_shared<RigidBodyComponent>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -57,5 +59,9 @@ TEST_CASE("ComponentFactory/CreateRegisteredComponents")
     auto faceValues = factory.create("FaceValues");
     REQUIRE(faceValues != nullptr);
     CHECK(faceValues->getType() == "FaceValues");
+
+    auto rigidBody = factory.create("RigidBody");
+    REQUIRE(rigidBody != nullptr);
+    CHECK(rigidBody->getType() == "RigidBody");
 }
 #endif

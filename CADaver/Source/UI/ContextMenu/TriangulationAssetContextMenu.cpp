@@ -5,6 +5,7 @@
 #include "Windows/Geometry/SimplifyMeshWindow.h"
 
 #include "Execution/GatedDatabase.h"
+#include "Windows/Asset/RigidBodyEditWindow.h"
 #include "Windows/Conversion/ConvertClusteringToCadWindow.h"
 #include "Windows/Conversion/ConvertStlToCadWindow.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
@@ -94,5 +95,27 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
             }
         }
         ImGui::EndMenu();
+    }
+
+    if (ImGui::MenuItem("Add RigidBody..."))
+    {
+        Polyglot::Node command = {
+            {          "type",                              "AddComponent" },
+            {       "version",                                           1 },
+            {     "assetGuid",                        assetGuid.toString() },
+            { "componentType",                                 "RigidBody" },
+            {          "name",                                 "RigidBody" },
+            {          "data", { { "Version", 1 }, { "isStatic", false } } }
+        };
+        Polyglot::Node result = gatedDatabase.execute(command);
+        if (result["type"].asString() == "AddComponent")
+        {
+            windows.open("RigidBodyEdit");
+            auto editWindow = std::dynamic_pointer_cast<RigidBodyEditWindow>(windows.get("RigidBodyEdit"));
+            if (editWindow)
+            {
+                editWindow->setTarget(assetGuid, CADacomb::GUID(result["componentGuid"].asString()));
+            }
+        }
     }
 }

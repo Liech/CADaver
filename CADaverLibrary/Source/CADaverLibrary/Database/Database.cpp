@@ -34,6 +34,16 @@ const Selection& Database::getSelection() const
     return selection;
 }
 
+PhysicsSimulation& Database::getPhysicsSimulation()
+{
+    return physicsSimulation;
+}
+
+const PhysicsSimulation& Database::getPhysicsSimulation() const
+{
+    return physicsSimulation;
+}
+
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,0 +1,37 @@
+﻿#pragma once
+
+#include "CADacomb/Util/GUID.h"
+#include "Execution/Command.h"
+
+#include <glm/glm.hpp>
+#include <map>
+
+// Command to step the project physics simulation forward in time, supporting command merging.
+class StepPhysicsCommand : public Command
+{
+  public:
+    StepPhysicsCommand();
+    virtual ~StepPhysicsCommand();
+
+    std::string getType() const override;
+    int         getVersion() const override;
+    std::string getDescription() const override;
+
+    void           setInput(const Polyglot::Node& node) override;
+    nlohmann::json execute(Database& database) override;
+
+    bool   isUndoable() const override;
+    void   undo(Database& database) override;
+    void   redo(Database& database) override;
+    size_t getUndoSize() const override;
+
+    bool isMergeable() const override;
+    bool merge(const Command& other) override;
+
+    double getDeltaTime() const;
+
+  private:
+    double                               deltaTime = 1.0 / 60.0;
+    std::map<CADacomb::GUID, glm::dmat4> previousTransformations;
+    std::map<CADacomb::GUID, glm::dmat4> currentTransformations;
+};

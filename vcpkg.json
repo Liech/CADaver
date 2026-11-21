@@ -12,6 +12,7 @@
     "nlohmann-json",
     "glm",
     "smlib",
+    "joltphysics",
     "catch2",
     "nativefiledialog-extended",
     "glfw3",

@@ -222,6 +222,12 @@ set(Database_Preferences_Files
 )
 source_group("Source/Database/Preferences" FILES ${Database_Preferences_Files})
 
+set(Command_Physics_Files
+    "Source/CADaverLibrary/Commands/Physics/StepPhysicsCommand.h"
+    "Source/CADaverLibrary/Commands/Physics/StepPhysicsCommand.cpp"
+)
+source_group("Source/Commands/Physics" FILES ${Command_Physics_Files})
+
 set(Database_Files
     "Source/CADaverLibrary/Database/Database.h"
     "Source/CADaverLibrary/Database/Database.cpp"
@@ -235,8 +241,12 @@ set(Database_Files
     "Source/CADaverLibrary/Database/Component/ComponentFactory.cpp"
     "Source/CADaverLibrary/Database/Component/FaceValuesComponent.h"
     "Source/CADaverLibrary/Database/Component/FaceValuesComponent.cpp"
+    "Source/CADaverLibrary/Database/Component/RigidBodyComponent.h"
+    "Source/CADaverLibrary/Database/Component/RigidBodyComponent.cpp"
     "Source/CADaverLibrary/Database/Component/TextNoteComponent.h"
     "Source/CADaverLibrary/Database/Component/TextNoteComponent.cpp"
+    "Source/CADaverLibrary/Database/Physics/PhysicsSimulation.h"
+    "Source/CADaverLibrary/Database/Physics/PhysicsSimulation.cpp"
 )
 source_group("Source/Database" FILES ${Database_Files})
 
@@ -375,6 +385,7 @@ set(ALL_FILES
     ${Command_Preferences_Query_Files}
     ${Command_Task_Files}
     ${Command_Geometry_Files}
+    ${Command_Physics_Files}
     ${Command_Selection_Files}
     ${Picking_Files}
     ${Picking_AssetRayPicker_Files}

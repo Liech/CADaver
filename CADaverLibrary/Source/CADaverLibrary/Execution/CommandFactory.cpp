@@ -22,6 +22,7 @@
 #include "Commands/Geometry/SplitClustersToAssetsCommand.h"
 #include "Commands/IO/LoadAssetCommand.h"
 #include "Commands/IO/SaveAssetCommand.h"
+#include "Commands/Physics/StepPhysicsCommand.h"
 #include "Commands/Preferences/Query/GetCameraPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetRenderPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetSVOPreferencesCommand.h"
@@ -150,6 +151,7 @@ void CommandFactory::registerCommands()
     registerCommand("GetTransformationAsset", []() { return std::make_unique<GetTransformationAssetCommand>(); });
     registerCommand("GetSelectedAssets", []() { return std::make_unique<GetSelectedAssetsCommand>(); });
     registerCommand("PickAsset", []() { return std::make_unique<PickAssetCommand>(); });
+    registerCommand("StepPhysics", []() { return std::make_unique<StepPhysicsCommand>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -208,6 +210,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("SplitClustersToAssets") != nullptr);
     CHECK(factory.create("ConvertClusteringToCad") != nullptr);
     CHECK(factory.create("GenerateBaseShape") != nullptr);
-    CHECK(factory.getAllCommands().size() == 50);
+    CHECK(factory.create("StepPhysics") != nullptr);
+    CHECK(factory.getAllCommands().size() == 51);
 }
 #endif

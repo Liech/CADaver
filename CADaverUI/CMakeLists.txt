@@ -116,10 +116,18 @@ set(Windows_Preferences_Files
 source_group("Source/Windows/Preferences" FILES ${Windows_Preferences_Files})
 
 set(Windows_Asset_Files
+    "Source/CADaverUI/Windows/Asset/RigidBodyEditWindow.h"
+    "Source/CADaverUI/Windows/Asset/RigidBodyEditWindow.cpp"
     "Source/CADaverUI/Windows/Asset/TextNoteEditWindow.h"
     "Source/CADaverUI/Windows/Asset/TextNoteEditWindow.cpp"
 )
 source_group("Source/Windows/Asset" FILES ${Windows_Asset_Files})
+
+set(Windows_Physics_Files
+    "Source/CADaverUI/Windows/Physics/PhysicsWindow.h"
+    "Source/CADaverUI/Windows/Physics/PhysicsWindow.cpp"
+)
+source_group("Source/Windows/Physics" FILES ${Windows_Physics_Files})
 
 set(Windows_Script_Files
     "Source/CADaverUI/Windows/Script/ScriptWindow.h"
@@ -195,6 +203,12 @@ set(UIElement_Menu_Create_Files
 )
 source_group("Source/UIElement/Menu/Create" FILES ${UIElement_Menu_Create_Files})
 
+set(UIElement_Menu_Physics_Files
+    "Source/CADaverUI/UIElement/Menu/Physics/PhysicsMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Physics/PhysicsMenuEntry.cpp"
+)
+source_group("Source/UIElement/Menu/Physics" FILES ${UIElement_Menu_Physics_Files})
+
 set(UIElement_Menu_Help_Files
     "Source/CADaverUI/UIElement/Menu/Help/AboutMenuEntry.h"
     "Source/CADaverUI/UIElement/Menu/Help/AboutMenuEntry.cpp"
@@ -252,6 +266,7 @@ set(ALL_FILES
     ${Windows_IO_Files}
     ${Windows_Preferences_Files}
     ${Windows_Asset_Files}
+    ${Windows_Physics_Files}
     ${Windows_Script_Files}
     ${Windows_Console_Files}
     ${Windows_Project_Files}
@@ -260,6 +275,7 @@ set(ALL_FILES
     ${UIElement_Menu_File_Files}
     ${UIElement_Menu_Edit_Files}
     ${UIElement_Menu_Create_Files}
+    ${UIElement_Menu_Physics_Files}
     ${UIElement_Menu_Help_Files}
     ${UIElement_Radio_Files}
     ${Search_Files}

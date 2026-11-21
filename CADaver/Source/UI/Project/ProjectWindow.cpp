@@ -4,6 +4,7 @@
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenuRenderer.h"
 #include "UI/ContextMenu/ProgressAssetContextMenu.h"
+#include "Windows/Asset/RigidBodyEditWindow.h"
 #include "Windows/Asset/TextNoteEditWindow.h"
 #include "Windows/Project/TaskNotificationModal.h"
 #include "Windows/Windows.h"
@@ -39,7 +40,7 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
       {    "type", "GetSelectedAssets" },
       { "version",                   1 }
     });
-    nlohmann::json selectedArr = selectionRes.toJson().value("assetGuids", nlohmann::json::array());
+    nlohmann::json selectedArr  = selectionRes.toJson().value("assetGuids", nlohmann::json::array());
 
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
@@ -123,10 +124,10 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                 if (renderVisibilityButton(eyeBtnId, isVisible))
                 {
                     gatedDatabase.execute({
-                      {      "type",   "SetAssetVisibility" },
-                      {   "version",                      1 },
-                      { "assetGuid",   assetGuid.toString() },
-                      {   "visible",             !isVisible }
+                      {      "type", "SetAssetVisibility" },
+                      {   "version",                    1 },
+                      { "assetGuid", assetGuid.toString() },
+                      {   "visible",           !isVisible }
                     });
                 }
                 ImGui::SameLine();
@@ -149,11 +150,11 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                 {
                     const ImGuiIO& io = ImGui::GetIO();
                     gatedDatabase.execute({
-                      {       "type",                                         "SelectAsset" },
-                      {    "version",                                                     1 },
-                      {  "assetGuid",                                  assetGuid.toString() },
+                      {       "type",                                             "SelectAsset" },
+                      {    "version",                                                         1 },
+                      {  "assetGuid",                                      assetGuid.toString() },
                       {       "mode", io.KeyCtrl ? "Remove" : (io.KeyShift ? "Add" : "Replace") },
-                      { "subObjects",                                               nullptr }
+                      { "subObjects",                                                   nullptr }
                     });
                 }
 
@@ -192,11 +193,11 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                         {
                             const ImGuiIO& io = ImGui::GetIO();
                             gatedDatabase.execute({
-                              {       "type",                                         "SelectAsset" },
-                              {    "version",                                                     1 },
-                              {  "assetGuid",                                   compGuid.toString() },
+                              {       "type",                                             "SelectAsset" },
+                              {    "version",                                                         1 },
+                              {  "assetGuid",                                       compGuid.toString() },
                               {       "mode", io.KeyCtrl ? "Remove" : (io.KeyShift ? "Add" : "Replace") },
-                              { "subObjects",                                               nullptr }
+                              { "subObjects",                                                   nullptr }
                             });
                         }
 
@@ -211,6 +212,15 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                                     editWin->setTarget(assetGuid, compGuid);
                                 }
                             }
+                            else if (compType == "RigidBody")
+                            {
+                                windows.open("RigidBodyEdit");
+                                auto editWin = std::dynamic_pointer_cast<RigidBodyEditWindow>(windows.get("RigidBodyEdit"));
+                                if (editWin)
+                                {
+                                    editWin->setTarget(assetGuid, compGuid);
+                                }
+                            }
                         }
 
                         std::string compContextId = "ComponentContext##" + compGuid.toString();
@@ -220,6 +230,15 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                             {
                                 windows.open("TextNoteEdit");
                                 auto editWin = std::dynamic_pointer_cast<TextNoteEditWindow>(windows.get("TextNoteEdit"));
+                                if (editWin)
+                                {
+                                    editWin->setTarget(assetGuid, compGuid);
+                                }
+                            }
+                            else if (compType == "RigidBody" && ImGui::MenuItem("Edit RigidBody..."))
+                            {
+                                windows.open("RigidBodyEdit");
+                                auto editWin = std::dynamic_pointer_cast<RigidBodyEditWindow>(windows.get("RigidBodyEdit"));
                                 if (editWin)
                                 {
                                     editWin->setTarget(assetGuid, compGuid);
