@@ -31,8 +31,10 @@
 #include "Commands/Project/GetAssetCountCommand.h"
 #include "Commands/Project/GetAssetInfoCommand.h"
 #include "Commands/Project/GetAssetNamesCommand.h"
+#include "Commands/Project/GetAssetVisibilityCommand.h"
 #include "Commands/Project/GetAssetsCommand.h"
 #include "Commands/Project/RemoveAssetCommand.h"
+#include "Commands/Project/SetAssetVisibilityCommand.h"
 #include "Commands/Search/GetDocumentationCommand.h"
 #include "Commands/Search/SearchCommand.h"
 #include "Commands/Selection/ClearSelectionCommand.h"
@@ -118,7 +120,9 @@ void CommandFactory::registerCommands()
     registerCommand("GetAssetCount", []() { return std::make_unique<GetAssetCountCommand>(); });
     registerCommand("GetAssetInfo", []() { return std::make_unique<GetAssetInfoCommand>(); });
     registerCommand("GetAssetNames", []() { return std::make_unique<GetAssetNamesCommand>(); });
+    registerCommand("GetAssetVisibility", []() { return std::make_unique<GetAssetVisibilityCommand>(); });
     registerCommand("GetAssets", []() { return std::make_unique<GetAssetsCommand>(); });
+    registerCommand("SetAssetVisibility", []() { return std::make_unique<SetAssetVisibilityCommand>(); });
     registerCommand("GetCameraPreferences", []() { return std::make_unique<GetCameraPreferencesCommand>(); });
     registerCommand("GetRenderPreferences", []() { return std::make_unique<GetRenderPreferencesCommand>(); });
     registerCommand("GetSVOPreferences", []() { return std::make_unique<GetSVOPreferencesCommand>(); });
@@ -154,7 +158,9 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GetAssetCount") != nullptr);
     CHECK(factory.create("GetAssetInfo") != nullptr);
     CHECK(factory.create("GetAssetNames") != nullptr);
+    CHECK(factory.create("GetAssetVisibility") != nullptr);
     CHECK(factory.create("GetAssets") != nullptr);
+    CHECK(factory.create("SetAssetVisibility") != nullptr);
     CHECK(factory.create("GetCameraPreferences") != nullptr);
     CHECK(factory.create("GetRenderPreferences") != nullptr);
     CHECK(factory.create("GetSVOPreferences") != nullptr);
@@ -193,6 +199,6 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("SplitClustersToAssets") != nullptr);
     CHECK(factory.create("ConvertClusteringToCad") != nullptr);
     CHECK(factory.create("GenerateBaseShape") != nullptr);
-    CHECK(factory.getAllCommands().size() == 45);
+    CHECK(factory.getAllCommands().size() == 47);
 }
 #endif

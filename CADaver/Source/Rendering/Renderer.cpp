@@ -78,7 +78,7 @@ void Renderer::render(const Vulcant::Toolkit::SceneData& sceneData)
 
     for (const auto& asset : project.getAssets())
     {
-        if (asset)
+        if (asset && asset->getVisible())
         {
             renderAsset(asset, sceneData);
         }

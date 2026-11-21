@@ -30,6 +30,9 @@ class Asset
     const glm::dmat4& getTransformation() const;
     void              setTransformation(const glm::dmat4& transformation);
 
+    bool getVisible() const;
+    void setVisible(bool visible);
+
     CADacomb::GUID                               addComponent(std::shared_ptr<AssetComponent> component);
     bool                                         removeComponent(const CADacomb::GUID& componentGuid);
     std::shared_ptr<AssetComponent>              getComponent(const CADacomb::GUID& componentGuid) const;
@@ -50,6 +53,7 @@ class Asset
     std::string                                               name;
     glm::dmat4                                                transformation{ 1.0 };
     size_t                                                    revision = 0;
+    bool                                                      visible  = true;
 };
 
 template<typename T>

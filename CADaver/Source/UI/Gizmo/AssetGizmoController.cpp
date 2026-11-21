@@ -1,4 +1,4 @@
-#include "UI/Gizmo/AssetGizmoController.h"
+﻿#include "UI/Gizmo/AssetGizmoController.h"
 
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"

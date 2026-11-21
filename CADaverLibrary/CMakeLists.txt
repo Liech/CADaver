@@ -97,6 +97,10 @@ set(Command_Project_Files
     "Source/CADaverLibrary/Commands/Project/GetAssetCountCommand.cpp"
     "Source/CADaverLibrary/Commands/Project/GetAssetInfoCommand.h"
     "Source/CADaverLibrary/Commands/Project/GetAssetInfoCommand.cpp"
+    "Source/CADaverLibrary/Commands/Project/GetAssetVisibilityCommand.h"
+    "Source/CADaverLibrary/Commands/Project/GetAssetVisibilityCommand.cpp"
+    "Source/CADaverLibrary/Commands/Project/SetAssetVisibilityCommand.h"
+    "Source/CADaverLibrary/Commands/Project/SetAssetVisibilityCommand.cpp"
 )
 source_group("Source/Commands/Project" FILES ${Command_Project_Files})
 

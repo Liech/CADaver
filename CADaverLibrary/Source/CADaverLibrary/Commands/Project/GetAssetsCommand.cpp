@@ -41,6 +41,7 @@ std::string GetAssetsCommand::getDescription() const
            "      \"name\": <string>,\n"
            "      \"type\": <string>,\n"
            "      \"revision\": <size_t>,\n"
+           "      \"visible\": <bool>,\n"
            "      \"components\": [\n"
            "        {\n"
            "          \"componentGuid\": <string>,\n"
@@ -85,6 +86,7 @@ nlohmann::json GetAssetsCommand::execute(Database& database)
             {       "name",            asset->getName() },
             {       "type",            asset->getType() },
             {   "revision",        asset->getRevision() },
+            {    "visible",         asset->getVisible() },
             { "components",              componentArray }
         };
 

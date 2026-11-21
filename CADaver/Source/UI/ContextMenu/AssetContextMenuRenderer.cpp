@@ -1,4 +1,4 @@
-#include "UI/ContextMenu/AssetContextMenuRenderer.h"
+﻿#include "UI/ContextMenu/AssetContextMenuRenderer.h"
 
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenu.h"

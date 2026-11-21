@@ -39,6 +39,17 @@ void Asset::setTransformation(const glm::dmat4& newTransformation)
     markModified();
 }
 
+bool Asset::getVisible() const
+{
+    return visible;
+}
+
+void Asset::setVisible(bool newVisible)
+{
+    visible = newVisible;
+    markModified();
+}
+
 void Asset::markModified()
 {
     revision++;
@@ -110,6 +121,21 @@ class MockAsset : public Asset
         return sizeof(MockAsset);
     }
 };
+
+TEST_CASE("Asset/VisibilityGetterAndSetter")
+{
+    MockAsset asset;
+    CHECK(asset.getVisible() == true);
+    size_t initialRev = asset.getRevision();
+
+    asset.setVisible(false);
+    CHECK(asset.getVisible() == false);
+    CHECK(asset.getRevision() == initialRev + 1);
+
+    asset.setVisible(true);
+    CHECK(asset.getVisible() == true);
+    CHECK(asset.getRevision() == initialRev + 2);
+}
 
 TEST_CASE("Asset/ComponentLifecycle")
 {

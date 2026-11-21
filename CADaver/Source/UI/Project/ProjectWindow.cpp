@@ -118,6 +118,19 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                     }
                 }
 
+                bool        isVisible = assetItem.value("visible", true);
+                std::string eyeBtnId  = "##Visibility_" + assetGuid.toString();
+                if (renderVisibilityButton(eyeBtnId, isVisible))
+                {
+                    gatedDatabase.execute({
+                      {      "type",   "SetAssetVisibility" },
+                      {   "version",                      1 },
+                      { "assetGuid",   assetGuid.toString() },
+                      {   "visible",             !isVisible }
+                    });
+                }
+                ImGui::SameLine();
+
                 nlohmann::json     components = assetItem.value("components", nlohmann::json::array());
                 ImGuiTreeNodeFlags nodeFlags  = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
                 if (isSelected)
@@ -248,4 +261,41 @@ void ProjectWindow::renderMenuBar(bool hasAssets, Windows& windows)
         }
         ImGui::EndMenuBar();
     }
+}
+
+bool ProjectWindow::renderVisibilityButton(const std::string& buttonId, bool isVisible)
+{
+    float btnSize = ImGui::GetTextLineHeight();
+    bool  clicked = ImGui::Button(buttonId.c_str(), ImVec2(btnSize, btnSize));
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    ImVec2      btnMin   = ImGui::GetItemRectMin();
+    ImVec2      btnMax   = ImGui::GetItemRectMax();
+    ImVec2      center((btnMin.x + btnMax.x) * 0.5f, (btnMin.y + btnMax.y) * 0.5f);
+
+    float rx = btnSize * 0.36f;
+    float ry = btnSize * 0.20f;
+
+    ImU32 iconColor = ImGui::GetColorU32(isVisible ? ImGuiCol_Text : ImGuiCol_TextDisabled);
+
+    ImVec2 leftCorner(center.x - rx, center.y);
+    ImVec2 rightCorner(center.x + rx, center.y);
+    ImVec2 topMid(center.x, center.y - ry);
+    ImVec2 botMid(center.x, center.y + ry);
+
+    drawList->AddLine(leftCorner, topMid, iconColor, 1.3f);
+    drawList->AddLine(topMid, rightCorner, iconColor, 1.3f);
+    drawList->AddLine(rightCorner, botMid, iconColor, 1.3f);
+    drawList->AddLine(botMid, leftCorner, iconColor, 1.3f);
+
+    if (isVisible)
+    {
+        drawList->AddCircleFilled(center, btnSize * 0.11f, iconColor, 12);
+    }
+    else
+    {
+        drawList->AddLine(ImVec2(center.x - rx, center.y + ry * 1.2f), ImVec2(center.x + rx, center.y - ry * 1.2f), iconColor, 1.3f);
+    }
+
+    return clicked;
 }

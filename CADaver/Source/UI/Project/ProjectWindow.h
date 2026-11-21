@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <memory>
+#include <string>
 
 class AssetContextMenuRenderer;
 class GatedDatabase;
@@ -20,6 +21,7 @@ class ProjectWindow
 
   private:
     void renderMenuBar(bool hasAssets, Windows& windows);
+    bool renderVisibilityButton(const std::string& buttonId, bool isVisible);
 
     std::unique_ptr<AssetContextMenuRenderer> contextMenuRenderer;
     float                                     width = 300.0f;
