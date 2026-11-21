@@ -6,6 +6,7 @@
 
 #include "Execution/GatedDatabase.h"
 #include "Windows/Asset/RigidBodyEditWindow.h"
+#include "Windows/Asset/SoftBodyEditWindow.h"
 #include "Windows/Conversion/ConvertClusteringToCadWindow.h"
 #include "Windows/Conversion/ConvertStlToCadWindow.h"
 #include "Windows/Conversion/StlToSvoConversionModal.h"
@@ -112,6 +113,37 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
         {
             windows.open("RigidBodyEdit");
             auto editWindow = std::dynamic_pointer_cast<RigidBodyEditWindow>(windows.get("RigidBodyEdit"));
+            if (editWindow)
+            {
+                editWindow->setTarget(assetGuid, CADacomb::GUID(result["componentGuid"].asString()));
+            }
+        }
+    }
+
+    if (ImGui::MenuItem("Add SoftBody..."))
+    {
+        Polyglot::Node command = {
+            {          "type","AddComponent"                              },
+            {       "version",                    1 },
+            {     "assetGuid", assetGuid.toString() },
+            { "componentType",           "SoftBody" },
+            {          "name",           "SoftBody" },
+            {          "data",
+             { { "Version", 1 },
+             { "mass", 1.0 },
+             { "pressure", 2000.0 },
+             { "edgeCompliance", 0.0001 },
+             { "bendCompliance", 0.001 },
+             { "damping", 0.2 },
+             { "friction", 0.3 },
+             { "restitution", 0.0 },
+             { "solverIterations", 10 } }          }
+        };
+        Polyglot::Node result = gatedDatabase.execute(command);
+        if (result["type"].asString() == "AddComponent")
+        {
+            windows.open("SoftBodyEdit");
+            auto editWindow = std::dynamic_pointer_cast<SoftBodyEditWindow>(windows.get("SoftBodyEdit"));
             if (editWindow)
             {
                 editWindow->setTarget(assetGuid, CADacomb::GUID(result["componentGuid"].asString()));

@@ -5,6 +5,7 @@
 #include "Windows/About/ConceptsInfoWindow.h"
 #include "Windows/About/WindowsInfoWindow.h"
 #include "Windows/Asset/RigidBodyEditWindow.h"
+#include "Windows/Asset/SoftBodyEditWindow.h"
 #include "Windows/Asset/TextNoteEditWindow.h"
 #include "Windows/Console/ConsoleWindow.h"
 #include "Windows/Conversion/CadToStlConversionModal.h"
@@ -106,6 +107,7 @@ void WindowFactory::registerWindows()
     registerWindow("TaskNotification", []() { return std::make_shared<TaskNotificationModal>(); });
     registerWindow("TextNoteEdit", []() { return std::make_shared<TextNoteEditWindow>(); });
     registerWindow("RigidBodyEdit", []() { return std::make_shared<RigidBodyEditWindow>(); });
+    registerWindow("SoftBodyEdit", []() { return std::make_shared<SoftBodyEditWindow>(); });
     registerWindow("Physics", []() { return std::make_shared<PhysicsWindow>(); });
     registerWindow("Script", []() { return std::make_shared<ScriptWindow>(); });
     registerWindow("Console", []() { return std::make_shared<ConsoleWindow>(); });
@@ -142,10 +144,11 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("TaskNotification") != nullptr);
     CHECK(factory.create("TextNoteEdit") != nullptr);
     CHECK(factory.create("RigidBodyEdit") != nullptr);
+    CHECK(factory.create("SoftBodyEdit") != nullptr);
     CHECK(factory.create("Physics") != nullptr);
     CHECK(factory.create("Script") != nullptr);
     CHECK(factory.create("BaseShapeGenerator") != nullptr);
     CHECK(factory.create("Console") != nullptr);
-    CHECK(factory.getAllWindows().size() == 29);
+    CHECK(factory.getAllWindows().size() == 30);
 }
 #endif

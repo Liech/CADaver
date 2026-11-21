@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20...3.30)
+﻿cmake_minimum_required(VERSION 3.20...3.30)
 
 find_package(Catch2 REQUIRED)
 
@@ -243,6 +243,8 @@ set(Database_Files
     "Source/CADaverLibrary/Database/Component/FaceValuesComponent.cpp"
     "Source/CADaverLibrary/Database/Component/RigidBodyComponent.h"
     "Source/CADaverLibrary/Database/Component/RigidBodyComponent.cpp"
+    "Source/CADaverLibrary/Database/Component/SoftBodyComponent.h"
+    "Source/CADaverLibrary/Database/Component/SoftBodyComponent.cpp"
     "Source/CADaverLibrary/Database/Component/TextNoteComponent.h"
     "Source/CADaverLibrary/Database/Component/TextNoteComponent.cpp"
     "Source/CADaverLibrary/Database/Physics/PhysicsSimulation.h"

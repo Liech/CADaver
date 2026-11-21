@@ -5,6 +5,7 @@
 #include "UI/ContextMenu/AssetContextMenuRenderer.h"
 #include "UI/ContextMenu/ProgressAssetContextMenu.h"
 #include "Windows/Asset/RigidBodyEditWindow.h"
+#include "Windows/Asset/SoftBodyEditWindow.h"
 #include "Windows/Asset/TextNoteEditWindow.h"
 #include "Windows/Project/TaskNotificationModal.h"
 #include "Windows/Windows.h"
@@ -221,6 +222,15 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                                     editWin->setTarget(assetGuid, compGuid);
                                 }
                             }
+                            else if (compType == "SoftBody")
+                            {
+                                windows.open("SoftBodyEdit");
+                                auto editWin = std::dynamic_pointer_cast<SoftBodyEditWindow>(windows.get("SoftBodyEdit"));
+                                if (editWin)
+                                {
+                                    editWin->setTarget(assetGuid, compGuid);
+                                }
+                            }
                         }
 
                         std::string compContextId = "ComponentContext##" + compGuid.toString();
@@ -239,6 +249,15 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                             {
                                 windows.open("RigidBodyEdit");
                                 auto editWin = std::dynamic_pointer_cast<RigidBodyEditWindow>(windows.get("RigidBodyEdit"));
+                                if (editWin)
+                                {
+                                    editWin->setTarget(assetGuid, compGuid);
+                                }
+                            }
+                            else if (compType == "SoftBody" && ImGui::MenuItem("Edit SoftBody..."))
+                            {
+                                windows.open("SoftBodyEdit");
+                                auto editWin = std::dynamic_pointer_cast<SoftBodyEditWindow>(windows.get("SoftBodyEdit"));
                                 if (editWin)
                                 {
                                     editWin->setTarget(assetGuid, compGuid);

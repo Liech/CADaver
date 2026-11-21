@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 #include <map>
+#include <vector>
 
 // Command to step the project physics simulation forward in time, supporting command merging.
 class StepPhysicsCommand : public Command
@@ -31,7 +32,9 @@ class StepPhysicsCommand : public Command
     double getDeltaTime() const;
 
   private:
-    double                               deltaTime = 1.0 / 60.0;
-    std::map<CADacomb::GUID, glm::dmat4> previousTransformations;
-    std::map<CADacomb::GUID, glm::dmat4> currentTransformations;
+    double                                            deltaTime = 1.0 / 60.0;
+    std::map<CADacomb::GUID, glm::dmat4>              previousTransformations;
+    std::map<CADacomb::GUID, glm::dmat4>              currentTransformations;
+    std::map<CADacomb::GUID, std::vector<glm::dvec3>> previousVertices;
+    std::map<CADacomb::GUID, std::vector<glm::dvec3>> currentVertices;
 };

@@ -5,6 +5,7 @@
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Component/RigidBodyComponent.h"
+#include "Database/Component/SoftBodyComponent.h"
 #include "Database/Project.h"
 
 PhysicsSimulation::PhysicsSimulation() {}
@@ -14,6 +15,7 @@ PhysicsSimulation::~PhysicsSimulation() {}
 void PhysicsSimulation::reset()
 {
     bodies.clear();
+    softBodies.clear();
     assetRevisions.clear();
     physics.reset();
     activeSessionGuid = CADacomb::GUID("00000000-0000-0000-0000-000000000000");
@@ -50,6 +52,22 @@ void PhysicsSimulation::step(Project& project, double deltaTime, const CADacomb:
             assetRevisions[pair.first] = asset->getRevision();
         }
     }
+
+    for (const auto& pair : softBodies)
+    {
+        auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(project.getAsset(pair.first));
+        if (triAsset && pair.second)
+        {
+            triAsset->setTransformation(pair.second->getTransformation());
+            std::vector<glm::dvec3> deformedVertices = pair.second->getDeformedVertices();
+            if (deformedVertices.size() == triAsset->getTriangulation().vertices.size())
+            {
+                triAsset->getTriangulation().vertices = std::move(deformedVertices);
+                triAsset->setMeshColor(triAsset->getMeshColor());
+            }
+            assetRevisions[pair.first] = triAsset->getRevision();
+        }
+    }
 }
 
 bool PhysicsSimulation::isZeroGuid(const CADacomb::GUID& guid) const
@@ -67,11 +85,34 @@ bool PhysicsSimulation::isZeroGuid(const CADacomb::GUID& guid) const
 void PhysicsSimulation::rebuildWorld(Project& project)
 {
     bodies.clear();
+    softBodies.clear();
     assetRevisions.clear();
     physics = std::make_unique<CADacomb::Physics::PhysicsJ>();
 
     for (const auto& asset : project.getAssets())
     {
+        auto sbAttachments = asset->getAttachments<SoftBodyComponent>();
+        if (!sbAttachments.empty())
+        {
+            if (auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(asset))
+            {
+                const auto& sbComp               = sbAttachments.front();
+                auto        sb                   = physics->createSoftBody(triAsset->getTriangulation(),
+                                                                           triAsset->getTransformation(),
+                                                                           sbComp->getMass(),
+                                                                           sbComp->getPressure(),
+                                                                           sbComp->getEdgeCompliance(),
+                                                                           sbComp->getBendCompliance(),
+                                                                           sbComp->getDamping(),
+                                                                           sbComp->getFriction(),
+                                                                           sbComp->getRestitution(),
+                                                                           sbComp->getSolverIterations());
+                softBodies[triAsset->getGuid()]  = sb;
+                assetRevisions[asset->getGuid()] = asset->getRevision();
+                continue;
+            }
+        }
+
         auto rbAttachments = asset->getAttachments<RigidBodyComponent>();
         if (rbAttachments.empty())
         {

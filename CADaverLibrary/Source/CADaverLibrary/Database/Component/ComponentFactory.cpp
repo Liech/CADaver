@@ -2,6 +2,7 @@
 
 #include "Database/Component/FaceValuesComponent.h"
 #include "Database/Component/RigidBodyComponent.h"
+#include "Database/Component/SoftBodyComponent.h"
 #include "Database/Component/TextNoteComponent.h"
 
 ComponentFactory::ComponentFactory()
@@ -42,6 +43,7 @@ void ComponentFactory::registerComponents()
     registerComponent("TextNote", []() { return std::make_shared<TextNoteComponent>(); });
     registerComponent("FaceValues", []() { return std::make_shared<FaceValuesComponent>(); });
     registerComponent("RigidBody", []() { return std::make_shared<RigidBodyComponent>(); });
+    registerComponent("SoftBody", []() { return std::make_shared<SoftBodyComponent>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -63,5 +65,9 @@ TEST_CASE("ComponentFactory/CreateRegisteredComponents")
     auto rigidBody = factory.create("RigidBody");
     REQUIRE(rigidBody != nullptr);
     CHECK(rigidBody->getType() == "RigidBody");
+
+    auto softBody = factory.create("SoftBody");
+    REQUIRE(softBody != nullptr);
+    CHECK(softBody->getType() == "SoftBody");
 }
 #endif

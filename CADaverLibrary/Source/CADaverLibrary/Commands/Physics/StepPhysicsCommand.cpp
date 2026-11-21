@@ -1,6 +1,8 @@
 ﻿#include "Commands/Physics/StepPhysicsCommand.h"
 
 #include "Database/Asset.h"
+#include "Database/Asset/TriangulationAsset.h"
+#include "Database/Component/SoftBodyComponent.h"
 #include "Database/Database.h"
 #include "Database/Project.h"
 
@@ -22,7 +24,7 @@ std::string StepPhysicsCommand::getDescription() const
 {
     return "Command: StepPhysics\n"
            "Version: 1\n"
-           "Purpose: Advances the rigid body physics simulation of the project by a given time delta.\n\n"
+           "Purpose: Advances the rigid body and soft body physics simulation of the project by a given time delta.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"StepPhysics\",\n"
@@ -62,10 +64,19 @@ nlohmann::json StepPhysicsCommand::execute(Database& database)
 
     previousTransformations.clear();
     currentTransformations.clear();
+    previousVertices.clear();
+    currentVertices.clear();
 
     for (const auto& asset : database.getProject().getAssets())
     {
         previousTransformations[asset->getGuid()] = asset->getTransformation();
+        if (!asset->getAttachments<SoftBodyComponent>().empty())
+        {
+            if (auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(asset))
+            {
+                previousVertices[asset->getGuid()] = triAsset->getTriangulation().vertices;
+            }
+        }
     }
 
     database.getPhysicsSimulation().step(database.getProject(), deltaTime, getMergeGuid());
@@ -73,6 +84,13 @@ nlohmann::json StepPhysicsCommand::execute(Database& database)
     for (const auto& asset : database.getProject().getAssets())
     {
         currentTransformations[asset->getGuid()] = asset->getTransformation();
+        if (!asset->getAttachments<SoftBodyComponent>().empty())
+        {
+            if (auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(asset))
+            {
+                currentVertices[asset->getGuid()] = triAsset->getTriangulation().vertices;
+            }
+        }
     }
 
     return createResponse({
@@ -96,6 +114,15 @@ void StepPhysicsCommand::undo(Database& database)
             asset->setTransformation(pair.second);
         }
     }
+    for (const auto& pair : previousVertices)
+    {
+        auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(database.getProject().getAsset(pair.first));
+        if (triAsset)
+        {
+            triAsset->getTriangulation().vertices = pair.second;
+            triAsset->setMeshColor(triAsset->getMeshColor());
+        }
+    }
 }
 
 void StepPhysicsCommand::redo(Database& database)
@@ -109,11 +136,29 @@ void StepPhysicsCommand::redo(Database& database)
             asset->setTransformation(pair.second);
         }
     }
+    for (const auto& pair : currentVertices)
+    {
+        auto triAsset = std::dynamic_pointer_cast<TriangulationAsset>(database.getProject().getAsset(pair.first));
+        if (triAsset)
+        {
+            triAsset->getTriangulation().vertices = pair.second;
+            triAsset->setMeshColor(triAsset->getMeshColor());
+        }
+    }
 }
 
 size_t StepPhysicsCommand::getUndoSize() const
 {
-    return sizeof(StepPhysicsCommand) + (previousTransformations.size() + currentTransformations.size()) * (sizeof(CADacomb::GUID) + sizeof(glm::dmat4));
+    size_t totalBytes = sizeof(StepPhysicsCommand) + (previousTransformations.size() + currentTransformations.size()) * (sizeof(CADacomb::GUID) + sizeof(glm::dmat4));
+    for (const auto& pair : previousVertices)
+    {
+        totalBytes += sizeof(CADacomb::GUID) + pair.second.size() * sizeof(glm::dvec3);
+    }
+    for (const auto& pair : currentVertices)
+    {
+        totalBytes += sizeof(CADacomb::GUID) + pair.second.size() * sizeof(glm::dvec3);
+    }
+    return totalBytes;
 }
 
 bool StepPhysicsCommand::isMergeable() const
@@ -134,6 +179,10 @@ bool StepPhysicsCommand::merge(const Command& other)
     {
         currentTransformations[pair.first] = pair.second;
     }
+    for (const auto& pair : otherStep->currentVertices)
+    {
+        currentVertices[pair.first] = pair.second;
+    }
     return true;
 }
 
@@ -144,6 +193,7 @@ double StepPhysicsCommand::getDeltaTime() const
 
 #ifdef ISTESTPROJECT
 #include "CADacomb/CAD/Sm/KernelSm.h"
+#include "CADacomb/Triangle/BaseShapeGenerator.h"
 #include "Database/Asset/CadAsset.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Component/RigidBodyComponent.h"
@@ -427,5 +477,62 @@ TEST_CASE("StepPhysicsCommand/SteppedMultiLeafSVOTerrainCollision")
     CHECK(res.at("type").get<std::string>() == "StepPhysics");
     CHECK(fallingAsset->getTransformation()[3].y < 2.0);
     CHECK(fallingAsset->getTransformation()[3].y > -6.0);
+}
+
+TEST_CASE("StepPhysicsCommand/SoftBodyDeformationUndoRedoAndMerge")
+{
+    Database db;
+
+    auto floorAsset = std::make_shared<TriangulationAsset>();
+    floorAsset->setName("Floor");
+    floorAsset->setTriangulation(std::make_unique<CADacomb::Triangulation>(CADacomb::BaseShapeGenerator::box(20.0f, 1.0f, 20.0f)));
+    floorAsset->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, -1.0, 0.0)));
+    floorAsset->addComponent(std::make_shared<RigidBodyComponent>(true));
+    db.getProject().addAsset(floorAsset);
+
+    auto       softAsset = std::make_shared<TriangulationAsset>();
+    glm::dmat4 initialTf = glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, 1.8, 0.0));
+    softAsset->setName("SoftSphere");
+    softAsset->setTriangulation(std::make_unique<CADacomb::Triangulation>(CADacomb::BaseShapeGenerator::sphere(1.0f, 12, 12)));
+    softAsset->setTransformation(initialTf);
+    softAsset->addComponent(std::make_shared<SoftBodyComponent>(1.0, 1500.0, 0.0001, 0.001, 0.2, 0.3, 0.0, 10));
+    db.getProject().addAsset(softAsset);
+
+    std::vector<glm::dvec3> initialVertices = softAsset->getTriangulation().vertices;
+    CADacomb::GUID          playGuid        = CADacomb::GUID::random();
+
+    StepPhysicsCommand mergedStep;
+    for (int i = 0; i < 30; i++)
+    {
+        StepPhysicsCommand stepCmd;
+        stepCmd.setInput({
+          {      "type",       "StepPhysics" },
+          {   "version",                   1 },
+          { "deltaTime",          1.0 / 60.0 },
+          { "mergeGuid", playGuid.toString() }
+        });
+        stepCmd.execute(db);
+        if (i == 0)
+        {
+            mergedStep = stepCmd;
+        }
+        else
+        {
+            REQUIRE(mergedStep.merge(stepCmd));
+        }
+    }
+
+    glm::dmat4              deformedTf       = softAsset->getTransformation();
+    std::vector<glm::dvec3> deformedVertices = softAsset->getTriangulation().vertices;
+    CHECK(deformedTf[3].y < 1.8);
+    CHECK(deformedVertices != initialVertices);
+
+    mergedStep.undo(db);
+    CHECK(softAsset->getTransformation() == initialTf);
+    CHECK(softAsset->getTriangulation().vertices == initialVertices);
+
+    mergedStep.redo(db);
+    CHECK(softAsset->getTransformation() == deformedTf);
+    CHECK(softAsset->getTriangulation().vertices == deformedVertices);
 }
 #endif

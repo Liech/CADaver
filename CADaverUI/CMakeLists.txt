@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20...3.30)
+﻿cmake_minimum_required(VERSION 3.20...3.30)
 
 find_package(Catch2 REQUIRED)
 
@@ -118,6 +118,8 @@ source_group("Source/Windows/Preferences" FILES ${Windows_Preferences_Files})
 set(Windows_Asset_Files
     "Source/CADaverUI/Windows/Asset/RigidBodyEditWindow.h"
     "Source/CADaverUI/Windows/Asset/RigidBodyEditWindow.cpp"
+    "Source/CADaverUI/Windows/Asset/SoftBodyEditWindow.h"
+    "Source/CADaverUI/Windows/Asset/SoftBodyEditWindow.cpp"
     "Source/CADaverUI/Windows/Asset/TextNoteEditWindow.h"
     "Source/CADaverUI/Windows/Asset/TextNoteEditWindow.cpp"
 )

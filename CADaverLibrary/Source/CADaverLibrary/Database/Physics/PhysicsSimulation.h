@@ -2,6 +2,7 @@
 
 #include "CADacomb/Physics/Interface/Physics.h"
 #include "CADacomb/Physics/Interface/RigidBody.h"
+#include "CADacomb/Physics/Interface/SoftBody.h"
 #include "CADacomb/Util/GUID.h"
 
 #include <cstddef>
@@ -10,7 +11,7 @@
 
 class Project;
 
-// Manages the active physics engine session for stepping project assets with RigidBody components.
+// Manages the active physics engine session for stepping project assets with RigidBody or SoftBody components.
 class PhysicsSimulation
 {
   public:
@@ -26,6 +27,7 @@ class PhysicsSimulation
 
     std::unique_ptr<CADacomb::Physics::Physics>                             physics;
     std::map<CADacomb::GUID, std::shared_ptr<CADacomb::Physics::RigidBody>> bodies;
+    std::map<CADacomb::GUID, std::shared_ptr<CADacomb::Physics::SoftBody>>  softBodies;
     std::map<CADacomb::GUID, size_t>                                        assetRevisions;
     CADacomb::GUID                                                          activeSessionGuid;
 };
