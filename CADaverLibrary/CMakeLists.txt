@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20...3.30)
+cmake_minimum_required(VERSION 3.20...3.30)
 
 find_package(Catch2 REQUIRED)
 
@@ -47,6 +47,8 @@ source_group("Source/Commands/Conversion" FILES ${Command_Conversion_Files})
 set(Command_Generator_Files
     "Source/CADaverLibrary/Commands/Generator/GenerateBaseShapeCommand.h"
     "Source/CADaverLibrary/Commands/Generator/GenerateBaseShapeCommand.cpp"
+    "Source/CADaverLibrary/Commands/Generator/GenerateFunctionSvoCommand.h"
+    "Source/CADaverLibrary/Commands/Generator/GenerateFunctionSvoCommand.cpp"
     "Source/CADaverLibrary/Commands/Generator/GenerateLandscapeCommand.h"
     "Source/CADaverLibrary/Commands/Generator/GenerateLandscapeCommand.cpp"
 )
@@ -291,6 +293,8 @@ source_group("Source/Execution" FILES ${Execution_Files})
 set(Utility_Files
     "Source/CADaverLibrary/Utility/IOValueGrabber.h"
     "Source/CADaverLibrary/Utility/IOValueGrabber.cpp"
+    "Source/CADaverLibrary/Utility/LuaSVOField.h"
+    "Source/CADaverLibrary/Utility/LuaSVOField.cpp"
     "Source/CADaverLibrary/Utility/MatrixJson.h"
     "Source/CADaverLibrary/Utility/MatrixJson.cpp"
     "Source/CADaverLibrary/Commands/Transform/TransformAssetCommand.h"

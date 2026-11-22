@@ -2,6 +2,7 @@
 
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"
+#include "UIElement/Menu/Create/FunctionSvoMenuEntry.h"
 #include "UIElement/Menu/Create/LandscapeMenuEntry.h"
 #include "UIElement/Menu/Edit/PreferencesMenuEntry.h"
 #include "UIElement/Menu/Edit/RedoMenuEntry.h"
@@ -75,6 +76,7 @@ void UIElementFactory::registerDefaults(GatedDatabase& gatedDatabase, UndoStack&
     registerElement("Quit", [&gatedDatabase, &undoStack, &windows, &quitRequested]() { return std::make_shared<QuitMenuEntry>(gatedDatabase, undoStack, windows, quitRequested); });
     registerElement("Undo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<UndoMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Redo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<RedoMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("FunctionSvo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<FunctionSvoMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Landscape", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LandscapeMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Physics", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<PhysicsMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("About", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<AboutMenuEntry>(gatedDatabase, undoStack, windows); });
@@ -160,6 +162,7 @@ TEST_CASE("UIElementFactory/Defaults")
     REQUIRE(factory.create("Quit") != nullptr);
     REQUIRE(factory.create("Undo") != nullptr);
     REQUIRE(factory.create("Redo") != nullptr);
+    REQUIRE(factory.create("FunctionSvo") != nullptr);
     REQUIRE(factory.create("Landscape") != nullptr);
     REQUIRE(factory.create("Physics") != nullptr);
     REQUIRE(factory.create("About") != nullptr);
@@ -174,6 +177,6 @@ TEST_CASE("UIElementFactory/Defaults")
     REQUIRE(factory.create("NewCube") != nullptr);
     REQUIRE(factory.create("NewShapeGenerator") != nullptr);
     REQUIRE(factory.create("Unknown") == nullptr);
-    REQUIRE(factory.getAllElements().size() == 40);
+    REQUIRE(factory.getAllElements().size() == 41);
 }
 #endif

@@ -17,6 +17,7 @@
 #include "Windows/Conversion/SvoToStlMarchingCubesConversionModal.h"
 #include "Windows/Conversion/SvoToStlSurfaceNetsConversionModal.h"
 #include "Windows/Generator/BaseShapeGeneratorWindow.h"
+#include "Windows/Generator/FunctionSvoGeneratorWindow.h"
 #include "Windows/Generator/LandscapeGeneratorWindow.h"
 #include "Windows/Geometry/CalculateConnectedComponentsWindow.h"
 #include "Windows/Geometry/ClusterByNormalWindow.h"
@@ -94,6 +95,7 @@ void WindowFactory::registerWindows()
     registerWindow("SvoToStlMarchingCubesConversion", []() { return std::make_shared<SvoToStlMarchingCubesConversionModal>(); });
     registerWindow("SvoToStlSurfaceNetsConversion", []() { return std::make_shared<SvoToStlSurfaceNetsConversionModal>(); });
     registerWindow("BaseShapeGenerator", []() { return std::make_shared<BaseShapeGeneratorWindow>(); });
+    registerWindow("FunctionSvoGenerator", []() { return std::make_shared<FunctionSvoGeneratorWindow>(); });
     registerWindow("LandscapeGenerator", []() { return std::make_shared<LandscapeGeneratorWindow>(); });
     registerWindow("CalculateConnectedComponents", []() { return std::make_shared<CalculateConnectedComponentsWindow>(); });
     registerWindow("ClusterByNormal", []() { return std::make_shared<ClusterByNormalWindow>(); });
@@ -148,7 +150,8 @@ TEST_CASE("WindowFactory/DefaultRegisteredWindows")
     CHECK(factory.create("Physics") != nullptr);
     CHECK(factory.create("Script") != nullptr);
     CHECK(factory.create("BaseShapeGenerator") != nullptr);
+    CHECK(factory.create("FunctionSvoGenerator") != nullptr);
     CHECK(factory.create("Console") != nullptr);
-    CHECK(factory.getAllWindows().size() == 30);
+    CHECK(factory.getAllWindows().size() == 31);
 }
 #endif
