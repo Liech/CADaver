@@ -45,7 +45,6 @@ size_t VoxelAsset::getSizeInBytes() const
     {
         size += sizeof(CADacomb::SVO<bool>);
         size += svo->getRaw().capacity() * sizeof(CADacomb::SVONode<bool>);
-        size += svo->getParents().capacity() * sizeof(uint32_t);
         size += svo->getFreeBlocks().capacity() * sizeof(uint32_t);
     }
 

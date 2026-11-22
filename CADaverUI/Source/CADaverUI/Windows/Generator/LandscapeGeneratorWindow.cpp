@@ -24,7 +24,7 @@ std::string LandscapeGeneratorWindow::getDescription() const
            "Purpose: Configures procedural noise parameters and generates a volumetric SVO terrain asset asynchronously.\n\n"
            "Parameters:\n"
            "  - Asset Name: Name of the generated VoxelAsset (default: \"Landscape\")\n"
-           "  - Voxel Resolution: Cubic SVO grid resolution (16, 32, 64, 128, 256, 512)\n"
+           "  - Voxel Resolution: Cubic SVO grid resolution (16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384)\n"
            "  - Octaves: Number of fractal noise octaves (1 to 8)\n"
            "  - Frequency: Base terrain noise frequency (0.01 to 0.2)\n"
            "  - Base Height: Normalized terrain base height ratio (0.1 to 0.9)\n"

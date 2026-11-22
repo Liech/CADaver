@@ -17,5 +17,5 @@ class VoxelResolutionComboBox
 
   private:
     int                                  selectedResolutionIndex = 2;
-    static const std::array<uint32_t, 6> availableResolutions;
+    static const std::array<uint32_t, 11> availableResolutions;
 };

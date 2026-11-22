@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-const std::array<uint32_t, 6> VoxelResolutionComboBox::availableResolutions = { 16, 32, 64, 128, 256, 512 };
+const std::array<uint32_t, 11> VoxelResolutionComboBox::availableResolutions = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384 };
 
 VoxelResolutionComboBox::VoxelResolutionComboBox() {}
 
@@ -10,7 +10,7 @@ VoxelResolutionComboBox::~VoxelResolutionComboBox() {}
 
 bool VoxelResolutionComboBox::render()
 {
-    const char* items = "16\00032\00064\000128\000256\000512\000\000";
+    const char* items = "16\00032\00064\000128\000256\000512\0001024\0002048\0004096\0008192\00016384\000\000";
     if (ImGui::Combo("Voxel Resolution", &selectedResolutionIndex, items))
     {
         return true;
