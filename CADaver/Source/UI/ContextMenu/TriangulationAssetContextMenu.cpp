@@ -129,15 +129,18 @@ void TriangulationAssetContextMenu::render(GatedDatabase& gatedDatabase, Windows
             { "componentType",           "SoftBody" },
             {          "name",           "SoftBody" },
             {          "data",
-             { { "Version", 1 },
+             { { "Version", 2 },
+             { "mode", "Volumetric" },
              { "mass", 1.0 },
              { "pressure", 2000.0 },
              { "edgeCompliance", 0.0001 },
              { "bendCompliance", 0.001 },
-             { "damping", 0.2 },
-             { "friction", 0.3 },
+             { "volumeCompliance", 0.0002 },
+             { "internalResolution", 5 },
+             { "damping", 0.25 },
+             { "friction", 0.4 },
              { "restitution", 0.0 },
-             { "solverIterations", 10 } }          }
+             { "solverIterations", 12 } }          }
         };
         Polyglot::Node result = gatedDatabase.execute(command);
         if (result["type"].asString() == "AddComponent")

@@ -99,10 +99,13 @@ void PhysicsSimulation::rebuildWorld(Project& project)
                 const auto& sbComp               = sbAttachments.front();
                 auto        sb                   = physics->createSoftBody(triAsset->getTriangulation(),
                                                                            triAsset->getTransformation(),
+                                                                           sbComp->getMode(),
                                                                            sbComp->getMass(),
                                                                            sbComp->getPressure(),
                                                                            sbComp->getEdgeCompliance(),
                                                                            sbComp->getBendCompliance(),
+                                                                           sbComp->getVolumeCompliance(),
+                                                                           sbComp->getInternalResolution(),
                                                                            sbComp->getDamping(),
                                                                            sbComp->getFriction(),
                                                                            sbComp->getRestitution(),

@@ -4,6 +4,7 @@
 #include "Execution/GatedDatabase.h"
 
 #include <algorithm>
+#include <array>
 #include <imgui.h>
 
 SoftBodyEditWindow::SoftBodyEditWindow()
@@ -25,7 +26,10 @@ std::string SoftBodyEditWindow::getDescription() const
            "Purpose: Dialog for viewing and editing the deformable SoftBody physics component attached to a triangulation asset.\n\n"
            "Parameters:\n"
            "  - Target Asset: ComboBox selecting the triangulation asset within the project\n"
-           "  - Pressure: Internal gas/volume pressure resistance (Pa)\n"
+           "  - Mode: Constraint topology (Balloon, InternalStruts, or Volumetric)\n"
+           "  - Pressure: Internal gas pressure resistance (Pa, Balloon mode)\n"
+           "  - Volume Compliance: Internal strut and tetrahedral volume compliance (InternalStruts and Volumetric modes)\n"
+           "  - Internal Resolution: Voxel lattice resolution for Volumetric mode\n"
            "  - Edge Compliance: Surface stretch compliance (inverse stiffness)\n"
            "  - Bend Compliance: Surface bending compliance (inverse stiffness)\n"
            "  - Mass: Total soft body mass (kg)\n"
@@ -50,7 +54,7 @@ void SoftBodyEditWindow::render()
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(370.0f, 340.0f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(400.0f, 410.0f), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("SoftBody", &openState))
     {
         handleEscapeClose();
@@ -101,15 +105,18 @@ void SoftBodyEditWindow::render()
                           { "componentType",                   "SoftBody" },
                           {          "name",                   "SoftBody" },
                           {          "data",
-                           { { "Version", 1 },
+                           { { "Version", 2 },
+                           { "mode", "Volumetric" },
                            { "mass", 1.0 },
                            { "pressure", 2000.0 },
                            { "edgeCompliance", 0.0001 },
                            { "bendCompliance", 0.001 },
-                           { "damping", 0.2 },
-                           { "friction", 0.3 },
+                           { "volumeCompliance", 0.0002 },
+                           { "internalResolution", 5 },
+                           { "damping", 0.25 },
+                           { "friction", 0.4 },
                            { "restitution", 0.0 },
-                           { "solverIterations", 10 } }                  }
+                           { "solverIterations", 12 } }                  }
                       };
                       gatedDatabase->execute(command);
                   });
@@ -143,15 +150,18 @@ void SoftBodyEditWindow::render()
             cachedName = activeComp.value("name", "SoftBody");
             if (activeComp.contains("data"))
             {
-                const auto& data       = activeComp["data"];
-                cachedMass             = static_cast<float>(data.value("mass", 1.0));
-                cachedPressure         = static_cast<float>(data.value("pressure", 2000.0));
-                cachedEdgeCompliance   = static_cast<float>(data.value("edgeCompliance", 0.0001));
-                cachedBendCompliance   = static_cast<float>(data.value("bendCompliance", 0.001));
-                cachedDamping          = static_cast<float>(data.value("damping", 0.2));
-                cachedFriction         = static_cast<float>(data.value("friction", 0.3));
-                cachedRestitution      = static_cast<float>(data.value("restitution", 0.0));
-                cachedSolverIterations = data.value("solverIterations", 10);
+                const auto& data         = activeComp["data"];
+                cachedMode               = data.value("mode", "Volumetric");
+                cachedMass               = static_cast<float>(data.value("mass", 1.0));
+                cachedPressure           = static_cast<float>(data.value("pressure", 2000.0));
+                cachedEdgeCompliance     = static_cast<float>(data.value("edgeCompliance", 0.0001));
+                cachedBendCompliance     = static_cast<float>(data.value("bendCompliance", 0.001));
+                cachedVolumeCompliance   = static_cast<float>(data.value("volumeCompliance", 0.0002));
+                cachedInternalResolution = data.value("internalResolution", 5);
+                cachedDamping            = static_cast<float>(data.value("damping", 0.25));
+                cachedFriction           = static_cast<float>(data.value("friction", 0.4));
+                cachedRestitution        = static_cast<float>(data.value("restitution", 0.0));
+                cachedSolverIterations   = data.value("solverIterations", 12);
             }
             needsSync = false;
         }
@@ -159,11 +169,109 @@ void SoftBodyEditWindow::render()
         ImGui::Spacing();
         bool changed = false;
 
-        if (ImGui::DragFloat("Pressure", &cachedPressure, 25.0f, 0.0f, 100000.0f, "%.1f"))
+        ImGui::TextDisabled("Presets:");
+        if (ImGui::Button("Balloon"))
         {
-            cachedPressure = std::max(0.0f, cachedPressure);
-            changed        = true;
+            cachedMode             = "Balloon";
+            cachedPressure         = 2500.0f;
+            cachedEdgeCompliance   = 0.0001f;
+            cachedBendCompliance   = 0.001f;
+            cachedDamping          = 0.1f;
+            cachedFriction         = 0.3f;
+            cachedRestitution      = 0.2f;
+            cachedSolverIterations = 10;
+            changed                = true;
         }
+        ImGui::SameLine();
+        if (ImGui::Button("Pillow"))
+        {
+            cachedMode               = "Volumetric";
+            cachedPressure           = 0.0f;
+            cachedEdgeCompliance     = 0.001f;
+            cachedBendCompliance     = 0.005f;
+            cachedVolumeCompliance   = 0.002f;
+            cachedInternalResolution = 5;
+            cachedDamping            = 0.5f;
+            cachedFriction           = 0.6f;
+            cachedRestitution        = 0.0f;
+            cachedSolverIterations   = 12;
+            changed                  = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Organ / Gel"))
+        {
+            cachedMode               = "Volumetric";
+            cachedPressure           = 0.0f;
+            cachedEdgeCompliance     = 0.0002f;
+            cachedBendCompliance     = 0.001f;
+            cachedVolumeCompliance   = 0.0001f;
+            cachedInternalResolution = 6;
+            cachedDamping            = 0.35f;
+            cachedFriction           = 0.4f;
+            cachedRestitution        = 0.0f;
+            cachedSolverIterations   = 15;
+            changed                  = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Firm Rubber"))
+        {
+            cachedMode             = "InternalStruts";
+            cachedPressure         = 0.0f;
+            cachedEdgeCompliance   = 0.0001f;
+            cachedBendCompliance   = 0.0005f;
+            cachedVolumeCompliance = 0.0002f;
+            cachedDamping          = 0.25f;
+            cachedFriction         = 0.7f;
+            cachedRestitution      = 0.15f;
+            cachedSolverIterations = 14;
+            changed                = true;
+        }
+
+        ImGui::Spacing();
+        const std::array<std::string, 3> modeNames = { "Balloon", "InternalStruts", "Volumetric" };
+        if (ImGui::BeginCombo("Mode", cachedMode.c_str()))
+        {
+            for (const auto& modeName : modeNames)
+            {
+                bool isSelected = (cachedMode == modeName);
+                if (ImGui::Selectable(modeName.c_str(), isSelected))
+                {
+                    cachedMode = modeName;
+                    changed    = true;
+                }
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        if (cachedMode == "Balloon")
+        {
+            if (ImGui::DragFloat("Pressure", &cachedPressure, 25.0f, 0.0f, 100000.0f, "%.1f"))
+            {
+                cachedPressure = std::max(0.0f, cachedPressure);
+                changed        = true;
+            }
+        }
+        else
+        {
+            if (ImGui::DragFloat("Volume Compliance", &cachedVolumeCompliance, 0.0001f, 0.0f, 1.0f, "%.6f"))
+            {
+                cachedVolumeCompliance = std::max(0.0f, cachedVolumeCompliance);
+                changed                = true;
+            }
+            if (cachedMode == "Volumetric")
+            {
+                if (ImGui::SliderInt("Internal Resolution", &cachedInternalResolution, 2, 12))
+                {
+                    cachedInternalResolution = std::clamp(cachedInternalResolution, 2, 12);
+                    changed                  = true;
+                }
+            }
+        }
+
         if (ImGui::DragFloat("Edge Compliance", &cachedEdgeCompliance, 0.0001f, 0.0f, 1.0f, "%.6f"))
         {
             cachedEdgeCompliance = std::max(0.0f, cachedEdgeCompliance);
@@ -240,17 +348,34 @@ void SoftBodyEditWindow::dispatchUpdate(const CADacomb::GUID& selectedAssetGuid)
 {
     CADacomb::GUID compToUpdate      = currentComponentGuid;
     std::string    updatedName       = cachedName.empty() ? "SoftBody" : cachedName;
+    std::string    updatedMode       = cachedMode;
     double         updatedMass       = static_cast<double>(cachedMass);
     double         updatedPressure   = static_cast<double>(cachedPressure);
     double         updatedEdgeComp   = static_cast<double>(cachedEdgeCompliance);
     double         updatedBendComp   = static_cast<double>(cachedBendCompliance);
+    double         updatedVolComp    = static_cast<double>(cachedVolumeCompliance);
+    int            updatedIntRes     = cachedInternalResolution;
     double         updatedDamping    = static_cast<double>(cachedDamping);
     double         updatedFriction   = static_cast<double>(cachedFriction);
     double         updatedRest       = static_cast<double>(cachedRestitution);
     int            updatedIterations = cachedSolverIterations;
 
     defer->defer(
-      [this, selectedAssetGuid, compToUpdate, updatedName, updatedMass, updatedPressure, updatedEdgeComp, updatedBendComp, updatedDamping, updatedFriction, updatedRest, updatedIterations]()
+      [this,
+       selectedAssetGuid,
+       compToUpdate,
+       updatedName,
+       updatedMode,
+       updatedMass,
+       updatedPressure,
+       updatedEdgeComp,
+       updatedBendComp,
+       updatedVolComp,
+       updatedIntRes,
+       updatedDamping,
+       updatedFriction,
+       updatedRest,
+       updatedIterations]()
       {
           Polyglot::Node command = {
               {          "type","UpdateComponent"                                },
@@ -259,11 +384,14 @@ void SoftBodyEditWindow::dispatchUpdate(const CADacomb::GUID& selectedAssetGuid)
               { "componentGuid",      compToUpdate.toString() },
               {          "name",                  updatedName },
               {          "data",
-               { { "Version", 1 },
+               { { "Version", 2 },
+               { "mode", updatedMode },
                { "mass", updatedMass },
                { "pressure", updatedPressure },
                { "edgeCompliance", updatedEdgeComp },
                { "bendCompliance", updatedBendComp },
+               { "volumeCompliance", updatedVolComp },
+               { "internalResolution", updatedIntRes },
                { "damping", updatedDamping },
                { "friction", updatedFriction },
                { "restitution", updatedRest },
@@ -281,6 +409,7 @@ TEST_CASE("SoftBodyEditWindow/TypeAndDescription")
     SoftBodyEditWindow window;
     CHECK(window.getType() == "SoftBodyEdit");
     CHECK(window.getDescription().find("Window: SoftBodyEdit") != std::string::npos);
-    CHECK(window.getDescription().find("Pressure") != std::string::npos);
+    CHECK(window.getDescription().find("Mode:") != std::string::npos);
+    CHECK(window.getDescription().find("Volume Compliance") != std::string::npos);
 }
 #endif

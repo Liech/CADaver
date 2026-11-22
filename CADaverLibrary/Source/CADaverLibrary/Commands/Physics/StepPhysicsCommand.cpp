@@ -495,7 +495,7 @@ TEST_CASE("StepPhysicsCommand/SoftBodyDeformationUndoRedoAndMerge")
     softAsset->setName("SoftSphere");
     softAsset->setTriangulation(std::make_unique<CADacomb::Triangulation>(CADacomb::BaseShapeGenerator::sphere(1.0f, 12, 12)));
     softAsset->setTransformation(initialTf);
-    softAsset->addComponent(std::make_shared<SoftBodyComponent>(1.0, 1500.0, 0.0001, 0.001, 0.2, 0.3, 0.0, 10));
+    softAsset->addComponent(std::make_shared<SoftBodyComponent>(CADacomb::Physics::SoftBodyMode::Volumetric, 1.0, 0.0, 0.0001, 0.001, 0.0002, 4, 0.25, 0.4, 0.0, 12));
     db.getProject().addAsset(softAsset);
 
     std::vector<glm::dvec3> initialVertices = softAsset->getTriangulation().vertices;
