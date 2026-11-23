@@ -35,6 +35,22 @@ bool SVOPreferencesTab::render(GatedDatabase& database, Defer& defer)
     preferences.fromNode(response["preferences"]);
     bool modified = false;
 
+    ImGui::Text("SVO Renderer");
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    const char* renderModes[] = { "Mesh LOD (Blocky)", "GPU Raycast (SVO)" };
+    int         renderMode    = preferences.getRenderMode();
+    if (ImGui::Combo("Render Mode", &renderMode, renderModes, 2))
+    {
+        preferences.setRenderMode(renderMode);
+        modified = true;
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
     ImGui::Text("SVO Meshing & Capacity");
     ImGui::Separator();
     ImGui::Spacing();

@@ -18,6 +18,9 @@ class SVOPreferences
     nlohmann::json toJson() const;
     void           fromJson(const nlohmann::json& jsonObject);
 
+    int  getRenderMode() const;
+    void setRenderMode(int mode);
+
     int  getStrategyType() const;
     void setStrategyType(int type);
 
@@ -66,6 +69,7 @@ class SVOPreferences
     double targetFillRatio       = 0.85;
     double nearDistance          = 10.0;
     double farDistance           = 100.0;
+    int    renderMode            = 0;
     int    strategyType          = 0;
     int    chunkSize             = 32;
     int    vertexCapacity        = 2000000;

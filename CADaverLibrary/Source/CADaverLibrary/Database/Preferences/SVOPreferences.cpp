@@ -7,6 +7,7 @@ SVOPreferences::~SVOPreferences() {}
 Polyglot::Node SVOPreferences::toNode() const
 {
     Polyglot::Node node = {
+        {            "renderMode",                       renderMode },
         {          "strategyType",                     strategyType },
         {             "chunkSize",                        chunkSize },
         {        "vertexCapacity",                   vertexCapacity },
@@ -26,6 +27,7 @@ Polyglot::Node SVOPreferences::toNode() const
 
 void SVOPreferences::fromNode(const Polyglot::Node& node)
 {
+    renderMode            = node["renderMode"].asInt();
     strategyType          = node["strategyType"].asInt();
     chunkSize             = node["chunkSize"].asInt();
     vertexCapacity        = node["vertexCapacity"].asInt();
@@ -45,6 +47,7 @@ void SVOPreferences::fromNode(const Polyglot::Node& node)
 nlohmann::json SVOPreferences::toJson() const
 {
     nlohmann::json jsonObject;
+    jsonObject["renderMode"]            = renderMode;
     jsonObject["strategyType"]          = strategyType;
     jsonObject["chunkSize"]             = chunkSize;
     jsonObject["vertexCapacity"]        = vertexCapacity;
@@ -63,6 +66,7 @@ nlohmann::json SVOPreferences::toJson() const
 
 void SVOPreferences::fromJson(const nlohmann::json& jsonObject)
 {
+    renderMode            = jsonObject.at("renderMode").get<int>();
     strategyType          = jsonObject.at("strategyType").get<int>();
     chunkSize             = jsonObject.at("chunkSize").get<int>();
     vertexCapacity        = jsonObject.at("vertexCapacity").get<int>();
@@ -77,6 +81,17 @@ void SVOPreferences::fromJson(const nlohmann::json& jsonObject)
     rebuildRequested      = jsonObject.at("rebuildRequested").get<bool>();
     rebuildCounter        = jsonObject.at("rebuildCounter").get<size_t>();
     dirty                 = true;
+}
+
+int SVOPreferences::getRenderMode() const
+{
+    return renderMode;
+}
+
+void SVOPreferences::setRenderMode(int mode)
+{
+    renderMode = mode;
+    dirty      = true;
 }
 
 int SVOPreferences::getStrategyType() const

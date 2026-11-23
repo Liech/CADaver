@@ -8,6 +8,7 @@
 #include "CADacomb/Volume/LODStrategy/FrustumAdaptiveLODStrategy.h"
 #include "CADacomb/Volume/LODStrategy/ScreenSpaceLODStrategy.h"
 #include "CADacombRender/SVOLODMesh.h"
+#include "CADacombRender/SVORaycast/Renderer/SVORaycastRenderer.h"
 #include "Vulcant/Interface/VulcantCullMode.h"
 #include "Vulcant/Toolkit/SceneData.h"
 
@@ -26,7 +27,7 @@ namespace Vulcant
 class Renderer;
 class VoxelAsset;
 
-// Renders VoxelAsset instances using dynamic SVO LOD meshing with a dedicated pipeline.
+// Renders VoxelAsset instances using dynamic SVO LOD meshing or GPU SVO raycasting.
 class VoxelAssetRenderer : public AssetRenderer
 {
   public:
@@ -44,16 +45,17 @@ class VoxelAssetRenderer : public AssetRenderer
     void ensurePipeline(Renderer& renderer);
     void invalidatePipeline();
 
-    std::shared_ptr<const VoxelAsset>                   asset;
-    std::unique_ptr<CADacomb::Render::SVOLODMesh<bool>> lodMesh;
-    std::unique_ptr<Vulcant::VulcantShader>             vertShader;
-    std::unique_ptr<Vulcant::VulcantShader>             fragShader;
-    std::unique_ptr<Vulcant::VulcantGraphicPipeline>    pipeline;
-    std::unique_ptr<Vulcant::VulcantSet>                descriptorSet;
-    std::unique_ptr<Vulcant::VulcantBuffer>             sceneDataUbo;
-    std::unique_ptr<Vulcant::VulcantBuffer>             meshParamsUbo;
-    std::unique_ptr<Vulcant::VulcantBuffer>             indirectBuffer;
-    std::unique_ptr<Vulcant::VulcantGraphicCommand>     drawCmd;
+    std::shared_ptr<const VoxelAsset>                     asset;
+    std::unique_ptr<CADacomb::Render::SVOLODMesh<bool>>   lodMesh;
+    std::unique_ptr<CADacomb::Render::SVORaycastRenderer> raycastRenderer;
+    std::unique_ptr<Vulcant::VulcantShader>               vertShader;
+    std::unique_ptr<Vulcant::VulcantShader>               fragShader;
+    std::unique_ptr<Vulcant::VulcantGraphicPipeline>      pipeline;
+    std::unique_ptr<Vulcant::VulcantSet>                  descriptorSet;
+    std::unique_ptr<Vulcant::VulcantBuffer>               sceneDataUbo;
+    std::unique_ptr<Vulcant::VulcantBuffer>               meshParamsUbo;
+    std::unique_ptr<Vulcant::VulcantBuffer>               indirectBuffer;
+    std::unique_ptr<Vulcant::VulcantGraphicCommand>       drawCmd;
 
     CADacomb::FrustumAdaptiveLODStrategy frustumAdaptiveStrategy;
     CADacomb::ScreenSpaceLODStrategy     screenSpaceStrategy;
@@ -64,8 +66,9 @@ class VoxelAssetRenderer : public AssetRenderer
     AssetMeshParams          meshParams{};
     glm::ivec2               lastResolution     = glm::ivec2(0, 0);
     Vulcant::VulcantCullMode lastCullMode       = Vulcant::VulcantCullMode::None;
+    int                      lastRenderMode     = -1;
     int                      lastChunkSize      = 32;
-    int                      lastVertexCapacity = 500000;
+    int                      lastVertexCapacity = 2000000;
     size_t                   lastRevision       = 0;
     size_t                   lastRebuildCounter = 0;
     bool                     dirty              = true;
