@@ -39,10 +39,10 @@ bool SVOPreferencesTab::render(GatedDatabase& database, Defer& defer)
     ImGui::Separator();
     ImGui::Spacing();
 
-    const int chunkValues[3]  = { 16, 32, 64 };
+    const int chunkValues[4]  = { 16, 32, 64, 128 };
     int       currentChunk    = preferences.getChunkSize();
-    int       currentChunkIdx = (currentChunk == 16) ? 0 : ((currentChunk == 64) ? 2 : 1);
-    if (ImGui::Combo("Chunk Size", &currentChunkIdx, "16\00032\00064\000\000"))
+    int       currentChunkIdx = (currentChunk == 16) ? 0 : ((currentChunk == 64) ? 2 : ((currentChunk == 128) ? 3 : 1));
+    if (ImGui::Combo("Chunk Size", &currentChunkIdx, "16\00032\00064\000128\000\000"))
     {
         preferences.setChunkSize(chunkValues[currentChunkIdx]);
         modified = true;

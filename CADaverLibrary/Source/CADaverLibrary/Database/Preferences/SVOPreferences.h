@@ -68,7 +68,7 @@ class SVOPreferences
     double farDistance           = 100.0;
     int    strategyType          = 0;
     int    chunkSize             = 32;
-    int    vertexCapacity        = 500000;
+    int    vertexCapacity        = 2000000;
     int    maxDepth              = -1;
     int    fixedDecision         = 1;
     bool   frustumCullingEnabled = true;
