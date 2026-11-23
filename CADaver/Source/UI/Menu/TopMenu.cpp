@@ -6,7 +6,9 @@
 #include "Execution/UndoStack.h"
 #include "Windows/Windows.h"
 
+#include <format>
 #include <imgui.h>
+#include <string>
 
 TopMenu::TopMenu()
   : factoryInitialized(false)
@@ -40,6 +42,17 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& 
         ImGui::SameLine();
 
         searchBar.render(defer);
+
+        float       fps      = ImGui::GetIO().Framerate;
+        float       frameMs  = (fps > 0.0f) ? (1000.0f / fps) : 0.0f;
+        std::string fpsLabel = std::format("{:.1f} FPS ({:.2f} ms)", fps, frameMs);
+        float       textW    = ImGui::CalcTextSize(fpsLabel.c_str()).x;
+        float       rightX   = ImGui::GetWindowWidth() - textW - ImGui::GetStyle().ItemSpacing.x * 2.0f;
+        if (rightX > ImGui::GetCursorPosX())
+        {
+            ImGui::SetCursorPosX(rightX);
+        }
+        ImGui::TextUnformatted(fpsLabel.c_str());
 
         ImGui::EndMainMenuBar();
     }
