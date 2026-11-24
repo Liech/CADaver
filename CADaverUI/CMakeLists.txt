@@ -200,6 +200,8 @@ set(UIElement_Menu_Create_Files
     "Source/CADaverUI/UIElement/Menu/Create/FunctionSvoMenuEntry.cpp"
     "Source/CADaverUI/UIElement/Menu/Create/LandscapeMenuEntry.h"
     "Source/CADaverUI/UIElement/Menu/Create/LandscapeMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/Create/ScreenshotMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Create/ScreenshotMenuEntry.cpp"
 )
 source_group("Source/UIElement/Menu/Create" FILES ${UIElement_Menu_Create_Files})
 

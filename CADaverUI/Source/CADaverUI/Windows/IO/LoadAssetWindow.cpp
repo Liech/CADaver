@@ -21,9 +21,9 @@ std::string LoadAssetWindow::getDescription() const
 {
     return "Window: LoadAsset\n"
            "Title: Load Asset\n"
-           "Purpose: Dialog for importing a CAD (STEP), mesh (STL), or voxel (SVO) asset file from disk into the project.\n\n"
+           "Purpose: Dialog for importing a CAD (STEP), mesh (STL), voxel (SVO), or image (PNG) asset file from disk into the project.\n\n"
            "Parameters:\n"
-           "  - File Path: Path to the .step, .stp, .stl, .cadacombsvo, or .svo file on disk\n"
+           "  - File Path: Path to the .step, .stp, .stl, .cadacombsvo, .svo, or .png file on disk\n"
            "  - Asset Name: Name assigned to the loaded asset (defaults to file stem)\n\n"
            "Dispatched Command: LoadAsset (async)";
 }
@@ -96,10 +96,11 @@ void LoadAssetWindow::render()
 void LoadAssetWindow::browseFile()
 {
     LoadFileDialog dialog;
-    dialog.addFilter("All Supported Assets", { "step", "stp", "stl", "cadacombsvo", "svo" });
+    dialog.addFilter("All Supported Assets", { "step", "stp", "stl", "cadacombsvo", "svo", "png" });
     dialog.addFilter("STEP File", { "step", "stp" });
     dialog.addFilter("STL File", { "stl" });
     dialog.addFilter("SVO Voxel File", { "cadacombsvo", "svo" });
+    dialog.addFilter("PNG Image", { "png" });
     dialog.execute();
 
     if (!dialog.isCanceled())

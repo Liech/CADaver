@@ -45,6 +45,8 @@ set(Shader_Files
     "Shaders/Triangulation/Triangulation_IndexedFaceColor_frag.exe.slang"
     "Shaders/Cad/CadOutline_vert.exe.slang"
     "Shaders/Cad/CadOutline_frag.exe.slang"
+    "Shaders/Texture/TextureQuad_vert.exe.slang"
+    "Shaders/Texture/TextureQuad_frag.exe.slang"
 )
 source_group("Shaders" FILES ${Shader_Files})
 
@@ -119,6 +121,8 @@ set(Rendering_Files
     "Source/Rendering/AssetOutlineParams.cpp"
     "Source/Rendering/StepAssetRenderer.h"
     "Source/Rendering/StepAssetRenderer.cpp"
+    "Source/Rendering/TextureAssetRenderer.h"
+    "Source/Rendering/TextureAssetRenderer.cpp"
     "Source/Rendering/AssetRenderFactory.h"
     "Source/Rendering/AssetRenderFactory.cpp"
     "Source/Rendering/VoxelAssetRenderer.h"
@@ -163,6 +167,8 @@ set(UI_ContextMenu_Files
     "Source/UI/ContextMenu/VoxelAssetContextMenu.cpp"
     "Source/UI/ContextMenu/ProgressAssetContextMenu.h"
     "Source/UI/ContextMenu/ProgressAssetContextMenu.cpp"
+    "Source/UI/ContextMenu/TextureAssetContextMenu.h"
+    "Source/UI/ContextMenu/TextureAssetContextMenu.cpp"
     "Source/UI/ContextMenu/AssetContextMenuFactory.h"
     "Source/UI/ContextMenu/AssetContextMenuFactory.cpp"
     "Source/UI/ContextMenu/AssetContextMenuRenderer.h"
@@ -211,8 +217,15 @@ set(Picking_Files
 )
 source_group("Source/Picking" FILES ${Picking_Files})
 
+set(Commands_Files
+    "Source/Commands/CaptureScreenshotCommand.h"
+    "Source/Commands/CaptureScreenshotCommand.cpp"
+)
+source_group("Source/Commands" FILES ${Commands_Files})
+
 set(ALL_FILES
     ${Source_Files}
+    ${Commands_Files}
     ${MCP_Files}
     ${Camera_Files}
     ${Picking_Files}

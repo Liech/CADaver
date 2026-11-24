@@ -1,6 +1,7 @@
 ﻿#include "Cadaver.h"
 
 #include "Camera/ViewController.h"
+#include "Commands/CaptureScreenshotCommand.h"
 #include "Database/Preferences/CameraPreferences.h"
 #include "Picking/ViewportPickingController.h"
 #include "Rendering/Renderer.h"
@@ -186,6 +187,7 @@ void Cadaver::prepare()
     windows.setInput(gatedDatabase, defer);
 
     renderer = std::make_unique<Renderer>(device, *window, resolution, gatedDatabase);
+    gatedDatabase.getCommandFactory().registerCommand("CaptureScreenshot", [this]() { return std::make_unique<CaptureScreenshotCommand>(*renderer); });
 
     projectWindow     = std::make_unique<ProjectWindow>();
     topMenu           = std::make_unique<TopMenu>();

@@ -1,6 +1,7 @@
 ﻿#include "IO/AssetLoader/AssetLoaderFactory.h"
 
 #include "IO/AssetLoader/CadAssetLoader.h"
+#include "IO/AssetLoader/TextureAssetLoader.h"
 #include "IO/AssetLoader/TriangulationAssetLoader.h"
 #include "IO/AssetLoader/VoxelAssetLoader.h"
 #include "Utility/IOValueGrabber.h"
@@ -69,17 +70,20 @@ std::string AssetLoaderFactory::resolveAssetType(const std::string& assetType, c
 void AssetLoaderFactory::registerLoaders()
 {
     creators["Cad"]           = []() { return std::make_unique<CadAssetLoader>(); };
+    creators["Texture"]       = []() { return std::make_unique<TextureAssetLoader>(); };
     creators["Triangulation"] = []() { return std::make_unique<TriangulationAssetLoader>(); };
     creators["Voxel"]         = []() { return std::make_unique<VoxelAssetLoader>(); };
 
-    extensionToType["step"]        = "Cad";
-    extensionToType["stp"]         = "Cad";
-    extensionToType["cad"]         = "Cad";
-    extensionToType["stl"]         = "Triangulation";
+    extensionToType["step"]          = "Cad";
+    extensionToType["stp"]           = "Cad";
+    extensionToType["cad"]           = "Cad";
+    extensionToType["png"]           = "Texture";
+    extensionToType["texture"]       = "Texture";
+    extensionToType["stl"]           = "Triangulation";
     extensionToType["triangulation"] = "Triangulation";
-    extensionToType["cadacombsvo"] = "Voxel";
-    extensionToType["svo"]         = "Voxel";
-    extensionToType["voxel"]       = "Voxel";
+    extensionToType["cadacombsvo"]   = "Voxel";
+    extensionToType["svo"]           = "Voxel";
+    extensionToType["voxel"]         = "Voxel";
 }
 
 std::string AssetLoaderFactory::extractExtension(const std::string& pathStr) const
@@ -100,12 +104,14 @@ TEST_CASE("AssetLoaderFactory/CreateAndResolve")
 {
     AssetLoaderFactory factory;
     CHECK(factory.create("Cad") != nullptr);
+    CHECK(factory.create("Texture") != nullptr);
     CHECK(factory.create("Triangulation") != nullptr);
     CHECK(factory.create("Voxel") != nullptr);
     CHECK(factory.create("Unknown") == nullptr);
 
     CHECK(factory.resolveAssetType("Cad", Polyglot::Node("dummy"), "model") == "Cad");
     CHECK(factory.resolveAssetType("", Polyglot::Node("part.step"), "Part") == "Cad");
+    CHECK(factory.resolveAssetType("", Polyglot::Node("image.PNG"), "Image") == "Texture");
     CHECK(factory.resolveAssetType("", Polyglot::Node("mesh.STL"), "Mesh") == "Triangulation");
     CHECK(factory.resolveAssetType("", Polyglot::Node("vol.cadacombsvo"), "Vol") == "Voxel");
 }

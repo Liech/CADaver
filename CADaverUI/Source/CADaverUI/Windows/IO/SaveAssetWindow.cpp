@@ -8,7 +8,10 @@
 #include <imgui.h>
 #include <vector>
 
-SaveAssetWindow::SaveAssetWindow() : assetComboBox() {}
+SaveAssetWindow::SaveAssetWindow()
+  : assetComboBox()
+{
+}
 
 SaveAssetWindow::~SaveAssetWindow() {}
 
@@ -21,7 +24,7 @@ std::string SaveAssetWindow::getDescription() const
 {
     return "Window: SaveAsset\n"
            "Title: Save Asset\n"
-           "Purpose: Dialog for exporting a CAD (STEP), mesh (STL), or voxel (SVO) asset from the project to disk.\n\n"
+           "Purpose: Dialog for exporting a CAD (STEP), mesh (STL), voxel (SVO), or image (PNG) asset from the project to disk.\n\n"
            "Parameters:\n"
            "  - Target Asset: Asset from the project to export\n"
            "  - Destination Path: Output file path on disk\n\n"
@@ -100,8 +103,8 @@ void SaveAssetWindow::browseFile()
     if (gatedDatabase && !assetComboBox.getSelectedGuid().toString().empty())
     {
         Polyglot::Node infoCmd = {
-            {      "type",                              "GetAssetInfo" },
-            {   "version",                                           1 },
+            {      "type",                             "GetAssetInfo" },
+            {   "version",                                          1 },
             { "assetGuid", assetComboBox.getSelectedGuid().toString() }
         };
         Polyglot::Node infoRes = gatedDatabase->execute(infoCmd);
@@ -127,9 +130,14 @@ void SaveAssetWindow::browseFile()
         dialog.addFilter("SVO Voxel File", { "cadacombsvo", "svo" });
         dialog.setSaveFileName(defaultName + ".cadacombsvo");
     }
+    else if (assetType == "Texture")
+    {
+        dialog.addFilter("PNG Image", { "png" });
+        dialog.setSaveFileName(defaultName + ".png");
+    }
     else
     {
-        dialog.addFilter("All Supported Assets", { "step", "stp", "stl", "cadacombsvo", "svo" });
+        dialog.addFilter("All Supported Assets", { "step", "stp", "stl", "cadacombsvo", "svo", "png" });
         dialog.setSaveFileName(defaultName);
     }
 
@@ -190,6 +198,10 @@ std::string SaveAssetWindow::getDefaultExtension(const std::string& assetType) c
     if (assetType == "Voxel")
     {
         return ".cadacombsvo";
+    }
+    if (assetType == "Texture")
+    {
+        return ".png";
     }
     return "";
 }

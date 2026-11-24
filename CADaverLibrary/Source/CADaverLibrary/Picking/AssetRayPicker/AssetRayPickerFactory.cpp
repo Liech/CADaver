@@ -1,6 +1,7 @@
 ﻿#include "Picking/AssetRayPicker/AssetRayPickerFactory.h"
 
 #include "Picking/AssetRayPicker/CadAssetRayPicker.h"
+#include "Picking/AssetRayPicker/TextureAssetRayPicker.h"
 #include "Picking/AssetRayPicker/TriangulationAssetRayPicker.h"
 #include "Picking/AssetRayPicker/VoxelAssetRayPicker.h"
 
@@ -31,6 +32,7 @@ void AssetRayPickerFactory::registerPickers()
 {
     registerPicker("Triangulation", []() { return std::make_unique<TriangulationAssetRayPicker>(); });
     registerPicker("Cad", []() { return std::make_unique<CadAssetRayPicker>(); });
+    registerPicker("Texture", []() { return std::make_unique<TextureAssetRayPicker>(); });
     registerPicker("Voxel", []() { return std::make_unique<VoxelAssetRayPicker>(); });
 }
 
@@ -42,6 +44,7 @@ TEST_CASE("AssetRayPickerFactory/CreatePickers")
     AssetRayPickerFactory factory;
     CHECK(factory.create("Triangulation") != nullptr);
     CHECK(factory.create("Cad") != nullptr);
+    CHECK(factory.create("Texture") != nullptr);
     CHECK(factory.create("Voxel") != nullptr);
     CHECK(factory.create("Unknown") == nullptr);
 }
