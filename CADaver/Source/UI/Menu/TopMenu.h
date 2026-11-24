@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Search/SearchBar.h"
+#include "Time/TimeControls.h"
 #include "UIElement/Menu/DynamicMenuRenderer.h"
 #include "UIElement/UIElementFactory.h"
 
@@ -27,6 +28,7 @@ class TopMenu
 
     UIElementFactory    uiElementFactory;
     DynamicMenuRenderer dynamicMenuRenderer;
+    TimeControls        timeControls;
     SearchBar           searchBar;
     bool                factoryInitialized;
 };

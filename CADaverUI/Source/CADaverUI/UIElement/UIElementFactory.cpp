@@ -14,7 +14,6 @@
 #include "UIElement/Menu/Help/CommandsInfoMenuEntry.h"
 #include "UIElement/Menu/Help/ConceptsInfoMenuEntry.h"
 #include "UIElement/Menu/Help/WindowsInfoMenuEntry.h"
-#include "UIElement/Menu/Physics/PhysicsMenuEntry.h"
 #include "UIElement/Radio/CameraModeRadioElement.h"
 #include "UIElement/Radio/ColorThemeRadioElement.h"
 #include "UIElement/Radio/CullModeRadioElement.h"
@@ -78,7 +77,6 @@ void UIElementFactory::registerDefaults(GatedDatabase& gatedDatabase, UndoStack&
     registerElement("Redo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<RedoMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("FunctionSvo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<FunctionSvoMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Landscape", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LandscapeMenuEntry>(gatedDatabase, undoStack, windows); });
-    registerElement("Physics", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<PhysicsMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("About", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<AboutMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Commands", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<CommandsInfoMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Concepts", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<ConceptsInfoMenuEntry>(gatedDatabase, undoStack, windows); });
@@ -164,7 +162,6 @@ TEST_CASE("UIElementFactory/Defaults")
     REQUIRE(factory.create("Redo") != nullptr);
     REQUIRE(factory.create("FunctionSvo") != nullptr);
     REQUIRE(factory.create("Landscape") != nullptr);
-    REQUIRE(factory.create("Physics") != nullptr);
     REQUIRE(factory.create("About") != nullptr);
     REQUIRE(factory.create("Commands") != nullptr);
     REQUIRE(factory.create("Concepts") != nullptr);
@@ -177,6 +174,6 @@ TEST_CASE("UIElementFactory/Defaults")
     REQUIRE(factory.create("NewCube") != nullptr);
     REQUIRE(factory.create("NewShapeGenerator") != nullptr);
     REQUIRE(factory.create("Unknown") == nullptr);
-    REQUIRE(factory.getAllElements().size() == 41);
+    REQUIRE(factory.getAllElements().size() == 40);
 }
 #endif

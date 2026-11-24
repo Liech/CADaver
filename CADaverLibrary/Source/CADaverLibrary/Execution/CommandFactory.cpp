@@ -23,7 +23,6 @@
 #include "Commands/Geometry/SplitClustersToAssetsCommand.h"
 #include "Commands/IO/LoadAssetCommand.h"
 #include "Commands/IO/SaveAssetCommand.h"
-#include "Commands/Physics/StepPhysicsCommand.h"
 #include "Commands/Preferences/Query/GetCameraPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetRenderPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetSVOPreferencesCommand.h"
@@ -50,6 +49,8 @@
 #include "Commands/Task/CancelTaskCommand.h"
 #include "Commands/Task/GetActiveTasksCommand.h"
 #include "Commands/Task/GetTaskStateCommand.h"
+#include "Commands/Time/GetCurrentTimeCommand.h"
+#include "Commands/Time/StepTimeCommand.h"
 #include "Commands/Transform/GetTransformationAssetCommand.h"
 #include "Commands/Transform/TransformAssetCommand.h"
 
@@ -153,7 +154,8 @@ void CommandFactory::registerCommands()
     registerCommand("GetTransformationAsset", []() { return std::make_unique<GetTransformationAssetCommand>(); });
     registerCommand("GetSelectedAssets", []() { return std::make_unique<GetSelectedAssetsCommand>(); });
     registerCommand("PickAsset", []() { return std::make_unique<PickAssetCommand>(); });
-    registerCommand("StepPhysics", []() { return std::make_unique<StepPhysicsCommand>(); });
+    registerCommand("StepTime", []() { return std::make_unique<StepTimeCommand>(); });
+    registerCommand("GetCurrentTime", []() { return std::make_unique<GetCurrentTimeCommand>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -213,7 +215,8 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("ConvertClusteringToCad") != nullptr);
     CHECK(factory.create("GenerateBaseShape") != nullptr);
     CHECK(factory.create("GenerateFunctionSvo") != nullptr);
-    CHECK(factory.create("StepPhysics") != nullptr);
-    CHECK(factory.getAllCommands().size() == 52);
+    CHECK(factory.create("StepTime") != nullptr);
+    CHECK(factory.create("GetCurrentTime") != nullptr);
+    CHECK(factory.getAllCommands().size() == 53);
 }
 #endif

@@ -24,9 +24,13 @@ class Database
     PhysicsSimulation&       getPhysicsSimulation();
     const PhysicsSimulation& getPhysicsSimulation() const;
 
+    double getCurrentTime() const;
+    void   setCurrentTime(double time);
+
   private:
     Project           project;
     Preferences       preferences;
     Selection         selection;
     PhysicsSimulation physicsSimulation;
+    double            currentTime = 0.0;
 };

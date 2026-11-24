@@ -7,12 +7,12 @@
 #include <map>
 #include <vector>
 
-// Command to step the project physics simulation forward in time, supporting command merging.
-class StepPhysicsCommand : public Command
+// Command to step the project time forward, updating time-dependent systems with undo and command merging support.
+class StepTimeCommand : public Command
 {
   public:
-    StepPhysicsCommand();
-    virtual ~StepPhysicsCommand();
+    StepTimeCommand();
+    virtual ~StepTimeCommand();
 
     std::string getType() const override;
     int         getVersion() const override;
@@ -32,7 +32,9 @@ class StepPhysicsCommand : public Command
     double getDeltaTime() const;
 
   private:
-    double                                            deltaTime = 1.0 / 60.0;
+    double                                            deltaTime    = 1.0 / 60.0;
+    double                                            previousTime = 0.0;
+    double                                            currentTime  = 0.0;
     std::map<CADacomb::GUID, glm::dmat4>              previousTransformations;
     std::map<CADacomb::GUID, glm::dmat4>              currentTransformations;
     std::map<CADacomb::GUID, std::vector<glm::dvec3>> previousVertices;

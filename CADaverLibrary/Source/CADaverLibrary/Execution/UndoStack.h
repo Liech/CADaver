@@ -3,6 +3,7 @@
 #include "Execution/UndoContainer.h"
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -36,6 +37,8 @@ class UndoStack
     const std::vector<std::unique_ptr<UndoContainer>>& getUndoHistory() const;
     const std::vector<std::unique_ptr<UndoContainer>>& getRedoHistory() const;
 
+    void setOnUndoCallback(std::function<void()> callback);
+
   private:
     void prune();
     bool isZeroGuid(const CADacomb::GUID& guid) const;
@@ -43,6 +46,7 @@ class UndoStack
     GatedDatabase&                              gatedDatabase;
     std::vector<std::unique_ptr<UndoContainer>> undoHistory;
     std::vector<std::unique_ptr<UndoContainer>> redoHistory;
+    std::function<void()>                       onUndoCallback;
     size_t                                      maxSteps       = 32;
     size_t                                      maxMemoryBytes = 1024ULL * 1024ULL * 1024ULL;
 };

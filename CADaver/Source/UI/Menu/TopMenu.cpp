@@ -23,6 +23,7 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& 
     {
         uiElementFactory.registerDefaults(gatedDatabase, undoStack, windows, quitRequested);
         gatedDatabase.getCommandFactory().registerCommand("ClickUIElement", [this]() { return std::make_unique<ClickUIElementCommand>(uiElementFactory); });
+        undoStack.setOnUndoCallback([this]() { timeControls.stop(); });
         factoryInitialized = true;
     }
 
@@ -39,6 +40,10 @@ void TopMenu::render(GatedDatabase& gatedDatabase, UndoStack& undoStack, Defer& 
 
         ImGui::SameLine();
         ImGui::Spacing();
+        ImGui::SameLine();
+
+        timeControls.render(gatedDatabase, defer);
+
         ImGui::SameLine();
 
         searchBar.render(defer);

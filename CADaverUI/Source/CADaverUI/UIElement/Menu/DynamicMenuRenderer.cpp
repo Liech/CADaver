@@ -145,12 +145,11 @@ TEST_CASE("DynamicMenuRenderer/TreeBuilding")
     renderer.buildFrom(factory.getAllElements());
 
     const auto& roots = renderer.getRoots();
-    REQUIRE(roots.size() == 5);
+    REQUIRE(roots.size() == 4);
     REQUIRE(roots[0]->getName() == "File");
     REQUIRE(roots[1]->getName() == "Edit");
     REQUIRE(roots[2]->getName() == "Create");
-    REQUIRE(roots[3]->getName() == "Physics");
-    REQUIRE(roots[4]->getName() == "Help");
+    REQUIRE(roots[3]->getName() == "Help");
 
     REQUIRE(roots[0]->getChildren().size() == 4);
     REQUIRE(roots[0]->getChildren()[0]->getName() == "New");

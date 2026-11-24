@@ -224,11 +224,13 @@ set(Database_Preferences_Files
 )
 source_group("Source/Database/Preferences" FILES ${Database_Preferences_Files})
 
-set(Command_Physics_Files
-    "Source/CADaverLibrary/Commands/Physics/StepPhysicsCommand.h"
-    "Source/CADaverLibrary/Commands/Physics/StepPhysicsCommand.cpp"
+set(Command_Time_Files
+    "Source/CADaverLibrary/Commands/Time/GetCurrentTimeCommand.h"
+    "Source/CADaverLibrary/Commands/Time/GetCurrentTimeCommand.cpp"
+    "Source/CADaverLibrary/Commands/Time/StepTimeCommand.h"
+    "Source/CADaverLibrary/Commands/Time/StepTimeCommand.cpp"
 )
-source_group("Source/Commands/Physics" FILES ${Command_Physics_Files})
+source_group("Source/Commands/Time" FILES ${Command_Time_Files})
 
 set(Database_Files
     "Source/CADaverLibrary/Database/Database.h"
@@ -391,7 +393,7 @@ set(ALL_FILES
     ${Command_Preferences_Query_Files}
     ${Command_Task_Files}
     ${Command_Geometry_Files}
-    ${Command_Physics_Files}
+    ${Command_Time_Files}
     ${Command_Selection_Files}
     ${Picking_Files}
     ${Picking_AssetRayPicker_Files}

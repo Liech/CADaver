@@ -49,6 +49,10 @@ void UndoStack::undo()
     {
         return;
     }
+    if (onUndoCallback)
+    {
+        onUndoCallback();
+    }
     auto container = std::move(undoHistory.back());
     undoHistory.pop_back();
     gatedDatabase.undo(*container);
@@ -123,6 +127,11 @@ const std::vector<std::unique_ptr<UndoContainer>>& UndoStack::getUndoHistory() c
 const std::vector<std::unique_ptr<UndoContainer>>& UndoStack::getRedoHistory() const
 {
     return redoHistory;
+}
+
+void UndoStack::setOnUndoCallback(std::function<void()> callback)
+{
+    onUndoCallback = std::move(callback);
 }
 
 void UndoStack::prune()
@@ -258,5 +267,25 @@ TEST_CASE("UndoStack/DoesNotMergeWithZeroOrDifferentMergeGuid")
     });
 
     CHECK(stack.getUndoHistory().size() == 3);
+}
+
+TEST_CASE("UndoStack/OnUndoCallback")
+{
+    GatedDatabase gatedDatabase;
+    UndoStack     stack(gatedDatabase);
+
+    int callbackCount = 0;
+    stack.setOnUndoCallback([&callbackCount]() { callbackCount++; });
+
+    stack.undo();
+    CHECK(callbackCount == 0);
+
+    gatedDatabase.execute({
+      {    "type", "GenerateBaseShape" },
+      { "version",                   1 },
+      {   "shape",              "cube" }
+    });
+    stack.undo();
+    CHECK(callbackCount == 1);
 }
 #endif

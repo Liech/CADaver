@@ -1,4 +1,4 @@
-﻿#include "Commands/Physics/StepPhysicsCommand.h"
+﻿#include "Commands/Time/StepTimeCommand.h"
 
 #include "Database/Asset.h"
 #include "Database/Asset/TriangulationAsset.h"
@@ -6,28 +6,28 @@
 #include "Database/Database.h"
 #include "Database/Project.h"
 
-StepPhysicsCommand::StepPhysicsCommand() {}
+StepTimeCommand::StepTimeCommand() {}
 
-StepPhysicsCommand::~StepPhysicsCommand() {}
+StepTimeCommand::~StepTimeCommand() {}
 
-std::string StepPhysicsCommand::getType() const
+std::string StepTimeCommand::getType() const
 {
-    return "StepPhysics";
+    return "StepTime";
 }
 
-int StepPhysicsCommand::getVersion() const
+int StepTimeCommand::getVersion() const
 {
     return 1;
 }
 
-std::string StepPhysicsCommand::getDescription() const
+std::string StepTimeCommand::getDescription() const
 {
-    return "Command: StepPhysics\n"
+    return "Command: StepTime\n"
            "Version: 1\n"
-           "Purpose: Advances the rigid body and soft body physics simulation of the project by a given time delta.\n\n"
+           "Purpose: Advances the project time by a given time delta, stepping all time-dependent project systems.\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
-           "  \"type\": \"StepPhysics\",\n"
+           "  \"type\": \"StepTime\",\n"
            "  \"version\": 1,\n"
            "  \"deltaTime\": <double> (optional, default: 0.016666666666666666),\n"
            "  \"mergeGuid\": <string> (optional)\n"
@@ -36,13 +36,14 @@ std::string StepPhysicsCommand::getDescription() const
            "Output Stream: None\n\n"
            "Output Syntax (JSON):\n"
            "{\n"
-           "  \"type\": \"StepPhysics\",\n"
+           "  \"type\": \"StepTime\",\n"
            "  \"version\": 1,\n"
-           "  \"deltaTime\": <double>\n"
+           "  \"deltaTime\": <double>,\n"
+           "  \"currentTime\": <double>\n"
            "}";
 }
 
-void StepPhysicsCommand::setInput(const Polyglot::Node& node)
+void StepTimeCommand::setInput(const Polyglot::Node& node)
 {
     deltaTime = 1.0 / 60.0;
     if (node.contains("deltaTime") && !node["deltaTime"].isNull())
@@ -55,12 +56,15 @@ void StepPhysicsCommand::setInput(const Polyglot::Node& node)
     }
 }
 
-nlohmann::json StepPhysicsCommand::execute(Database& database)
+nlohmann::json StepTimeCommand::execute(Database& database)
 {
     if (deltaTime <= 0.0)
     {
         return createErrorResponse("InvalidDeltaTime", "deltaTime must be positive");
     }
+
+    previousTime = database.getCurrentTime();
+    currentTime  = previousTime + deltaTime;
 
     previousTransformations.clear();
     currentTransformations.clear();
@@ -79,6 +83,7 @@ nlohmann::json StepPhysicsCommand::execute(Database& database)
         }
     }
 
+    database.setCurrentTime(currentTime);
     database.getPhysicsSimulation().step(database.getProject(), deltaTime, getMergeGuid());
 
     for (const auto& asset : database.getProject().getAssets())
@@ -94,17 +99,19 @@ nlohmann::json StepPhysicsCommand::execute(Database& database)
     }
 
     return createResponse({
-      { "deltaTime", deltaTime }
+      {   "deltaTime",   deltaTime },
+      { "currentTime", currentTime }
     });
 }
 
-bool StepPhysicsCommand::isUndoable() const
+bool StepTimeCommand::isUndoable() const
 {
     return true;
 }
 
-void StepPhysicsCommand::undo(Database& database)
+void StepTimeCommand::undo(Database& database)
 {
+    database.setCurrentTime(previousTime);
     database.getPhysicsSimulation().reset();
     for (const auto& pair : previousTransformations)
     {
@@ -125,8 +132,9 @@ void StepPhysicsCommand::undo(Database& database)
     }
 }
 
-void StepPhysicsCommand::redo(Database& database)
+void StepTimeCommand::redo(Database& database)
 {
+    database.setCurrentTime(currentTime);
     database.getPhysicsSimulation().reset();
     for (const auto& pair : currentTransformations)
     {
@@ -147,9 +155,9 @@ void StepPhysicsCommand::redo(Database& database)
     }
 }
 
-size_t StepPhysicsCommand::getUndoSize() const
+size_t StepTimeCommand::getUndoSize() const
 {
-    size_t totalBytes = sizeof(StepPhysicsCommand) + (previousTransformations.size() + currentTransformations.size()) * (sizeof(CADacomb::GUID) + sizeof(glm::dmat4));
+    size_t totalBytes = sizeof(StepTimeCommand) + (previousTransformations.size() + currentTransformations.size()) * (sizeof(CADacomb::GUID) + sizeof(glm::dmat4));
     for (const auto& pair : previousVertices)
     {
         totalBytes += sizeof(CADacomb::GUID) + pair.second.size() * sizeof(glm::dvec3);
@@ -161,20 +169,21 @@ size_t StepPhysicsCommand::getUndoSize() const
     return totalBytes;
 }
 
-bool StepPhysicsCommand::isMergeable() const
+bool StepTimeCommand::isMergeable() const
 {
     return true;
 }
 
-bool StepPhysicsCommand::merge(const Command& other)
+bool StepTimeCommand::merge(const Command& other)
 {
-    const auto* otherStep = dynamic_cast<const StepPhysicsCommand*>(&other);
+    const auto* otherStep = dynamic_cast<const StepTimeCommand*>(&other);
     if (!otherStep)
     {
         return false;
     }
 
     deltaTime += otherStep->deltaTime;
+    currentTime = otherStep->currentTime;
     for (const auto& pair : otherStep->currentTransformations)
     {
         currentTransformations[pair.first] = pair.second;
@@ -186,7 +195,7 @@ bool StepPhysicsCommand::merge(const Command& other)
     return true;
 }
 
-double StepPhysicsCommand::getDeltaTime() const
+double StepTimeCommand::getDeltaTime() const
 {
     return deltaTime;
 }
@@ -201,10 +210,11 @@ double StepPhysicsCommand::getDeltaTime() const
 #include "Execution/UndoStack.h"
 #include "Utility/MatrixJson.h"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-TEST_CASE("StepPhysicsCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
+TEST_CASE("StepTimeCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
 {
     auto setupScene = [](GatedDatabase& db, std::string& floorGuidOut, std::string& cubeGuidOut)
     {
@@ -271,7 +281,7 @@ TEST_CASE("StepPhysicsCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
     for (int i = 0; i < steps; i++)
     {
         interactiveDb.execute({
-          {      "type",       "StepPhysics" },
+          {      "type",          "StepTime" },
           {   "version",                   1 },
           { "deltaTime",                  dt },
           { "mergeGuid", playGuid.toString() }
@@ -279,6 +289,12 @@ TEST_CASE("StepPhysicsCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
     }
 
     REQUIRE(interactiveUndo.getUndoHistory().size() == 1);
+
+    Polyglot::Node timeAfterSteps = interactiveDb.execute({
+      {    "type", "GetCurrentTime" },
+      { "version",                1 }
+    });
+    CHECK(timeAfterSteps["currentTime"].asDouble() == Catch::Approx(static_cast<double>(steps) * dt));
 
     Polyglot::Node incTransformRes   = interactiveDb.execute({
       {      "type", "GetTransformationAsset" },
@@ -294,7 +310,7 @@ TEST_CASE("StepPhysicsCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
     setupScene(headlessDb, headlessFloorGuid, headlessCubeGuid);
 
     headlessDb.execute({
-      {      "type",                   "StepPhysics" },
+      {      "type",                      "StepTime" },
       {   "version",                               1 },
       { "deltaTime", static_cast<double>(steps) * dt }
     });
@@ -309,6 +325,12 @@ TEST_CASE("StepPhysicsCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
     CHECK(incFinalTransform == headlessFinalTransform);
 
     interactiveUndo.undo();
+    Polyglot::Node timeAfterUndo = interactiveDb.execute({
+      {    "type", "GetCurrentTime" },
+      { "version",                1 }
+    });
+    CHECK(timeAfterUndo["currentTime"].asDouble() == Catch::Approx(0.0));
+
     Polyglot::Node undoneRes = interactiveDb.execute({
       {      "type", "GetTransformationAsset" },
       {   "version",                        1 },
@@ -317,6 +339,12 @@ TEST_CASE("StepPhysicsCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
     CHECK(MatrixJson::fromJson(undoneRes["transformation"].toJson()) == glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, 3.0, 0.0)));
 
     interactiveUndo.redo();
+    Polyglot::Node timeAfterRedo = interactiveDb.execute({
+      {    "type", "GetCurrentTime" },
+      { "version",                1 }
+    });
+    CHECK(timeAfterRedo["currentTime"].asDouble() == Catch::Approx(static_cast<double>(steps) * dt));
+
     Polyglot::Node redoneRes = interactiveDb.execute({
       {      "type", "GetTransformationAsset" },
       {   "version",                        1 },
@@ -325,7 +353,7 @@ TEST_CASE("StepPhysicsCommand/MergedInteractiveRunMatchesSingleHeadlessCommand")
     CHECK(MatrixJson::fromJson(redoneRes["transformation"].toJson()) == incFinalTransform);
 }
 
-TEST_CASE("StepPhysicsCommand/CadAssetRigidBodySimulation")
+TEST_CASE("StepTimeCommand/CadAssetRigidBodySimulation")
 {
     Database db;
 
@@ -346,19 +374,20 @@ TEST_CASE("StepPhysicsCommand/CadAssetRigidBodySimulation")
     boxAsset->addComponent(std::make_shared<RigidBodyComponent>(false));
     db.getProject().addAsset(boxAsset);
 
-    StepPhysicsCommand stepCmd;
+    StepTimeCommand stepCmd;
     stepCmd.setInput({
-      {      "type", "StepPhysics" },
-      {   "version",             1 },
-      { "deltaTime",           0.5 }
+      {      "type", "StepTime" },
+      {   "version",          1 },
+      { "deltaTime",        0.5 }
     });
     nlohmann::json res = stepCmd.execute(db);
-    CHECK(res.at("type").get<std::string>() == "StepPhysics");
+    CHECK(res.at("type").get<std::string>() == "StepTime");
+    CHECK(res.at("currentTime").get<double>() == Catch::Approx(0.5));
     CHECK(boxAsset->getTransformation()[3].y < 3.0);
     CHECK(floorAsset->getTransformation()[3].y == -1.0);
 }
 
-TEST_CASE("StepPhysicsCommand/VoxelAssetSVORigidBodyAndDynamicChange")
+TEST_CASE("StepTimeCommand/VoxelAssetSVORigidBodyAndDynamicChange")
 {
     Database db;
 
@@ -388,9 +417,9 @@ TEST_CASE("StepPhysicsCommand/VoxelAssetSVORigidBodyAndDynamicChange")
 
     CADacomb::GUID sessionGuid = CADacomb::GUID::random();
 
-    StepPhysicsCommand step1;
+    StepTimeCommand step1;
     step1.setInput({
-      {      "type",          "StepPhysics" },
+      {      "type",             "StepTime" },
       {   "version",                      1 },
       { "deltaTime",                    1.0 },
       { "mergeGuid", sessionGuid.toString() }
@@ -410,9 +439,9 @@ TEST_CASE("StepPhysicsCommand/VoxelAssetSVORigidBodyAndDynamicChange")
     }
     floorAsset->setAABB(floorAsset->getAABB());
 
-    StepPhysicsCommand step2;
+    StepTimeCommand step2;
     step2.setInput({
-      {      "type",          "StepPhysics" },
+      {      "type",             "StepTime" },
       {   "version",                      1 },
       { "deltaTime",                    1.0 },
       { "mergeGuid", sessionGuid.toString() }
@@ -422,7 +451,7 @@ TEST_CASE("StepPhysicsCommand/VoxelAssetSVORigidBodyAndDynamicChange")
     CHECK(blockAsset->getTransformation()[3].y < -2.0);
 }
 
-TEST_CASE("StepPhysicsCommand/SteppedMultiLeafSVOTerrainCollision")
+TEST_CASE("StepTimeCommand/SteppedMultiLeafSVOTerrainCollision")
 {
     Database db;
 
@@ -467,19 +496,19 @@ TEST_CASE("StepPhysicsCommand/SteppedMultiLeafSVOTerrainCollision")
     fallingAsset->addComponent(std::make_shared<RigidBodyComponent>(false));
     db.getProject().addAsset(fallingAsset);
 
-    StepPhysicsCommand stepCmd;
+    StepTimeCommand stepCmd;
     stepCmd.setInput({
-      {      "type", "StepPhysics" },
-      {   "version",             1 },
-      { "deltaTime",           1.0 }
+      {      "type", "StepTime" },
+      {   "version",          1 },
+      { "deltaTime",        1.0 }
     });
     nlohmann::json res = stepCmd.execute(db);
-    CHECK(res.at("type").get<std::string>() == "StepPhysics");
+    CHECK(res.at("type").get<std::string>() == "StepTime");
     CHECK(fallingAsset->getTransformation()[3].y < 2.0);
     CHECK(fallingAsset->getTransformation()[3].y > -6.0);
 }
 
-TEST_CASE("StepPhysicsCommand/SoftBodyDeformationUndoRedoAndMerge")
+TEST_CASE("StepTimeCommand/SoftBodyDeformationUndoRedoAndMerge")
 {
     Database db;
 
@@ -501,12 +530,12 @@ TEST_CASE("StepPhysicsCommand/SoftBodyDeformationUndoRedoAndMerge")
     std::vector<glm::dvec3> initialVertices = softAsset->getTriangulation().vertices;
     CADacomb::GUID          playGuid        = CADacomb::GUID::random();
 
-    StepPhysicsCommand mergedStep;
+    StepTimeCommand mergedStep;
     for (int i = 0; i < 30; i++)
     {
-        StepPhysicsCommand stepCmd;
+        StepTimeCommand stepCmd;
         stepCmd.setInput({
-          {      "type",       "StepPhysics" },
+          {      "type",          "StepTime" },
           {   "version",                   1 },
           { "deltaTime",          1.0 / 60.0 },
           { "mergeGuid", playGuid.toString() }
@@ -526,13 +555,16 @@ TEST_CASE("StepPhysicsCommand/SoftBodyDeformationUndoRedoAndMerge")
     std::vector<glm::dvec3> deformedVertices = softAsset->getTriangulation().vertices;
     CHECK(deformedTf[3].y < 1.8);
     CHECK(deformedVertices != initialVertices);
+    CHECK(db.getCurrentTime() == Catch::Approx(0.5));
 
     mergedStep.undo(db);
     CHECK(softAsset->getTransformation() == initialTf);
     CHECK(softAsset->getTriangulation().vertices == initialVertices);
+    CHECK(db.getCurrentTime() == Catch::Approx(0.0));
 
     mergedStep.redo(db);
     CHECK(softAsset->getTransformation() == deformedTf);
     CHECK(softAsset->getTriangulation().vertices == deformedVertices);
+    CHECK(db.getCurrentTime() == Catch::Approx(0.5));
 }
 #endif
