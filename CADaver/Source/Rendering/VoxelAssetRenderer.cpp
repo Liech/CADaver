@@ -130,32 +130,22 @@ void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase
     {
         lastRenderMode = renderMode;
         dirty          = true;
-        if (renderMode == 1)
+        if (renderMode != 0)
         {
             lodMesh.reset();
         }
-        else
+        if (renderMode != 1)
         {
             raycastRenderer.reset();
         }
+        if (renderMode != 2)
+        {
+            tetraRaycastRenderer.reset();
+        }
     }
 
-    if (renderMode == 1)
+    if (renderMode == 1 || renderMode == 2)
     {
-        if (!raycastRenderer)
-        {
-            raycastRenderer = std::make_unique<CADacomb::Render::SVORaycastRenderer>(renderer.getDevice());
-            dirty           = true;
-        }
-
-        if (dirty || asset->getRevision() != lastRevision || lastRebuildCounter != svoPrefs.getRebuildCounter())
-        {
-            raycastRenderer->uploadSVO(asset->getSVO());
-            dirty              = false;
-            lastRevision       = asset->getRevision();
-            lastRebuildCounter = svoPrefs.getRebuildCounter();
-        }
-
         Polyglot::Node selRes = gatedDatabase.execute({
           {      "type",   "GetAssetSelection" },
           {   "version",                     1 },
@@ -165,15 +155,60 @@ void VoxelAssetRenderer::render(Renderer& renderer, GatedDatabase& gatedDatabase
         glm::vec3 meshColor = selected ? glm::vec3(1.0f, 0.65f, 0.1f) : glm::vec3(0.6f, 0.75f, 0.9f);
         uint32_t  maxDepth  = (svoPrefs.getMaxDepth() > 0) ? static_cast<uint32_t>(svoPrefs.getMaxDepth()) : 0u;
 
-        raycastRenderer->render(renderer.getColor(),
-                                renderer.getNormal(),
-                                renderer.getDepth(),
-                                worldSceneData,
-                                asset->getAABB(),
-                                asset->getTransformation(),
-                                meshColor,
-                                static_cast<float>(svoPrefs.getMinPixelSize()),
-                                maxDepth);
+        if (renderMode == 1)
+        {
+            if (!raycastRenderer)
+            {
+                raycastRenderer = std::make_unique<CADacomb::Render::SVORaycastRenderer>(renderer.getDevice());
+                dirty           = true;
+            }
+
+            if (dirty || asset->getRevision() != lastRevision || lastRebuildCounter != svoPrefs.getRebuildCounter())
+            {
+                raycastRenderer->uploadSVO(asset->getSVO());
+                dirty              = false;
+                lastRevision       = asset->getRevision();
+                lastRebuildCounter = svoPrefs.getRebuildCounter();
+            }
+
+            raycastRenderer->render(renderer.getColor(),
+                                    renderer.getNormal(),
+                                    renderer.getDepth(),
+                                    worldSceneData,
+                                    asset->getAABB(),
+                                    asset->getTransformation(),
+                                    meshColor,
+                                    static_cast<float>(svoPrefs.getMinPixelSize()),
+                                    maxDepth);
+            return;
+        }
+
+        if (!tetraRaycastRenderer)
+        {
+            tetraRaycastRenderer = std::make_unique<CADacomb::Render::SVOTetraRaycastRenderer>(renderer.getDevice());
+            wobbleStartTime      = std::chrono::steady_clock::now();
+            dirty                = true;
+        }
+
+        if (dirty || asset->getRevision() != lastRevision || lastRebuildCounter != svoPrefs.getRebuildCounter())
+        {
+            tetraRaycastRenderer->uploadSVO(asset->getSVO(), asset->getAABB(), 4u);
+            dirty              = false;
+            lastRevision       = asset->getRevision();
+            lastRebuildCounter = svoPrefs.getRebuildCounter();
+        }
+
+        float elapsedSeconds = std::chrono::duration<float>(std::chrono::steady_clock::now() - wobbleStartTime).count();
+        tetraRaycastRenderer->deformSine(asset->getAABB(), elapsedSeconds, 0.08f);
+        tetraRaycastRenderer->render(renderer.getColor(),
+                                     renderer.getNormal(),
+                                     renderer.getDepth(),
+                                     worldSceneData,
+                                     asset->getAABB(),
+                                     asset->getTransformation(),
+                                     meshColor,
+                                     static_cast<float>(svoPrefs.getMinPixelSize()),
+                                     maxDepth);
         return;
     }
 

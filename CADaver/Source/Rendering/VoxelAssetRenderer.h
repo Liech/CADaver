@@ -9,9 +9,11 @@
 #include "CADacomb/Volume/LODStrategy/ScreenSpaceLODStrategy.h"
 #include "CADacombRender/SVOLODMesh.h"
 #include "CADacombRender/SVORaycast/Renderer/SVORaycastRenderer.h"
+#include "CADacombRender/SVORaycast/TetraProxy/SVOTetraRaycastRenderer.h"
 #include "Vulcant/Interface/VulcantCullMode.h"
 #include "Vulcant/Toolkit/SceneData.h"
 
+#include <chrono>
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -45,9 +47,11 @@ class VoxelAssetRenderer : public AssetRenderer
     void ensurePipeline(Renderer& renderer);
     void invalidatePipeline();
 
-    std::shared_ptr<const VoxelAsset>                     asset;
-    std::unique_ptr<CADacomb::Render::SVOLODMesh<bool>>   lodMesh;
-    std::unique_ptr<CADacomb::Render::SVORaycastRenderer> raycastRenderer;
+    std::shared_ptr<const VoxelAsset>                          asset;
+    std::unique_ptr<CADacomb::Render::SVOLODMesh<bool>>        lodMesh;
+    std::unique_ptr<CADacomb::Render::SVORaycastRenderer>      raycastRenderer;
+    std::unique_ptr<CADacomb::Render::SVOTetraRaycastRenderer> tetraRaycastRenderer;
+    std::chrono::steady_clock::time_point                      wobbleStartTime = std::chrono::steady_clock::now();
     std::unique_ptr<Vulcant::VulcantShader>               vertShader;
     std::unique_ptr<Vulcant::VulcantShader>               fragShader;
     std::unique_ptr<Vulcant::VulcantGraphicPipeline>      pipeline;

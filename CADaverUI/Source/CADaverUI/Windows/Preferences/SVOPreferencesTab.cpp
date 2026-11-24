@@ -39,9 +39,9 @@ bool SVOPreferencesTab::render(GatedDatabase& database, Defer& defer)
     ImGui::Separator();
     ImGui::Spacing();
 
-    const char* renderModes[] = { "Mesh LOD (Blocky)", "GPU Raycast (SVO)" };
+    const char* renderModes[] = { "Mesh LOD (Blocky)", "GPU Raycast (SVO)", "GPU Raycast (Tetra Wobble)" };
     int         renderMode    = preferences.getRenderMode();
-    if (ImGui::Combo("Render Mode", &renderMode, renderModes, 2))
+    if (ImGui::Combo("Render Mode", &renderMode, renderModes, 3))
     {
         preferences.setRenderMode(renderMode);
         modified = true;
