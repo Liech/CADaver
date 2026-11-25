@@ -7,12 +7,13 @@
     {
       "kind": "git",
       "repository": "https://github.com/Liech/vcpkg-registry",
-      "baseline": "ba39fcacee6062c8d68a85eaa7c52863aa77f580",
+      "baseline": "21f226ddb317823b45843778063955753fba5ba6",
       "packages": [
         "vulcant",
         "polyglot",
         "cadacomb",
-        "smlib"
+        "smlib",
+        "ufbx"
       ]
     }
   ]

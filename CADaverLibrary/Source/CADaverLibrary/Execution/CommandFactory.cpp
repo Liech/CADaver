@@ -1,6 +1,7 @@
 ﻿#include "Execution/CommandFactory.h"
 
 #include "Commands/Component/AddComponentCommand.h"
+#include "Commands/Component/AddTextureComponentCommand.h"
 #include "Commands/Component/GetComponentCommand.h"
 #include "Commands/Component/RemoveComponentCommand.h"
 #include "Commands/Component/UpdateComponentCommand.h"
@@ -104,6 +105,7 @@ void CommandFactory::registerCommand(const std::string& name, std::function<std:
 void CommandFactory::registerCommands()
 {
     registerCommand("AddComponent", []() { return std::make_unique<AddComponentCommand>(); });
+    registerCommand("AddTextureComponent", []() { return std::make_unique<AddTextureComponentCommand>(); });
     registerCommand("GetComponent", []() { return std::make_unique<GetComponentCommand>(); });
     registerCommand("UpdateComponent", []() { return std::make_unique<UpdateComponentCommand>(); });
     registerCommand("RemoveComponent", []() { return std::make_unique<RemoveComponentCommand>(); });
@@ -196,6 +198,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("UpdateRenderPreferences") != nullptr);
     CHECK(factory.create("UpdateSVOPreferences") != nullptr);
     CHECK(factory.create("AddComponent") != nullptr);
+    CHECK(factory.create("AddTextureComponent") != nullptr);
     CHECK(factory.create("GetComponent") != nullptr);
     CHECK(factory.create("UpdateComponent") != nullptr);
     CHECK(factory.create("RemoveComponent") != nullptr);
@@ -217,6 +220,6 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GenerateFunctionSvo") != nullptr);
     CHECK(factory.create("StepTime") != nullptr);
     CHECK(factory.create("GetCurrentTime") != nullptr);
-    CHECK(factory.getAllCommands().size() == 53);
+    CHECK(factory.getAllCommands().size() == 54);
 }
 #endif

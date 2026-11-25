@@ -23,6 +23,8 @@
         "vulkan-binding"
       ]
     },
-    "imguizmo"
+    "imguizmo",
+    "stb",
+    "ufbx"
   ]
 }

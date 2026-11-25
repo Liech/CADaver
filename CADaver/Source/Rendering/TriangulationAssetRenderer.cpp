@@ -2,11 +2,14 @@
 
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/AssetComponent.h"
+#include "Database/Component/TextureComponent.h"
+#include "Database/Component/UVComponent.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Execution/GatedDatabase.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/Triangulation/DefaultSurfaceModule.h"
 #include "Rendering/Triangulation/IndexedFaceColorModule.h"
+#include "Rendering/Triangulation/TexturedSurfaceModule.h"
 #include "Rendering/Triangulation/TriangulationSurfaceModule.h"
 #include "Triangulation/Triangulation_vert.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
@@ -23,6 +26,7 @@ TriangulationAssetRenderer::TriangulationAssetRenderer()
 {
     surfaceModules.push_back(std::make_unique<DefaultSurfaceModule>());
     surfaceModules.push_back(std::make_unique<IndexedFaceColorModule>());
+    surfaceModules.push_back(std::make_unique<TexturedSurfaceModule>());
 }
 
 TriangulationAssetRenderer::TriangulationAssetRenderer(std::shared_ptr<const TriangulationAsset> assetInput)
@@ -30,6 +34,7 @@ TriangulationAssetRenderer::TriangulationAssetRenderer(std::shared_ptr<const Tri
 {
     surfaceModules.push_back(std::make_unique<DefaultSurfaceModule>());
     surfaceModules.push_back(std::make_unique<IndexedFaceColorModule>());
+    surfaceModules.push_back(std::make_unique<TexturedSurfaceModule>());
 }
 
 TriangulationAssetRenderer::~TriangulationAssetRenderer()
@@ -165,22 +170,47 @@ void TriangulationAssetRenderer::ensureModulePipeline(Renderer& renderer, Triang
 
 TriangulationSurfaceModule* TriangulationAssetRenderer::resolveActiveModule(GatedDatabase& gatedDatabase, const AssetComponent*& outComponent) const
 {
-    outComponent = nullptr;
+    outComponent      = nullptr;
+    auto uvComponents = asset->getAttachments<UVComponent>();
+    bool hasUVs       = !uvComponents.empty() && uvComponents.front()->getUVs().getCornerCount() > 0;
+
     for (const auto& component : asset->getAttachments())
     {
         Polyglot::Node compSel = gatedDatabase.execute({
-          {      "type",               "GetAssetSelection" },
-          {   "version",                                 1 },
+          {      "type",             "GetAssetSelection" },
+          {   "version",                               1 },
           { "assetGuid", component->getGuid().toString() }
         });
         if (compSel.toJson().value("type", "") == "GetAssetSelection")
         {
+            if (component->getType() == "Texture" && !hasUVs)
+            {
+                continue;
+            }
             for (const auto& module : surfaceModules)
             {
                 if (module->isCompatible(component->getType()))
                 {
                     outComponent = component.get();
                     return module.get();
+                }
+            }
+        }
+    }
+
+    if (hasUVs)
+    {
+        for (const auto& textureComponent : asset->getAttachments<TextureComponent>())
+        {
+            if (!textureComponent->getTexture().isEmpty())
+            {
+                for (const auto& module : surfaceModules)
+                {
+                    if (module->isCompatible(textureComponent->getType()))
+                    {
+                        outComponent = textureComponent.get();
+                        return module.get();
+                    }
                 }
             }
         }
@@ -202,7 +232,7 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
         dirty = true;
     }
 
-    Polyglot::Node renderPrefRes = gatedDatabase.execute({
+    Polyglot::Node    renderPrefRes = gatedDatabase.execute({
       {    "type", "GetRenderPreferences" },
       { "version",                      1 }
     });
@@ -232,12 +262,12 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
     meshParams.setTransformation(asset->getTransformation());
     meshParamsUbo->uploadToGPU(&meshParams, 1);
 
-    Polyglot::Node selRes = gatedDatabase.execute({
-      {      "type",   "GetAssetSelection" },
-      {   "version",                     1 },
+    Polyglot::Node selRes          = gatedDatabase.execute({
+      {      "type",         "GetAssetSelection" },
+      {   "version",                           1 },
       { "assetGuid", asset->getGuid().toString() }
     });
-    bool currentSelected = (selRes.toJson().value("type", "") == "GetAssetSelection");
+    bool           currentSelected = (selRes.toJson().value("type", "") == "GetAssetSelection");
 
     if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || currentSelected != lastSelected || !vertexBuffer)
     {

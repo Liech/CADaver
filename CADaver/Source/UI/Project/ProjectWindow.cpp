@@ -1,6 +1,7 @@
 ﻿#include "UI/Project/ProjectWindow.h"
 
 #include "CADacomb/Util/GUID.h"
+#include "Component/LoadFileDialog.h"
 #include "Execution/GatedDatabase.h"
 #include "UI/ContextMenu/AssetContextMenuRenderer.h"
 #include "UI/ContextMenu/ProgressAssetContextMenu.h"
@@ -10,6 +11,7 @@
 #include "Windows/Project/TaskNotificationModal.h"
 #include "Windows/Windows.h"
 
+#include <filesystem>
 #include <imgui.h>
 
 ProjectWindow::ProjectWindow()
@@ -261,6 +263,26 @@ void ProjectWindow::render(GatedDatabase& gatedDatabase, Windows& windows)
                                 if (editWin)
                                 {
                                     editWin->setTarget(assetGuid, compGuid);
+                                }
+                            }
+                            else if (compType == "UV" && ImGui::MenuItem("Load Texture..."))
+                            {
+                                LoadFileDialog dialog;
+                                dialog.addFilter("Image File", { "png", "jpg", "jpeg", "bmp", "tga" });
+                                dialog.execute();
+
+                                if (!dialog.isCanceled())
+                                {
+                                    std::string    filePath = dialog.getResultPath();
+                                    std::string    texName  = std::filesystem::path(filePath).stem().string();
+                                    Polyglot::Node command  = {
+                                        {      "type", "AddTextureComponent" },
+                                        {   "version",                     1 },
+                                        { "assetGuid",  assetGuid.toString() },
+                                        {      "name",               texName },
+                                        {    "source",              filePath }
+                                    };
+                                    gatedDatabase.execute(command);
                                 }
                             }
 

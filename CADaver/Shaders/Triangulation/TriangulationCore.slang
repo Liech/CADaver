@@ -1,4 +1,4 @@
-﻿module TriangulationCore;
+module TriangulationCore;
 
 import Render.Scene;
 import Triangulation.SurfaceModifier;
@@ -74,11 +74,12 @@ public RasterizerOutput shadeSurface<TModifier : ISurfaceModifier>(Triangulation
     float3 normalView = normalize(input.normalView);
 
     SurfaceContext ctx;
-    ctx.faceID     = input.faceID;
-    ctx.vertexID   = input.vertexID;
-    ctx.posWorld   = input.posWorld;
-    ctx.normalView = normalView;
-    ctx.baseColor  = input.color.rgb;
+    ctx.faceID      = input.faceID;
+    ctx.vertexID    = input.vertexID;
+    ctx.posWorld    = input.posWorld;
+    ctx.normalView  = normalView;
+    ctx.baseColor   = input.color.rgb;
+    ctx.barycentric = input.barycentric;
 
     float3 albedo = modifier.evaluateAlbedo(ctx);
 

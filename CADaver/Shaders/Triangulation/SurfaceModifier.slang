@@ -1,4 +1,4 @@
-﻿module SurfaceModifier;
+module SurfaceModifier;
 
 public struct SurfaceContext
 {
@@ -7,6 +7,7 @@ public struct SurfaceContext
     public float3 posWorld;
     public float3 normalView;
     public float3 baseColor;
+    public float3 barycentric;
 };
 
 public interface ISurfaceModifier

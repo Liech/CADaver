@@ -69,6 +69,8 @@ set(IO_AssetLoader_Files
     "Source/CADaverLibrary/IO/AssetLoader/AssetLoaderFactory.cpp"
     "Source/CADaverLibrary/IO/AssetLoader/CadAssetLoader.h"
     "Source/CADaverLibrary/IO/AssetLoader/CadAssetLoader.cpp"
+    "Source/CADaverLibrary/IO/AssetLoader/FbxAssetLoader.h"
+    "Source/CADaverLibrary/IO/AssetLoader/FbxAssetLoader.cpp"
     "Source/CADaverLibrary/IO/AssetLoader/TextureAssetLoader.h"
     "Source/CADaverLibrary/IO/AssetLoader/TextureAssetLoader.cpp"
     "Source/CADaverLibrary/IO/AssetLoader/TriangulationAssetLoader.h"
@@ -117,6 +119,8 @@ source_group("Source/Commands/Project" FILES ${Command_Project_Files})
 set(Command_Component_Files
     "Source/CADaverLibrary/Commands/Component/AddComponentCommand.h"
     "Source/CADaverLibrary/Commands/Component/AddComponentCommand.cpp"
+    "Source/CADaverLibrary/Commands/Component/AddTextureComponentCommand.h"
+    "Source/CADaverLibrary/Commands/Component/AddTextureComponentCommand.cpp"
     "Source/CADaverLibrary/Commands/Component/GetComponentCommand.h"
     "Source/CADaverLibrary/Commands/Component/GetComponentCommand.cpp"
     "Source/CADaverLibrary/Commands/Component/UpdateComponentCommand.h"
@@ -257,6 +261,10 @@ set(Database_Files
     "Source/CADaverLibrary/Database/Component/SoftBodyComponent.cpp"
     "Source/CADaverLibrary/Database/Component/TextNoteComponent.h"
     "Source/CADaverLibrary/Database/Component/TextNoteComponent.cpp"
+    "Source/CADaverLibrary/Database/Component/TextureComponent.h"
+    "Source/CADaverLibrary/Database/Component/TextureComponent.cpp"
+    "Source/CADaverLibrary/Database/Component/UVComponent.h"
+    "Source/CADaverLibrary/Database/Component/UVComponent.cpp"
     "Source/CADaverLibrary/Database/Physics/PhysicsSimulation.h"
     "Source/CADaverLibrary/Database/Physics/PhysicsSimulation.cpp"
 )

@@ -24,7 +24,7 @@ std::shared_ptr<Asset> TextureAssetLoader::load(const std::string& name, const P
         return nullptr;
     }
 
-    auto texture = std::make_shared<CADacomb::Texture::Texture>(CADacomb::Texture::Texture::loadFromPngMemory(bytes));
+    auto texture = std::make_shared<CADacomb::Texture::Texture>(CADacomb::Texture::Texture::loadFromMemory(bytes));
     bar.addProgress(1);
 
     if (texture->isEmpty() || bar.isCanceled())

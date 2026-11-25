@@ -4,6 +4,8 @@
 #include "Database/Component/RigidBodyComponent.h"
 #include "Database/Component/SoftBodyComponent.h"
 #include "Database/Component/TextNoteComponent.h"
+#include "Database/Component/TextureComponent.h"
+#include "Database/Component/UVComponent.h"
 
 ComponentFactory::ComponentFactory()
 {
@@ -44,6 +46,8 @@ void ComponentFactory::registerComponents()
     registerComponent("FaceValues", []() { return std::make_shared<FaceValuesComponent>(); });
     registerComponent("RigidBody", []() { return std::make_shared<RigidBodyComponent>(); });
     registerComponent("SoftBody", []() { return std::make_shared<SoftBodyComponent>(); });
+    registerComponent("Texture", []() { return std::make_shared<TextureComponent>(); });
+    registerComponent("UV", []() { return std::make_shared<UVComponent>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -69,5 +73,13 @@ TEST_CASE("ComponentFactory/CreateRegisteredComponents")
     auto softBody = factory.create("SoftBody");
     REQUIRE(softBody != nullptr);
     CHECK(softBody->getType() == "SoftBody");
+
+    auto texture = factory.create("Texture");
+    REQUIRE(texture != nullptr);
+    CHECK(texture->getType() == "Texture");
+
+    auto uv = factory.create("UV");
+    REQUIRE(uv != nullptr);
+    CHECK(uv->getType() == "UV");
 }
 #endif
