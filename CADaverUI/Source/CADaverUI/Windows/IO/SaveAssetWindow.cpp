@@ -1,4 +1,4 @@
-﻿#include "Windows/IO/SaveAssetWindow.h"
+#include "Windows/IO/SaveAssetWindow.h"
 
 #include "Component/SaveFileDialog.h"
 #include "Execution/Defer.h"
@@ -135,9 +135,14 @@ void SaveAssetWindow::browseFile()
         dialog.addFilter("PNG Image", { "png" });
         dialog.setSaveFileName(defaultName + ".png");
     }
+    else if (assetType == "VectorGraphics")
+    {
+        dialog.addFilter("SVG Vector Graphics", { "svg" });
+        dialog.setSaveFileName(defaultName + ".svg");
+    }
     else
     {
-        dialog.addFilter("All Supported Assets", { "step", "stp", "stl", "cadacombsvo", "svo", "png" });
+        dialog.addFilter("All Supported Assets", { "step", "stp", "stl", "cadacombsvo", "svo", "png", "svg" });
         dialog.setSaveFileName(defaultName);
     }
 

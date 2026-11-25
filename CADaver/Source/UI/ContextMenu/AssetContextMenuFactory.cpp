@@ -4,6 +4,7 @@
 #include "UI/ContextMenu/ProgressAssetContextMenu.h"
 #include "UI/ContextMenu/TextureAssetContextMenu.h"
 #include "UI/ContextMenu/TriangulationAssetContextMenu.h"
+#include "UI/ContextMenu/VectorGraphicsAssetContextMenu.h"
 #include "UI/ContextMenu/VoxelAssetContextMenu.h"
 
 AssetContextMenuFactory::AssetContextMenuFactory()
@@ -35,5 +36,6 @@ void AssetContextMenuFactory::registerMenus()
     registerMenu("Progress", []() { return std::make_unique<ProgressAssetContextMenu>(); });
     registerMenu("Texture", []() { return std::make_unique<TextureAssetContextMenu>(); });
     registerMenu("Triangulation", []() { return std::make_unique<TriangulationAssetContextMenu>(); });
+    registerMenu("VectorGraphics", []() { return std::make_unique<VectorGraphicsAssetContextMenu>(); });
     registerMenu("Voxel", []() { return std::make_unique<VoxelAssetContextMenu>(); });
 }

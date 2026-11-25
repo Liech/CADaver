@@ -1,4 +1,4 @@
-﻿#include "Windows/IO/LoadAssetWindow.h"
+#include "Windows/IO/LoadAssetWindow.h"
 
 #include "Component/LoadFileDialog.h"
 #include "Execution/Defer.h"
@@ -21,9 +21,9 @@ std::string LoadAssetWindow::getDescription() const
 {
     return "Window: LoadAsset\n"
            "Title: Load Asset\n"
-           "Purpose: Dialog for importing a CAD (STEP), mesh (STL, FBX), voxel (SVO), or image (PNG) asset file from disk into the project.\n\n"
+           "Purpose: Dialog for importing a CAD (STEP), mesh (STL, FBX), voxel (SVO), image (PNG), or vector graphics (SVG) asset file from disk into the project.\n\n"
            "Parameters:\n"
-           "  - File Path: Path to the .step, .stp, .stl, .fbx, .cadacombsvo, .svo, or .png file on disk\n"
+           "  - File Path: Path to the .step, .stp, .stl, .fbx, .cadacombsvo, .svo, .png, or .svg file on disk\n"
            "  - Asset Name: Name assigned to the loaded asset (defaults to file stem)\n\n"
            "Dispatched Command: LoadAsset (async)";
 }
@@ -96,12 +96,13 @@ void LoadAssetWindow::render()
 void LoadAssetWindow::browseFile()
 {
     LoadFileDialog dialog;
-    dialog.addFilter("All Supported Assets", { "step", "stp", "stl", "fbx", "cadacombsvo", "svo", "png", "jpg", "jpeg" });
+    dialog.addFilter("All Supported Assets", { "step", "stp", "stl", "fbx", "cadacombsvo", "svo", "png", "jpg", "jpeg", "svg" });
     dialog.addFilter("STEP File", { "step", "stp" });
     dialog.addFilter("STL File", { "stl" });
     dialog.addFilter("FBX File", { "fbx" });
     dialog.addFilter("SVO Voxel File", { "cadacombsvo", "svo" });
     dialog.addFilter("Image File", { "png", "jpg", "jpeg" });
+    dialog.addFilter("SVG Vector Graphics", { "svg" });
     dialog.execute();
 
     if (!dialog.isCanceled())

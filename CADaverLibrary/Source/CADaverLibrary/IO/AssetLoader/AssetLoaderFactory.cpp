@@ -4,6 +4,7 @@
 #include "IO/AssetLoader/FbxAssetLoader.h"
 #include "IO/AssetLoader/TextureAssetLoader.h"
 #include "IO/AssetLoader/TriangulationAssetLoader.h"
+#include "IO/AssetLoader/VectorGraphicsAssetLoader.h"
 #include "IO/AssetLoader/VoxelAssetLoader.h"
 #include "Utility/IOValueGrabber.h"
 
@@ -70,25 +71,28 @@ std::string AssetLoaderFactory::resolveAssetType(const std::string& assetType, c
 
 void AssetLoaderFactory::registerLoaders()
 {
-    creators["Cad"]           = []() { return std::make_unique<CadAssetLoader>(); };
-    creators["Fbx"]           = []() { return std::make_unique<FbxAssetLoader>(); };
-    creators["Texture"]       = []() { return std::make_unique<TextureAssetLoader>(); };
-    creators["Triangulation"] = []() { return std::make_unique<TriangulationAssetLoader>(); };
-    creators["Voxel"]         = []() { return std::make_unique<VoxelAssetLoader>(); };
+    creators["Cad"]            = []() { return std::make_unique<CadAssetLoader>(); };
+    creators["Fbx"]            = []() { return std::make_unique<FbxAssetLoader>(); };
+    creators["Texture"]        = []() { return std::make_unique<TextureAssetLoader>(); };
+    creators["Triangulation"]  = []() { return std::make_unique<TriangulationAssetLoader>(); };
+    creators["VectorGraphics"] = []() { return std::make_unique<VectorGraphicsAssetLoader>(); };
+    creators["Voxel"]          = []() { return std::make_unique<VoxelAssetLoader>(); };
 
-    extensionToType["step"]          = "Cad";
-    extensionToType["stp"]           = "Cad";
-    extensionToType["cad"]           = "Cad";
-    extensionToType["fbx"]           = "Fbx";
-    extensionToType["png"]           = "Texture";
-    extensionToType["jpg"]           = "Texture";
-    extensionToType["jpeg"]          = "Texture";
-    extensionToType["texture"]       = "Texture";
-    extensionToType["stl"]           = "Triangulation";
-    extensionToType["triangulation"] = "Triangulation";
-    extensionToType["cadacombsvo"]   = "Voxel";
-    extensionToType["svo"]           = "Voxel";
-    extensionToType["voxel"]         = "Voxel";
+    extensionToType["step"]           = "Cad";
+    extensionToType["stp"]            = "Cad";
+    extensionToType["cad"]            = "Cad";
+    extensionToType["fbx"]            = "Fbx";
+    extensionToType["png"]            = "Texture";
+    extensionToType["jpg"]            = "Texture";
+    extensionToType["jpeg"]           = "Texture";
+    extensionToType["texture"]        = "Texture";
+    extensionToType["stl"]            = "Triangulation";
+    extensionToType["triangulation"]  = "Triangulation";
+    extensionToType["svg"]            = "VectorGraphics";
+    extensionToType["vectorgraphics"] = "VectorGraphics";
+    extensionToType["cadacombsvo"]    = "Voxel";
+    extensionToType["svo"]            = "Voxel";
+    extensionToType["voxel"]          = "Voxel";
 }
 
 std::string AssetLoaderFactory::extractExtension(const std::string& pathStr) const

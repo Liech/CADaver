@@ -3,6 +3,7 @@
 #include "IO/AssetSaver/CadAssetSaver.h"
 #include "IO/AssetSaver/TextureAssetSaver.h"
 #include "IO/AssetSaver/TriangulationAssetSaver.h"
+#include "IO/AssetSaver/VectorGraphicsAssetSaver.h"
 #include "IO/AssetSaver/VoxelAssetSaver.h"
 
 AssetSaverFactory::AssetSaverFactory()
@@ -25,10 +26,11 @@ std::unique_ptr<AssetSaver> AssetSaverFactory::create(const std::string& assetTy
 
 void AssetSaverFactory::registerSavers()
 {
-    creators["Cad"]           = []() { return std::make_unique<CadAssetSaver>(); };
-    creators["Texture"]       = []() { return std::make_unique<TextureAssetSaver>(); };
-    creators["Triangulation"] = []() { return std::make_unique<TriangulationAssetSaver>(); };
-    creators["Voxel"]         = []() { return std::make_unique<VoxelAssetSaver>(); };
+    creators["Cad"]            = []() { return std::make_unique<CadAssetSaver>(); };
+    creators["Texture"]        = []() { return std::make_unique<TextureAssetSaver>(); };
+    creators["Triangulation"]  = []() { return std::make_unique<TriangulationAssetSaver>(); };
+    creators["VectorGraphics"] = []() { return std::make_unique<VectorGraphicsAssetSaver>(); };
+    creators["Voxel"]          = []() { return std::make_unique<VoxelAssetSaver>(); };
 }
 
 #ifdef ISTESTPROJECT
@@ -40,6 +42,7 @@ TEST_CASE("AssetSaverFactory/CreateSavers")
     CHECK(factory.create("Cad") != nullptr);
     CHECK(factory.create("Texture") != nullptr);
     CHECK(factory.create("Triangulation") != nullptr);
+    CHECK(factory.create("VectorGraphics") != nullptr);
     CHECK(factory.create("Voxel") != nullptr);
     CHECK(factory.create("Unknown") == nullptr);
 }
