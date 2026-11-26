@@ -57,9 +57,7 @@ std::vector<SourceViolation> DefaultKeywordStaticTest::checkDirectory(const std:
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
-#ifndef STATIC_ANALYSIS_TARGET_DIR
-#define STATIC_ANALYSIS_TARGET_DIR "."
-#endif
+#include "StaticAnalysisConfig.h"
 
 TEST_CASE("DefaultKeywordStaticTest/UnitCheck")
 {
@@ -75,7 +73,7 @@ TEST_CASE("DefaultKeywordStaticTest/UnitCheck")
 TEST_CASE("DefaultKeywordStaticTest/ProjectScan")
 {
     DefaultKeywordStaticTest checker;
-    auto                     violations = checker.checkDirectory(STATIC_ANALYSIS_TARGET_DIR);
+    auto                     violations = checker.checkDirectory(StaticAnalysisConfig::getTargetDirectory());
 
     for (const auto& violation : violations)
     {

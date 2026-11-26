@@ -54,9 +54,7 @@ std::vector<SourceViolation> Utf8BomStaticTest::checkDirectory(const std::string
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 
-#ifndef STATIC_ANALYSIS_TARGET_DIR
-#define STATIC_ANALYSIS_TARGET_DIR "."
-#endif
+#include "StaticAnalysisConfig.h"
 
 TEST_CASE("Utf8BomStaticTest/UnitCheck")
 {
@@ -74,7 +72,7 @@ TEST_CASE("Utf8BomStaticTest/UnitCheck")
 TEST_CASE("Utf8BomStaticTest/ProjectScan")
 {
     Utf8BomStaticTest checker;
-    auto              violations = checker.checkDirectory(STATIC_ANALYSIS_TARGET_DIR);
+    auto              violations = checker.checkDirectory(StaticAnalysisConfig::getTargetDirectory());
 
     for (const auto& violation : violations)
     {

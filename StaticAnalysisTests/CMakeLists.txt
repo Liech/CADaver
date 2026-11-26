@@ -8,6 +8,8 @@ set(Source_Files
     "Source/SourceViolation.cpp"
     "Source/SourceFileDiscoverer.h"
     "Source/SourceFileDiscoverer.cpp"
+    "Source/StaticAnalysisConfig.h"
+    "Source/StaticAnalysisConfig.cpp"
     "Source/ConstCastStaticTest.h"
     "Source/ConstCastStaticTest.cpp"
     "Source/ReinterpretCastStaticTest.h"
