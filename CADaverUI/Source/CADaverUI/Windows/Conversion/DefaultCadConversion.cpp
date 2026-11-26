@@ -6,7 +6,12 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
-DefaultCadConversion::DefaultCadConversion(GatedDatabase& gatedDatabase, Defer& defer, const CADacomb::GUID& assetGuid) : gatedDatabase(&gatedDatabase), defer(&defer), assetGuid(assetGuid) {}
+DefaultCadConversion::DefaultCadConversion(GatedDatabase& gatedDatabase, Defer& defer, const CADacomb::GUID& assetGuid)
+  : gatedDatabase(&gatedDatabase)
+  , defer(&defer)
+  , assetGuid(assetGuid)
+{
+}
 
 DefaultCadConversion::~DefaultCadConversion() {}
 
@@ -18,8 +23,8 @@ void DefaultCadConversion::start(GatedDatabase& gatedDatabase, Defer& defer, con
 void DefaultCadConversion::launch()
 {
     clusterFuture = gatedDatabase->executeAsync({
-      {      "type", "ClusterByNormal" },
-      {   "version",                 1 },
+      {      "type",    "ClusterByNormal" },
+      {   "version",                    1 },
       { "assetGuid", assetGuid.toString() }
     });
     schedulePoll();
@@ -46,9 +51,9 @@ void DefaultCadConversion::poll()
     }
 
     gatedDatabase->executeAsync({
-      {          "type", "ConvertClusteringToCad" },
-      {       "version",                        1 },
-      {     "assetGuid",   assetGuid.toString() },
+      {          "type",                      "ConvertClusteringToCad" },
+      {       "version",                                             1 },
+      {     "assetGuid",                          assetGuid.toString() },
       { "componentGuid", result.at("componentGuid").get<std::string>() }
     });
 }
@@ -59,8 +64,8 @@ void DefaultCadConversion::poll()
 
 TEST_CASE("DefaultCadConversion/ClustersAndConvertsCube")
 {
-    GatedDatabase gatedDatabase;
     Defer         deferQueue;
+    GatedDatabase gatedDatabase;
     gatedDatabase.setDispatchCallback([&deferQueue](std::function<void()> task) { deferQueue.defer(std::move(task)); });
 
     Polyglot::Node generated = gatedDatabase.execute({
@@ -78,9 +83,10 @@ TEST_CASE("DefaultCadConversion/ClustersAndConvertsCube")
         deferQueue.process();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-        nlohmann::json assets = gatedDatabase.execute({
-                                                        { "type", "GetAssets" },
-                                                        { "version", 1 }
+        nlohmann::json assets = gatedDatabase
+                                  .execute({
+                                    {    "type", "GetAssets" },
+                                    { "version",           1 }
         })
                                   .toJson();
         for (const auto& asset : assets.at("assets"))

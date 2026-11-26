@@ -166,7 +166,7 @@ TEST_CASE("SimplifyMeshCommand/SimplifyByPercentAndCount")
     Database database;
     auto     triAsset = std::make_shared<TriangulationAsset>();
     triAsset->setName("Sphere.stl");
-    auto sphere = std::make_unique<CADacomb::Triangulation>(CADacomb::BaseShapeGenerator::sphere(1.0, 20, 10));
+    auto   sphere   = std::make_unique<CADacomb::Triangulation>(CADacomb::BaseShapeGenerator::sphere(20, 10, 1.0f));
     size_t origTris = sphere->indices.size() / 3;
     triAsset->setTriangulation(std::move(sphere));
     database.getProject().addAsset(triAsset);

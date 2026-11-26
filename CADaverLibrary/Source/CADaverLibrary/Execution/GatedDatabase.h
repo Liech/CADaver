@@ -5,6 +5,7 @@
 #include "Execution/CommandFactory.h"
 #include "Polyglot/Node.h"
 
+#include <condition_variable>
 #include <functional>
 #include <future>
 #include <istream>
@@ -48,14 +49,16 @@ class GatedDatabase
   private:
     void log(const std::string& msg);
 
-    Database                                                       database;
-    CommandFactory                                                 commandFactory;
-    std::function<void(std::unique_ptr<UndoContainer>)>            undoCallback;
-    std::function<void(std::function<void()>)>                     dispatchCallback;
-    std::function<void(const std::string&)>                        logCallback;
-    std::function<void(const std::string&, const std::string&)>    errorCallback;
-    std::function<void(const std::string&)>                        successCallback;
-    mutable std::mutex                                             tasksMutex;
-    std::vector<CADacomb::GUID>                         activeTaskGuids;
-    bool                                                recursionLock = false;
+    Database                                                    database;
+    CommandFactory                                              commandFactory;
+    std::function<void(std::unique_ptr<UndoContainer>)>         undoCallback;
+    std::function<void(std::function<void()>)>                  dispatchCallback;
+    std::function<void(const std::string&)>                     logCallback;
+    std::function<void(const std::string&, const std::string&)> errorCallback;
+    std::function<void(const std::string&)>                     successCallback;
+    mutable std::mutex                                          tasksMutex;
+    std::condition_variable                                     workerCv;
+    std::vector<CADacomb::GUID>                                 activeTaskGuids;
+    size_t                                                      activeWorkerCount = 0;
+    bool                                                        recursionLock     = false;
 };

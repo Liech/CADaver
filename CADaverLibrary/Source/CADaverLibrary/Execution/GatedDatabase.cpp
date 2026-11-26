@@ -16,7 +16,12 @@
 
 GatedDatabase::GatedDatabase() {}
 
-GatedDatabase::~GatedDatabase() {}
+GatedDatabase::~GatedDatabase()
+{
+    cancelAllTasks();
+    std::unique_lock<std::mutex> lock(tasksMutex);
+    workerCv.wait(lock, [this]() { return activeWorkerCount == 0; });
+}
 
 #ifdef CADAVER_ALLOW_GATED_GET
 const Database& GatedDatabase::get() const
@@ -219,6 +224,7 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
     {
         std::lock_guard<std::mutex> lock(tasksMutex);
         activeTaskGuids.push_back(taskGuid);
+        activeWorkerCount++;
     }
 
     auto                               callerPromise   = std::make_shared<std::promise<Polyglot::Node>>();
@@ -264,6 +270,8 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
               executionResult = ErrorResult((*cmdHolder)->getType(), "Canceled", "Command execution was canceled").toJson();
               success         = false;
           }
+
+          CADacomb::ProgressBar::setThreadGuid(CADacomb::GUID());
 
           std::vector<std::shared_ptr<Asset>> resultAssets;
           Selection                           resultSelection;
@@ -342,6 +350,12 @@ std::future<Polyglot::Node> GatedDatabase::executeAsync(const Polyglot::Node& co
           else
           {
               completion();
+          }
+
+          {
+              std::lock_guard<std::mutex> lock(tasksMutex);
+              activeWorkerCount--;
+              workerCv.notify_all();
           }
       });
 

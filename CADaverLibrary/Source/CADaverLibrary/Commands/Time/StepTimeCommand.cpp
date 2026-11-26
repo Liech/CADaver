@@ -515,14 +515,14 @@ TEST_CASE("StepTimeCommand/SoftBodyDeformationUndoRedoAndMerge")
     auto floorAsset = std::make_shared<TriangulationAsset>();
     floorAsset->setName("Floor");
     floorAsset->setTriangulation(std::make_unique<CADacomb::Triangulation>(CADacomb::BaseShapeGenerator::box(20.0f, 1.0f, 20.0f)));
-    floorAsset->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, -1.0, 0.0)));
+    floorAsset->setTransformation(glm::translate(glm::dmat4(1.0), glm::dvec3(-10.0, -1.0, -10.0)));
     floorAsset->addComponent(std::make_shared<RigidBodyComponent>(true));
     db.getProject().addAsset(floorAsset);
 
     auto       softAsset = std::make_shared<TriangulationAsset>();
     glm::dmat4 initialTf = glm::translate(glm::dmat4(1.0), glm::dvec3(0.0, 1.8, 0.0));
     softAsset->setName("SoftSphere");
-    softAsset->setTriangulation(std::make_unique<CADacomb::Triangulation>(CADacomb::BaseShapeGenerator::sphere(1.0f, 12, 12)));
+    softAsset->setTriangulation(std::make_unique<CADacomb::Triangulation>(CADacomb::BaseShapeGenerator::sphere(12, 12, 1.0f)));
     softAsset->setTransformation(initialTf);
     softAsset->addComponent(std::make_shared<SoftBodyComponent>(CADacomb::Physics::SoftBodyMode::Volumetric, 1.0, 0.0, 0.0001, 0.001, 0.0002, 4, 0.25, 0.4, 0.0, 12));
     db.getProject().addAsset(softAsset);
