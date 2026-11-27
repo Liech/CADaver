@@ -1,10 +1,13 @@
 ﻿#include "Database/Component/ComponentFactory.h"
 
+#include "Database/Component/AnimationComponent.h"
 #include "Database/Component/FaceValuesComponent.h"
 #include "Database/Component/RigidBodyComponent.h"
+#include "Database/Component/SkeletonComponent.h"
 #include "Database/Component/SoftBodyComponent.h"
 #include "Database/Component/TextNoteComponent.h"
 #include "Database/Component/TextureComponent.h"
+#include "Database/Component/TriangulationSkinningComponent.h"
 #include "Database/Component/UVComponent.h"
 
 ComponentFactory::ComponentFactory()
@@ -48,6 +51,9 @@ void ComponentFactory::registerComponents()
     registerComponent("SoftBody", []() { return std::make_shared<SoftBodyComponent>(); });
     registerComponent("Texture", []() { return std::make_shared<TextureComponent>(); });
     registerComponent("UV", []() { return std::make_shared<UVComponent>(); });
+    registerComponent("Skeleton", []() { return std::make_shared<SkeletonComponent>(); });
+    registerComponent("TriangulationSkinning", []() { return std::make_shared<TriangulationSkinningComponent>(); });
+    registerComponent("Animation", []() { return std::make_shared<AnimationComponent>(); });
 }
 
 #ifdef ISTESTPROJECT
@@ -81,5 +87,17 @@ TEST_CASE("ComponentFactory/CreateRegisteredComponents")
     auto uv = factory.create("UV");
     REQUIRE(uv != nullptr);
     CHECK(uv->getType() == "UV");
+
+    auto skeleton = factory.create("Skeleton");
+    REQUIRE(skeleton != nullptr);
+    CHECK(skeleton->getType() == "Skeleton");
+
+    auto skinning = factory.create("TriangulationSkinning");
+    REQUIRE(skinning != nullptr);
+    CHECK(skinning->getType() == "TriangulationSkinning");
+
+    auto animation = factory.create("Animation");
+    REQUIRE(animation != nullptr);
+    CHECK(animation->getType() == "Animation");
 }
 #endif

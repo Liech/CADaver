@@ -2,7 +2,10 @@
 
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/AssetComponent.h"
+#include "Database/Component/AnimationComponent.h"
+#include "Database/Component/SkeletonComponent.h"
 #include "Database/Component/TextureComponent.h"
+#include "Database/Component/TriangulationSkinningComponent.h"
 #include "Database/Component/UVComponent.h"
 #include "Database/Preferences/RenderPreferences.h"
 #include "Execution/GatedDatabase.h"
@@ -57,7 +60,31 @@ void TriangulationAssetRenderer::setAsset(const std::shared_ptr<const Asset>& ne
     dirty = true;
 }
 
+bool TriangulationAssetRenderer::hasActiveSkeletalAnimation() const
+{
+    if (!asset)
+    {
+        return false;
+    }
+
+    auto skeletons  = asset->getAttachments<SkeletonComponent>();
+    auto skinnings  = asset->getAttachments<TriangulationSkinningComponent>();
+    auto animations = asset->getAttachments<AnimationComponent>();
+    if (skeletons.empty() || skinnings.empty() || animations.empty())
+    {
+        return false;
+    }
+
+    const auto& animComp = animations.front();
+    return animComp->getActiveClipIndex() < animComp->getClips().size();
+}
+
 void TriangulationAssetRenderer::rebuildVertices()
+{
+    rebuildVerticesAtTime(0.0);
+}
+
+void TriangulationAssetRenderer::rebuildVerticesAtTime(double animationTime)
 {
     cachedVertices.clear();
     if (!asset || asset->getTriangulation().indices.empty())
@@ -66,9 +93,26 @@ void TriangulationAssetRenderer::rebuildVertices()
         return;
     }
 
-    const auto& triangulation = asset->getTriangulation();
-    lastColor                 = asset->getMeshColor();
-    glm::vec3 renderColor     = lastSelected ? glm::mix(lastColor, glm::vec3(1.0f, 0.65f, 0.1f), 0.65f) : lastColor;
+    const auto&                    triangulation   = asset->getTriangulation();
+    const std::vector<glm::dvec3>* vertexPositions = &triangulation.vertices;
+    std::vector<glm::dvec3>        skinnedPositions;
+
+    if (hasActiveSkeletalAnimation())
+    {
+        auto        skeletonComp = asset->getAttachments<SkeletonComponent>().front();
+        auto        skinningComp = asset->getAttachments<TriangulationSkinningComponent>().front();
+        auto        animComp     = asset->getAttachments<AnimationComponent>().front();
+        const auto& skeleton     = skeletonComp->getSkeleton();
+        const auto& skinning     = skinningComp->getSkinning();
+        const auto& clip         = animComp->getClips()[animComp->getActiveClipIndex()];
+        auto        pose         = clip.evaluate(skeleton, animationTime, animComp->isLooping());
+        auto        skinMatrices = pose.computeSkinningMatrices(skeleton);
+        skinnedPositions         = skinning.computeSkinnedPositions(triangulation.vertices, skinMatrices);
+        vertexPositions          = &skinnedPositions;
+    }
+
+    lastColor             = asset->getMeshColor();
+    glm::vec3 renderColor = lastSelected ? glm::mix(lastColor, glm::vec3(1.0f, 0.65f, 0.1f), 0.65f) : lastColor;
     cachedVertices.reserve(triangulation.indices.size());
 
     for (size_t i = 0; i + 2 < triangulation.indices.size(); i += 3)
@@ -77,14 +121,14 @@ void TriangulationAssetRenderer::rebuildVertices()
         size_t idx1 = triangulation.indices[i + 1];
         size_t idx2 = triangulation.indices[i + 2];
 
-        if (idx0 >= triangulation.vertices.size() || idx1 >= triangulation.vertices.size() || idx2 >= triangulation.vertices.size())
+        if (idx0 >= vertexPositions->size() || idx1 >= vertexPositions->size() || idx2 >= vertexPositions->size())
         {
             continue;
         }
 
-        glm::vec3 p0 = glm::vec3(triangulation.vertices[idx0]);
-        glm::vec3 p1 = glm::vec3(triangulation.vertices[idx1]);
-        glm::vec3 p2 = glm::vec3(triangulation.vertices[idx2]);
+        glm::vec3 p0 = glm::vec3((*vertexPositions)[idx0]);
+        glm::vec3 p1 = glm::vec3((*vertexPositions)[idx1]);
+        glm::vec3 p2 = glm::vec3((*vertexPositions)[idx2]);
 
         glm::vec3 normal = glm::cross(p1 - p0, p2 - p0);
         float     len    = glm::length(normal);
@@ -269,14 +313,38 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
     });
     bool           currentSelected = (selRes.toJson().value("type", "") == "GetAssetSelection");
 
-    if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || currentSelected != lastSelected || !vertexBuffer)
+    double currentTime     = 0.0;
+    bool   hasSkeletalAnim = hasActiveSkeletalAnimation();
+    if (hasSkeletalAnim)
     {
-        lastColor    = asset->getMeshColor();
-        lastSelected = currentSelected;
-        rebuildVertices();
+        Polyglot::Node timeRes = gatedDatabase.execute({
+          {    "type", "GetCurrentTime" },
+          { "version",                1 }
+        });
+        if (timeRes.contains("currentTime"))
+        {
+            currentTime = timeRes["currentTime"].asDouble();
+        }
+    }
+
+    bool animationChanged = hasSkeletalAnim && currentTime != lastAnimationTime;
+    if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || currentSelected != lastSelected || animationChanged || !vertexBuffer)
+    {
+        lastColor         = asset->getMeshColor();
+        lastSelected      = currentSelected;
+        lastAnimationTime = currentTime;
+        rebuildVerticesAtTime(currentTime);
         if (vertexCount > 0)
         {
-            vertexBuffer = renderer.getDevice().createVertexBuffer(vertexCount, sizeof(Vulcant::Toolkit::MeshVertex), false);
+            if (drawCmd)
+            {
+                drawCmd->wait();
+            }
+            if (!vertexBuffer || vertexCount > vertexBufferCapacity)
+            {
+                vertexBufferCapacity = vertexCount;
+                vertexBuffer         = renderer.getDevice().createVertexBuffer(vertexBufferCapacity, sizeof(Vulcant::Toolkit::MeshVertex), false);
+            }
             vertexBuffer->uploadToGPU(cachedVertices.data(), vertexCount, 0);
             uint32_t indirectCmd[4] = { vertexCount, 1u, 0u, 0u };
             indirectBuffer->uploadToGPU(indirectCmd, 1);
@@ -284,6 +352,7 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
         else
         {
             vertexBuffer.reset();
+            vertexBufferCapacity = 0;
         }
         dirty        = false;
         lastRevision = asset->getRevision();
