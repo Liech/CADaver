@@ -27,6 +27,7 @@ namespace Vulcant
 
 class AssetComponent;
 class Renderer;
+class SkeletonOverlayRenderer;
 class TriangulationAsset;
 class TriangulationSurfaceModule;
 
@@ -50,9 +51,11 @@ class TriangulationAssetRenderer : public AssetRenderer
     TriangulationSurfaceModule* resolveActiveModule(GatedDatabase& gatedDatabase, const AssetComponent*& outComponent) const;
     bool                        hasActiveSkeletalAnimation() const;
     void                        rebuildVerticesAtTime(double animationTime);
+    void                        renderSelectedSkeleton(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData, double currentTime);
 
     std::shared_ptr<const TriangulationAsset>                               asset;
     std::vector<std::unique_ptr<TriangulationSurfaceModule>>                surfaceModules;
+    std::unique_ptr<SkeletonOverlayRenderer>                                skeletonOverlayRenderer;
     std::unique_ptr<Vulcant::VulcantShader>                                 vertShader;
     std::map<std::string, std::unique_ptr<Vulcant::VulcantShader>>          fragShaders;
     std::map<std::string, std::unique_ptr<Vulcant::VulcantGraphicPipeline>> pipelines;

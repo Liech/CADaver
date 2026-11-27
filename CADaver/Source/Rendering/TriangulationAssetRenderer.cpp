@@ -10,6 +10,7 @@
 #include "Database/Preferences/RenderPreferences.h"
 #include "Execution/GatedDatabase.h"
 #include "Rendering/Renderer.h"
+#include "Rendering/SkeletonOverlayRenderer.h"
 #include "Rendering/Triangulation/DefaultSurfaceModule.h"
 #include "Rendering/Triangulation/IndexedFaceColorModule.h"
 #include "Rendering/Triangulation/TexturedSurfaceModule.h"
@@ -47,6 +48,7 @@ TriangulationAssetRenderer::~TriangulationAssetRenderer()
         drawCmd->wait();
         drawCmd.reset();
     }
+    skeletonOverlayRenderer.reset();
     descriptorSets.clear();
     pipelines.clear();
     fragShaders.clear();
@@ -378,4 +380,51 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
     drawCmd->endRecord();
     drawCmd->runAsync();
     drawCmd->wait();
+
+    renderSelectedSkeleton(renderer, gatedDatabase, sceneData, currentTime);
+}
+
+void TriangulationAssetRenderer::renderSelectedSkeleton(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData, double currentTime)
+{
+    auto skeletons = asset->getAttachments<SkeletonComponent>();
+    if (skeletons.empty())
+    {
+        return;
+    }
+
+    for (const auto& skeletonComp : skeletons)
+    {
+        Polyglot::Node selRes = gatedDatabase.execute({
+          {      "type",                "GetAssetSelection" },
+          {   "version",                                  1 },
+          { "assetGuid", skeletonComp->getGuid().toString() }
+        });
+        if (selRes.toJson().value("type", "") != "GetAssetSelection")
+        {
+            continue;
+        }
+
+        const auto& skeleton = skeletonComp->getSkeleton();
+        auto        pose     = skeleton.createRestPose();
+
+        auto animations = asset->getAttachments<AnimationComponent>();
+        if (!animations.empty())
+        {
+            auto animComp = animations.front();
+            if (animComp->getActiveClipIndex() < animComp->getClips().size())
+            {
+                const auto& clip = animComp->getClips()[animComp->getActiveClipIndex()];
+                pose             = clip.evaluate(skeleton, currentTime, animComp->isLooping());
+            }
+        }
+
+        if (!skeletonOverlayRenderer)
+        {
+            skeletonOverlayRenderer = std::make_unique<SkeletonOverlayRenderer>();
+        }
+
+        auto modelMatrices = pose.computeModelMatrices(skeleton);
+        skeletonOverlayRenderer->render(renderer, sceneData, asset->getTransformation(), skeleton, modelMatrices);
+        return;
+    }
 }

@@ -110,6 +110,8 @@ set(Rendering_Files
     "Source/Rendering/Renderer.cpp"
     "Source/Rendering/AssetRenderer.h"
     "Source/Rendering/AssetRenderer.cpp"
+    "Source/Rendering/SkeletonOverlayRenderer.h"
+    "Source/Rendering/SkeletonOverlayRenderer.cpp"
     "Source/Rendering/TriangulationAssetRenderer.h"
     "Source/Rendering/TriangulationAssetRenderer.cpp"
     "Source/Rendering/Triangulation/TriangulationSurfaceModule.h"
