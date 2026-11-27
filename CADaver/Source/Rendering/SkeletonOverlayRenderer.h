@@ -19,6 +19,7 @@ namespace Vulcant
     class VulcantBuffer;
     class VulcantGraphicCommand;
     class VulcantGraphicPipeline;
+    class VulcantImage;
     class VulcantSet;
     class VulcantShader;
 }
@@ -58,6 +59,7 @@ class SkeletonOverlayRenderer
     std::vector<Vulcant::Toolkit::MeshVertex>        cachedVertices;
     AssetMeshParams                                  meshParams{};
     glm::ivec2                                       lastResolution       = glm::ivec2(0, 0);
+    const Vulcant::VulcantImage*                     lastColorImage       = nullptr;
     uint32_t                                         vertexCount          = 0;
     uint32_t                                         vertexBufferCapacity = 0;
 };

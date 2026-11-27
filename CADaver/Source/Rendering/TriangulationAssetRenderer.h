@@ -2,6 +2,7 @@
 
 #include "AssetMeshParams.h"
 #include "AssetRenderer.h"
+#include "CADacomb/Util/GUID.h"
 #include "Vulcant/Interface/VulcantCullMode.h"
 #include "Vulcant/Toolkit/MeshRenderer.h"
 #include "Vulcant/Toolkit/MeshShaderParams.h"
@@ -25,6 +26,7 @@ namespace Vulcant
     class VulcantShader;
 }
 
+class AnimationComponent;
 class AssetComponent;
 class Renderer;
 class SkeletonOverlayRenderer;
@@ -45,13 +47,17 @@ class TriangulationAssetRenderer : public AssetRenderer
     void rebuildVertices();
 
   private:
-    void                        initializeResources(Renderer& renderer);
-    void                        ensureModulePipeline(Renderer& renderer, TriangulationSurfaceModule& module);
-    void                        invalidatePipelines();
-    TriangulationSurfaceModule* resolveActiveModule(GatedDatabase& gatedDatabase, const AssetComponent*& outComponent) const;
-    bool                        hasActiveSkeletalAnimation() const;
-    void                        rebuildVerticesAtTime(double animationTime);
-    void                        renderSelectedSkeleton(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData, double currentTime);
+    void                                initializeResources(Renderer& renderer);
+    void                                ensureModulePipeline(Renderer& renderer, TriangulationSurfaceModule& module);
+    void                                invalidatePipelines();
+    TriangulationSurfaceModule*         resolveActiveModule(GatedDatabase& gatedDatabase, const AssetComponent*& outComponent) const;
+    std::shared_ptr<AnimationComponent> resolveSelectedAnimation(GatedDatabase& gatedDatabase) const;
+    void                                rebuildVerticesAtTime(const std::shared_ptr<AnimationComponent>& selectedAnimation, double animationTime);
+    void                                renderSelectedSkeleton(Renderer&                                  renderer,
+                                                               GatedDatabase&                             gatedDatabase,
+                                                               const Vulcant::Toolkit::SceneData&         sceneData,
+                                                               const std::shared_ptr<AnimationComponent>& selectedAnimation,
+                                                               double                                     currentTime);
 
     std::shared_ptr<const TriangulationAsset>                               asset;
     std::vector<std::unique_ptr<TriangulationSurfaceModule>>                surfaceModules;
@@ -68,10 +74,12 @@ class TriangulationAssetRenderer : public AssetRenderer
     std::unique_ptr<Vulcant::VulcantGraphicCommand>                         drawCmd;
     std::vector<Vulcant::Toolkit::MeshVertex>                               cachedVertices;
     AssetMeshParams                                                         meshParams{};
-    glm::ivec2                                                              lastResolution       = glm::ivec2(0, 0);
-    Vulcant::VulcantCullMode                                                lastCullMode         = Vulcant::VulcantCullMode::None;
-    glm::vec3                                                               lastColor            = glm::vec3(0.0f);
-    size_t                                                                  lastRevision         = 0;
+    glm::ivec2                                                              lastResolution = glm::ivec2(0, 0);
+    const Vulcant::VulcantImage*                                            lastColorImage = nullptr;
+    Vulcant::VulcantCullMode                                                lastCullMode   = Vulcant::VulcantCullMode::None;
+    glm::vec3                                                               lastColor      = glm::vec3(0.0f);
+    size_t                                                                  lastRevision   = 0;
+    CADacomb::GUID                                                          lastAnimationGuid;
     double                                                                  lastAnimationTime    = -1.0;
     uint32_t                                                                vertexCount          = 0;
     uint32_t                                                                vertexBufferCapacity = 0;

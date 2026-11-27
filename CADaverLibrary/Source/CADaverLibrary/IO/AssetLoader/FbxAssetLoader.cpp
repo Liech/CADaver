@@ -88,10 +88,13 @@ std::shared_ptr<Asset> FbxAssetLoader::load(const std::string& name, const Polyg
 
     if (sceneData->hasAnimationClips())
     {
-        auto animationComponent = std::make_shared<AnimationComponent>();
-        animationComponent->setName("Animation");
-        animationComponent->setClips(sceneData->getAnimationClips());
-        asset->addComponent(animationComponent);
+        for (const auto& clip : sceneData->getAnimationClips())
+        {
+            auto animationComponent = std::make_shared<AnimationComponent>();
+            animationComponent->setName(clip.getName().empty() ? "Animation" : clip.getName());
+            animationComponent->setClip(clip);
+            asset->addComponent(animationComponent);
+        }
     }
 
     bar.addProgress(1);
@@ -384,6 +387,7 @@ TEST_CASE("FbxReader/ExtractsSkeletonSkinningAndAnimationClips")
     REQUIRE(loadedAsset->getAttachments<TriangulationSkinningComponent>().size() == 1);
     CHECK(loadedAsset->getAttachments<TriangulationSkinningComponent>()[0]->getSkinning().getVertexCount() == 3);
     REQUIRE(loadedAsset->getAttachments<AnimationComponent>().size() == 1);
-    CHECK(loadedAsset->getAttachments<AnimationComponent>()[0]->getClips().size() == 1);
+    CHECK(loadedAsset->getAttachments<AnimationComponent>()[0]->getName() == "Lift");
+    CHECK(loadedAsset->getAttachments<AnimationComponent>()[0]->getClip().getName() == "Lift");
 }
 #endif

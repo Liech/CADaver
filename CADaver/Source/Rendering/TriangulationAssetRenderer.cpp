@@ -62,11 +62,11 @@ void TriangulationAssetRenderer::setAsset(const std::shared_ptr<const Asset>& ne
     dirty = true;
 }
 
-bool TriangulationAssetRenderer::hasActiveSkeletalAnimation() const
+std::shared_ptr<AnimationComponent> TriangulationAssetRenderer::resolveSelectedAnimation(GatedDatabase& gatedDatabase) const
 {
     if (!asset)
     {
-        return false;
+        return nullptr;
     }
 
     auto skeletons  = asset->getAttachments<SkeletonComponent>();
@@ -74,19 +74,31 @@ bool TriangulationAssetRenderer::hasActiveSkeletalAnimation() const
     auto animations = asset->getAttachments<AnimationComponent>();
     if (skeletons.empty() || skinnings.empty() || animations.empty())
     {
-        return false;
+        return nullptr;
     }
 
-    const auto& animComp = animations.front();
-    return animComp->getActiveClipIndex() < animComp->getClips().size();
+    for (const auto& animComp : animations)
+    {
+        Polyglot::Node selRes = gatedDatabase.execute({
+          {      "type",            "GetAssetSelection" },
+          {   "version",                              1 },
+          { "assetGuid", animComp->getGuid().toString() }
+        });
+        if (selRes.toJson().value("type", "") == "GetAssetSelection")
+        {
+            return animComp;
+        }
+    }
+
+    return nullptr;
 }
 
 void TriangulationAssetRenderer::rebuildVertices()
 {
-    rebuildVerticesAtTime(0.0);
+    rebuildVerticesAtTime(nullptr, 0.0);
 }
 
-void TriangulationAssetRenderer::rebuildVerticesAtTime(double animationTime)
+void TriangulationAssetRenderer::rebuildVerticesAtTime(const std::shared_ptr<AnimationComponent>& selectedAnimation, double animationTime)
 {
     cachedVertices.clear();
     if (!asset || asset->getTriangulation().indices.empty())
@@ -99,15 +111,14 @@ void TriangulationAssetRenderer::rebuildVerticesAtTime(double animationTime)
     const std::vector<glm::dvec3>* vertexPositions = &triangulation.vertices;
     std::vector<glm::dvec3>        skinnedPositions;
 
-    if (hasActiveSkeletalAnimation())
+    if (selectedAnimation)
     {
         auto        skeletonComp = asset->getAttachments<SkeletonComponent>().front();
         auto        skinningComp = asset->getAttachments<TriangulationSkinningComponent>().front();
-        auto        animComp     = asset->getAttachments<AnimationComponent>().front();
         const auto& skeleton     = skeletonComp->getSkeleton();
         const auto& skinning     = skinningComp->getSkinning();
-        const auto& clip         = animComp->getClips()[animComp->getActiveClipIndex()];
-        auto        pose         = clip.evaluate(skeleton, animationTime, animComp->isLooping());
+        const auto& clip         = selectedAnimation->getClip();
+        auto        pose         = clip.evaluate(skeleton, animationTime, selectedAnimation->isLooping());
         auto        skinMatrices = pose.computeSkinningMatrices(skeleton);
         skinnedPositions         = skinning.computeSkinnedPositions(triangulation.vertices, skinMatrices);
         vertexPositions          = &skinnedPositions;
@@ -288,17 +299,21 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
         renderPreferences.fromNode(renderPrefRes["preferences"]);
     }
 
-    glm::ivec2               targetRes      = renderer.getColor().getResolution();
+    const Vulcant::VulcantImage* targetColor = &renderer.getColor();
+    glm::ivec2                   targetRes   = targetColor->getResolution();
+    if (targetRes.x <= 0 || targetRes.y <= 0)
+    {
+        return;
+    }
+
     Vulcant::VulcantCullMode targetCullMode = static_cast<Vulcant::VulcantCullMode>(renderPreferences.getCullMode());
-    if (targetRes != lastResolution || targetCullMode != lastCullMode)
+    if (targetRes != lastResolution || targetColor != lastColorImage || targetCullMode != lastCullMode)
     {
         lastResolution = targetRes;
+        lastColorImage = targetColor;
         lastCullMode   = targetCullMode;
         invalidatePipelines();
-        if (targetRes.x > 0 && targetRes.y > 0)
-        {
-            drawCmd = renderer.getDevice().createGraphicCommand();
-        }
+        drawCmd = renderer.getDevice().createGraphicCommand();
     }
 
     sceneDataUbo->uploadToGPU(&sceneData, 1);
@@ -315,9 +330,10 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
     });
     bool           currentSelected = (selRes.toJson().value("type", "") == "GetAssetSelection");
 
-    double currentTime     = 0.0;
-    bool   hasSkeletalAnim = hasActiveSkeletalAnimation();
-    if (hasSkeletalAnim)
+    auto           selectedAnimation = resolveSelectedAnimation(gatedDatabase);
+    CADacomb::GUID activeAnimGuid    = selectedAnimation ? selectedAnimation->getGuid() : CADacomb::GUID();
+    double         currentTime       = 0.0;
+    if (selectedAnimation)
     {
         Polyglot::Node timeRes = gatedDatabase.execute({
           {    "type", "GetCurrentTime" },
@@ -329,13 +345,14 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
         }
     }
 
-    bool animationChanged = hasSkeletalAnim && currentTime != lastAnimationTime;
+    bool animationChanged = (activeAnimGuid != lastAnimationGuid) || (selectedAnimation && currentTime != lastAnimationTime);
     if (dirty || asset->getRevision() != lastRevision || lastColor != asset->getMeshColor() || currentSelected != lastSelected || animationChanged || !vertexBuffer)
     {
         lastColor         = asset->getMeshColor();
         lastSelected      = currentSelected;
+        lastAnimationGuid = activeAnimGuid;
         lastAnimationTime = currentTime;
-        rebuildVerticesAtTime(currentTime);
+        rebuildVerticesAtTime(selectedAnimation, currentTime);
         if (vertexCount > 0)
         {
             if (drawCmd)
@@ -381,10 +398,14 @@ void TriangulationAssetRenderer::render(Renderer& renderer, GatedDatabase& gated
     drawCmd->runAsync();
     drawCmd->wait();
 
-    renderSelectedSkeleton(renderer, gatedDatabase, sceneData, currentTime);
+    renderSelectedSkeleton(renderer, gatedDatabase, sceneData, selectedAnimation, currentTime);
 }
 
-void TriangulationAssetRenderer::renderSelectedSkeleton(Renderer& renderer, GatedDatabase& gatedDatabase, const Vulcant::Toolkit::SceneData& sceneData, double currentTime)
+void TriangulationAssetRenderer::renderSelectedSkeleton(Renderer&                                  renderer,
+                                                        GatedDatabase&                             gatedDatabase,
+                                                        const Vulcant::Toolkit::SceneData&         sceneData,
+                                                        const std::shared_ptr<AnimationComponent>& selectedAnimation,
+                                                        double                                     currentTime)
 {
     auto skeletons = asset->getAttachments<SkeletonComponent>();
     if (skeletons.empty())
@@ -407,15 +428,10 @@ void TriangulationAssetRenderer::renderSelectedSkeleton(Renderer& renderer, Gate
         const auto& skeleton = skeletonComp->getSkeleton();
         auto        pose     = skeleton.createRestPose();
 
-        auto animations = asset->getAttachments<AnimationComponent>();
-        if (!animations.empty())
+        if (selectedAnimation)
         {
-            auto animComp = animations.front();
-            if (animComp->getActiveClipIndex() < animComp->getClips().size())
-            {
-                const auto& clip = animComp->getClips()[animComp->getActiveClipIndex()];
-                pose             = clip.evaluate(skeleton, currentTime, animComp->isLooping());
-            }
+            const auto& clip = selectedAnimation->getClip();
+            pose             = clip.evaluate(skeleton, currentTime, selectedAnimation->isLooping());
         }
 
         if (!skeletonOverlayRenderer)

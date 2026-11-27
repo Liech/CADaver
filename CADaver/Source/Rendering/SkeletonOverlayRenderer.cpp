@@ -49,9 +49,11 @@ void SkeletonOverlayRenderer::initializeResources(Renderer& renderer)
 
 void SkeletonOverlayRenderer::ensurePipeline(Renderer& renderer, const glm::ivec2& targetRes)
 {
-    if (targetRes != lastResolution)
+    const Vulcant::VulcantImage* targetColor = &renderer.getColor();
+    if (targetRes != lastResolution || targetColor != lastColorImage)
     {
         lastResolution = targetRes;
+        lastColorImage = targetColor;
         descriptorSet.reset();
         pipeline.reset();
         if (targetRes.x > 0 && targetRes.y > 0)

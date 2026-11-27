@@ -52,18 +52,20 @@ void Renderer::setResolution(const glm::ivec2& newResolution)
 {
     if (resolution != newResolution || !colorImage)
     {
+        renderers.clear();
+        clearRenderer.reset();
+        if (drawCmd)
+        {
+            drawCmd->wait();
+            drawCmd.reset();
+        }
+
         resolution = newResolution;
         if (resolution.x > 0 && resolution.y > 0)
         {
             colorImage  = device.createImage(resolution.x, resolution.y, 1, Vulcant::VulcantImageFormat::R32G32B32A32_SFLOAT);
             normalImage = device.createImage(resolution.x, resolution.y, 1, Vulcant::VulcantImageFormat::R16G16B16A16_SFLOAT);
             depthImage  = device.createImage(resolution.x, resolution.y, 1, Vulcant::VulcantImageFormat::D32_SFLOAT);
-        }
-        clearRenderer.reset();
-        if (drawCmd)
-        {
-            drawCmd->wait();
-            drawCmd.reset();
         }
         recordUiCommand();
     }
@@ -175,7 +177,7 @@ glm::vec4 Renderer::getClearColor() const
       {    "type", "GetUIPreferences" },
       { "version",                  1 }
     });
-    UIPreferences uiPreferences;
+    UIPreferences  uiPreferences;
     if (response.contains("preferences"))
     {
         uiPreferences.fromNode(response["preferences"]);
