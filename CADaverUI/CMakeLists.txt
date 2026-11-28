@@ -60,6 +60,10 @@ set(Windows_Conversion_Files
     "Source/CADaverUI/Windows/Conversion/ConvertStlToCadWindow.cpp"
     "Source/CADaverUI/Windows/Conversion/DefaultCadConversion.h"
     "Source/CADaverUI/Windows/Conversion/DefaultCadConversion.cpp"
+    "Source/CADaverUI/Windows/Conversion/SdfToStlConversionModal.h"
+    "Source/CADaverUI/Windows/Conversion/SdfToStlConversionModal.cpp"
+    "Source/CADaverUI/Windows/Conversion/SdfToSvoConversionModal.h"
+    "Source/CADaverUI/Windows/Conversion/SdfToSvoConversionModal.cpp"
     "Source/CADaverUI/Windows/Conversion/StlToSvoConversionModal.h"
     "Source/CADaverUI/Windows/Conversion/StlToSvoConversionModal.cpp"
     "Source/CADaverUI/Windows/Conversion/SvoToStlConversionModal.h"
@@ -115,12 +119,16 @@ set(Windows_Preferences_Files
     "Source/CADaverUI/Windows/Preferences/RenderPreferencesTab.cpp"
     "Source/CADaverUI/Windows/Preferences/SVOPreferencesTab.h"
     "Source/CADaverUI/Windows/Preferences/SVOPreferencesTab.cpp"
+    "Source/CADaverUI/Windows/Preferences/SdfPreferencesTab.h"
+    "Source/CADaverUI/Windows/Preferences/SdfPreferencesTab.cpp"
 )
 source_group("Source/Windows/Preferences" FILES ${Windows_Preferences_Files})
 
 set(Windows_Asset_Files
     "Source/CADaverUI/Windows/Asset/RigidBodyEditWindow.h"
     "Source/CADaverUI/Windows/Asset/RigidBodyEditWindow.cpp"
+    "Source/CADaverUI/Windows/Asset/SdfEditWindow.h"
+    "Source/CADaverUI/Windows/Asset/SdfEditWindow.cpp"
     "Source/CADaverUI/Windows/Asset/SoftBodyEditWindow.h"
     "Source/CADaverUI/Windows/Asset/SoftBodyEditWindow.cpp"
     "Source/CADaverUI/Windows/Asset/TextNoteEditWindow.h"

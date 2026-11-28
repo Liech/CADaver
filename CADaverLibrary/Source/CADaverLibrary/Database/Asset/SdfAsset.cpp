@@ -1,13 +1,6 @@
 ﻿#include "Database/Asset/SdfAsset.h"
 
-SdfAsset::SdfAsset()
-  : aabb(glm::dvec3(-1.0), glm::dvec3(1.0))
-{
-    formula.setName("sdfFormula");
-    formula.setInputCount(3);
-    formula.setOutputCount(1);
-    formula.setExpression("float3 p = float3(input[0], input[1], input[2]);\noutput[0] = length(p) - 0.5;");
-}
+SdfAsset::SdfAsset() {}
 
 SdfAsset::~SdfAsset() {}
 
@@ -18,28 +11,40 @@ std::string SdfAsset::getType() const
 
 size_t SdfAsset::getSizeInBytes() const
 {
+    const CADacomb::Formula& formula = sdf.getFormula();
     return sizeof(SdfAsset) + formula.getName().size() + formula.getExpression().size() + formula.getHelper().size();
+}
+
+const CADacomb::Sdf& SdfAsset::getSdf() const
+{
+    return sdf;
+}
+
+void SdfAsset::setSdf(const CADacomb::Sdf& newSdf)
+{
+    sdf = newSdf;
+    markModified();
 }
 
 const CADacomb::Formula& SdfAsset::getFormula() const
 {
-    return formula;
+    return sdf.getFormula();
 }
 
 void SdfAsset::setFormula(const CADacomb::Formula& newFormula)
 {
-    formula = newFormula;
+    sdf.setFormula(newFormula);
     markModified();
 }
 
 const CADacomb::AABB3& SdfAsset::getAABB() const
 {
-    return aabb;
+    return sdf.getAABB();
 }
 
 void SdfAsset::setAABB(const CADacomb::AABB3& newAabb)
 {
-    aabb = newAabb;
+    sdf.setAABB(newAabb);
     markModified();
 }
 

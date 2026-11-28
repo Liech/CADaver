@@ -115,6 +115,13 @@ void PreferencesWindow::load(GatedDatabase& database, Defer& deferTarget, const 
                   { "preferences", loadedPrefs.getSVOPreferences().toNode() }
               };
               database.execute(svoCommand);
+
+              Polyglot::Node sdfCommand = {
+                  {        "type",                   "UpdateSdfPreferences" },
+                  {     "version",                                        1 },
+                  { "preferences", loadedPrefs.getSdfPreferences().toNode() }
+              };
+              database.execute(sdfCommand);
           });
     }
     catch (const nlohmann::json::exception&)

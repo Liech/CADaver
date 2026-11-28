@@ -11,6 +11,7 @@ nlohmann::json Preferences::toJson() const
     jsonObject["camera"] = cameraPreferences.toJson();
     jsonObject["render"] = renderPreferences.toJson();
     jsonObject["svo"]    = svoPreferences.toJson();
+    jsonObject["sdf"]    = sdfPreferences.toJson();
     return jsonObject;
 }
 
@@ -20,6 +21,7 @@ void Preferences::fromJson(const nlohmann::json& jsonObject)
     cameraPreferences.fromJson(jsonObject.at("camera"));
     renderPreferences.fromJson(jsonObject.at("render"));
     svoPreferences.fromJson(jsonObject.at("svo"));
+    sdfPreferences.fromJson(jsonObject.at("sdf"));
 }
 
 UIPreferences& Preferences::getUIPreferences()
@@ -60,4 +62,14 @@ SVOPreferences& Preferences::getSVOPreferences()
 const SVOPreferences& Preferences::getSVOPreferences() const
 {
     return svoPreferences;
+}
+
+SdfPreferences& Preferences::getSdfPreferences()
+{
+    return sdfPreferences;
+}
+
+const SdfPreferences& Preferences::getSdfPreferences() const
+{
+    return sdfPreferences;
 }

@@ -55,6 +55,20 @@ nlohmann::json GenerateFunctionSdfCommand::execute(Database& database)
         return createErrorResponse("GenerationFailed", error.empty() ? "Failed to compile SDF formula" : error);
     }
 
+    try
+    {
+        glm::dvec3         center = (bounds.getMin() + bounds.getMax()) * 0.5;
+        std::vector<float> sample = evaluator.evaluate({ static_cast<float>(center.x), static_cast<float>(center.y), static_cast<float>(center.z) });
+        if (sample.empty())
+        {
+            return createErrorResponse("GenerationFailed", "SDF formula produced no output value");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        return createErrorResponse("GenerationFailed", std::string("SDF formula evaluation failed: ") + e.what());
+    }
+
     auto sdfAsset = std::make_shared<SdfAsset>();
     sdfAsset->setName(assetName);
     sdfAsset->setFormula(formula);

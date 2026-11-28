@@ -3,6 +3,7 @@
 #include "Windows/Preferences/CameraPreferencesTab.h"
 #include "Windows/Preferences/RenderPreferencesTab.h"
 #include "Windows/Preferences/SVOPreferencesTab.h"
+#include "Windows/Preferences/SdfPreferencesTab.h"
 #include "Windows/Preferences/UIPreferencesTab.h"
 
 #include <algorithm>
@@ -35,6 +36,7 @@ void PreferenceTabFactory::registerDefaultTabs()
     registerTab("Camera", []() { return std::make_unique<CameraPreferencesTab>(); });
     registerTab("Render", []() { return std::make_unique<RenderPreferencesTab>(); });
     registerTab("SVO", []() { return std::make_unique<SVOPreferencesTab>(); });
+    registerTab("SDF", []() { return std::make_unique<SdfPreferencesTab>(); });
 }
 
 void PreferenceTabFactory::clear()
@@ -87,11 +89,12 @@ TEST_CASE("PreferenceTabFactory/DefaultsCreation")
     PreferenceTabFactory factory;
     auto                 tabs = factory.createTabs();
 
-    CHECK(tabs.size() == 4);
+    CHECK(tabs.size() == 5);
     CHECK(tabs[0]->getTitle() == "UI");
     CHECK(tabs[1]->getTitle() == "Camera");
     CHECK(tabs[2]->getTitle() == "Render");
     CHECK(tabs[3]->getTitle() == "SVO");
+    CHECK(tabs[4]->getTitle() == "SDF");
 }
 
 TEST_CASE("PreferenceTabFactory/SingleTabCreation")
@@ -100,6 +103,10 @@ TEST_CASE("PreferenceTabFactory/SingleTabCreation")
     auto                 renderTab = factory.createTab("Render");
     REQUIRE(renderTab != nullptr);
     CHECK(renderTab->getTitle() == "Render");
+
+    auto sdfTab = factory.createTab("SDF");
+    REQUIRE(sdfTab != nullptr);
+    CHECK(sdfTab->getTitle() == "SDF");
 
     auto unknownTab = factory.createTab("Unknown");
     CHECK(unknownTab == nullptr);

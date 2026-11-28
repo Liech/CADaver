@@ -1,6 +1,7 @@
 ﻿#include "AssetRenderFactory.h"
 
 #include "AssetRenderer.h"
+#include "SdfAssetRenderer.h"
 #include "StepAssetRenderer.h"
 #include "TextureAssetRenderer.h"
 #include "TriangulationAssetRenderer.h"
@@ -39,6 +40,7 @@ void AssetRenderFactory::registerRenderers()
 {
     registerRenderer("Triangulation", []() { return std::make_shared<TriangulationAssetRenderer>(); });
     registerRenderer("Cad", []() { return std::make_shared<StepAssetRenderer>(); });
+    registerRenderer("Sdf", []() { return std::make_shared<SdfAssetRenderer>(); });
     registerRenderer("Texture", []() { return std::make_shared<TextureAssetRenderer>(); });
     registerRenderer("VectorGraphics", []() { return std::make_shared<VectorGraphicsAssetRenderer>(); });
     registerRenderer("Voxel", []() { return std::make_shared<VoxelAssetRenderer>(); });

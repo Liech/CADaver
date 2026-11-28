@@ -104,16 +104,55 @@ void FunctionAssetGeneratorWindow::initializePresets()
         presetFormulas.push_back(f);
     }
 
+    const std::string noiseHelper = "float hash31(float3 p)\n"
+                                    "{\n"
+                                    "    float h = sin(dot(p, float3(127.1, 311.7, 74.7))) * 43758.5453;\n"
+                                    "    return fract(h);\n"
+                                    "}\n"
+                                    "float valueNoise3d(float3 p)\n"
+                                    "{\n"
+                                    "    float3 i = floor(p);\n"
+                                    "    float3 f = fract(p);\n"
+                                    "    float3 u = f * f * (3.0 - 2.0 * f);\n"
+                                    "    float n000 = hash31(i + float3(0.0, 0.0, 0.0));\n"
+                                    "    float n100 = hash31(i + float3(1.0, 0.0, 0.0));\n"
+                                    "    float n010 = hash31(i + float3(0.0, 1.0, 0.0));\n"
+                                    "    float n110 = hash31(i + float3(1.0, 1.0, 0.0));\n"
+                                    "    float n001 = hash31(i + float3(0.0, 0.0, 1.0));\n"
+                                    "    float n101 = hash31(i + float3(1.0, 0.0, 1.0));\n"
+                                    "    float n011 = hash31(i + float3(0.0, 1.0, 1.0));\n"
+                                    "    float n111 = hash31(i + float3(1.0, 1.0, 1.0));\n"
+                                    "    float nx00 = lerp(n000, n100, u.x);\n"
+                                    "    float nx10 = lerp(n010, n110, u.x);\n"
+                                    "    float nx01 = lerp(n001, n101, u.x);\n"
+                                    "    float nx11 = lerp(n011, n111, u.x);\n"
+                                    "    float nxy0 = lerp(nx00, nx10, u.y);\n"
+                                    "    float nxy1 = lerp(nx01, nx11, u.y);\n"
+                                    "    return lerp(nxy0, nxy1, u.z) * 2.0 - 1.0;\n"
+                                    "}\n"
+                                    "float fbmNoise(float3 p)\n"
+                                    "{\n"
+                                    "    float sum = 0.0;\n"
+                                    "    float amp = 0.5;\n"
+                                    "    float freq = 2.5;\n"
+                                    "    for (int o = 0; o < 4; o++)\n"
+                                    "    {\n"
+                                    "        sum = sum + amp * valueNoise3d(p * freq);\n"
+                                    "        freq = freq * 2.0;\n"
+                                    "        amp = amp * 0.5;\n"
+                                    "    }\n"
+                                    "    return sum;\n"
+                                    "}";
+
     {
         CADacomb::Formula f;
         f.setName("sdfFormula");
         f.setInputCount(3);
         f.setOutputCount(1);
-        f.setExpression("float x = input[0];\n"
-                        "float y = input[1];\n"
-                        "float z = input[2];\n"
-                        "float r = sqrt(x * x + y * y + z * z);\n"
-                        "float disp = 0.14 * fbm3d(x, y, z, 4, 2.5, 0.5, 2.0, 42);\n"
+        f.setHelper(noiseHelper);
+        f.setExpression("float3 p = float3(input[0], input[1], input[2]);\n"
+                        "float r = length(p);\n"
+                        "float disp = 0.14 * fbmNoise(p);\n"
                         "output[0] = (r - (0.65 + disp)) * 0.6;");
         presetNames.push_back("Noisy Planet (SDF + FBM)");
         presetFormulas.push_back(f);
@@ -148,12 +187,47 @@ void FunctionAssetGeneratorWindow::initializePresets()
         f.setName("sdfFormula");
         f.setInputCount(3);
         f.setOutputCount(1);
+        f.setHelper(noiseHelper);
         f.setExpression("float x = input[0];\n"
                         "float y = input[1];\n"
                         "float z = input[2];\n"
-                        "float h = -0.15 + 0.55 * fbm3d(x, 0.0, z, 5, 1.8, 0.5, 2.0, 1337);\n"
+                        "float h = -0.15 + 0.45 * fbmNoise(float3(x * 0.8, 0.0, z * 0.8));\n"
                         "output[0] = (y - h) * 0.5;");
         presetNames.push_back("Terrain Heightfield (FBM)");
+        presetFormulas.push_back(f);
+    }
+
+    {
+        CADacomb::Formula f;
+        f.setName("sdfFormula");
+        f.setInputCount(3);
+        f.setOutputCount(1);
+        f.setHelper("float sdMandelbulb(float3 p)\n"
+                    "{\n"
+                    "    float3 z = p;\n"
+                    "    float dr = 1.0;\n"
+                    "    float r = 0.0;\n"
+                    "    for (int i = 0; i < 8; i++)\n"
+                    "    {\n"
+                    "        r = length(z);\n"
+                    "        if (r > 2.0)\n"
+                    "        {\n"
+                    "            return 0.5 * log(r) * r / dr;\n"
+                    "        }\n"
+                    "        float theta = acos(clamp(z.z / max(r, 0.0001), -1.0, 1.0));\n"
+                    "        float phi = atan2(z.y, z.x);\n"
+                    "        dr = pow(r, 7.0) * 8.0 * dr + 1.0;\n"
+                    "        float zr = pow(r, 8.0);\n"
+                    "        theta = theta * 8.0;\n"
+                    "        phi = phi * 8.0;\n"
+                    "        z = float3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta)) * zr + p;\n"
+                    "    }\n"
+                    "    r = max(length(z), 0.0001);\n"
+                    "    return 0.5 * log(r) * r / dr;\n"
+                    "}");
+        f.setExpression("float3 p = float3(input[0], input[1], input[2]) * 1.35;\n"
+                        "output[0] = sdMandelbulb(p) / 1.35;");
+        presetNames.push_back("Mandelbulb Fractal (SDF)");
         presetFormulas.push_back(f);
     }
 }
@@ -379,6 +453,7 @@ void FunctionAssetGeneratorWindow::render()
 }
 
 #ifdef ISTESTPROJECT
+#include "CADacomb/Formula/FormulaLuaEvaluator.h"
 #include "Utility/LuaSVOField.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -390,7 +465,7 @@ TEST_CASE("FunctionAssetGeneratorWindow/InitialStateAndTargetSelection")
     CHECK_FALSE(window.getDescription().empty());
     CHECK_FALSE(window.isOpen());
     CHECK(window.getTargetType() == FunctionAssetTargetType::Sdf);
-    CHECK(window.getPresetCount() >= 5);
+    CHECK(window.getPresetCount() >= 7);
     CHECK(window.getSelectedPresetIndex() == 0);
     CHECK_FALSE(window.getFormula().getExpression().empty());
 
@@ -406,6 +481,22 @@ TEST_CASE("FunctionAssetGeneratorWindow/InitialStateAndTargetSelection")
 
     window.close();
     CHECK_FALSE(window.isOpen());
+}
+
+TEST_CASE("FunctionAssetGeneratorWindow/AllPresetsCompileAndEvaluateAsSdf")
+{
+    FunctionAssetGeneratorWindow window;
+    for (int i = 0; i < window.getPresetCount(); i++)
+    {
+        window.selectPreset(i);
+        CADacomb::FormulaLuaEvaluator evaluator;
+        std::string                   error;
+        REQUIRE(evaluator.compile(window.getFormula(), error));
+        CHECK(error.empty());
+
+        std::vector<float> out = evaluator.evaluate({ 0.0f, 0.0f, 0.0f });
+        REQUIRE(out.size() == 1);
+    }
 }
 
 TEST_CASE("FunctionAssetGeneratorWindow/AllPresetsGenerateValidSVO")

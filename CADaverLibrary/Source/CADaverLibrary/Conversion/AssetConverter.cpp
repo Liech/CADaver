@@ -2,6 +2,8 @@
 
 #include "CADacomb/CAD/Interface/TessellationOptions.h"
 #include "CADacomb/CAD/Sm/KernelSm.h"
+#include "CADacomb/SDF/SdfToSVOConverter.h"
+#include "CADacomb/SDF/SdfToTriangulationConverter.h"
 #include "CADacomb/Triangle/MeshSimplifier.h"
 #include "CADacomb/Triangle/Triangulation.h"
 #include "CADacomb/Util/AABB3.h"
@@ -12,6 +14,7 @@
 #include "CADacomb/Volume/SVO/SVO.h"
 #include "CADacomb/Volume/SVO/SVOVoxelizer.h"
 #include "Database/Asset/CadAsset.h"
+#include "Database/Asset/SdfAsset.h"
 #include "Database/Asset/TriangulationAsset.h"
 #include "Database/Asset/VoxelAsset.h"
 
@@ -28,6 +31,53 @@
 AssetConverter::AssetConverter() {}
 
 AssetConverter::~AssetConverter() {}
+
+std::shared_ptr<VoxelAsset> AssetConverter::sdfToSvo(const SdfAsset& asset, uint32_t dimension)
+{
+    std::string error;
+    auto        svo = CADacomb::SdfToSVOConverter::convert(asset.getSdf(), dimension, error);
+    if (!svo)
+    {
+        return nullptr;
+    }
+
+    std::filesystem::path p(asset.getName());
+    std::string           baseName = p.stem().string();
+    if (baseName.empty())
+    {
+        baseName = asset.getName();
+    }
+
+    auto resultAsset = std::make_shared<VoxelAsset>();
+    resultAsset->setName(baseName + ".cadacombsvo");
+    resultAsset->setSVO(std::move(svo));
+    resultAsset->setAABB(asset.getAABB());
+    resultAsset->setTransformation(asset.getTransformation());
+    return resultAsset;
+}
+
+std::shared_ptr<TriangulationAsset> AssetConverter::sdfToStl(const SdfAsset& asset, uint32_t resolution)
+{
+    std::string error;
+    auto        triangulation = CADacomb::SdfToTriangulationConverter::convert(asset.getSdf(), resolution, error);
+    if (!triangulation || triangulation->vertices.empty())
+    {
+        return nullptr;
+    }
+
+    std::filesystem::path p(asset.getName());
+    std::string           baseName = p.stem().string();
+    if (baseName.empty())
+    {
+        baseName = asset.getName();
+    }
+
+    auto resultAsset = std::make_shared<TriangulationAsset>();
+    resultAsset->setName(baseName + ".stl");
+    resultAsset->setTriangulation(std::move(triangulation));
+    resultAsset->setTransformation(asset.getTransformation());
+    return resultAsset;
+}
 
 std::shared_ptr<TriangulationAsset> AssetConverter::cadToStl(const CadAsset& asset, double precision)
 {
@@ -310,11 +360,8 @@ std::shared_ptr<TriangulationAsset> AssetConverter::svoToStlMarchingCubes(const 
     triangulation->indices.reserve(soup.size());
     for (const glm::dvec3& v : soup)
     {
-        std::tuple<int64_t, int64_t, int64_t> key(
-          static_cast<int64_t>(std::llround(v.x * inv)),
-          static_cast<int64_t>(std::llround(v.y * inv)),
-          static_cast<int64_t>(std::llround(v.z * inv)));
-        auto it = vertMap.find(key);
+        std::tuple<int64_t, int64_t, int64_t> key(static_cast<int64_t>(std::llround(v.x * inv)), static_cast<int64_t>(std::llround(v.y * inv)), static_cast<int64_t>(std::llround(v.z * inv)));
+        auto                                  it = vertMap.find(key);
         if (it == vertMap.end())
         {
             size_t idx   = triangulation->vertices.size();

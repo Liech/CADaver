@@ -31,6 +31,10 @@ set(Command_Conversion_Files
     "Source/CADaverLibrary/Commands/Conversion/ConvertCadToSvoCommand.cpp"
     "Source/CADaverLibrary/Commands/Conversion/ConvertClusteringToCadCommand.h"
     "Source/CADaverLibrary/Commands/Conversion/ConvertClusteringToCadCommand.cpp"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSdfToStlCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSdfToStlCommand.cpp"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSdfToSvoCommand.h"
+    "Source/CADaverLibrary/Commands/Conversion/ConvertSdfToSvoCommand.cpp"
     "Source/CADaverLibrary/Commands/Conversion/ConvertStlToCadCommand.h"
     "Source/CADaverLibrary/Commands/Conversion/ConvertStlToCadCommand.cpp"
     "Source/CADaverLibrary/Commands/Conversion/ConvertStlToSvoCommand.h"
@@ -53,6 +57,10 @@ set(Command_Generator_Files
     "Source/CADaverLibrary/Commands/Generator/GenerateFunctionSvoCommand.cpp"
     "Source/CADaverLibrary/Commands/Generator/GenerateLandscapeCommand.h"
     "Source/CADaverLibrary/Commands/Generator/GenerateLandscapeCommand.cpp"
+    "Source/CADaverLibrary/Commands/Generator/GetSdfDataCommand.h"
+    "Source/CADaverLibrary/Commands/Generator/GetSdfDataCommand.cpp"
+    "Source/CADaverLibrary/Commands/Generator/UpdateSdfAssetCommand.h"
+    "Source/CADaverLibrary/Commands/Generator/UpdateSdfAssetCommand.cpp"
 )
 source_group("Source/Commands/Generator" FILES ${Command_Generator_Files})
 
@@ -149,6 +157,8 @@ set(Command_Preferences_Files
     "Source/CADaverLibrary/Commands/Preferences/UpdateRenderPreferencesCommand.cpp"
     "Source/CADaverLibrary/Commands/Preferences/UpdateSVOPreferencesCommand.h"
     "Source/CADaverLibrary/Commands/Preferences/UpdateSVOPreferencesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateSdfPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/UpdateSdfPreferencesCommand.cpp"
 )
 source_group("Source/Commands/Preferences" FILES ${Command_Preferences_Files})
 
@@ -159,6 +169,8 @@ set(Command_Preferences_Query_Files
     "Source/CADaverLibrary/Commands/Preferences/Query/GetRenderPreferencesCommand.cpp"
     "Source/CADaverLibrary/Commands/Preferences/Query/GetSVOPreferencesCommand.h"
     "Source/CADaverLibrary/Commands/Preferences/Query/GetSVOPreferencesCommand.cpp"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetSdfPreferencesCommand.h"
+    "Source/CADaverLibrary/Commands/Preferences/Query/GetSdfPreferencesCommand.cpp"
     "Source/CADaverLibrary/Commands/Preferences/Query/GetUIPreferencesCommand.h"
     "Source/CADaverLibrary/Commands/Preferences/Query/GetUIPreferencesCommand.cpp"
 )
@@ -245,6 +257,8 @@ set(Database_Preferences_Files
     "Source/CADaverLibrary/Database/Preferences/RenderPreferences.cpp"
     "Source/CADaverLibrary/Database/Preferences/SVOPreferences.h"
     "Source/CADaverLibrary/Database/Preferences/SVOPreferences.cpp"
+    "Source/CADaverLibrary/Database/Preferences/SdfPreferences.h"
+    "Source/CADaverLibrary/Database/Preferences/SdfPreferences.cpp"
 )
 source_group("Source/Database/Preferences" FILES ${Database_Preferences_Files})
 

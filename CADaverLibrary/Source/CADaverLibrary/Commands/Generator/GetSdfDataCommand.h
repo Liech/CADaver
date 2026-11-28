@@ -1,0 +1,21 @@
+﻿#pragma once
+
+#include "CADacomb/Util/GUID.h"
+#include "Execution/Command.h"
+
+// Queries the CADacomb::Sdf JSON payload (formula and AABB) of an SdfAsset.
+class GetSdfDataCommand : public Command
+{
+  public:
+    GetSdfDataCommand();
+    virtual ~GetSdfDataCommand();
+
+    virtual std::string    getType() const override;
+    virtual int            getVersion() const override;
+    virtual std::string    getDescription() const override;
+    virtual void           setInput(const Polyglot::Node& node) override;
+    virtual nlohmann::json execute(Database& database) override;
+
+  private:
+    CADacomb::GUID assetGuid;
+};

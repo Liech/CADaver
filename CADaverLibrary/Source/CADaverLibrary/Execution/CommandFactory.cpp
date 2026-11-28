@@ -8,6 +8,8 @@
 #include "Commands/Conversion/ConvertCadToStlCommand.h"
 #include "Commands/Conversion/ConvertCadToSvoCommand.h"
 #include "Commands/Conversion/ConvertClusteringToCadCommand.h"
+#include "Commands/Conversion/ConvertSdfToStlCommand.h"
+#include "Commands/Conversion/ConvertSdfToSvoCommand.h"
 #include "Commands/Conversion/ConvertStlToCadCommand.h"
 #include "Commands/Conversion/ConvertStlToSvoCommand.h"
 #include "Commands/Conversion/ConvertSvoToStlCommand.h"
@@ -17,6 +19,8 @@
 #include "Commands/Generator/GenerateFunctionSdfCommand.h"
 #include "Commands/Generator/GenerateFunctionSvoCommand.h"
 #include "Commands/Generator/GenerateLandscapeCommand.h"
+#include "Commands/Generator/GetSdfDataCommand.h"
+#include "Commands/Generator/UpdateSdfAssetCommand.h"
 #include "Commands/Geometry/CalculateConnectedComponentsCommand.h"
 #include "Commands/Geometry/ClusterByNormalCommand.h"
 #include "Commands/Geometry/GetAssetAABBCommand.h"
@@ -28,10 +32,12 @@
 #include "Commands/Preferences/Query/GetCameraPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetRenderPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetSVOPreferencesCommand.h"
+#include "Commands/Preferences/Query/GetSdfPreferencesCommand.h"
 #include "Commands/Preferences/Query/GetUIPreferencesCommand.h"
 #include "Commands/Preferences/UpdateCameraPreferencesCommand.h"
 #include "Commands/Preferences/UpdateRenderPreferencesCommand.h"
 #include "Commands/Preferences/UpdateSVOPreferencesCommand.h"
+#include "Commands/Preferences/UpdateSdfPreferencesCommand.h"
 #include "Commands/Preferences/UpdateUIPreferencesCommand.h"
 #include "Commands/Project/ClearProjectCommand.h"
 #include "Commands/Project/GetAssetCountCommand.h"
@@ -115,6 +121,8 @@ void CommandFactory::registerCommands()
     registerCommand("ConvertCadToStl", []() { return std::make_unique<ConvertCadToStlCommand>(); });
     registerCommand("ConvertCadToSvo", []() { return std::make_unique<ConvertCadToSvoCommand>(); });
     registerCommand("ConvertClusteringToCad", []() { return std::make_unique<ConvertClusteringToCadCommand>(); });
+    registerCommand("ConvertSdfToStl", []() { return std::make_unique<ConvertSdfToStlCommand>(); });
+    registerCommand("ConvertSdfToSvo", []() { return std::make_unique<ConvertSdfToSvoCommand>(); });
     registerCommand("ConvertStlToCad", []() { return std::make_unique<ConvertStlToCadCommand>(); });
     registerCommand("ConvertStlToSvo", []() { return std::make_unique<ConvertStlToSvoCommand>(); });
     registerCommand("ConvertSvoToStl", []() { return std::make_unique<ConvertSvoToStlCommand>(); });
@@ -124,12 +132,15 @@ void CommandFactory::registerCommands()
     registerCommand("GenerateFunctionSdf", []() { return std::make_unique<GenerateFunctionSdfCommand>(); });
     registerCommand("GenerateFunctionSvo", []() { return std::make_unique<GenerateFunctionSvoCommand>(); });
     registerCommand("GenerateLandscape", []() { return std::make_unique<GenerateLandscapeCommand>(); });
+    registerCommand("GetSdfData", []() { return std::make_unique<GetSdfDataCommand>(); });
+    registerCommand("UpdateSdfAsset", []() { return std::make_unique<UpdateSdfAssetCommand>(); });
     registerCommand("LoadAsset", []() { return std::make_unique<LoadAssetCommand>(); });
     registerCommand("SaveAsset", []() { return std::make_unique<SaveAssetCommand>(); });
     registerCommand("UpdateCameraPreferences", []() { return std::make_unique<UpdateCameraPreferencesCommand>(); });
     registerCommand("UpdateUIPreferences", []() { return std::make_unique<UpdateUIPreferencesCommand>(); });
     registerCommand("UpdateRenderPreferences", []() { return std::make_unique<UpdateRenderPreferencesCommand>(); });
     registerCommand("UpdateSVOPreferences", []() { return std::make_unique<UpdateSVOPreferencesCommand>(); });
+    registerCommand("UpdateSdfPreferences", []() { return std::make_unique<UpdateSdfPreferencesCommand>(); });
     registerCommand("GetAssetCount", []() { return std::make_unique<GetAssetCountCommand>(); });
     registerCommand("GetAssetInfo", []() { return std::make_unique<GetAssetInfoCommand>(); });
     registerCommand("GetAssetNames", []() { return std::make_unique<GetAssetNamesCommand>(); });
@@ -139,6 +150,7 @@ void CommandFactory::registerCommands()
     registerCommand("GetCameraPreferences", []() { return std::make_unique<GetCameraPreferencesCommand>(); });
     registerCommand("GetRenderPreferences", []() { return std::make_unique<GetRenderPreferencesCommand>(); });
     registerCommand("GetSVOPreferences", []() { return std::make_unique<GetSVOPreferencesCommand>(); });
+    registerCommand("GetSdfPreferences", []() { return std::make_unique<GetSdfPreferencesCommand>(); });
     registerCommand("GetUIPreferences", []() { return std::make_unique<GetUIPreferencesCommand>(); });
     registerCommand("GetActiveTasks", []() { return std::make_unique<GetActiveTasksCommand>(); });
     registerCommand("GetTaskState", []() { return std::make_unique<GetTaskStateCommand>(); });
@@ -180,6 +192,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GetCameraPreferences") != nullptr);
     CHECK(factory.create("GetRenderPreferences") != nullptr);
     CHECK(factory.create("GetSVOPreferences") != nullptr);
+    CHECK(factory.create("GetSdfPreferences") != nullptr);
     CHECK(factory.create("GetUIPreferences") != nullptr);
     CHECK(factory.create("GetActiveTasks") != nullptr);
     CHECK(factory.create("GetTaskState") != nullptr);
@@ -199,6 +212,7 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("UpdateUIPreferences") != nullptr);
     CHECK(factory.create("UpdateRenderPreferences") != nullptr);
     CHECK(factory.create("UpdateSVOPreferences") != nullptr);
+    CHECK(factory.create("UpdateSdfPreferences") != nullptr);
     CHECK(factory.create("AddComponent") != nullptr);
     CHECK(factory.create("AddTextureComponent") != nullptr);
     CHECK(factory.create("GetComponent") != nullptr);
@@ -221,8 +235,12 @@ TEST_CASE("CommandFactory/DefaultRegisteredCommands")
     CHECK(factory.create("GenerateBaseShape") != nullptr);
     CHECK(factory.create("GenerateFunctionSdf") != nullptr);
     CHECK(factory.create("GenerateFunctionSvo") != nullptr);
+    CHECK(factory.create("GetSdfData") != nullptr);
+    CHECK(factory.create("UpdateSdfAsset") != nullptr);
+    CHECK(factory.create("ConvertSdfToStl") != nullptr);
+    CHECK(factory.create("ConvertSdfToSvo") != nullptr);
     CHECK(factory.create("StepTime") != nullptr);
     CHECK(factory.create("GetCurrentTime") != nullptr);
-    CHECK(factory.getAllCommands().size() == 55);
+    CHECK(factory.getAllCommands().size() == 61);
 }
 #endif
