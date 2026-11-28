@@ -74,8 +74,9 @@ source_group("Source/Windows/Conversion" FILES ${Windows_Conversion_Files})
 set(Windows_Generator_Files
     "Source/CADaverUI/Windows/Generator/BaseShapeGeneratorWindow.h"
     "Source/CADaverUI/Windows/Generator/BaseShapeGeneratorWindow.cpp"
-    "Source/CADaverUI/Windows/Generator/FunctionSvoGeneratorWindow.h"
-    "Source/CADaverUI/Windows/Generator/FunctionSvoGeneratorWindow.cpp"
+    "Source/CADaverUI/Windows/Generator/FunctionAssetTargetType.h"
+    "Source/CADaverUI/Windows/Generator/FunctionAssetGeneratorWindow.h"
+    "Source/CADaverUI/Windows/Generator/FunctionAssetGeneratorWindow.cpp"
     "Source/CADaverUI/Windows/Generator/LandscapeGeneratorWindow.h"
     "Source/CADaverUI/Windows/Generator/LandscapeGeneratorWindow.cpp"
 )
@@ -196,8 +197,8 @@ set(UIElement_Menu_Edit_Files
 source_group("Source/UIElement/Menu/Edit" FILES ${UIElement_Menu_Edit_Files})
 
 set(UIElement_Menu_Create_Files
-    "Source/CADaverUI/UIElement/Menu/Create/FunctionSvoMenuEntry.h"
-    "Source/CADaverUI/UIElement/Menu/Create/FunctionSvoMenuEntry.cpp"
+    "Source/CADaverUI/UIElement/Menu/Create/FunctionAssetMenuEntry.h"
+    "Source/CADaverUI/UIElement/Menu/Create/FunctionAssetMenuEntry.cpp"
     "Source/CADaverUI/UIElement/Menu/Create/LandscapeMenuEntry.h"
     "Source/CADaverUI/UIElement/Menu/Create/LandscapeMenuEntry.cpp"
     "Source/CADaverUI/UIElement/Menu/Create/ScreenshotMenuEntry.h"

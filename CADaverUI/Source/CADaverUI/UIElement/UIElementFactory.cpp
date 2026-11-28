@@ -2,7 +2,7 @@
 
 #include "Execution/GatedDatabase.h"
 #include "Execution/UndoStack.h"
-#include "UIElement/Menu/Create/FunctionSvoMenuEntry.h"
+#include "UIElement/Menu/Create/FunctionAssetMenuEntry.h"
 #include "UIElement/Menu/Create/LandscapeMenuEntry.h"
 #include "UIElement/Menu/Create/ScreenshotMenuEntry.h"
 #include "UIElement/Menu/Edit/PreferencesMenuEntry.h"
@@ -76,7 +76,7 @@ void UIElementFactory::registerDefaults(GatedDatabase& gatedDatabase, UndoStack&
     registerElement("Quit", [&gatedDatabase, &undoStack, &windows, &quitRequested]() { return std::make_shared<QuitMenuEntry>(gatedDatabase, undoStack, windows, quitRequested); });
     registerElement("Undo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<UndoMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Redo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<RedoMenuEntry>(gatedDatabase, undoStack, windows); });
-    registerElement("FunctionSvo", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<FunctionSvoMenuEntry>(gatedDatabase, undoStack, windows); });
+    registerElement("FunctionAsset", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<FunctionAssetMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Landscape", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<LandscapeMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("Screenshot", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<ScreenshotMenuEntry>(gatedDatabase, undoStack, windows); });
     registerElement("About", [&gatedDatabase, &undoStack, &windows]() { return std::make_shared<AboutMenuEntry>(gatedDatabase, undoStack, windows); });
@@ -162,7 +162,7 @@ TEST_CASE("UIElementFactory/Defaults")
     REQUIRE(factory.create("Quit") != nullptr);
     REQUIRE(factory.create("Undo") != nullptr);
     REQUIRE(factory.create("Redo") != nullptr);
-    REQUIRE(factory.create("FunctionSvo") != nullptr);
+    REQUIRE(factory.create("FunctionAsset") != nullptr);
     REQUIRE(factory.create("Landscape") != nullptr);
     REQUIRE(factory.create("Screenshot") != nullptr);
     REQUIRE(factory.create("About") != nullptr);

@@ -1,6 +1,7 @@
 ﻿#include "Picking/AssetRayPicker/AssetRayPickerFactory.h"
 
 #include "Picking/AssetRayPicker/CadAssetRayPicker.h"
+#include "Picking/AssetRayPicker/SdfAssetRayPicker.h"
 #include "Picking/AssetRayPicker/TextureAssetRayPicker.h"
 #include "Picking/AssetRayPicker/TriangulationAssetRayPicker.h"
 #include "Picking/AssetRayPicker/VectorGraphicsAssetRayPicker.h"
@@ -33,6 +34,7 @@ void AssetRayPickerFactory::registerPickers()
 {
     registerPicker("Triangulation", []() { return std::make_unique<TriangulationAssetRayPicker>(); });
     registerPicker("Cad", []() { return std::make_unique<CadAssetRayPicker>(); });
+    registerPicker("Sdf", []() { return std::make_unique<SdfAssetRayPicker>(); });
     registerPicker("Texture", []() { return std::make_unique<TextureAssetRayPicker>(); });
     registerPicker("VectorGraphics", []() { return std::make_unique<VectorGraphicsAssetRayPicker>(); });
     registerPicker("Voxel", []() { return std::make_unique<VoxelAssetRayPicker>(); });
@@ -46,6 +48,7 @@ TEST_CASE("AssetRayPickerFactory/CreatePickers")
     AssetRayPickerFactory factory;
     CHECK(factory.create("Triangulation") != nullptr);
     CHECK(factory.create("Cad") != nullptr);
+    CHECK(factory.create("Sdf") != nullptr);
     CHECK(factory.create("Texture") != nullptr);
     CHECK(factory.create("VectorGraphics") != nullptr);
     CHECK(factory.create("Voxel") != nullptr);

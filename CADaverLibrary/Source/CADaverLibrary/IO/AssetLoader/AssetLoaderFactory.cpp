@@ -2,6 +2,7 @@
 
 #include "IO/AssetLoader/CadAssetLoader.h"
 #include "IO/AssetLoader/FbxAssetLoader.h"
+#include "IO/AssetLoader/SdfAssetLoader.h"
 #include "IO/AssetLoader/TextureAssetLoader.h"
 #include "IO/AssetLoader/TriangulationAssetLoader.h"
 #include "IO/AssetLoader/VectorGraphicsAssetLoader.h"
@@ -73,6 +74,7 @@ void AssetLoaderFactory::registerLoaders()
 {
     creators["Cad"]            = []() { return std::make_unique<CadAssetLoader>(); };
     creators["Fbx"]            = []() { return std::make_unique<FbxAssetLoader>(); };
+    creators["Sdf"]            = []() { return std::make_unique<SdfAssetLoader>(); };
     creators["Texture"]        = []() { return std::make_unique<TextureAssetLoader>(); };
     creators["Triangulation"]  = []() { return std::make_unique<TriangulationAssetLoader>(); };
     creators["VectorGraphics"] = []() { return std::make_unique<VectorGraphicsAssetLoader>(); };
@@ -82,6 +84,7 @@ void AssetLoaderFactory::registerLoaders()
     extensionToType["stp"]            = "Cad";
     extensionToType["cad"]            = "Cad";
     extensionToType["fbx"]            = "Fbx";
+    extensionToType["sdf"]            = "Sdf";
     extensionToType["png"]            = "Texture";
     extensionToType["jpg"]            = "Texture";
     extensionToType["jpeg"]           = "Texture";
@@ -114,6 +117,7 @@ TEST_CASE("AssetLoaderFactory/CreateAndResolve")
     AssetLoaderFactory factory;
     CHECK(factory.create("Cad") != nullptr);
     CHECK(factory.create("Fbx") != nullptr);
+    CHECK(factory.create("Sdf") != nullptr);
     CHECK(factory.create("Texture") != nullptr);
     CHECK(factory.create("Triangulation") != nullptr);
     CHECK(factory.create("Voxel") != nullptr);
@@ -122,6 +126,7 @@ TEST_CASE("AssetLoaderFactory/CreateAndResolve")
     CHECK(factory.resolveAssetType("Cad", Polyglot::Node("dummy"), "model") == "Cad");
     CHECK(factory.resolveAssetType("", Polyglot::Node("part.step"), "Part") == "Cad");
     CHECK(factory.resolveAssetType("", Polyglot::Node("rig.FBX"), "Rig") == "Fbx");
+    CHECK(factory.resolveAssetType("", Polyglot::Node("bone.SDF"), "Bone") == "Sdf");
     CHECK(factory.resolveAssetType("", Polyglot::Node("image.PNG"), "Image") == "Texture");
     CHECK(factory.resolveAssetType("", Polyglot::Node("mesh.STL"), "Mesh") == "Triangulation");
     CHECK(factory.resolveAssetType("", Polyglot::Node("vol.cadacombsvo"), "Vol") == "Voxel");

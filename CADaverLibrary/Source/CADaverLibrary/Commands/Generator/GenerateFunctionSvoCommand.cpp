@@ -1,5 +1,6 @@
 ﻿#include "Commands/Generator/GenerateFunctionSvoCommand.h"
 
+#include "CADacomb/Formula/FormulaLuaEmitter.h"
 #include "Database/Asset/VoxelAsset.h"
 #include "Database/Database.h"
 #include "Utility/LuaSVOField.h"
@@ -22,14 +23,14 @@ std::string GenerateFunctionSvoCommand::getDescription() const
 {
     return "Command: GenerateFunctionSvo\n"
            "Version: 1\n"
-           "Purpose: Generates a volumetric SVO asset by evaluating a Lua script defining sdf(x, y, z) or eval(x, y, z) over [-1, 1]^3.\n\n"
+           "Purpose: Generates a volumetric SVO asset by evaluating a Slang-dialect Formula mapping input[0..2] in [-1, 1]^3 to output[0] (< 0 inside).\n\n"
            "Input Syntax (JSON):\n"
            "{\n"
            "  \"type\": \"GenerateFunctionSvo\",\n"
            "  \"version\": 1,\n"
            "  \"assetName\": <string>,\n"
            "  \"dimension\": <uint>,\n"
-           "  \"script\": <string>\n"
+           "  \"formula\": <Formula JSON object>\n"
            "}\n\n"
            "Input Stream: None\n"
            "Output Stream: None\n\n"
@@ -45,11 +46,16 @@ void GenerateFunctionSvoCommand::setInput(const Polyglot::Node& node)
 {
     dimension = static_cast<uint32_t>(node["dimension"].asInt());
     assetName = node["assetName"].asString();
-    script    = node["script"].asString();
+    formula   = CADacomb::Formula::fromJson(node["formula"].toJson());
 }
 
 nlohmann::json GenerateFunctionSvoCommand::execute(Database& database)
 {
+    std::string script = CADacomb::FormulaLuaEmitter::emit(formula);
+    script += "\nfunction sdf(x, y, z)\n";
+    script += "    return " + formula.getName() + "({ x, y, z })[1]\n";
+    script += "end\n";
+
     std::string error;
     auto        svo = LuaSVOField::generateSVO(dimension, script, error);
 
@@ -108,16 +114,22 @@ TEST_CASE("GenerateFunctionSvoCommand/TypeAndVersion")
     CHECK_FALSE(cmd.getDescription().empty());
 }
 
-TEST_CASE("GenerateFunctionSvoCommand/ExecuteSdfAndUndoRedo")
+TEST_CASE("GenerateFunctionSvoCommand/ExecuteFormulaAndUndoRedo")
 {
+    CADacomb::Formula formula;
+    formula.setName("sphereSdf");
+    formula.setInputCount(3);
+    formula.setOutputCount(1);
+    formula.setExpression("float3 p = float3(input[0], input[1], input[2]);\noutput[0] = length(p) - 0.5;");
+
     Database                   database;
     GenerateFunctionSvoCommand cmd;
     cmd.setInput({
-      {      "type", "GenerateFunctionSvo"                                                     },
-      {   "version", 1                                                                         },
-      { "assetName", "LuaSphere"                                                               },
-      { "dimension", 16                                                                        },
-      {    "script", "function sdf(x, y, z) return math.sqrt(x*x + y*y + z*z) - 0.5 end"       }
+      {      "type",            "GenerateFunctionSvo" },
+      {   "version",                                1 },
+      { "assetName",                  "FormulaSphere" },
+      { "dimension",                               16 },
+      {   "formula", Polyglot::Node(formula.toJson()) }
     });
     nlohmann::json result = cmd.execute(database);
 

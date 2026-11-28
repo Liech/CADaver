@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "CADacomb/Formula/Formula.h"
 #include "CADacomb/Util/GUID.h"
 #include "Execution/Command.h"
 
@@ -9,7 +10,7 @@
 
 class Asset;
 
-// Command to generate a volumetric SVO asset from a Lua function script.
+// Command to generate a volumetric SVO asset from a Slang-dialect Formula.
 class GenerateFunctionSvoCommand : public Command
 {
   public:
@@ -30,7 +31,7 @@ class GenerateFunctionSvoCommand : public Command
 
   private:
     std::shared_ptr<Asset> createdAsset;
-    uint32_t               dimension = 64;
+    CADacomb::Formula      formula;
     std::string            assetName = "FunctionSVO";
-    std::string            script;
+    uint32_t               dimension = 64;
 };
